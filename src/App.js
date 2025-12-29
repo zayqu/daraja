@@ -1,24 +1,40 @@
-import logo from './logo.svg';
-import './App.css';
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import Header from './components/Header';
+import Hero from './components/Hero';
+import Services from './components/Services';
+import Portfolio from './components/Portfolio';
+import Jobs from './components/Jobs';
+import CVBuilder from './components/CVBuilder';
+import Testimonials from './components/Testimonials';
+import Contact from './components/Contact';
+import Footer from './components/Footer';
+import BackToTop from './components/BackToTop';
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <Router>
+      <div className="min-h-screen bg-white">
+        <Header />
+        <div className="pt-16"> {/* Add padding to account for fixed header */}
+          <Routes>
+            <Route path="/" element={
+              <>
+                <Hero />
+                <Services />
+                <Portfolio />
+                <Jobs />
+                <CVBuilder />
+                <Testimonials />
+                <Contact />
+              </>
+            } />
+          </Routes>
+        </div>
+        <Footer />
+        <BackToTop />
+      </div>
+    </Router>
   );
 }
 

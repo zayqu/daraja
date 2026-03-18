@@ -123,6 +123,7 @@ async function scrapeAjira() {
           source: "ajira",
           language: "sw",
           deadline: deadlineDate,
+          active: true,
         },
       });
 

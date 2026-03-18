@@ -53,37 +53,37 @@ model JobSeeker {
 }
 
 model Freelancer {
-  id          String   @id @default(cuid())
-  userId      String   @unique
-  fullName    String
-  skills      String[]
-  bio         String?
-  portfolio   String?
-  phone       String?
-  available   Boolean  @default(true)
-  createdAt   DateTime @default(now())
+  id        String   @id @default(cuid())
+  userId    String   @unique
+  fullName  String
+  skills    String[]
+  bio       String?
+  portfolio String?
+  phone     String?
+  available Boolean  @default(true)
+  createdAt DateTime @default(now())
 
   user User @relation(fields: [userId], references: [id])
 }
 
 model Job {
-  id           String    @id @default(cuid())
-  title        String
-  company      String
-  location     String
-  description  String
-  category     String
-  type         JobType   @default(FULL_TIME)
-  salary       String?
-  deadline     DateTime?
-  sourceUrl    String?
-  source       String    @default("daraja")
-  language     String    @default("en")
-  featured     Boolean   @default(false)
-  active       Boolean   @default(true)
-  employerId   String?
-  createdAt    DateTime  @default(now())
-  updatedAt    DateTime  @updatedAt
+  id          String    @id @default(cuid())
+  title       String
+  company     String
+  location    String
+  description String
+  category    String
+  type        JobType   @default(FULL_TIME)
+  salary      String?
+  deadline    DateTime?
+  sourceUrl   String?
+  source      String    @default("daraja")
+  language    String    @default("en")
+  featured    Boolean   @default(false)
+  active      Boolean   @default(true)
+  employerId  String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
 
   employer     Employer?     @relation(fields: [employerId], references: [id])
   applications Application[]

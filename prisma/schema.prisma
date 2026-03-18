@@ -1,0 +1,157 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String
+  role      Role     @default(JOB_SEEKER)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  employer   Employer?
+  freelancer Freelancer?
+  jobSeeker  JobSeeker?
+}
+
+enum Role {
+  JOB_SEEKER
+  EMPLOYER
+  FREELANCER
+  ADMIN
+}
+
+model Employer {
+  id          String   @id @default(cuid())
+  userId      String   @unique
+  companyName String
+  industry    String?
+  website     String?
+  logo        String?
+  verified    Boolean  @default(false)
+  createdAt   DateTime @default(now())
+
+  user User  @relation(fields: [userId], references: [id])
+  jobs Job[]
+}
+
+model JobSeeker {
+  id        String   @id @default(cuid())
+  userId    String   @unique
+  fullName  String
+  phone     String?
+  cvUrl     String?
+  createdAt DateTime @default(now())
+
+  user         User          @relation(fields: [userId], references: [id])
+  applications Application[]
+}
+
+model Freelancer {
+  id          String   @id @default(cuid())
+  userId      String   @unique
+  fullName    String
+  skills      String[]
+  bio         String?
+  portfolio   String?
+  phone       String?
+  available   Boolean  @default(true)
+  createdAt   DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id])
+}
+
+model Job {
+  id           String    @id @default(cuid())
+  title        String
+  company      String
+  location     String
+  description  String
+  category     String
+  type         JobType   @default(FULL_TIME)
+  salary       String?
+  deadline     DateTime?
+  sourceUrl    String?
+  source       String    @default("daraja")
+  language     String    @default("en")
+  featured     Boolean   @default(false)
+  active       Boolean   @default(true)
+  employerId   String?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  employer     Employer?     @relation(fields: [employerId], references: [id])
+  applications Application[]
+}
+
+enum JobType {
+  FULL_TIME
+  PART_TIME
+  CONTRACT
+  INTERNSHIP
+  FREELANCE
+}
+
+model Application {
+  id          String    @id @default(cuid())
+  jobId       String
+  jobSeekerId String
+  coverLetter String?
+  status      AppStatus @default(PENDING)
+  createdAt   DateTime  @default(now())
+
+  job       Job       @relation(fields: [jobId], references: [id])
+  jobSeeker JobSeeker @relation(fields: [jobSeekerId], references: [id])
+}
+
+enum AppStatus {
+  PENDING
+  REVIEWED
+  SHORTLISTED
+  REJECTED
+}
+
+model Subscription {
+  id        String    @id @default(cuid())
+  userId    String
+  plan      Plan
+  status    SubStatus @default(ACTIVE)
+  startDate DateTime  @default(now())
+  endDate   DateTime
+  createdAt DateTime  @default(now())
+}
+
+enum Plan {
+  EMPLOYER_BASIC
+  EMPLOYER_PRO
+  FREELANCER
+  JOB_SEEKER_PREMIUM
+}
+
+enum SubStatus {
+  ACTIVE
+  EXPIRED
+  CANCELLED
+}
+
+model Payment {
+  id        String    @id @default(cuid())
+  userId    String
+  amount    Float
+  currency  String    @default("TZS")
+  reference String    @unique
+  status    PayStatus @default(PENDING)
+  provider  String    @default("selcom")
+  createdAt DateTime  @default(now())
+}
+
+enum PayStatus {
+  PENDING
+  SUCCESS
+  FAILED
+}

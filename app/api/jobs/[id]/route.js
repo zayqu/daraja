@@ -1,11 +1,5 @@
 import { NextResponse } from "next/server";
-import { PrismaClient } from "@prisma/client";
-import { PrismaPg } from "@prisma/adapter-pg";
-
-const adapter = new PrismaPg({
-  connectionString: process.env.DATABASE_URL,
-});
-const prisma = new PrismaClient({ adapter });
+import prisma from "@/lib/prisma";
 
 export async function GET(request, context) {
   try {
@@ -16,19 +10,13 @@ export async function GET(request, context) {
     });
 
     if (!job) {
-      return NextResponse.json(
-        { error: "Job not found" },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: "Job not found" }, { status: 404 });
     }
 
     return NextResponse.json({ job });
   } catch (error) {
     console.error("API error:", error);
-    return NextResponse.json(
-      { error: "Failed to fetch job" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Failed to fetch job" }, { status: 500 });
   }
 }
 
@@ -44,9 +32,6 @@ export async function DELETE(request, context) {
     return NextResponse.json({ message: "Job removed successfully" });
   } catch (error) {
     console.error("API error:", error);
-    return NextResponse.json(
-      { error: "Failed to remove job" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Failed to remove job" }, { status: 500 });
   }
 }

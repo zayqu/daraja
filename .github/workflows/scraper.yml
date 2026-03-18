@@ -26,5 +26,5 @@ jobs:
 
       - name: Run Ajira scraper
         env:
-          DATABASE_URL: postgresql://neondb_owner:npg_yRf7XoATm3wi@ep-dawn-grass-agjctmsz-pooler.c-2.eu-central-1.aws.neon.tech/daraja?sslmode=require&channel_binding=require
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
         run: node scraper/sources/ajira.js

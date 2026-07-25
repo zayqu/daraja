@@ -9,8 +9,8 @@ permissions:
   contents: read
 
 concurrency:
-  group: job-source-scrapers
-  cancel-in-progress: false
+  group: job-source-scrapers-v2
+  cancel-in-progress: true
 
 jobs:
   scrape:

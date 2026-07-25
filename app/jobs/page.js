@@ -1,46 +1,83 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
+
+const CATEGORIES = [
+  "All", "Government", "Education", "Health",
+  "Finance", "IT", "Engineering", "NGO",
+];
 
 export default function JobsPage() {
   const [jobs, setJobs] = useState([]);
   const [pagination, setPagination] = useState({});
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
   const [search, setSearch] = useState("");
+  const [submittedSearch, setSubmittedSearch] = useState("");
   const [category, setCategory] = useState("");
+  const [status, setStatus] = useState("active");
   const [page, setPage] = useState(1);
+  const [initialized, setInitialized] = useState(false);
 
-  const categories = [
-    "All", "Government", "Education", "Health",
-    "Finance", "IT", "Engineering", "NGO",
-  ];
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const initialSearch = params.get("search") || "";
+    const initialCategory = params.get("category") || "";
+    const initialStatus = params.get("status") || "active";
+    const initialPage = Number.parseInt(params.get("page") || "1", 10);
 
-  useEffect(() => { fetchJobs(); }, [page, category]);
+    setSearch(initialSearch);
+    setSubmittedSearch(initialSearch);
+    setCategory(CATEGORIES.includes(initialCategory) ? initialCategory : "");
+    setStatus(["active", "expired", "all"].includes(initialStatus) ? initialStatus : "active");
+    setPage(Number.isFinite(initialPage) && initialPage > 0 ? initialPage : 1);
+    setInitialized(true);
+  }, []);
 
-  async function fetchJobs() {
+  const fetchJobs = useCallback(async function fetchJobs() {
     setLoading(true);
+    setError("");
     try {
       const params = new URLSearchParams();
       params.set("page", page);
       params.set("limit", "20");
       if (category && category !== "All") params.set("category", category);
-      if (search) params.set("search", search);
+      if (submittedSearch) params.set("search", submittedSearch);
+      params.set("status", status);
       const res = await fetch(`/api/jobs?${params.toString()}`);
+      if (!res.ok) throw new Error("Unable to load jobs");
       const data = await res.json();
       setJobs(data.jobs || []);
       setPagination(data.pagination || {});
     } catch (error) {
       console.error(error);
+      setJobs([]);
+      setPagination({});
+      setError("We could not load the jobs. Please try again.");
     } finally {
       setLoading(false);
     }
-  }
+  }, [page, category, submittedSearch, status]);
+
+  useEffect(() => {
+    if (!initialized) return;
+
+    fetchJobs();
+
+    const params = new URLSearchParams();
+    if (submittedSearch) params.set("search", submittedSearch);
+    if (category) params.set("category", category);
+    if (status !== "active") params.set("status", status);
+    if (page > 1) params.set("page", String(page));
+    const query = params.toString();
+    window.history.replaceState(null, "", query ? `/jobs?${query}` : "/jobs");
+  }, [initialized, page, category, status, submittedSearch, fetchJobs]);
 
   function handleSearch(e) {
     e.preventDefault();
     setPage(1);
-    fetchJobs();
+    setSubmittedSearch(search.trim());
   }
 
   function formatDate(d) {
@@ -91,6 +128,7 @@ export default function JobsPage() {
         .search-row { display: flex; }
         .search-input { flex: 1; padding: 0.85rem 1.2rem; background: #fff; border: none; font-family: 'Poppins', sans-serif; font-size: 0.88rem; color: #1B2A3F; outline: none; border-radius: 4px 0 0 4px; }
         .search-input::placeholder { color: #A0ACBB; }
+        .search-input:focus-visible, .search-btn:focus-visible, .f-btn:focus-visible, .pg-btn:focus-visible, .job-card:focus-visible, .nav-cta:focus-visible, .nav-logo:focus-visible { outline: 3px solid #F59E0B; outline-offset: 3px; }
         .search-btn { padding: 0.85rem 1.75rem; background: #00C9A7; color: #1B2A3F; font-family: 'Poppins', sans-serif; font-size: 0.82rem; font-weight: 600; border: none; cursor: pointer; border-radius: 0 4px 4px 0; letter-spacing: 0.04em; transition: opacity 0.2s; }
         .search-btn:hover { opacity: 0.88; }
 
@@ -99,6 +137,8 @@ export default function JobsPage() {
 
         /* FILTERS */
         .filters { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1.75rem; }
+        .filter-group { margin-bottom: 1.25rem; }
+        .filter-label { display: block; font-size: 0.72rem; font-weight: 600; color: #5F6B7A; margin-bottom: 0.55rem; }
         .f-btn { font-family: 'Poppins', sans-serif; font-size: 0.75rem; font-weight: 500; padding: 0.38rem 1rem; border-radius: 100px; border: 1.5px solid #DDE1E8; background: #fff; color: #6B7685; cursor: pointer; transition: all 0.15s; letter-spacing: 0.02em; }
         .f-btn:hover { border-color: #00C9A7; color: #1B2A3F; }
         .f-btn.active { background: #1B2A3F; color: #00C9A7; border-color: #1B2A3F; }
@@ -137,9 +177,11 @@ export default function JobsPage() {
 
         /* STATES */
         .state-loading { text-align: center; padding: 5rem 0; font-size: 0.85rem; color: #8B95A1; }
-        .state-empty { text-align: center; padding: 5rem 0; }
+        .state-empty, .state-error { text-align: center; padding: 5rem 0; }
         .state-empty p { font-size: 0.85rem; color: #8B95A1; margin-top: 0.5rem; }
         .state-empty strong { font-family: 'Montserrat', sans-serif; font-size: 1.1rem; color: #1B2A3F; }
+        .state-error { color: #B42318; font-size: 0.85rem; }
+        .retry-btn { margin-top: 1rem; border: 0; border-radius: 4px; background: #1B2A3F; color: #fff; padding: 0.65rem 1rem; cursor: pointer; font: inherit; }
 
         /* PAGINATION */
         .pager { display: flex; justify-content: center; gap: 0.3rem; margin-top: 2.5rem; }
@@ -176,11 +218,13 @@ export default function JobsPage() {
         </nav>
 
         {/* Search header */}
-        <div className="header">
+        <header className="header">
           <div className="header-inner">
             <h1>Browse <span>Jobs</span> in Tanzania</h1>
             <form className="search-row" onSubmit={handleSearch}>
+              <label htmlFor="job-search" className="sr-only">Search by job title, company, or keyword</label>
               <input
+                id="job-search"
                 className="search-input"
                 type="text"
                 placeholder="Job title, company, or keyword..."
@@ -190,38 +234,72 @@ export default function JobsPage() {
               <button className="search-btn" type="submit">Search</button>
             </form>
           </div>
-        </div>
+        </header>
 
         {/* Content */}
-        <div className="body">
+        <main className="body" id="main-content">
           {/* Filters */}
-          <div className="filters">
-            {categories.map((cat) => (
-              <button
-                key={cat}
-                className={`f-btn ${(cat === "All" && !category) || category === cat ? "active" : ""}`}
-                onClick={() => { setCategory(cat === "All" ? "" : cat); setPage(1); }}
-              >
-                {cat}
-              </button>
-            ))}
+          <div className="filter-group">
+            <span className="filter-label">Job category</span>
+            <div className="filters" aria-label="Filter by job category">
+              {CATEGORIES.map((cat) => {
+                const selected = (cat === "All" && !category) || category === cat;
+                return (
+                  <button
+                    key={cat}
+                    className={`f-btn ${selected ? "active" : ""}`}
+                    aria-pressed={selected}
+                    onClick={() => { setCategory(cat === "All" ? "" : cat); setPage(1); }}
+                  >
+                    {cat}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          <div className="filter-group">
+            <span className="filter-label">Application status</span>
+            <div className="filters" aria-label="Filter by application status">
+              {[
+                ["active", "Open jobs"],
+                ["expired", "Expired jobs"],
+                ["all", "All jobs"],
+              ].map(([value, label]) => (
+                <button
+                  key={value}
+                  className={`f-btn ${status === value ? "active" : ""}`}
+                  aria-pressed={status === value}
+                  onClick={() => { setStatus(value); setPage(1); }}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
           </div>
 
           {/* Meta */}
-          <div className="meta">
-            {loading ? "Loading..." : `${pagination.total || 0} positions available`}
+          <div className="meta" aria-live="polite">
+            {loading
+              ? "Loading jobs..."
+              : `${pagination.total || 0} ${status === "active" ? "open" : status} job${pagination.total === 1 ? "" : "s"}`}
           </div>
 
           {/* Jobs */}
           {loading ? (
-            <div className="state-loading">Loading positions...</div>
+            <div className="state-loading" role="status">Loading jobs...</div>
+          ) : error ? (
+            <div className="state-error" role="alert">
+              <p>{error}</p>
+              <button className="retry-btn" type="button" onClick={fetchJobs}>Try again</button>
+            </div>
           ) : jobs.length === 0 ? (
             <div className="state-empty">
               <strong>No positions found</strong>
               <p>Try a different search term or category</p>
             </div>
           ) : (
-            <div className="job-list">
+            <section className="job-list" aria-label="Job search results">
               {jobs.map((job) => (
                 <Link key={job.id} href={`/jobs/${job.id}`} className="job-card">
                   <div className="jc-top">
@@ -249,20 +327,28 @@ export default function JobsPage() {
                   </div>
                 </Link>
               ))}
-            </div>
+            </section>
           )}
 
           {/* Pagination */}
           {pagination.pages > 1 && (
-            <div className="pager">
+            <nav className="pager" aria-label="Job results pagination">
               <button className="pg-btn pg-nav" onClick={() => setPage((p) => Math.max(1, p - 1))} disabled={page === 1}>← Prev</button>
               {Array.from({ length: pagination.pages }, (_, i) => i + 1).map((p) => (
-                <button key={p} className={`pg-btn ${page === p ? "active" : ""}`} onClick={() => setPage(p)}>{p}</button>
+                <button
+                  key={p}
+                  className={`pg-btn ${page === p ? "active" : ""}`}
+                  aria-current={page === p ? "page" : undefined}
+                  aria-label={`Page ${p}`}
+                  onClick={() => setPage(p)}
+                >
+                  {p}
+                </button>
               ))}
               <button className="pg-btn pg-nav" onClick={() => setPage((p) => Math.min(pagination.pages, p + 1))} disabled={page === pagination.pages}>Next →</button>
-            </div>
+            </nav>
           )}
-        </div>
+        </main>
 
         {/* Footer */}
         <footer className="footer">

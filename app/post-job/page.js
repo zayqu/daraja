@@ -180,10 +180,10 @@ export default function PostJobPage() {
           {success ? (
             <div className="success-card">
               <div className="success-icon">✓</div>
-              <div className="success-title">Job Posted Successfully</div>
+              <div className="success-title">Job Submitted for Review</div>
               <p className="success-text">
-                Your job listing is now live on Daraja and visible to thousands
-                of job seekers across Tanzania.
+                Thank you. Your listing will be checked before it appears on
+                Daraja. This helps protect job seekers from misleading posts.
               </p>
               <div className="success-btns">
                 <Link href="/jobs" className="btn-secondary">View All Jobs</Link>
@@ -200,8 +200,8 @@ export default function PostJobPage() {
             <>
               <div className="notice">
                 <p>
-                  <strong>Free to post during beta.</strong> All listings are reviewed
-                  before going live. Employer verification via TIN number coming soon.
+                  <strong>Free to submit during beta.</strong> All listings are reviewed
+                  before going live.
                 </p>
               </div>
 
@@ -321,7 +321,7 @@ export default function PostJobPage() {
               <div className="footer-logo">DARAJA</div>
               <div className="footer-sub">Kazi Na Fursa Tanzania</div>
             </div>
-            <div className="footer-copy">2025 Daraja. All rights reserved.</div>
+            <div className="footer-copy">{new Date().getFullYear()} Daraja. All rights reserved.</div>
           </div>
         </footer>
       </div>

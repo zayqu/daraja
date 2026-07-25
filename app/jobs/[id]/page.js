@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 
@@ -10,11 +10,7 @@ export default function JobDetailPage() {
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
 
-  useEffect(() => {
-    if (id) fetchJob();
-  }, [id]);
-
-  async function fetchJob() {
+  const fetchJob = useCallback(async function fetchJob() {
     try {
       const res = await fetch("/api/jobs/" + id);
       if (res.status === 404) { setNotFound(true); return; }
@@ -26,7 +22,11 @@ export default function JobDetailPage() {
     } finally {
       setLoading(false);
     }
-  }
+  }, [id]);
+
+  useEffect(() => {
+    if (id) fetchJob();
+  }, [id, fetchJob]);
 
   function formatDate(d) {
     if (!d) return null;
@@ -89,13 +89,13 @@ export default function JobDetailPage() {
         .t-feat { background: #FEF6E4; color: #92660A; }
 
         .card-body { padding: 1.75rem 2rem; }
-        .section-heading { font-family: 'Montserrat', sans-serif; font-size: 0.78rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: #8B95A1; margin-bottom: 0.85rem; margin-top: 1.75rem; }
+        .section-heading { font-family: 'Montserrat', sans-serif; font-size: 0.78rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: #667085; margin-bottom: 0.85rem; margin-top: 1.75rem; }
         .section-heading:first-child { margin-top: 0; }
         .job-description { font-size: 0.875rem; color: #3D4B5C; line-height: 1.8; white-space: pre-wrap; }
 
         .sidebar { display: flex; flex-direction: column; gap: 1rem; }
         .side-card { background: #fff; border: 1.5px solid #E8ECF0; border-radius: 8px; padding: 1.5rem; }
-        .side-card-title { font-family: 'Montserrat', sans-serif; font-size: 0.72rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: #8B95A1; margin-bottom: 1.1rem; }
+        .side-card-title { font-family: 'Montserrat', sans-serif; font-size: 0.72rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: #667085; margin-bottom: 1.1rem; }
 
         .detail-row { display: flex; flex-direction: column; gap: 0.85rem; }
         .detail-item { display: flex; flex-direction: column; gap: 0.15rem; }
@@ -112,6 +112,7 @@ export default function JobDetailPage() {
 
         .back-link { display: inline-flex; align-items: center; gap: 0.4rem; font-size: 0.78rem; color: #6B7685; text-decoration: none; margin-bottom: 1.5rem; transition: color 0.15s; }
         .back-link:hover { color: #00C9A7; }
+        .back-link:focus-visible, .nav-logo:focus-visible, .nav-cta:focus-visible, .apply-btn:focus-visible, .breadcrumb a:focus-visible { outline: 3px solid #F59E0B; outline-offset: 3px; }
 
         .state { text-align: center; padding: 5rem 3rem; max-width: 860px; margin: 0 auto; }
         .state strong { font-family: 'Montserrat', sans-serif; font-size: 1.1rem; color: #1B2A3F; display: block; margin-bottom: 0.5rem; }
@@ -141,7 +142,7 @@ export default function JobDetailPage() {
           <Link href="/post-job" className="nav-cta">Post a Job</Link>
         </nav>
 
-        <div className="breadcrumb">
+        <nav className="breadcrumb" aria-label="Breadcrumb">
           <div className="breadcrumb-inner">
             <Link href="/">Home</Link>
             <span className="breadcrumb-sep">›</span>
@@ -149,7 +150,7 @@ export default function JobDetailPage() {
             <span className="breadcrumb-sep">›</span>
             <span>{loading ? "Loading..." : job ? job.title : "Not Found"}</span>
           </div>
-        </div>
+        </nav>
 
         {loading && (
           <div className="state">
@@ -168,7 +169,7 @@ export default function JobDetailPage() {
         )}
 
         {!loading && job && (
-          <div className="body">
+          <main className="body" id="main-content">
             <div>
               <Link href="/jobs" className="back-link">← Back to Jobs</Link>
               <div className="main-card">
@@ -176,7 +177,7 @@ export default function JobDetailPage() {
                   <div className="job-source">
                     {job.source === "ajira" ? "Ajira Portal" : "Daraja"}
                   </div>
-                  <div className="job-title">{job.title}</div>
+                  <h1 className="job-title">{job.title}</h1>
                   <div className="job-company">{job.company}</div>
                   <div className="job-tags">
                     <span className="tag t-cat">{job.category}</span>
@@ -186,11 +187,11 @@ export default function JobDetailPage() {
                   </div>
                 </div>
                 <div className="card-body">
-                  <div className="section-heading">About this position</div>
+                  <h2 className="section-heading">About this position</h2>
                   <div className="job-description">{job.description}</div>
                   {job.salary && (
                     <>
-                      <div className="section-heading">Salary</div>
+                      <h2 className="section-heading">Salary</h2>
                       <div className="job-description">{job.salary}</div>
                     </>
                   )}
@@ -200,7 +201,7 @@ export default function JobDetailPage() {
 
             <div className="sidebar">
               <div className="side-card">
-                <div className="side-card-title">Apply for this role</div>
+                <h2 className="side-card-title">Apply for this role</h2>
                 {job.sourceUrl && !isExpired(job.deadline) ? (
                   <a href={job.sourceUrl} target="_blank" rel="noopener noreferrer" className="apply-btn">
                     Apply Now →
@@ -216,7 +217,7 @@ export default function JobDetailPage() {
               </div>
 
               <div className="side-card">
-                <div className="side-card-title">Job Details</div>
+                <h2 className="side-card-title">Job Details</h2>
                 <div className="detail-row">
                   <div className="detail-item">
                     <div className="detail-label">Company</div>
@@ -264,7 +265,7 @@ export default function JobDetailPage() {
               </div>
 
               <div className="side-card">
-                <div className="side-card-title">Browse More</div>
+                <h2 className="side-card-title">Browse More</h2>
                 <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
                   <Link href={"/jobs?category=" + job.category} style={{ fontSize: "0.8rem", color: "#00C9A7", textDecoration: "none", fontWeight: 500 }}>
                     More {job.category} jobs →
@@ -275,7 +276,7 @@ export default function JobDetailPage() {
                 </div>
               </div>
             </div>
-          </div>
+          </main>
         )}
 
         <footer className="footer">
@@ -284,7 +285,7 @@ export default function JobDetailPage() {
               <div className="footer-logo">DARAJA</div>
               <div className="footer-sub">Kazi Na Fursa Tanzania</div>
             </div>
-            <div className="footer-copy">2025 Daraja. All rights reserved.</div>
+            <div className="footer-copy">{new Date().getFullYear()} Daraja. All rights reserved.</div>
           </div>
         </footer>
       </div>

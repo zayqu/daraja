@@ -1,0 +1,2253 @@
+{
+  "version": 1,
+  "sources": [
+    {
+      "id": "ajira",
+      "name": "Ajira Portal",
+      "url": "https://portal.ajira.go.tz/vacancies",
+      "category": "general_tanzania_job_websites",
+      "enabled": true,
+      "adapter": "ajira"
+    },
+    {
+      "id": "public-service-recruitment-secretariat",
+      "name": "Public Service Recruitment Secretariat",
+      "url": "https://www.ajira.go.tz/",
+      "category": "general_tanzania_job_websites",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "zoom-tanzania-jobs",
+      "name": "Zoom Tanzania Jobs",
+      "url": "https://www.zoomtanzania.net/jobs/",
+      "category": "general_tanzania_job_websites",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "mabumbe-tanzania",
+      "name": "Mabumbe Tanzania",
+      "url": "https://mabumbe.tz/jobs/",
+      "category": "general_tanzania_job_websites",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "mabumbe",
+      "name": "Mabumbe",
+      "url": "https://mabumbe.com/jobs/",
+      "category": "general_tanzania_job_websites",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "ajiraleo",
+      "name": "AjiraLeo",
+      "url": "https://www.ajiraleo.com/",
+      "category": "general_tanzania_job_websites",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "ajira-yako",
+      "name": "Ajira Yako",
+      "url": "https://ajirayako.co.tz/jobs/",
+      "category": "general_tanzania_job_websites",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "ajiriwa-network",
+      "name": "Ajiriwa Network",
+      "url": "https://www.ajiriwa.net/jobs/location/tanzania",
+      "category": "general_tanzania_job_websites",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "ajira-co-tz",
+      "name": "Ajira.co.tz",
+      "url": "https://ajira.co.tz/",
+      "category": "general_tanzania_job_websites",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "jobweb-tanzania",
+      "name": "JobWeb Tanzania",
+      "url": "https://www.jobwebtanzania.com/",
+      "category": "general_tanzania_job_websites",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "great-tanzania-jobs",
+      "name": "Great Tanzania Jobs",
+      "url": "https://www.greattanzaniajobs.com/",
+      "category": "general_tanzania_job_websites",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "dev-jobs-tanzania",
+      "name": "Dev Jobs Tanzania",
+      "url": "https://devjobstanzania.com/jobs",
+      "category": "general_tanzania_job_websites",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "gojob-tanzania",
+      "name": "GoJob Tanzania",
+      "url": "https://gojob.co.tz/",
+      "category": "general_tanzania_job_websites",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "nafasi",
+      "name": "Nafasi",
+      "url": "https://nafasi.io/jobs/",
+      "category": "general_tanzania_job_websites",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "nafasi-za-kazi",
+      "name": "Nafasi za Kazi",
+      "url": "https://www.nafasizakazi.com/",
+      "category": "general_tanzania_job_websites",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "oby-portal",
+      "name": "Oby Portal",
+      "url": "https://oby.obycom.co.tz/",
+      "category": "general_tanzania_job_websites",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "fursa-tanzania",
+      "name": "Fursa Tanzania",
+      "url": "https://fursa.co.tz/job/",
+      "category": "general_tanzania_job_websites",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "sasa-apply",
+      "name": "Sasa Apply",
+      "url": "https://sasaapply.com/jobs/",
+      "category": "general_tanzania_job_websites",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "ajiraweb",
+      "name": "AjiraWeb",
+      "url": "https://ajiraweb.com/",
+      "category": "general_tanzania_job_websites",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "careers-mitihani",
+      "name": "Careers Mitihani",
+      "url": "https://careers.mitihani.co.tz/",
+      "category": "general_tanzania_job_websites",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "ssb-career-hub",
+      "name": "SSB Career Hub",
+      "url": "https://ssbcareerhub.com/",
+      "category": "general_tanzania_job_websites",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "kazi-forums",
+      "name": "Kazi Forums",
+      "url": "https://kaziforums.com/",
+      "category": "general_tanzania_job_websites",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "jamiiforums-jobs-and-tenders",
+      "name": "JamiiForums Jobs and Tenders",
+      "url": "https://www.jamiiforums.com/forums/jobs-and-tenders.29/",
+      "category": "general_tanzania_job_websites",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "jiji-tanzania-jobs",
+      "name": "Jiji Tanzania Jobs",
+      "url": "https://jiji.co.tz/jobs",
+      "category": "general_tanzania_job_websites",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "linkedin-tanzania-jobs",
+      "name": "LinkedIn Tanzania Jobs",
+      "url": "https://www.linkedin.com/jobs/jobs-in-tanzania/",
+      "category": "general_tanzania_job_websites",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "careerjet-tanzania",
+      "name": "Careerjet Tanzania",
+      "url": "https://www.careerjet.co.tz/",
+      "category": "general_tanzania_job_websites",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "jooble-tanzania",
+      "name": "Jooble Tanzania",
+      "url": "https://tz.jooble.org/",
+      "category": "general_tanzania_job_websites",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "myjobmag-tanzania",
+      "name": "MyJobMag Tanzania",
+      "url": "https://www.myjobmag.co.tz/",
+      "category": "general_tanzania_job_websites",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "brightermonday",
+      "name": "BrighterMonday",
+      "url": "https://www.brightermonday.co.ke/jobs",
+      "category": "general_tanzania_job_websites",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "fuzu",
+      "name": "Fuzu",
+      "url": "https://www.fuzu.com/",
+      "category": "general_tanzania_job_websites",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "indeed",
+      "name": "Indeed",
+      "url": "https://www.indeed.com/q-tanzania-jobs.html",
+      "category": "general_tanzania_job_websites",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "glassdoor-tanzania",
+      "name": "Glassdoor Tanzania",
+      "url": "https://www.glassdoor.com/Job/tanzania-jobs-SRCH_IL.0,8_IN242.htm",
+      "category": "general_tanzania_job_websites",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "impactpool-tanzania",
+      "name": "Impactpool Tanzania",
+      "url": "https://www.impactpool.org/countries/Tanzania",
+      "category": "general_tanzania_job_websites",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "reliefweb",
+      "name": "ReliefWeb Tanzania",
+      "url": "https://reliefweb.int/jobs?advanced-search=%28C244%29",
+      "category": "general_tanzania_job_websites",
+      "enabled": true,
+      "adapter": "reliefweb"
+    },
+    {
+      "id": "unjobs-tanzania",
+      "name": "UNjobs Tanzania",
+      "url": "https://unjobs.org/duty_stations/tanzania",
+      "category": "general_tanzania_job_websites",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "developmentaid",
+      "name": "DevelopmentAid",
+      "url": "https://www.developmentaid.org/jobs",
+      "category": "general_tanzania_job_websites",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "devex",
+      "name": "Devex",
+      "url": "https://www.devex.com/jobs",
+      "category": "general_tanzania_job_websites",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "idealist",
+      "name": "Idealist",
+      "url": "https://www.idealist.org/en/jobs",
+      "category": "general_tanzania_job_websites",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "nmb-bank-careers",
+      "name": "NMB Bank Careers",
+      "url": "https://careers.nmbbank.co.tz/nmb_career/career.aspx",
+      "category": "banks_and_financial_institutions",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "crdb-bank-careers",
+      "name": "CRDB Bank Careers",
+      "url": "https://careers.crdbbank.co.tz/jobs",
+      "category": "banks_and_financial_institutions",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "crdb-careers-information",
+      "name": "CRDB Careers Information",
+      "url": "https://crdbbank.co.tz/en/about-us/careers",
+      "category": "banks_and_financial_institutions",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "nbc-absa-careers",
+      "name": "NBC / Absa Careers",
+      "url": "https://www.absa.africa/absaafrica/careers/",
+      "category": "banks_and_financial_institutions",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "absa-jobs",
+      "name": "Absa Jobs",
+      "url": "https://absa.wd3.myworkdayjobs.com/ABSAcareersite",
+      "category": "banks_and_financial_institutions",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "standard-chartered-careers",
+      "name": "Standard Chartered Careers",
+      "url": "https://www.sc.com/en/global-careers/",
+      "category": "banks_and_financial_institutions",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "stanbic-bank-standard-bank-careers",
+      "name": "Stanbic Bank / Standard Bank Careers",
+      "url": "https://careers.standardbank.com/",
+      "category": "banks_and_financial_institutions",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "citi-careers",
+      "name": "Citi Careers",
+      "url": "https://jobs.citi.com/",
+      "category": "banks_and_financial_institutions",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "ecobank-careers",
+      "name": "Ecobank Careers",
+      "url": "https://www.ecobank.com/group/careers",
+      "category": "banks_and_financial_institutions",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "kcb-group-careers",
+      "name": "KCB Group Careers",
+      "url": "https://ke.kcbgroup.com/about-us/careers",
+      "category": "banks_and_financial_institutions",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "equity-group-careers",
+      "name": "Equity Group Careers",
+      "url": "https://equitygroupholdings.com/careers/",
+      "category": "banks_and_financial_institutions",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "i-m-bank-careers",
+      "name": "I&M Bank Careers",
+      "url": "https://www.imbankgroup.com/careers/",
+      "category": "banks_and_financial_institutions",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "ncba-group-careers",
+      "name": "NCBA Group Careers",
+      "url": "https://ke.ncbagroup.com/careers/",
+      "category": "banks_and_financial_institutions",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "access-bank-careers",
+      "name": "Access Bank Careers",
+      "url": "https://www.accessbankplc.com/careers/",
+      "category": "banks_and_financial_institutions",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "uba-careers",
+      "name": "UBA Careers",
+      "url": "https://www.ubagroup.com/careers/",
+      "category": "banks_and_financial_institutions",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "bank-of-africa-careers",
+      "name": "Bank of Africa Careers",
+      "url": "https://www.boatanzania.co.tz/careers/",
+      "category": "banks_and_financial_institutions",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "exim-bank-tanzania-careers",
+      "name": "Exim Bank Tanzania Careers",
+      "url": "https://www.eximbank.co.tz/careers",
+      "category": "banks_and_financial_institutions",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "dcb-commercial-bank-careers",
+      "name": "DCB Commercial Bank Careers",
+      "url": "https://www.dcb.co.tz/careers/",
+      "category": "banks_and_financial_institutions",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "akiba-commercial-bank-careers",
+      "name": "Akiba Commercial Bank Careers",
+      "url": "https://www.acbbank.co.tz/careers/",
+      "category": "banks_and_financial_institutions",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "azania-bank-careers",
+      "name": "Azania Bank Careers",
+      "url": "https://azaniabank.co.tz/careers/",
+      "category": "banks_and_financial_institutions",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "mwanga-hakika-bank-careers",
+      "name": "Mwanga Hakika Bank Careers",
+      "url": "https://mhbbank.co.tz/careers/",
+      "category": "banks_and_financial_institutions",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "finca-careers",
+      "name": "FINCA Careers",
+      "url": "https://finca.org/careers/",
+      "category": "banks_and_financial_institutions",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "brac-careers",
+      "name": "BRAC Careers",
+      "url": "https://www.brac.net/work-for-brac/",
+      "category": "banks_and_financial_institutions",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "visionfund-careers",
+      "name": "VisionFund Careers",
+      "url": "https://www.visionfund.org/careers",
+      "category": "banks_and_financial_institutions",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "letshego-careers",
+      "name": "Letshego Careers",
+      "url": "https://www.letshego.com/careers",
+      "category": "banks_and_financial_institutions",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "bayport-careers",
+      "name": "Bayport Careers",
+      "url": "https://www.bayport.co.tz/careers/",
+      "category": "banks_and_financial_institutions",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "sanlam-careers",
+      "name": "Sanlam Careers",
+      "url": "https://www.sanlam.co.za/careers/",
+      "category": "banks_and_financial_institutions",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "jubilee-insurance-careers",
+      "name": "Jubilee Insurance Careers",
+      "url": "https://jubileeinsurance.com/careers/",
+      "category": "banks_and_financial_institutions",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "britam-careers",
+      "name": "Britam Careers",
+      "url": "https://www.britam.com/careers",
+      "category": "banks_and_financial_institutions",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "old-mutual-careers",
+      "name": "Old Mutual Careers",
+      "url": "https://www.oldmutual.com/careers/",
+      "category": "banks_and_financial_institutions",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "african-development-bank-careers",
+      "name": "African Development Bank Careers",
+      "url": "https://www.afdb.org/en/about-us/careers",
+      "category": "banks_and_financial_institutions",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "world-bank-careers",
+      "name": "World Bank Careers",
+      "url": "https://www.worldbank.org/en/about/careers",
+      "category": "banks_and_financial_institutions",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "ifc-careers",
+      "name": "IFC Careers",
+      "url": "https://www.ifc.org/en/about/careers",
+      "category": "banks_and_financial_institutions",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "vodacom-tanzania-vodafone-careers",
+      "name": "Vodacom Tanzania / Vodafone Careers",
+      "url": "https://opportunities.vodafone.com/",
+      "category": "telecommunications_and_technology",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "yas-tanzania-careers",
+      "name": "Yas Tanzania Careers",
+      "url": "https://yas.co.tz/careers/",
+      "category": "telecommunications_and_technology",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "axian-group-jobs",
+      "name": "AXIAN Group Jobs",
+      "url": "https://axian-group.csod.com/",
+      "category": "telecommunications_and_technology",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "airtel-tanzania-careers",
+      "name": "Airtel Tanzania Careers",
+      "url": "https://www.airtel.co.tz/career",
+      "category": "telecommunications_and_technology",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "airtel-africa-careers",
+      "name": "Airtel Africa Careers",
+      "url": "https://www.airtel.africa/careers/",
+      "category": "telecommunications_and_technology",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "huawei-careers",
+      "name": "Huawei Careers",
+      "url": "https://career.huawei.com/",
+      "category": "telecommunications_and_technology",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "ericsson-careers",
+      "name": "Ericsson Careers",
+      "url": "https://www.ericsson.com/en/careers",
+      "category": "telecommunications_and_technology",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "nokia-careers",
+      "name": "Nokia Careers",
+      "url": "https://www.nokia.com/about-us/careers/",
+      "category": "telecommunications_and_technology",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "microsoft-careers",
+      "name": "Microsoft Careers",
+      "url": "https://jobs.careers.microsoft.com/",
+      "category": "telecommunications_and_technology",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "google-careers",
+      "name": "Google Careers",
+      "url": "https://www.google.com/about/careers/applications/jobs/results/",
+      "category": "telecommunications_and_technology",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "amazon-jobs",
+      "name": "Amazon Jobs",
+      "url": "https://www.amazon.jobs/",
+      "category": "telecommunications_and_technology",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "oracle-careers",
+      "name": "Oracle Careers",
+      "url": "https://careers.oracle.com/",
+      "category": "telecommunications_and_technology",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "ibm-careers",
+      "name": "IBM Careers",
+      "url": "https://www.ibm.com/careers",
+      "category": "telecommunications_and_technology",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "sap-careers",
+      "name": "SAP Careers",
+      "url": "https://jobs.sap.com/",
+      "category": "telecommunications_and_technology",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "mastercard-careers",
+      "name": "Mastercard Careers",
+      "url": "https://careers.mastercard.com/",
+      "category": "telecommunications_and_technology",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "visa-careers",
+      "name": "Visa Careers",
+      "url": "https://corporate.visa.com/en/careers.html",
+      "category": "telecommunications_and_technology",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "bolt-careers",
+      "name": "Bolt Careers",
+      "url": "https://bolt.eu/en/careers/",
+      "category": "telecommunications_and_technology",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "uber-careers",
+      "name": "Uber Careers",
+      "url": "https://www.uber.com/us/en/careers/",
+      "category": "telecommunications_and_technology",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "glovo-careers",
+      "name": "Glovo Careers",
+      "url": "https://jobs.glovoapp.com/",
+      "category": "telecommunications_and_technology",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "selcom-careers",
+      "name": "Selcom Careers",
+      "url": "https://www.selcom.net/careers/",
+      "category": "telecommunications_and_technology",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "infobip-careers",
+      "name": "Infobip Careers",
+      "url": "https://www.infobip.com/careers",
+      "category": "telecommunications_and_technology",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "liquid-intelligent-technologies-careers",
+      "name": "Liquid Intelligent Technologies Careers",
+      "url": "https://liquid.tech/careers/",
+      "category": "telecommunications_and_technology",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "africa-data-centres-careers",
+      "name": "Africa Data Centres Careers",
+      "url": "https://www.africadatacentres.com/careers/",
+      "category": "telecommunications_and_technology",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "geita-gold-mine-anglogold-ashanti-tanzania",
+      "name": "Geita Gold Mine / AngloGold Ashanti Tanzania",
+      "url": "https://careers.anglogoldashanti.com/go/Tanzania-%28en_GB%29/9006401/",
+      "category": "mining,_energy,_oil_and_gas",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "barrick-gold-careers",
+      "name": "Barrick Gold Careers",
+      "url": "https://jobs.barrick.com/",
+      "category": "mining,_energy,_oil_and_gas",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "bulyanhulu-and-north-mara-careers",
+      "name": "Bulyanhulu and North Mara Careers",
+      "url": "https://jobs.barrick.com/",
+      "category": "mining,_energy,_oil_and_gas",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "shanta-gold-careers",
+      "name": "Shanta Gold Careers",
+      "url": "https://www.shantagold.com/careers/",
+      "category": "mining,_energy,_oil_and_gas",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "trx-gold-careers",
+      "name": "TRX Gold Careers",
+      "url": "https://trxgold.com/careers/",
+      "category": "mining,_energy,_oil_and_gas",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "perseus-mining-careers",
+      "name": "Perseus Mining Careers",
+      "url": "https://perseusmining.com/careers/",
+      "category": "mining,_energy,_oil_and_gas",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "petra-diamonds-careers",
+      "name": "Petra Diamonds Careers",
+      "url": "https://www.petradiamonds.com/careers/",
+      "category": "mining,_energy,_oil_and_gas",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "eacop-careers",
+      "name": "EACOP Careers",
+      "url": "https://www.eacop.com/careers/",
+      "category": "mining,_energy,_oil_and_gas",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "totalenergies-careers",
+      "name": "TotalEnergies Careers",
+      "url": "https://careers.totalenergies.com/",
+      "category": "mining,_energy,_oil_and_gas",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "shell-careers",
+      "name": "Shell Careers",
+      "url": "https://www.shell.com/careers.html",
+      "category": "mining,_energy,_oil_and_gas",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "puma-energy-careers",
+      "name": "Puma Energy Careers",
+      "url": "https://pumaenergy.com/careers/",
+      "category": "mining,_energy,_oil_and_gas",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "oryx-energies-careers",
+      "name": "Oryx Energies Careers",
+      "url": "https://www.oryxenergies.com/en/careers",
+      "category": "mining,_energy,_oil_and_gas",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "engen-careers",
+      "name": "Engen Careers",
+      "url": "https://www.engen.co.za/careers",
+      "category": "mining,_energy,_oil_and_gas",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "vivo-energy-careers",
+      "name": "Vivo Energy Careers",
+      "url": "https://www.vivoenergy.com/en/careers",
+      "category": "mining,_energy,_oil_and_gas",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "halliburton-careers",
+      "name": "Halliburton Careers",
+      "url": "https://jobs.halliburton.com/",
+      "category": "mining,_energy,_oil_and_gas",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "schlumberger-slb-careers",
+      "name": "Schlumberger / SLB Careers",
+      "url": "https://careers.slb.com/",
+      "category": "mining,_energy,_oil_and_gas",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "baker-hughes-careers",
+      "name": "Baker Hughes Careers",
+      "url": "https://careers.bakerhughes.com/",
+      "category": "mining,_energy,_oil_and_gas",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "weatherford-careers",
+      "name": "Weatherford Careers",
+      "url": "https://careers.weatherford.com/",
+      "category": "mining,_energy,_oil_and_gas",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "technip-energies-careers",
+      "name": "Technip Energies Careers",
+      "url": "https://careers.technipenergies.com/",
+      "category": "mining,_energy,_oil_and_gas",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "worley-careers",
+      "name": "Worley Careers",
+      "url": "https://www.worley.com/careers",
+      "category": "mining,_energy,_oil_and_gas",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "wood-careers",
+      "name": "Wood Careers",
+      "url": "https://careers.woodplc.com/",
+      "category": "mining,_energy,_oil_and_gas",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "mantrac-careers",
+      "name": "Mantrac Careers",
+      "url": "https://www.mantracgroup.com/en/careers/",
+      "category": "mining,_energy,_oil_and_gas",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "sandvik-careers",
+      "name": "Sandvik Careers",
+      "url": "https://www.home.sandvik/en/careers/",
+      "category": "mining,_energy,_oil_and_gas",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "epiroc-careers",
+      "name": "Epiroc Careers",
+      "url": "https://www.epirocgroup.com/en/careers",
+      "category": "mining,_energy,_oil_and_gas",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "komatsu-careers",
+      "name": "Komatsu Careers",
+      "url": "https://www.komatsu.com/en/careers/",
+      "category": "mining,_energy,_oil_and_gas",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "coca-cola-kwanza-coca-cola-beverages-africa",
+      "name": "Coca-Cola Kwanza / Coca-Cola Beverages Africa",
+      "url": "https://ccba.erecruit.co/",
+      "category": "manufacturing,_fmcg_and_agriculture",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "tanzania-breweries-ab-inbev",
+      "name": "Tanzania Breweries / AB InBev",
+      "url": "https://www.ab-inbev.com/careers/",
+      "category": "manufacturing,_fmcg_and_agriculture",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "serengeti-breweries-diageo",
+      "name": "Serengeti Breweries / Diageo",
+      "url": "https://www.diageo.com/en/careers",
+      "category": "manufacturing,_fmcg_and_agriculture",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "unilever-careers",
+      "name": "Unilever Careers",
+      "url": "https://careers.unilever.com/",
+      "category": "manufacturing,_fmcg_and_agriculture",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "nestle-careers",
+      "name": "Nestlé Careers",
+      "url": "https://www.nestle.com/jobs",
+      "category": "manufacturing,_fmcg_and_agriculture",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "pepsico-careers",
+      "name": "PepsiCo Careers",
+      "url": "https://www.pepsicojobs.com/",
+      "category": "manufacturing,_fmcg_and_agriculture",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "dangote-careers",
+      "name": "Dangote Careers",
+      "url": "https://careers.dangote.com/",
+      "category": "manufacturing,_fmcg_and_agriculture",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "lafargeholcim-holcim-careers",
+      "name": "LafargeHolcim / Holcim Careers",
+      "url": "https://careers.holcimgroup.com/",
+      "category": "manufacturing,_fmcg_and_agriculture",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "heidelberg-materials-careers",
+      "name": "Heidelberg Materials Careers",
+      "url": "https://www.heidelbergmaterials.com/en/career",
+      "category": "manufacturing,_fmcg_and_agriculture",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "kilombero-sugar-illovo-sugar-africa",
+      "name": "Kilombero Sugar / Illovo Sugar Africa",
+      "url": "https://www.illovocareers.co.za/",
+      "category": "manufacturing,_fmcg_and_agriculture",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "bakhresa-group-careers",
+      "name": "Bakhresa Group Careers",
+      "url": "https://bakhresa.com/careers/",
+      "category": "manufacturing,_fmcg_and_agriculture",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "mohammed-enterprises-tanzania-careers",
+      "name": "Mohammed Enterprises Tanzania Careers",
+      "url": "https://metl.net/careers/",
+      "category": "manufacturing,_fmcg_and_agriculture",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "gsm-group-careers",
+      "name": "GSM Group Careers",
+      "url": "https://gsmgroup.co.tz/careers/",
+      "category": "manufacturing,_fmcg_and_agriculture",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "alaf-careers",
+      "name": "ALAF Careers",
+      "url": "https://alaf.co.tz/careers/",
+      "category": "manufacturing,_fmcg_and_agriculture",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "toyota-tanzania-careers",
+      "name": "Toyota Tanzania Careers",
+      "url": "https://toyota.co.tz/careers/",
+      "category": "manufacturing,_fmcg_and_agriculture",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "cfao-careers",
+      "name": "CFAO Careers",
+      "url": "https://www.cfaogroup.com/en/careers/",
+      "category": "manufacturing,_fmcg_and_agriculture",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "jti-careers",
+      "name": "JTI Careers",
+      "url": "https://jobs.jti.com/",
+      "category": "manufacturing,_fmcg_and_agriculture",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "bat-careers",
+      "name": "BAT Careers",
+      "url": "https://careers.bat.com/",
+      "category": "manufacturing,_fmcg_and_agriculture",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "syngenta-careers",
+      "name": "Syngenta Careers",
+      "url": "https://jobs.syngenta.com/",
+      "category": "manufacturing,_fmcg_and_agriculture",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "bayer-careers",
+      "name": "Bayer Careers",
+      "url": "https://career.bayer.com/",
+      "category": "manufacturing,_fmcg_and_agriculture",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "yara-careers",
+      "name": "Yara Careers",
+      "url": "https://jobs.yara.com/",
+      "category": "manufacturing,_fmcg_and_agriculture",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "olam-agri-careers",
+      "name": "Olam Agri Careers",
+      "url": "https://www.olamagri.com/careers.html",
+      "category": "manufacturing,_fmcg_and_agriculture",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "cargill-careers",
+      "name": "Cargill Careers",
+      "url": "https://careers.cargill.com/",
+      "category": "manufacturing,_fmcg_and_agriculture",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "one-acre-fund-careers",
+      "name": "One Acre Fund Careers",
+      "url": "https://oneacrefund.org/careers",
+      "category": "manufacturing,_fmcg_and_agriculture",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "heifer-international-careers",
+      "name": "Heifer International Careers",
+      "url": "https://www.heifer.org/about-us/careers.html",
+      "category": "manufacturing,_fmcg_and_agriculture",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "air-tanzania-careers",
+      "name": "Air Tanzania Careers",
+      "url": "https://www.airtanzania.co.tz/careers",
+      "category": "airlines,_transport_and_logistics",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "air-tanzania-recruitment-portal",
+      "name": "Air Tanzania Recruitment Portal",
+      "url": "https://recruitment.atcl.co.tz/",
+      "category": "airlines,_transport_and_logistics",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "precision-air-careers",
+      "name": "Precision Air Careers",
+      "url": "https://www.precisionairtz.com/careers",
+      "category": "airlines,_transport_and_logistics",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "kenya-airways-careers",
+      "name": "Kenya Airways Careers",
+      "url": "https://www.kenya-airways.com/en/careers/",
+      "category": "airlines,_transport_and_logistics",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "emirates-careers",
+      "name": "Emirates Careers",
+      "url": "https://www.emiratesgroupcareers.com/",
+      "category": "airlines,_transport_and_logistics",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "qatar-airways-careers",
+      "name": "Qatar Airways Careers",
+      "url": "https://careers.qatarairways.com/",
+      "category": "airlines,_transport_and_logistics",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "ethiopian-airlines-careers",
+      "name": "Ethiopian Airlines Careers",
+      "url": "https://corporate.ethiopianairlines.com/eaa/careers",
+      "category": "airlines,_transport_and_logistics",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "swissport-careers",
+      "name": "Swissport Careers",
+      "url": "https://careers.swissport.com/",
+      "category": "airlines,_transport_and_logistics",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "dhl-careers",
+      "name": "DHL Careers",
+      "url": "https://careers.dhl.com/",
+      "category": "airlines,_transport_and_logistics",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "maersk-careers",
+      "name": "Maersk Careers",
+      "url": "https://www.maersk.com/careers",
+      "category": "airlines,_transport_and_logistics",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "dp-world-careers",
+      "name": "DP World Careers",
+      "url": "https://www.dpworld.com/careers",
+      "category": "airlines,_transport_and_logistics",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "cma-cgm-careers",
+      "name": "CMA CGM Careers",
+      "url": "https://jobs.cmacgm-group.com/",
+      "category": "airlines,_transport_and_logistics",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "msc-careers",
+      "name": "MSC Careers",
+      "url": "https://www.msc.com/en/careers",
+      "category": "airlines,_transport_and_logistics",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "bollore-africa-global-logistics-careers",
+      "name": "Bolloré / Africa Global Logistics Careers",
+      "url": "https://www.aglgroup.com/en/careers/",
+      "category": "airlines,_transport_and_logistics",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "kuehne-nagel-careers",
+      "name": "Kuehne+Nagel Careers",
+      "url": "https://jobs.kuehne-nagel.com/",
+      "category": "airlines,_transport_and_logistics",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "db-schenker-careers",
+      "name": "DB Schenker Careers",
+      "url": "https://www.dbschenker.com/global/careers",
+      "category": "airlines,_transport_and_logistics",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "fedex-careers",
+      "name": "FedEx Careers",
+      "url": "https://careers.fedex.com/",
+      "category": "airlines,_transport_and_logistics",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "ups-careers",
+      "name": "UPS Careers",
+      "url": "https://www.jobs-ups.com/",
+      "category": "airlines,_transport_and_logistics",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "serena-hotels-careers",
+      "name": "Serena Hotels Careers",
+      "url": "https://www.serenahotels.com/careers",
+      "category": "hospitality_and_tourism",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "hyatt-careers",
+      "name": "Hyatt Careers",
+      "url": "https://careers.hyatt.com/",
+      "category": "hospitality_and_tourism",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "marriott-careers",
+      "name": "Marriott Careers",
+      "url": "https://careers.marriott.com/",
+      "category": "hospitality_and_tourism",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "hilton-careers",
+      "name": "Hilton Careers",
+      "url": "https://jobs.hilton.com/",
+      "category": "hospitality_and_tourism",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "melia-hotels-careers",
+      "name": "Melia Hotels Careers",
+      "url": "https://careers.melia.com/",
+      "category": "hospitality_and_tourism",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "accor-careers",
+      "name": "Accor Careers",
+      "url": "https://careers.accor.com/",
+      "category": "hospitality_and_tourism",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "four-seasons-careers",
+      "name": "Four Seasons Careers",
+      "url": "https://careers.fourseasons.com/",
+      "category": "hospitality_and_tourism",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "radisson-hotel-group-careers",
+      "name": "Radisson Hotel Group Careers",
+      "url": "https://careers.radissonhotels.com/",
+      "category": "hospitality_and_tourism",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "kempinski-careers",
+      "name": "Kempinski Careers",
+      "url": "https://www.kempinski.com/en/careers",
+      "category": "hospitality_and_tourism",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "minor-hotels-careers",
+      "name": "Minor Hotels Careers",
+      "url": "https://careers.minorhotels.com/",
+      "category": "hospitality_and_tourism",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "anantara-careers",
+      "name": "Anantara Careers",
+      "url": "https://careers.minorhotels.com/",
+      "category": "hospitality_and_tourism",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "asilia-africa-careers",
+      "name": "Asilia Africa Careers",
+      "url": "https://www.asiliaafrica.com/careers/",
+      "category": "hospitality_and_tourism",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "wilderness-careers",
+      "name": "Wilderness Careers",
+      "url": "https://www.wildernessdestinations.com/careers",
+      "category": "hospitality_and_tourism",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "elewana-careers",
+      "name": "Elewana Careers",
+      "url": "https://www.elewanacollection.com/careers",
+      "category": "hospitality_and_tourism",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "beyond-careers",
+      "name": "&Beyond Careers",
+      "url": "https://www.andbeyond.com/careers/",
+      "category": "hospitality_and_tourism",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "marriott-international-tanzania",
+      "name": "Marriott International Tanzania",
+      "url": "https://careers.marriott.com/",
+      "category": "hospitality_and_tourism",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "hoteljobs-africa",
+      "name": "HotelJobs Africa",
+      "url": "https://www.hoteljobs.co.za/",
+      "category": "hospitality_and_tourism",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "aga-khan-university-careers",
+      "name": "Aga Khan University Careers",
+      "url": "https://www.aku.edu/vacancies/",
+      "category": "healthcare_and_pharmaceuticals",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "aga-khan-health-services-careers",
+      "name": "Aga Khan Health Services Careers",
+      "url": "https://www.aku.edu/careers/",
+      "category": "healthcare_and_pharmaceuticals",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "ccbrt-careers",
+      "name": "CCBRT Careers",
+      "url": "https://www.ccbrt.org/careers/",
+      "category": "healthcare_and_pharmaceuticals",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "amref-health-africa-careers",
+      "name": "Amref Health Africa Careers",
+      "url": "https://amref.org/job-vacancies/",
+      "category": "healthcare_and_pharmaceuticals",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "ifakara-health-institute-careers",
+      "name": "Ifakara Health Institute Careers",
+      "url": "https://ihi.or.tz/our-jobs/",
+      "category": "healthcare_and_pharmaceuticals",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "jhpiego-careers",
+      "name": "Jhpiego Careers",
+      "url": "https://jobs-jhpiego.icims.com/",
+      "category": "healthcare_and_pharmaceuticals",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "fhi-360-careers",
+      "name": "FHI 360 Careers",
+      "url": "https://www.fhi360.org/careers/",
+      "category": "healthcare_and_pharmaceuticals",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "path-careers",
+      "name": "PATH Careers",
+      "url": "https://www.path.org/careers/",
+      "category": "healthcare_and_pharmaceuticals",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "clinton-health-access-initiative",
+      "name": "Clinton Health Access Initiative",
+      "url": "https://careers-chai.icims.com/jobs/",
+      "category": "healthcare_and_pharmaceuticals",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "elizabeth-glaser-pediatric-aids-foundation",
+      "name": "Elizabeth Glaser Pediatric AIDS Foundation",
+      "url": "https://pedaids.org/about/careers/",
+      "category": "healthcare_and_pharmaceuticals",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "psi-careers",
+      "name": "PSI Careers",
+      "url": "https://www.psi.org/careers/",
+      "category": "healthcare_and_pharmaceuticals",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "intrahealth-careers",
+      "name": "IntraHealth Careers",
+      "url": "https://www.intrahealth.org/careers",
+      "category": "healthcare_and_pharmaceuticals",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "msi-reproductive-choices-careers",
+      "name": "MSI Reproductive Choices Careers",
+      "url": "https://www.msichoices.org/careers/",
+      "category": "healthcare_and_pharmaceuticals",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "me-decins-sans-frontie-res-careers",
+      "name": "Médecins Sans Frontières Careers",
+      "url": "https://www.msf.org/work-msf",
+      "category": "healthcare_and_pharmaceuticals",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "international-medical-corps-careers",
+      "name": "International Medical Corps Careers",
+      "url": "https://careers.internationalmedicalcorps.org/",
+      "category": "healthcare_and_pharmaceuticals",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "johnson-johnson-careers",
+      "name": "Johnson & Johnson Careers",
+      "url": "https://www.careers.jnj.com/",
+      "category": "healthcare_and_pharmaceuticals",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "pfizer-careers",
+      "name": "Pfizer Careers",
+      "url": "https://www.pfizer.com/about/careers",
+      "category": "healthcare_and_pharmaceuticals",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "novartis-careers",
+      "name": "Novartis Careers",
+      "url": "https://www.novartis.com/careers",
+      "category": "healthcare_and_pharmaceuticals",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "sanofi-careers",
+      "name": "Sanofi Careers",
+      "url": "https://jobs.sanofi.com/",
+      "category": "healthcare_and_pharmaceuticals",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "gsk-careers",
+      "name": "GSK Careers",
+      "url": "https://jobs.gsk.com/",
+      "category": "healthcare_and_pharmaceuticals",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "roche-careers",
+      "name": "Roche Careers",
+      "url": "https://careers.roche.com/",
+      "category": "healthcare_and_pharmaceuticals",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "abbott-careers",
+      "name": "Abbott Careers",
+      "url": "https://www.jobs.abbott/",
+      "category": "healthcare_and_pharmaceuticals",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "university-of-dar-es-salaam",
+      "name": "University of Dar es Salaam",
+      "url": "https://www.udsm.ac.tz/",
+      "category": "education_and_research",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "muhimbili-university",
+      "name": "Muhimbili University",
+      "url": "https://www.muhas.ac.tz/",
+      "category": "education_and_research",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "sokoine-university-of-agriculture",
+      "name": "Sokoine University of Agriculture",
+      "url": "https://www.sua.ac.tz/",
+      "category": "education_and_research",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "university-of-dodoma",
+      "name": "University of Dodoma",
+      "url": "https://www.udom.ac.tz/",
+      "category": "education_and_research",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "mzumbe-university",
+      "name": "Mzumbe University",
+      "url": "https://www.mzumbe.ac.tz/",
+      "category": "education_and_research",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "nelson-mandela-african-institution-of-science-and-technology",
+      "name": "Nelson Mandela African Institution of Science and Technology",
+      "url": "https://www.nm-aist.ac.tz/",
+      "category": "education_and_research",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "open-university-of-tanzania",
+      "name": "Open University of Tanzania",
+      "url": "https://www.out.ac.tz/",
+      "category": "education_and_research",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "ardhi-university",
+      "name": "Ardhi University",
+      "url": "https://www.aru.ac.tz/",
+      "category": "education_and_research",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "state-university-of-zanzibar",
+      "name": "State University of Zanzibar",
+      "url": "https://www.suza.ac.tz/",
+      "category": "education_and_research",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "aga-khan-university-vacancies",
+      "name": "Aga Khan University Vacancies",
+      "url": "https://www.aku.edu/vacancies/",
+      "category": "education_and_research",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "university-of-arusha",
+      "name": "University of Arusha",
+      "url": "https://www.uoa.ac.tz/",
+      "category": "education_and_research",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "st-augustine-university-of-tanzania",
+      "name": "St. Augustine University of Tanzania",
+      "url": "https://www.saut.ac.tz/",
+      "category": "education_and_research",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "international-school-of-tanganyika-careers",
+      "name": "International School of Tanganyika Careers",
+      "url": "https://www.istafrica.com/about-ist/employment",
+      "category": "education_and_research",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "school-of-st-jude-careers",
+      "name": "School of St Jude Careers",
+      "url": "https://www.schoolofstjude.org/join-our-team/",
+      "category": "education_and_research",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "academic-positions",
+      "name": "Academic Positions",
+      "url": "https://academicpositions.com/",
+      "category": "education_and_research",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "times-higher-education-jobs",
+      "name": "Times Higher Education Jobs",
+      "url": "https://www.timeshighereducation.com/unijobs/",
+      "category": "education_and_research",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "higheredjobs",
+      "name": "HigherEdJobs",
+      "url": "https://www.higheredjobs.com/",
+      "category": "education_and_research",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "researchgate-jobs",
+      "name": "ResearchGate Jobs",
+      "url": "https://www.researchgate.net/jobs",
+      "category": "education_and_research",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "nature-careers",
+      "name": "Nature Careers",
+      "url": "https://www.nature.com/naturecareers/jobs/",
+      "category": "education_and_research",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "united-nations-tanzania-jobs",
+      "name": "United Nations Tanzania Jobs",
+      "url": "https://tanzania.un.org/en/jobs",
+      "category": "ngos_and_development_organizations",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "un-careers",
+      "name": "UN Careers",
+      "url": "https://careers.un.org/",
+      "category": "ngos_and_development_organizations",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "undp-careers",
+      "name": "UNDP Careers",
+      "url": "https://www.undp.org/careers",
+      "category": "ngos_and_development_organizations",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "unicef-jobs",
+      "name": "UNICEF Jobs",
+      "url": "https://jobs.unicef.org/",
+      "category": "ngos_and_development_organizations",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "who-careers",
+      "name": "WHO Careers",
+      "url": "https://www.who.int/careers",
+      "category": "ngos_and_development_organizations",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "wfp-careers",
+      "name": "WFP Careers",
+      "url": "https://www.wfp.org/careers",
+      "category": "ngos_and_development_organizations",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "fao-employment",
+      "name": "FAO Employment",
+      "url": "https://www.fao.org/employment/",
+      "category": "ngos_and_development_organizations",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "ilo-jobs",
+      "name": "ILO Jobs",
+      "url": "https://jobs.ilo.org/",
+      "category": "ngos_and_development_organizations",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "iom-careers",
+      "name": "IOM Careers",
+      "url": "https://www.iom.int/careers",
+      "category": "ngos_and_development_organizations",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "unhcr-careers",
+      "name": "UNHCR Careers",
+      "url": "https://www.unhcr.org/careers.html",
+      "category": "ngos_and_development_organizations",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "unops-jobs",
+      "name": "UNOPS Jobs",
+      "url": "https://jobs.unops.org/",
+      "category": "ngos_and_development_organizations",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "un-volunteers",
+      "name": "UN Volunteers",
+      "url": "https://app.unv.org/",
+      "category": "ngos_and_development_organizations",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "un-women-employment",
+      "name": "UN Women Employment",
+      "url": "https://www.unwomen.org/en/about-us/employment",
+      "category": "ngos_and_development_organizations",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "unfpa-jobs",
+      "name": "UNFPA Jobs",
+      "url": "https://www.unfpa.org/jobs",
+      "category": "ngos_and_development_organizations",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "unesco-careers",
+      "name": "UNESCO Careers",
+      "url": "https://careers.unesco.org/",
+      "category": "ngos_and_development_organizations",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "unep-careers",
+      "name": "UNEP Careers",
+      "url": "https://www.unep.org/work-with-us",
+      "category": "ngos_and_development_organizations",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "world-vision-careers",
+      "name": "World Vision Careers",
+      "url": "https://www.wvi.org/careers",
+      "category": "ngos_and_development_organizations",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "plan-international-jobs",
+      "name": "Plan International Jobs",
+      "url": "https://jobs.plan-international.org/",
+      "category": "ngos_and_development_organizations",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "save-the-children-careers",
+      "name": "Save the Children Careers",
+      "url": "https://www.savethechildren.net/careers",
+      "category": "ngos_and_development_organizations",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "care-careers",
+      "name": "CARE Careers",
+      "url": "https://www.care.org/careers/",
+      "category": "ngos_and_development_organizations",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "oxfam-jobs",
+      "name": "Oxfam Jobs",
+      "url": "https://jobs.oxfam.org.uk/",
+      "category": "ngos_and_development_organizations",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "actionaid-jobs",
+      "name": "ActionAid Jobs",
+      "url": "https://actionaid.org/jobs",
+      "category": "ngos_and_development_organizations",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "wateraid-jobs",
+      "name": "WaterAid Jobs",
+      "url": "https://www.wateraid.org/uk/jobs-and-volunteering",
+      "category": "ngos_and_development_organizations",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "mercy-corps-careers",
+      "name": "Mercy Corps Careers",
+      "url": "https://www.mercycorps.org/careers",
+      "category": "ngos_and_development_organizations",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "international-rescue-committee",
+      "name": "International Rescue Committee",
+      "url": "https://careers.rescue.org/",
+      "category": "ngos_and_development_organizations",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "danish-refugee-council",
+      "name": "Danish Refugee Council",
+      "url": "https://drc.ngo/about-us/careers/vacancies/",
+      "category": "ngos_and_development_organizations",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "norwegian-refugee-council",
+      "name": "Norwegian Refugee Council",
+      "url": "https://www.nrc.no/careers/",
+      "category": "ngos_and_development_organizations",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "catholic-relief-services",
+      "name": "Catholic Relief Services",
+      "url": "https://www.crs.org/about/careers",
+      "category": "ngos_and_development_organizations",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "restless-development",
+      "name": "Restless Development",
+      "url": "https://restlessdevelopment.org/jobs/",
+      "category": "ngos_and_development_organizations",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "snv-careers",
+      "name": "SNV Careers",
+      "url": "https://www.snv.org/careers",
+      "category": "ngos_and_development_organizations",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "trademark-africa",
+      "name": "TradeMark Africa",
+      "url": "https://www.trademarkafrica.com/work-with-us/",
+      "category": "ngos_and_development_organizations",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "giz-jobs",
+      "name": "GIZ Jobs",
+      "url": "https://jobs.giz.de/",
+      "category": "ngos_and_development_organizations",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "palladium-careers",
+      "name": "Palladium Careers",
+      "url": "https://thepalladiumgroup.com/careers",
+      "category": "ngos_and_development_organizations",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "dai-careers",
+      "name": "DAI Careers",
+      "url": "https://www.dai.com/careers",
+      "category": "ngos_and_development_organizations",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "chemonics-careers",
+      "name": "Chemonics Careers",
+      "url": "https://chemonics.com/jobs/",
+      "category": "ngos_and_development_organizations",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "tetra-tech-international-development",
+      "name": "Tetra Tech International Development",
+      "url": "https://careers.tetratechintdev.com/",
+      "category": "ngos_and_development_organizations",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "abt-global-careers",
+      "name": "Abt Global Careers",
+      "url": "https://www.abtglobal.com/careers",
+      "category": "ngos_and_development_organizations",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "rti-international-careers",
+      "name": "RTI International Careers",
+      "url": "https://careers.rti.org/",
+      "category": "ngos_and_development_organizations",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "global-communities-careers",
+      "name": "Global Communities Careers",
+      "url": "https://globalcommunities.org/careers/",
+      "category": "ngos_and_development_organizations",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "cbm-global-jobs",
+      "name": "CBM Global Jobs",
+      "url": "https://cbm-global.org/about-us/jobs/",
+      "category": "ngos_and_development_organizations",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "sightsavers-jobs",
+      "name": "Sightsavers Jobs",
+      "url": "https://www.sightsavers.org/jobs/",
+      "category": "ngos_and_development_organizations",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "wwf-careers",
+      "name": "WWF Careers",
+      "url": "https://www.worldwildlife.org/about/careers",
+      "category": "ngos_and_development_organizations",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "wildlife-conservation-society",
+      "name": "Wildlife Conservation Society",
+      "url": "https://www.wcs.org/about-us/careers",
+      "category": "ngos_and_development_organizations",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "the-nature-conservancy",
+      "name": "The Nature Conservancy",
+      "url": "https://careers.nature.org/",
+      "category": "ngos_and_development_organizations",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "frankfurt-zoological-society",
+      "name": "Frankfurt Zoological Society",
+      "url": "https://fzs.org/en/about-us/jobs/",
+      "category": "ngos_and_development_organizations",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "radar-recruitment",
+      "name": "Radar Recruitment",
+      "url": "https://radarrecruitment.com/",
+      "category": "professional_services_and_recruitment_firms",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "empower-tanzania",
+      "name": "Empower Tanzania",
+      "url": "https://www.empower.co.tz/empower-jobs",
+      "category": "professional_services_and_recruitment_firms",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "hr-world",
+      "name": "HR World",
+      "url": "https://hrworld.co.tz/",
+      "category": "professional_services_and_recruitment_firms",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "deloitte-careers",
+      "name": "Deloitte Careers",
+      "url": "https://www.deloitte.com/global/en/careers.html",
+      "category": "professional_services_and_recruitment_firms",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "pwc-careers",
+      "name": "PwC Careers",
+      "url": "https://www.pwc.com/gx/en/careers.html",
+      "category": "professional_services_and_recruitment_firms",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "kpmg-careers",
+      "name": "KPMG Careers",
+      "url": "https://kpmg.com/xx/en/home/careers.html",
+      "category": "professional_services_and_recruitment_firms",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "ey-careers",
+      "name": "EY Careers",
+      "url": "https://careers.ey.com/",
+      "category": "professional_services_and_recruitment_firms",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "bdo-careers",
+      "name": "BDO Careers",
+      "url": "https://www.bdo.global/en-gb/careers",
+      "category": "professional_services_and_recruitment_firms",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "grant-thornton-careers",
+      "name": "Grant Thornton Careers",
+      "url": "https://www.grantthornton.global/en/careers/",
+      "category": "professional_services_and_recruitment_firms",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "mckinsey-careers",
+      "name": "McKinsey Careers",
+      "url": "https://www.mckinsey.com/careers",
+      "category": "professional_services_and_recruitment_firms",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "boston-consulting-group-careers",
+      "name": "Boston Consulting Group Careers",
+      "url": "https://careers.bcg.com/",
+      "category": "professional_services_and_recruitment_firms",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "bain-careers",
+      "name": "Bain Careers",
+      "url": "https://www.bain.com/careers/",
+      "category": "professional_services_and_recruitment_firms",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "michael-page-africa",
+      "name": "Michael Page Africa",
+      "url": "https://www.michaelpageafrica.com/jobs",
+      "category": "professional_services_and_recruitment_firms",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "robert-walters-africa",
+      "name": "Robert Walters Africa",
+      "url": "https://www.robertwaltersafrica.com/jobs.html",
+      "category": "professional_services_and_recruitment_firms",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "ca-global",
+      "name": "CA Global",
+      "url": "https://www.caglobalint.com/jobs/",
+      "category": "professional_services_and_recruitment_firms",
+      "enabled": false,
+      "adapter": null
+    },
+    {
+      "id": "jobnetafrica",
+      "name": "JobnetAfrica",
+      "url": "https://www.jobnetafrica.com/",
+      "category": "professional_services_and_recruitment_firms",
+      "enabled": false,
+      "adapter": null
+    }
+  ]
+}

@@ -68,6 +68,7 @@ model Freelancer {
 
 model Job {
   id          String    @id @default(cuid())
+  sourceId    String?
   title       String
   company     String
   location    String
@@ -87,6 +88,9 @@ model Job {
 
   employer     Employer?     @relation(fields: [employerId], references: [id])
   applications Application[]
+
+  @@unique([source, sourceId])
+  @@index([source, active, deadline])
 }
 
 enum JobType {

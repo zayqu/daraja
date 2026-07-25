@@ -1,13 +1,21 @@
-name: Ajira Scraper
+name: Job Source Scrapers
 
 on:
   schedule:
-    - cron: '0 */6 * * *'
+    - cron: "17 */4 * * *"
   workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: job-source-scrapers
+  cancel-in-progress: false
 
 jobs:
   scrape:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     env:
       DATABASE_URL: ${{ secrets.DATABASE_URL }}
     steps:
@@ -15,7 +23,8 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: '22'
+          node-version: "22"
+          cache: npm
 
       - name: Install dependencies
         run: npm ci
@@ -26,5 +35,15 @@ jobs:
       - name: Generate Prisma client
         run: npx prisma generate
 
+      - name: Validate database configuration
+        run: |
+          if [ -z "$DATABASE_URL" ]; then
+            echo "::error::Repository secret DATABASE_URL is not configured."
+            exit 1
+          fi
+
+      - name: Apply database migrations
+        run: npx prisma migrate deploy
+
       - name: Run Ajira scraper
-        run: node scraper/sources/ajira.js
+        run: npm run scrape

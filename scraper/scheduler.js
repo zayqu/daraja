@@ -1,14 +1,29 @@
 const cron = require("node-cron");
 require("dotenv").config();
 
-const { scrapeAjira } = require("./sources/ajira");
+const { runScrapers } = require("./run");
 
 console.log("Daraja scheduler started...");
-console.log("Ajira scraper will run every hour");
+console.log("Enabled source scrapers will run every hour");
 
-scrapeAjira();
+let running = false;
 
-cron.schedule("0 * * * *", () => {
-  console.log(`[${new Date().toISOString()}] Running scheduled scrape...`);
-  scrapeAjira();
-});
+async function run() {
+  if (running) {
+    console.warn("Skipping scrape because the previous run is still active.");
+    return;
+  }
+
+  running = true;
+  try {
+    console.log(`[${new Date().toISOString()}] Running scheduled scrape...`);
+    await runScrapers();
+  } catch (error) {
+    console.error("Scheduled scrape failed:", error);
+  } finally {
+    running = false;
+  }
+}
+
+run();
+cron.schedule("0 * * * *", run);

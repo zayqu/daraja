@@ -5,8 +5,11 @@ export async function GET(request, context) {
   try {
     const { id } = await context.params;
 
-    const job = await prisma.job.findUnique({
-      where: { id: id },
+    const job = await prisma.job.findFirst({
+      where: {
+        id,
+        active: true,
+      },
     });
 
     if (!job) {
@@ -17,21 +20,5 @@ export async function GET(request, context) {
   } catch (error) {
     console.error("API error:", error);
     return NextResponse.json({ error: "Failed to fetch job" }, { status: 500 });
-  }
-}
-
-export async function DELETE(request, context) {
-  try {
-    const { id } = await context.params;
-
-    await prisma.job.update({
-      where: { id: id },
-      data: { active: false },
-    });
-
-    return NextResponse.json({ message: "Job removed successfully" });
-  } catch (error) {
-    console.error("API error:", error);
-    return NextResponse.json({ error: "Failed to remove job" }, { status: 500 });
   }
 }

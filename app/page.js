@@ -107,7 +107,7 @@ export default function Home() {
 
         <div className="hero">
           <div className="hero-inner">
-            <div className="hero-eyebrow">Tanzania's Professional Job Platform</div>
+          <div className="hero-eyebrow">Tanzania&apos;s Professional Job Platform</div>
             <h1 className="hero-title">
               Kazi Na Fursa<br />
               <span>Tanzania</span>
@@ -126,8 +126,8 @@ export default function Home() {
         <div className="stats">
           <div className="stats-inner">
             <div className="stat">
-              <div className="stat-num">61+</div>
-              <div className="stat-label">Active Positions</div>
+              <div className="stat-num">Current</div>
+              <div className="stat-label">Open Positions</div>
             </div>
             <div className="stat">
               <div className="stat-num">Free</div>
@@ -138,8 +138,8 @@ export default function Home() {
               <div className="stat-label">New Listings</div>
             </div>
             <div className="stat">
-              <div className="stat-num">Verified</div>
-              <div className="stat-label">Employers</div>
+              <div className="stat-num">Clear</div>
+              <div className="stat-label">Source Details</div>
             </div>
           </div>
         </div>
@@ -177,16 +177,16 @@ export default function Home() {
             <div className="why-grid">
               <div className="why-card">
                 <div className="why-icon">✓</div>
-                <div className="why-heading">Verified Employers</div>
+                <div className="why-heading">Trusted Sources</div>
                 <div className="why-text">
-                  Every employer is verified with TIN number checks. No scam listings, ever.
+                  Every listing clearly identifies its employer and original application source.
                 </div>
               </div>
               <div className="why-card">
                 <div className="why-icon">✓</div>
-                <div className="why-heading">SMS Job Alerts</div>
+                <div className="why-heading">Easy Job Search</div>
                 <div className="why-text">
-                  Get notified by SMS when new jobs match your profile. Works on any phone.
+                  Search by role or company and filter opportunities by category and status.
                 </div>
               </div>
               <div className="why-card">
@@ -213,7 +213,7 @@ export default function Home() {
               <div className="footer-sub">Kazi Na Fursa Tanzania</div>
             </div>
             <div className="footer-copy">
-              2025 Daraja. All rights reserved.
+              {new Date().getFullYear()} Daraja. All rights reserved.
             </div>
           </div>
         </footer>

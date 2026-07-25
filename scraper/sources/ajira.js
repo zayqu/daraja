@@ -89,6 +89,17 @@ async function scrapeAjira() {
 
     console.log(`Total jobs scraped: ${allJobs.length}`);
 
+    const expired = await prisma.job.updateMany({
+      where: {
+        source: "ajira",
+        active: true,
+        deadline: { lt: new Date() },
+      },
+      data: { active: false },
+    });
+
+    console.log(`Archived ${expired.count} expired jobs`);
+
     let saved = 0;
 
     for (const job of allJobs) {

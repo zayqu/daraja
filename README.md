@@ -1,4 +1,7 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# Daraja Jobs
+
+Daraja Jobs is a Tanzania-focused job listing application built with Next.js,
+PostgreSQL, and Prisma.
 
 ## Getting Started
 
@@ -18,7 +21,39 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 
 You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Job source scrapers
+
+The enabled source scrapers run through GitHub Actions every four hours. They
+validate and deduplicate vacancies before writing them to PostgreSQL, update
+existing vacancies, and archive expired records.
+
+`scraper/config/source-catalog.json` contains the source catalogue. A source is
+only collected when it has a tested adapter and both `enabled` and `adapter` are
+set. This prevents unverified websites from publishing duplicate, blocked, or
+non-Tanzania jobs. The Daraja website itself is deliberately excluded to prevent
+a scraping loop.
+
+The repository must have a GitHub Actions secret named `DATABASE_URL`. Run the
+scraper locally with:
+
+```bash
+npm run scrape
+```
+
+Use a read-only collection run that does not access the database with:
+
+```bash
+npm run scrape:dry
+```
+
+Run only one enabled source by adding `--source`, for example:
+
+```bash
+npm run scrape:dry -- --source=reliefweb
+```
+
+The scheduled workflow can also be started manually from **Actions → Job Source
+Scrapers → Run workflow**.
 
 ## Learn More
 

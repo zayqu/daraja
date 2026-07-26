@@ -137,6 +137,18 @@ function getLabeledValue($, label) {
 function extractEmailApplicationJobs(articleTitle, articleUrl, html) {
   const $ = cheerio.load(html || "");
   const emailHref = $('a[href^="mailto:"]').first().attr("href") || "";
+  let employerSubject = "";
+  try {
+    employerSubject = new URL(emailHref).searchParams.get("subject") || "";
+  } catch {
+    // A plain email link is still valid.
+  }
+  employerSubject =
+    employerSubject ||
+    getLabeledValue($, "Email Subject") ||
+    getLabeledValue($, "Subject Line") ||
+    getLabeledValue($, "Subject");
+
   const email = emailHref.replace(/^mailto:/i, "").split("?")[0].trim();
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return [];
 
@@ -169,7 +181,12 @@ function extractEmailApplicationJobs(articleTitle, articleUrl, html) {
       location,
       description: instructions,
       deadline,
-      sourceUrl: buildEmailApplicationUrl({ email, title, company }),
+      sourceUrl: buildEmailApplicationUrl({
+        email,
+        title,
+        company,
+        subject: employerSubject,
+      }),
     });
   }
 
@@ -190,7 +207,12 @@ function extractEmailApplicationJobs(articleTitle, articleUrl, html) {
         location,
         description: `Apply for the ${title} position at ${company}.`,
         deadline,
-        sourceUrl: buildEmailApplicationUrl({ email, title, company }),
+        sourceUrl: buildEmailApplicationUrl({
+          email,
+          title,
+          company,
+          subject: employerSubject,
+        }),
       };
     })
     .get()

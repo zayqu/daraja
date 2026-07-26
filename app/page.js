@@ -1,4 +1,5 @@
 import Link from "next/link";
+import JobAlerts from "@/components/JobAlerts";
 
 export default function Home() {
   return (
@@ -199,6 +200,8 @@ export default function Home() {
             </div>
           </div>
         </div>
+
+        <JobAlerts />
 
         <div className="cta-strip">
           <h2>Are you hiring?</h2>

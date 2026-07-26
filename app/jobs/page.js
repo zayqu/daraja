@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
+import AdSenseSlot from "@/components/AdSenseSlot";
 
 const CATEGORIES = [
   "Government", "NGO & Development", "Banking & Finance", "Technology",
@@ -319,6 +320,11 @@ export default function JobsPage() {
           )}
 
           {/* Pagination */}
+          <AdSenseSlot
+            slot={process.env.NEXT_PUBLIC_GOOGLE_ADSENSE_JOB_LIST_SLOT}
+            label="Sponsored job-listing advertisement"
+          />
+
           {pagination.pages > 1 && (
             <nav className="pager" aria-label="Job results pagination">
               <button className="pg-btn pg-nav" onClick={() => setPage((p) => Math.max(1, p - 1))} disabled={page === 1}>← Prev</button>

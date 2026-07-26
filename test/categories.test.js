@@ -14,14 +14,21 @@ test("categorization prioritizes the role over the employer sector", () => {
     "Technology"
   );
   assert.equal(
-    categorizeJob({ title: "Internal Auditor", company: "Example Hospital" }),
+    categorizeJob({ title: "Internal Auditor", company: "Example University" }),
     "Accounting & Audit"
+  );
+  assert.equal(
+    categorizeJob({ title: "Driver", company: "Example University" }),
+    "Logistics & Transport"
   );
 });
 
-test("Ajira vacancies remain in the Government category", () => {
+test("Ajira vacancies use the role category instead of one source-wide category", () => {
   assert.equal(
     categorizeJob({ title: "Software Engineer", source: "ajira" }),
-    "Government"
+    "Technology"
   );
+  assert.equal(categorizeJob({ title: "MHASIBU DARAJA LA II", source: "ajira" }), "Accounting & Audit");
+  assert.equal(categorizeJob({ title: "MUUGUZI DARAJA LA II", source: "ajira" }), "Health");
+  assert.equal(categorizeJob({ title: "DEREVA DARAJA LA II", source: "ajira" }), "Logistics & Transport");
 });

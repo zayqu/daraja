@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import AdSenseSlot from "@/components/AdSenseSlot";
+import JobAlerts from "@/components/JobAlerts";
 
 const CATEGORIES = [
   "Government", "NGO & Development", "Banking & Finance", "Technology",
@@ -318,6 +319,8 @@ export default function JobsPage() {
               ))}
             </section>
           )}
+
+          <JobAlerts />
 
           {/* Pagination */}
           <AdSenseSlot

@@ -16,18 +16,20 @@ async function extractPageJobs(page) {
       const cells = [...row.querySelectorAll("td")];
       if (cells.length < 4) return [];
 
+      const text = (element) =>
+        element?.textContent?.replace(/\s+/g, " ").trim() || "";
       const titleCell = cells[1];
       const link = titleCell.querySelector("a[href]") || row.querySelector("a[href]");
       const title =
-        link?.textContent ||
-        titleCell.querySelector("div > div:first-child")?.textContent ||
-        titleCell.textContent;
+        text(link) ||
+        text(titleCell.querySelector("div > div:first-child")) ||
+        text(titleCell);
       const company =
-        cells[2]?.querySelector("div")?.textContent || cells[2]?.textContent;
+        text(cells[2]?.querySelector("div")) || text(cells[2]);
       const deadline =
-        cells[3]?.querySelector("span")?.textContent || cells[3]?.textContent;
+        text(cells[3]?.querySelector("span")) || text(cells[3]);
       const numberOfPosts =
-        titleCell.querySelector(".text-gray-600")?.textContent ||
+        text(titleCell.querySelector(".text-gray-600")) ||
         [...titleCell.querySelectorAll("div")]
           .map((element) => element.textContent)
           .find((text) => /post|position|nafasi/i.test(text || ""));

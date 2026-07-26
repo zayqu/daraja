@@ -45,5 +45,5 @@ jobs:
       - name: Apply database migrations
         run: npx prisma migrate resolve --applied 20260317233531_init || true; npx prisma migrate deploy
 
-      - name: Run Ajira scraper
+      - name: Run enabled source scrapers
         run: npm run scrape

@@ -3,10 +3,12 @@ require("dotenv").config();
 const catalog = require("./config/source-catalog.json");
 const { createPrismaClient, saveJobs } = require("./lib/store");
 const { collectAjiraJobs } = require("./sources/ajira");
+const { collectAjiraWebJobs } = require("./sources/ajiraweb");
 const { collectReliefWebJobs } = require("./sources/reliefweb");
 
 const adapters = {
   ajira: collectAjiraJobs,
+  ajiraweb: collectAjiraWebJobs,
   reliefweb: collectReliefWebJobs,
 };
 
@@ -65,8 +67,11 @@ async function runScrapers({ dryRun = false, requestedSources = new Set() } = {}
     await prisma?.$disconnect();
   }
 
+  if (!summaries.length) {
+    throw new Error(`All enabled sources failed: ${JSON.stringify(failures)}`);
+  }
   if (failures.length) {
-    throw new Error(`One or more sources failed: ${JSON.stringify(failures)}`);
+    console.warn(`Some sources failed; successful sources were preserved: ${JSON.stringify(failures)}`);
   }
   return summaries;
 }

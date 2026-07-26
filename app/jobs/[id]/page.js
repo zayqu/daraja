@@ -4,6 +4,12 @@ import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 
+const SOURCE_NAMES = {
+  ajira: "Ajira Portal",
+  ajiraweb: "AjiraWeb",
+  daraja: "Daraja",
+};
+
 export default function JobDetailPage() {
   const { id } = useParams();
   const [job, setJob] = useState(null);
@@ -52,6 +58,24 @@ export default function JobDetailPage() {
     if (isExpired(d)) return "detail-value expired";
     if (isExpiringSoon(d)) return "detail-value soon";
     return "detail-value ok";
+  }
+
+  function getShareMessage() {
+    const deadline = job.deadline ? formatDate(job.deadline) : "Not specified";
+    return [
+      "📢 New Job Opportunity",
+      "",
+      `Position: ${job.title}`,
+      `Organisation: ${job.company}`,
+      `Location: ${job.location}`,
+      `Category: ${job.category}`,
+      `Deadline: ${deadline}`,
+      "",
+      `View details: ${window.location.href}`,
+      "",
+      "Follow Daraja Jobs on WhatsApp:",
+      "https://whatsapp.com/channel/0029Vanw1OQ1CYoYdxl32g3V",
+    ].join("\n");
   }
 
   return (
@@ -109,10 +133,12 @@ export default function JobDetailPage() {
         .apply-btn:hover { opacity: 0.88; }
         .apply-btn-disabled { display: block; width: 100%; padding: 0.9rem; background: #E8ECF0; color: #A0ACBB; font-family: 'Poppins', sans-serif; font-size: 0.85rem; font-weight: 700; text-align: center; border-radius: 6px; letter-spacing: 0.04em; cursor: not-allowed; }
         .apply-note { font-size: 0.7rem; color: #A0ACBB; text-align: center; margin-top: 0.65rem; line-height: 1.5; }
+        .share-btn { display: block; width: 100%; min-height: 46px; margin-top: 0.75rem; padding: 0.75rem; border: 1.5px solid #25D366; border-radius: 6px; background: #fff; color: #167B3C; font: 700 0.8rem 'Poppins', sans-serif; text-align: center; text-decoration: none; cursor: pointer; }
+        .share-btn:hover { background: #F0FFF5; }
 
         .back-link { display: inline-flex; align-items: center; gap: 0.4rem; font-size: 0.78rem; color: #6B7685; text-decoration: none; margin-bottom: 1.5rem; transition: color 0.15s; }
         .back-link:hover { color: #00C9A7; }
-        .back-link:focus-visible, .nav-logo:focus-visible, .nav-cta:focus-visible, .apply-btn:focus-visible, .breadcrumb a:focus-visible { outline: 3px solid #F59E0B; outline-offset: 3px; }
+        .back-link:focus-visible, .nav-logo:focus-visible, .nav-cta:focus-visible, .apply-btn:focus-visible, .share-btn:focus-visible, .breadcrumb a:focus-visible { outline: 3px solid #F59E0B; outline-offset: 3px; }
 
         .state { text-align: center; padding: 5rem 3rem; max-width: 860px; margin: 0 auto; }
         .state strong { font-family: 'Montserrat', sans-serif; font-size: 1.1rem; color: #1B2A3F; display: block; margin-bottom: 0.5rem; }
@@ -175,7 +201,7 @@ export default function JobDetailPage() {
               <div className="main-card">
                 <div className="card-header">
                   <div className="job-source">
-                    {job.source === "ajira" ? "Ajira Portal" : "Daraja"}
+                    {SOURCE_NAMES[job.source] || job.source}
                   </div>
                   <h1 className="job-title">{job.title}</h1>
                   <div className="job-company">{job.company}</div>
@@ -214,6 +240,14 @@ export default function JobDetailPage() {
                     This position is on the Ajira Government Portal. You will be redirected to apply.
                   </p>
                 )}
+                <a
+                  className="share-btn"
+                  href={`https://wa.me/?text=${encodeURIComponent(getShareMessage())}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  Share on WhatsApp
+                </a>
               </div>
 
               <div className="side-card">
@@ -255,7 +289,7 @@ export default function JobDetailPage() {
                   )}
                   <div className="detail-item">
                     <div className="detail-label">Source</div>
-                    <div className="detail-value">{job.source === "ajira" ? "Ajira Portal" : "Daraja"}</div>
+                    <div className="detail-value">{SOURCE_NAMES[job.source] || job.source}</div>
                   </div>
                   <div className="detail-item">
                     <div className="detail-label">Posted</div>

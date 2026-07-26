@@ -1,4 +1,5 @@
 const { createHash } = require("node:crypto");
+const { categorizeJob } = require("./categories");
 
 const AJIRA_SOURCE = "ajira";
 const AJIRA_VACANCIES_URL = "https://portal.ajira.go.tz/vacancies";
@@ -89,7 +90,14 @@ function normalizeJob(rawJob, defaults = {}) {
         ? `${numberOfPosts}. ${defaults.description || "Visit the source website for full vacancy details and application instructions."}`
         : defaults.description ||
           "Visit the source website for full vacancy details and application instructions."),
-    category: cleanText(rawJob.category) || cleanText(defaults.category) || "General",
+    category:
+      cleanText(rawJob.category) ||
+      cleanText(defaults.category) ||
+      categorizeJob({
+        ...rawJob,
+        company,
+        source: cleanText(defaults.source),
+      }),
     type: rawJob.type || defaults.type || "FULL_TIME",
     sourceUrl,
     source: cleanText(defaults.source) || AJIRA_SOURCE,

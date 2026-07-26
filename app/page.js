@@ -100,7 +100,7 @@ export default function Home() {
           <div className="nav-links">
             <Link href="/jobs" className="nav-link">Browse Jobs</Link>
             <Link href="/jobs?category=Government" className="nav-link">Government</Link>
-            <Link href="/jobs?category=NGO" className="nav-link">NGO</Link>
+            <Link href="/jobs?category=NGO%20%26%20Development" className="nav-link">NGO</Link>
             <Link href="/post-job" className="nav-cta">Post a Job</Link>
           </div>
         </nav>
@@ -150,17 +150,17 @@ export default function Home() {
           <div className="cat-grid">
             {[
               { name: "Government", desc: "Public sector & civil service roles" },
-              { name: "NGO", desc: "UN, USAID, World Bank & nonprofits" },
+              { name: "NGO & Development", desc: "UN, USAID, World Bank & nonprofits" },
               { name: "Education", desc: "Universities, schools & training" },
               { name: "Health", desc: "Hospitals, clinics & public health" },
-              { name: "Finance", desc: "Banking, insurance & accounting" },
-              { name: "IT", desc: "Software, systems & tech roles" },
+              { name: "Banking & Finance", desc: "Banking, insurance & accounting" },
+              { name: "Technology", desc: "Software, systems & tech roles" },
               { name: "Engineering", desc: "Civil, mechanical & electrical" },
               { name: "General", desc: "All other industries" },
             ].map((cat) => (
               <Link
                 key={cat.name}
-                href={"/jobs?category=" + cat.name}
+                href={"/jobs?category=" + encodeURIComponent(cat.name)}
                 className="cat-card"
               >
                 <div className="cat-name">{cat.name}</div>

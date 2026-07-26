@@ -150,8 +150,8 @@
       "name": "AjiraWeb",
       "url": "https://ajiraweb.com/",
       "category": "general_tanzania_job_websites",
-      "enabled": false,
-      "adapter": null
+      "enabled": true,
+      "adapter": "ajiraweb"
     },
     {
       "id": "careers-mitihani",

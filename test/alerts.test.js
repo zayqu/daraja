@@ -4,7 +4,7 @@ const assert = require("node:assert/strict");
 const {
   buildAlertEmail,
   escapeHtml,
-  jobMatchesInterests,
+  jobMatchesCategories,
   sendJobAlertDigests,
 } = require("../scraper/lib/alerts");
 
@@ -26,7 +26,7 @@ test("job alert email escapes source text and contains an unsubscribe link", () 
   assert.equal(escapeHtml(`"'<>`), "&quot;&#039;&lt;&gt;");
 });
 
-test("job alerts match only the subscriber's selected fields", () => {
+test("job alerts match only the subscriber's selected categories", () => {
   const graphicJob = {
     title: "Senior Graphic Designer",
     category: "Sales & Marketing",
@@ -40,10 +40,10 @@ test("job alerts match only the subscriber's selected fields", () => {
     description: "Assess lending applications.",
   };
 
-  assert.equal(jobMatchesInterests(graphicJob, ["Graphic Designer"]), true);
-  assert.equal(jobMatchesInterests(graphicJob, ["Brand Identity"]), false);
-  assert.equal(jobMatchesInterests(financeJob, ["Graphic Designer"]), false);
-  assert.equal(jobMatchesInterests(financeJob, ["Banking & Finance"]), true);
+  assert.equal(jobMatchesCategories(graphicJob, ["Sales & Marketing"]), true);
+  assert.equal(jobMatchesCategories(graphicJob, ["Technology"]), false);
+  assert.equal(jobMatchesCategories(financeJob, ["Sales & Marketing"]), false);
+  assert.equal(jobMatchesCategories(financeJob, ["Banking & Finance"]), true);
 });
 
 test("job alert delivery safely skips when sender credentials are absent", async () => {

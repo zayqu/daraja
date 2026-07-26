@@ -158,7 +158,7 @@ model JobAlertSubscriber {
   id             String   @id @default(cuid())
   email          String   @unique
   unsubscribeToken String @unique @default(uuid())
-  interests      String[] @default([])
+  categories     String[] @default([])
   active         Boolean  @default(true)
   consentedAt    DateTime
   lastNotifiedAt DateTime @default(now())
@@ -166,6 +166,18 @@ model JobAlertSubscriber {
   updatedAt      DateTime @updatedAt
 
   @@index([active, lastNotifiedAt])
+}
+
+model JobSearchInsight {
+  id              String   @id @default(cuid())
+  query           String
+  normalizedQuery String
+  category        String?
+  resultCount     Int
+  searchedAt      DateTime @default(now())
+
+  @@index([normalizedQuery, searchedAt])
+  @@index([resultCount, searchedAt])
 }
 
 enum PayStatus {

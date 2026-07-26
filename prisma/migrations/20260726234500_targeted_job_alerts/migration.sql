@@ -1,0 +1,2 @@
+ALTER TABLE "JobAlertSubscriber"
+ADD COLUMN "interests" TEXT[] NOT NULL DEFAULT ARRAY[]::TEXT[];

@@ -1,5 +1,6 @@
 const cheerio = require("cheerio");
 
+const { buildEmailApplicationUrl } = require("../lib/applications");
 const { cleanText, deduplicateJobs } = require("../lib/jobs");
 
 const AJIRAWEB_FEED_URL = "https://ajiraweb.com/feed/";
@@ -159,13 +160,7 @@ function extractEmailApplicationJobs(articleTitle, articleUrl, html) {
       if (text) details.push(text);
       current = current.next();
     }
-    const instructions = [
-      ...details,
-      `Application method: Email your application to ${email}.`,
-      deadline ? `Application deadline: ${deadline}.` : "",
-    ]
-      .filter(Boolean)
-      .join("\n\n");
+    const instructions = details.join("\n\n");
 
     jobs.push({
       sourceId: `email-${email.toLowerCase()}-${title.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`,
@@ -174,7 +169,7 @@ function extractEmailApplicationJobs(articleTitle, articleUrl, html) {
       location,
       description: instructions,
       deadline,
-      sourceUrl: `mailto:${email}?subject=${encodeURIComponent(`Application for ${title}`)}`,
+      sourceUrl: buildEmailApplicationUrl({ email, title, company }),
     });
   }
 
@@ -193,15 +188,9 @@ function extractEmailApplicationJobs(articleTitle, articleUrl, html) {
         title,
         company,
         location,
-        description: [
-          `Apply for the ${title} position at ${company}.`,
-          `Application method: Email your application to ${email}.`,
-          deadline ? `Application deadline: ${deadline}.` : "",
-        ]
-          .filter(Boolean)
-          .join("\n\n"),
+        description: `Apply for the ${title} position at ${company}.`,
         deadline,
-        sourceUrl: `mailto:${email}?subject=${encodeURIComponent(`Application for ${title}`)}`,
+        sourceUrl: buildEmailApplicationUrl({ email, title, company }),
       };
     })
     .get()
@@ -276,9 +265,6 @@ async function fetchStandardBankJob(sourceUrl, fetchFn) {
     .filter(Boolean)
     .join("\n\n");
 
-  url.searchParams.set("jobSite", posting.company?.identifier || "StandardBankGroup");
-  url.searchParams.set("jobLocale", posting.language?.code || "en-US");
-
   return {
     sourceId: `standardbank-${posting.id}`,
     title: posting.name,
@@ -286,7 +272,7 @@ async function fetchStandardBankJob(sourceUrl, fetchFn) {
     location: posting.location?.fullLocation || "Tanzania",
     description,
     type: mapEmploymentType(posting.typeOfEmployment?.label),
-    sourceUrl: url.toString(),
+    sourceUrl: posting.applyUrl || posting.postingUrl || url.toString(),
   };
 }
 

@@ -10,6 +10,20 @@ function cleanText(value) {
     : "";
 }
 
+function cleanDescription(value) {
+  if (typeof value !== "string") return "";
+
+  const repeatedField =
+    /^(?:organization|organisation|company|employer|location|application\s+method|application\s+email|application\s+deadline|closing\s+date|deadline)\s*:/i;
+
+  return value
+    .split(/\n+/)
+    .map(cleanText)
+    .filter(Boolean)
+    .filter((paragraph) => !repeatedField.test(paragraph))
+    .join("\n\n");
+}
+
 function parseDeadline(value) {
   const text = cleanText(value);
   if (!text) return null;
@@ -118,7 +132,7 @@ function normalizeJob(rawJob, defaults = {}) {
     company,
     location: cleanText(rawJob.location) || cleanText(defaults.location) || "Tanzania",
     description:
-      cleanText(rawJob.description) ||
+      cleanDescription(rawJob.description) ||
       (numberOfPosts
         ? `${numberOfPosts}. ${defaults.description || "Visit the source website for full vacancy details and application instructions."}`
         : defaults.description ||
@@ -160,6 +174,7 @@ function deduplicateJobs(rawJobs, defaults = {}) {
 module.exports = {
   AJIRA_SOURCE,
   AJIRA_VACANCIES_URL,
+  cleanDescription,
   cleanText,
   deduplicateJobs,
   getSourceId,

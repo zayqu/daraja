@@ -112,5 +112,46 @@ test("email application articles are split into individual vacancies", () => {
   assert.equal(jobs[0].company, "Akiba Commercial Bank Plc (ACB Bank)");
   assert.equal(jobs[0].deadline, "31 July 2099");
   assert.match(jobs[0].description, /assesses credit applications/);
+  assert.doesNotMatch(jobs[0].description, /Application (?:method|deadline)/i);
+  assert.doesNotMatch(jobs[0].description, /Organization:/i);
+  assert.doesNotMatch(jobs[0].description, /Location:/i);
   assert.match(jobs[0].sourceUrl, /^mailto:recruitment@acbbank\.co\.tz/);
+  const applicationUrl = new URL(jobs[0].sourceUrl);
+  assert.equal(applicationUrl.searchParams.get("subject"), "Application for Credit Analyst");
+  assert.match(applicationUrl.searchParams.get("body"), /Dear Hiring Manager/);
+  assert.match(applicationUrl.searchParams.get("body"), /attach/i);
+  assert.match(applicationUrl.searchParams.get("body"), /Full name/);
+});
+
+test("Standard Bank vacancies use the direct SmartRecruiters application URL", async () => {
+  const job = await require("../scraper/sources/ajiraweb").fetchStandardBankJob(
+    "https://careers.standardbank.com/job-search-results/?jobID=744000075456789",
+    async () => ({
+      ok: true,
+      json: async () => ({
+        id: "744000075456789",
+        active: true,
+        name: "Finance Manager, Group Functions",
+        location: { country: "tz", fullLocation: "Dar es Salaam, Tanzania" },
+        typeOfEmployment: { label: "Full-time" },
+        company: { identifier: "StandardBankGroup" },
+        language: { code: "en-US" },
+        applyUrl:
+          "https://jobs.smartrecruiters.com/StandardBankGroup/744000075456789-finance-manager?oga=true",
+        postingUrl:
+          "https://jobs.smartrecruiters.com/StandardBankGroup/744000075456789-finance-manager",
+        jobAd: {
+          sections: {
+            jobDescription: { text: "<p>Lead group finance activities.</p>" },
+          },
+        },
+      }),
+    })
+  );
+
+  assert.equal(job.title, "Finance Manager, Group Functions");
+  assert.equal(
+    job.sourceUrl,
+    "https://jobs.smartrecruiters.com/StandardBankGroup/744000075456789-finance-manager?oga=true"
+  );
 });

@@ -2,12 +2,33 @@ const test = require("node:test");
 const assert = require("node:assert/strict");
 
 const {
+  cleanDescription,
   deduplicateJobs,
   getSourceId,
   normalizeJob,
   normalizeUrl,
   parseDeadline,
 } = require("../scraper/lib/jobs");
+
+test("cleanDescription removes fields already displayed by the job page", () => {
+  assert.equal(
+    cleanDescription(`
+      Assess credit applications and financial risks.
+
+      Organization: Example Bank
+      Location: Dar es Salaam, Tanzania
+      Application Method: Email
+      Application Email: recruitment@example.co.tz
+      Application Deadline: 31 July 2099
+
+      Prepare clear recommendations for the credit committee.
+    `),
+    [
+      "Assess credit applications and financial risks.",
+      "Prepare clear recommendations for the credit committee.",
+    ].join("\n\n")
+  );
+});
 
 test("parseDeadline parses Ajira day/month/year dates at end of day UTC", () => {
   assert.equal(parseDeadline("25/07/2026").toISOString(), "2026-07-25T23:59:59.000Z");

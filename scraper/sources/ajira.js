@@ -129,7 +129,6 @@ async function collectAjiraJobs(options = {}) {
   const jobs = deduplicateJobs(rawJobs, {
     source: AJIRA_SOURCE,
     baseUrl: AJIRA_VACANCIES_URL,
-    category: "Government",
     language: "sw",
     description:
       "Visit the official Ajira Portal for the full vacancy notice and application instructions.",

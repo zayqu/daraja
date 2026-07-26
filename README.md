@@ -55,6 +55,23 @@ npm run scrape:dry -- --source=reliefweb
 The scheduled workflow can also be started manually from **Actions → Job Source
 Scrapers → Run workflow**.
 
+### Application-link standard
+
+Every enabled adapter must store the final candidate action, not the discovery
+article:
+
+- Online applications use the vacancy-specific employer or official ATS
+  application URL.
+- Vacancies requiring an account use the vacancy-specific employer login or
+  registration step.
+- Email applications use a validated `mailto:` link with the recipient, job
+  title, and a professional application body prepared for the candidate.
+- Generic news articles, career homepages, and job-search result pages are not
+  valid application links.
+
+The intended journey is: read the complete vacancy once on Daraja, select
+**Apply**, then submit the application or sign in on the official destination.
+
 ## Learn More
 
 To learn more about Next.js, take a look at the following resources:

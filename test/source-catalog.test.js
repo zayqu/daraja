@@ -17,7 +17,7 @@ test("source catalogue has unique IDs and excludes Daraja itself", () => {
 
 test("every enabled source has a named adapter", () => {
   const enabled = catalog.sources.filter((source) => source.enabled);
-  assert.ok(enabled.length >= 1);
+  assert.ok(enabled.length >= 2);
   assert.equal(enabled.every((source) => Boolean(source.adapter)), true);
 });
 

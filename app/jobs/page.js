@@ -4,9 +4,19 @@ import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 
 const CATEGORIES = [
-  "All", "Government", "Education", "Health",
-  "Finance", "IT", "Engineering", "NGO",
+  "Government", "NGO & Development", "Banking & Finance", "Technology",
+  "Health", "Education", "Engineering", "Sales & Marketing",
+  "Accounting & Audit", "HR & Administration", "Legal",
+  "Logistics & Transport", "Hospitality & Tourism", "Agriculture",
+  "Mining, Energy, Oil & Gas", "Manufacturing",
+  "Internships & Graduate Programs", "General",
 ];
+
+const SOURCE_NAMES = {
+  ajira: "Ajira Portal",
+  ajiraweb: "AjiraWeb",
+  daraja: "Daraja",
+};
 
 export default function JobsPage() {
   const [jobs, setJobs] = useState([]);
@@ -136,12 +146,11 @@ export default function JobsPage() {
         .body { max-width: 860px; margin: 0 auto; padding: 2rem 3rem 4rem; }
 
         /* FILTERS */
-        .filters { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1.75rem; }
-        .filter-group { margin-bottom: 1.25rem; }
+        .filters { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); gap: 0.75rem; margin-bottom: 1.5rem; }
+        .filter-group { margin: 0; }
         .filter-label { display: block; font-size: 0.72rem; font-weight: 600; color: #5F6B7A; margin-bottom: 0.55rem; }
-        .f-btn { font-family: 'Poppins', sans-serif; font-size: 0.75rem; font-weight: 500; padding: 0.38rem 1rem; border-radius: 100px; border: 1.5px solid #DDE1E8; background: #fff; color: #6B7685; cursor: pointer; transition: all 0.15s; letter-spacing: 0.02em; }
-        .f-btn:hover { border-color: #00C9A7; color: #1B2A3F; }
-        .f-btn.active { background: #1B2A3F; color: #00C9A7; border-color: #1B2A3F; }
+        .filter-select { width: 100%; min-height: 46px; padding: 0.65rem 0.8rem; border: 1.5px solid #DDE1E8; border-radius: 6px; background: #fff; color: #1B2A3F; font: 500 0.82rem 'Poppins', sans-serif; }
+        .filter-select:focus-visible { outline: 3px solid #F59E0B; outline-offset: 2px; border-color: #1B2A3F; }
 
         /* META */
         .meta { font-size: 0.78rem; color: #8B95A1; margin-bottom: 1.25rem; letter-spacing: 0.02em; }
@@ -185,7 +194,7 @@ export default function JobsPage() {
 
         /* PAGINATION */
         .pager { display: flex; justify-content: center; gap: 0.3rem; margin-top: 2.5rem; }
-        .pg-btn { width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; font-size: 0.78rem; font-family: 'Poppins', sans-serif; border: 1.5px solid #DDE1E8; border-radius: 4px; background: #fff; cursor: pointer; color: #6B7685; transition: all 0.15s; }
+        .pg-btn { min-width: 44px; min-height: 44px; display: flex; align-items: center; justify-content: center; font-size: 0.78rem; font-family: 'Poppins', sans-serif; border: 1.5px solid #DDE1E8; border-radius: 4px; background: #fff; cursor: pointer; color: #6B7685; transition: all 0.15s; }
         .pg-btn:hover:not(:disabled) { border-color: #1B2A3F; color: #1B2A3F; }
         .pg-btn.active { background: #1B2A3F; color: #00C9A7; border-color: #1B2A3F; }
         .pg-btn:disabled { opacity: 0.3; cursor: not-allowed; }
@@ -204,6 +213,7 @@ export default function JobsPage() {
           .header h1 { font-size: 1.4rem; }
           .jc-top { flex-direction: column; gap: 0.75rem; }
           .jc-right { text-align: left; }
+          .filters { grid-template-columns: 1fr; }
         }
       `}</style>
 
@@ -239,42 +249,31 @@ export default function JobsPage() {
         {/* Content */}
         <main className="body" id="main-content">
           {/* Filters */}
-          <div className="filter-group">
-            <span className="filter-label">Job category</span>
-            <div className="filters" aria-label="Filter by job category">
-              {CATEGORIES.map((cat) => {
-                const selected = (cat === "All" && !category) || category === cat;
-                return (
-                  <button
-                    key={cat}
-                    className={`f-btn ${selected ? "active" : ""}`}
-                    aria-pressed={selected}
-                    onClick={() => { setCategory(cat === "All" ? "" : cat); setPage(1); }}
-                  >
-                    {cat}
-                  </button>
-                );
-              })}
+          <div className="filters" aria-label="Job filters">
+            <div className="filter-group">
+              <label className="filter-label" htmlFor="category-filter">Category</label>
+              <select
+                id="category-filter"
+                className="filter-select"
+                value={category}
+                onChange={(event) => { setCategory(event.target.value); setPage(1); }}
+              >
+                <option value="">All categories</option>
+                {CATEGORIES.map((cat) => <option key={cat} value={cat}>{cat}</option>)}
+              </select>
             </div>
-          </div>
-
-          <div className="filter-group">
-            <span className="filter-label">Application status</span>
-            <div className="filters" aria-label="Filter by application status">
-              {[
-                ["active", "Open jobs"],
-                ["expired", "Expired jobs"],
-                ["all", "All jobs"],
-              ].map(([value, label]) => (
-                <button
-                  key={value}
-                  className={`f-btn ${status === value ? "active" : ""}`}
-                  aria-pressed={status === value}
-                  onClick={() => { setStatus(value); setPage(1); }}
-                >
-                  {label}
-                </button>
-              ))}
+            <div className="filter-group">
+              <label className="filter-label" htmlFor="status-filter">Status</label>
+              <select
+                id="status-filter"
+                className="filter-select"
+                value={status}
+                onChange={(event) => { setStatus(event.target.value); setPage(1); }}
+              >
+                <option value="active">Open jobs</option>
+                <option value="expired">Expired jobs</option>
+                <option value="all">All jobs</option>
+              </select>
             </div>
           </div>
 
@@ -305,7 +304,7 @@ export default function JobsPage() {
                   <div className="jc-top">
                     <div className="jc-left">
                       <div className="jc-source">
-                        {job.source === "ajira" ? "Ajira Portal" : "Daraja"}
+                        {SOURCE_NAMES[job.source] || job.source}
                       </div>
                       <div className="jc-title">{job.title}</div>
                       <div className="jc-company">{job.company}</div>
@@ -334,17 +333,7 @@ export default function JobsPage() {
           {pagination.pages > 1 && (
             <nav className="pager" aria-label="Job results pagination">
               <button className="pg-btn pg-nav" onClick={() => setPage((p) => Math.max(1, p - 1))} disabled={page === 1}>← Prev</button>
-              {Array.from({ length: pagination.pages }, (_, i) => i + 1).map((p) => (
-                <button
-                  key={p}
-                  className={`pg-btn ${page === p ? "active" : ""}`}
-                  aria-current={page === p ? "page" : undefined}
-                  aria-label={`Page ${p}`}
-                  onClick={() => setPage(p)}
-                >
-                  {p}
-                </button>
-              ))}
+              <span className="pg-btn active" aria-current="page">{page} / {pagination.pages}</span>
               <button className="pg-btn pg-nav" onClick={() => setPage((p) => Math.min(pagination.pages, p + 1))} disabled={page === pagination.pages}>Next →</button>
             </nav>
           )}

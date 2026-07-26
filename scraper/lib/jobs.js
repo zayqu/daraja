@@ -98,7 +98,10 @@ function normalizeJob(rawJob, defaults = {}) {
     active: deadline ? deadline.getTime() >= Date.now() : true,
   };
 
-  return { ...job, sourceId: getSourceId(job, baseUrl) };
+  return {
+    ...job,
+    sourceId: cleanText(rawJob.sourceId) || getSourceId(job, baseUrl),
+  };
 }
 
 function deduplicateJobs(rawJobs, defaults = {}) {

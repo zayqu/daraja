@@ -1,16 +1,23 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import CATEGORIES from "@/config/job-categories.json";
 
 const WHATSAPP_CHANNEL =
   "https://whatsapp.com/channel/0029Vanw1OQ1CYoYdxl32g3V";
 
-export default function JobAlerts() {
+export default function JobAlerts({ initialCategory = "" }) {
   const [email, setEmail] = useState("");
-  const [interests, setInterests] = useState("");
+  const [category, setCategory] = useState(
+    CATEGORIES.includes(initialCategory) ? initialCategory : ""
+  );
   const [consent, setConsent] = useState(false);
   const [status, setStatus] = useState("idle");
   const [message, setMessage] = useState("");
+
+  useEffect(() => {
+    if (CATEGORIES.includes(initialCategory)) setCategory(initialCategory);
+  }, [initialCategory]);
 
   async function subscribe(event) {
     event.preventDefault();
@@ -24,7 +31,7 @@ export default function JobAlerts() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           email,
-          interests,
+          category,
           consent,
           website: event.currentTarget.elements.website.value,
         }),
@@ -33,9 +40,8 @@ export default function JobAlerts() {
       if (!response.ok) throw new Error(data.error || "Subscription failed.");
 
       setStatus("success");
-      setMessage("You are subscribed. New-job updates will be sent to this email.");
+      setMessage(`Your alert is active. We’ll email you when new ${category} vacancies are published.`);
       setEmail("");
-      setInterests("");
       setConsent(false);
     } catch (error) {
       setStatus("error");
@@ -46,31 +52,30 @@ export default function JobAlerts() {
   return (
     <section className="alerts" aria-labelledby="job-alerts-title">
       <div className="alerts-heading">
-        <span>Never miss an opportunity</span>
-        <h2 id="job-alerts-title">Get new Tanzania jobs first</h2>
-        <p>Choose email alerts or follow the official Daraja WhatsApp Channel.</p>
+        <span>Personalised job alerts</span>
+        <h2 id="job-alerts-title">Receive relevant opportunities</h2>
+        <p>Select a professional category and choose how you would like to stay informed.</p>
       </div>
 
       <div className="alerts-grid">
         <div className="alert-card">
           <div className="alert-kicker">Email alerts</div>
-          <h3>Jobs delivered to your inbox</h3>
-          <p>Choose your fields and receive only matching verified vacancies.</p>
+          <h3>Create a category-specific alert</h3>
+          <p>We will email you when verified vacancies are published in your selected category.</p>
           <form onSubmit={subscribe}>
-            <label htmlFor="job-alert-interests">Job fields or positions</label>
-            <input
-              id="job-alert-interests"
-              name="interests"
-              type="text"
-              value={interests}
-              onChange={(event) => setInterests(event.target.value)}
-              placeholder="Graphic Designer, UI Designer"
-              aria-describedby="job-alert-interests-help"
+            <label htmlFor="job-alert-category">Job category</label>
+            <select
+              id="job-alert-category"
+              name="category"
+              value={category}
+              onChange={(event) => setCategory(event.target.value)}
               required
-            />
-            <small id="job-alert-interests-help" className="field-help">
-              Add up to five interests, separated by commas.
-            </small>
+            >
+              <option value="">Select a category</option>
+              {CATEGORIES.map((item) => (
+                <option key={item} value={item}>{item}</option>
+              ))}
+            </select>
             <label htmlFor="job-alert-email">Email address</label>
             <div className="email-row">
               <input
@@ -85,7 +90,7 @@ export default function JobAlerts() {
                 required
               />
               <button type="submit" disabled={status === "loading"}>
-                {status === "loading" ? "Joining..." : "Subscribe"}
+                {status === "loading" ? "Creating alert..." : "Create job alert"}
               </button>
             </div>
             <input
@@ -103,7 +108,7 @@ export default function JobAlerts() {
                 onChange={(event) => setConsent(event.target.checked)}
                 required
               />
-              <span>I agree to receive Daraja job-alert emails.</span>
+              <span>I agree to receive relevant job alerts from Daraja. I can unsubscribe at any time.</span>
             </label>
             {message && (
               <p
@@ -117,13 +122,13 @@ export default function JobAlerts() {
         </div>
 
         <div className="alert-card whatsapp-card">
-          <div className="alert-kicker">WhatsApp Channel</div>
-          <h3>Follow Daraja on WhatsApp</h3>
-          <p>See new vacancies and important deadline reminders in WhatsApp.</p>
+          <div className="alert-kicker">WhatsApp updates</div>
+          <h3>Follow Daraja Jobs</h3>
+          <p>Receive broader vacancy updates and deadline reminders through our official WhatsApp Channel.</p>
           <a href={WHATSAPP_CHANNEL} target="_blank" rel="noopener noreferrer">
-            Join WhatsApp Channel
+            Follow on WhatsApp
           </a>
-          <small>WhatsApp opens the official Daraja channel.</small>
+          <small>Opens the official Daraja Jobs channel.</small>
         </div>
       </div>
 
@@ -140,8 +145,7 @@ export default function JobAlerts() {
         form > label:not(.consent) { display: block; margin: 0.8rem 0 0.35rem; color: #344054; font-size: 0.76rem; font-weight: 600; }
         form > label:first-child { margin-top: 0; }
         .email-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 0.5rem; }
-        input[type="email"], input[name="interests"] { width: 100%; min-height: 46px; padding: 0 0.85rem; border: 1.5px solid #cfd6df; border-radius: 6px; color: #1b2a3f; font-size: 1rem; }
-        .field-help { display: block; margin-top: 0.35rem; color: #667085; font-size: 0.68rem; }
+        input[type="email"], select { width: 100%; min-height: 48px; padding: 0 0.85rem; border: 1.5px solid #cfd6df; border-radius: 6px; background: #fff; color: #1b2a3f; font-size: 1rem; }
         button, .whatsapp-card a { min-height: 46px; padding: 0.75rem 1rem; border: 0; border-radius: 6px; font: 700 0.8rem Poppins, sans-serif; cursor: pointer; text-decoration: none; text-align: center; }
         button { background: #00c9a7; color: #1b2a3f; }
         button:disabled { cursor: wait; opacity: 0.65; }
@@ -154,7 +158,7 @@ export default function JobAlerts() {
         .whatsapp-card { display: flex; flex-direction: column; align-items: flex-start; background: #f0fff5; border-color: #b7ebc8; }
         .whatsapp-card a { display: inline-flex; align-items: center; justify-content: center; width: 100%; margin-top: auto; background: #167b3c; color: #fff; }
         .whatsapp-card small { margin-top: 0.65rem; color: #667085; font-size: 0.68rem; }
-        input:focus-visible, button:focus-visible, a:focus-visible { outline: 3px solid #f59e0b; outline-offset: 2px; }
+        input:focus-visible, select:focus-visible, button:focus-visible, a:focus-visible { outline: 3px solid #f59e0b; outline-offset: 2px; }
         @media (max-width: 640px) {
           .alerts { padding: 2.5rem 1.25rem; }
           .alerts-grid { grid-template-columns: 1fr; }

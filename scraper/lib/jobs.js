@@ -77,12 +77,16 @@ function normalizeUrl(value, baseUrl = AJIRA_VACANCIES_URL) {
     if (url.protocol === "mailto:") {
       const email = decodeURIComponent(url.pathname).trim();
       if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return baseUrl;
-      const safeParams = new URLSearchParams();
-      for (const key of ["subject", "body"]) {
-        const value = url.searchParams.get(key);
-        if (value && !/[\r\n]/.test(value)) safeParams.set(key, value);
+      const params = [];
+      const subject = url.searchParams.get("subject");
+      const body = url.searchParams.get("body");
+      if (subject && !/[\r\n]/.test(subject)) {
+        params.push(`subject=${encodeURIComponent(subject.trim())}`);
       }
-      const query = safeParams.toString();
+      if (body) {
+        params.push(`body=${encodeURIComponent(body.replace(/\r\n?/g, "\n"))}`);
+      }
+      const query = params.join("&");
       return `mailto:${email}${query ? `?${query}` : ""}`;
     }
     if (url.protocol !== "https:" && url.protocol !== "http:") return baseUrl;

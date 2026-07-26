@@ -72,6 +72,19 @@ export default function JobDetailPage() {
     ].join("\n");
   }
 
+  function getApplicationEmail() {
+    if (!job?.sourceUrl?.startsWith("mailto:")) return "";
+    try {
+      return decodeURIComponent(
+        job.sourceUrl.slice("mailto:".length).split("?")[0]
+      );
+    } catch {
+      return "";
+    }
+  }
+
+  const applicationEmail = getApplicationEmail();
+
   return (
     <>
       <style>{`
@@ -219,15 +232,26 @@ export default function JobDetailPage() {
               <div className="side-card">
                 <h2 className="side-card-title">Apply for this role</h2>
                 {job.sourceUrl && !isExpired(job.deadline) ? (
-                  <a href={job.sourceUrl} target="_blank" rel="noopener noreferrer" className="apply-btn">
-                    Apply Now →
+                  <a
+                    href={job.sourceUrl}
+                    target={applicationEmail ? undefined : "_blank"}
+                    rel={applicationEmail ? undefined : "noopener noreferrer"}
+                    className="apply-btn"
+                  >
+                    {applicationEmail ? "Prepare Application Email →" : "Start Application →"}
                   </a>
                 ) : (
                   <div className="apply-btn-disabled">Applications Closed</div>
                 )}
                 {job.source === "ajira" && (
                   <p className="apply-note">
-                    This position is on the Ajira Government Portal. You will be redirected to apply.
+                    Continue on the official Ajira page to sign in and apply for this vacancy.
+                  </p>
+                )}
+                {applicationEmail && (
+                  <p className="apply-note">
+                    Recipient, subject and email body are prepared. Add your details and attach your
+                    documents. Email: <a href={job.sourceUrl}>{applicationEmail}</a>
                   </p>
                 )}
                 <a

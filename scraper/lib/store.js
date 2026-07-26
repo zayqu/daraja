@@ -54,7 +54,25 @@ async function saveJobs(prisma, jobs, source) {
     data: { active: false },
   });
 
-  return { source, found: jobs.length, created, updated, archived: expired.count };
+  let retiredUnverified = { count: 0 };
+  if (source === "ajiraweb") {
+    retiredUnverified = await prisma.job.updateMany({
+      where: {
+        source,
+        active: true,
+        sourceId: { notIn: jobs.map((job) => job.sourceId) },
+      },
+      data: { active: false },
+    });
+  }
+
+  return {
+    source,
+    found: jobs.length,
+    created,
+    updated,
+    archived: expired.count + retiredUnverified.count,
+  };
 }
 
 module.exports = { createPrismaClient, saveJobs };

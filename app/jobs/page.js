@@ -12,12 +12,6 @@ const CATEGORIES = [
   "Internships & Graduate Programs", "General",
 ];
 
-const SOURCE_NAMES = {
-  ajira: "Ajira Portal",
-  ajiraweb: "AjiraWeb",
-  daraja: "Daraja",
-};
-
 export default function JobsPage() {
   const [jobs, setJobs] = useState([]);
   const [pagination, setPagination] = useState({});
@@ -182,8 +176,6 @@ export default function JobsPage() {
         .dl-soon { color: #D97706; }
         .dl-exp { color: #DC2626; }
 
-        .jc-source { font-size: 0.65rem; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: #00C9A7; margin-bottom: 0.5rem; }
-
         /* STATES */
         .state-loading { text-align: center; padding: 5rem 0; font-size: 0.85rem; color: #8B95A1; }
         .state-empty, .state-error { text-align: center; padding: 5rem 0; }
@@ -303,9 +295,6 @@ export default function JobsPage() {
                 <Link key={job.id} href={`/jobs/${job.id}`} className="job-card">
                   <div className="jc-top">
                     <div className="jc-left">
-                      <div className="jc-source">
-                        {SOURCE_NAMES[job.source] || job.source}
-                      </div>
                       <div className="jc-title">{job.title}</div>
                       <div className="jc-company">{job.company}</div>
                       <div className="jc-tags">

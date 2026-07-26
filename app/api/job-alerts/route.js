@@ -2,6 +2,16 @@ import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const MAX_INTERESTS = 5;
+
+function normalizeInterests(value) {
+  const values = Array.isArray(value) ? value : String(value || "").split(",");
+  return [...new Set(
+    values
+      .map((interest) => String(interest).replace(/\s+/g, " ").trim())
+      .filter((interest) => interest.length >= 2 && interest.length <= 60)
+  )].slice(0, MAX_INTERESTS);
+}
 
 export async function POST(request) {
   try {
@@ -12,6 +22,7 @@ export async function POST(request) {
 
     const body = await request.json();
     const email = String(body.email || "").trim().toLowerCase();
+    const interests = normalizeInterests(body.interests);
 
     if (body.website) {
       return NextResponse.json({ subscribed: true });
@@ -28,11 +39,17 @@ export async function POST(request) {
         { status: 400 }
       );
     }
+    if (!interests.length) {
+      return NextResponse.json(
+        { error: "Enter at least one job field or position." },
+        { status: 400 }
+      );
+    }
 
     await prisma.jobAlertSubscriber.upsert({
       where: { email },
-      update: { active: true, consentedAt: new Date() },
-      create: { email, consentedAt: new Date() },
+      update: { active: true, consentedAt: new Date(), interests },
+      create: { email, consentedAt: new Date(), interests },
     });
 
     return NextResponse.json({ subscribed: true });

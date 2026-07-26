@@ -49,8 +49,9 @@ export default function PrivacyPage() {
       <h2 style={{ marginTop: "2rem" }}>Job-alert subscriptions</h2>
       <p>
         When a visitor subscribes to email alerts, Daraja stores the submitted email
-        address, consent time and notification history so that relevant vacancy
-        updates can be delivered and duplicate messages can be avoided.
+        address, selected job interests, consent time and notification history so
+        that relevant vacancy updates can be delivered and duplicate messages can
+        be avoided.
       </p>
 
       <h2 style={{ marginTop: "2rem" }}>Data retention and security</h2>

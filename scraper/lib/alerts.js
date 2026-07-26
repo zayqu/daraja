@@ -11,6 +11,20 @@ function escapeHtml(value) {
     .replaceAll("'", "&#039;");
 }
 
+function jobMatchesInterests(job, interests) {
+  const searchable = [
+    job.title,
+    job.category,
+    job.company,
+    job.description,
+  ]
+    .join(" ")
+    .toLowerCase();
+  return interests.some((interest) =>
+    searchable.includes(String(interest).trim().toLowerCase())
+  );
+}
+
 function buildAlertEmail(subscriber, jobs) {
   const jobRows = jobs
     .map(
@@ -27,7 +41,7 @@ function buildAlertEmail(subscriber, jobs) {
     `${SITE_URL}/api/job-alerts?unsubscribe=${encodeURIComponent(subscriber.unsubscribeToken)}`;
 
   return {
-    subject: `${jobs.length} new job${jobs.length === 1 ? "" : "s"} on Daraja`,
+    subject: `${jobs.length} new matching job${jobs.length === 1 ? "" : "s"} on Daraja`,
     html: `
       <div style="max-width:620px;margin:auto;font-family:Arial,sans-serif;color:#1b2a3f;line-height:1.6">
         <h1 style="font-size:24px">New opportunities in Tanzania</h1>
@@ -58,17 +72,36 @@ async function sendJobAlertDigests(prisma, fetchFn = fetch) {
   let sent = 0;
 
   for (const subscriber of subscribers) {
-    const jobs = await prisma.job.findMany({
+    const candidates = await prisma.job.findMany({
       where: {
         active: true,
         createdAt: { gt: subscriber.lastNotifiedAt },
         OR: [{ deadline: null }, { deadline: { gte: new Date() } }],
       },
       orderBy: { createdAt: "asc" },
-      take: MAX_JOBS_PER_EMAIL,
-      select: { id: true, title: true, company: true, location: true, createdAt: true },
+      take: 100,
+      select: {
+        id: true,
+        title: true,
+        company: true,
+        location: true,
+        category: true,
+        description: true,
+        createdAt: true,
+      },
     });
-    if (!jobs.length) continue;
+    const jobs = candidates
+      .filter((job) => jobMatchesInterests(job, subscriber.interests || []))
+      .slice(0, MAX_JOBS_PER_EMAIL);
+    if (!jobs.length) {
+      if (candidates.length) {
+        await prisma.jobAlertSubscriber.update({
+          where: { id: subscriber.id },
+          data: { lastNotifiedAt: candidates.at(-1).createdAt },
+        });
+      }
+      continue;
+    }
 
     const email = buildAlertEmail(subscriber, jobs);
     const response = await fetchFn("https://api.resend.com/emails", {
@@ -100,4 +133,9 @@ async function sendJobAlertDigests(prisma, fetchFn = fetch) {
   return { sent, skipped: false };
 }
 
-module.exports = { buildAlertEmail, escapeHtml, sendJobAlertDigests };
+module.exports = {
+  buildAlertEmail,
+  escapeHtml,
+  jobMatchesInterests,
+  sendJobAlertDigests,
+};

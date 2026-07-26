@@ -7,6 +7,7 @@ const WHATSAPP_CHANNEL =
 
 export default function JobAlerts() {
   const [email, setEmail] = useState("");
+  const [interests, setInterests] = useState("");
   const [consent, setConsent] = useState(false);
   const [status, setStatus] = useState("idle");
   const [message, setMessage] = useState("");
@@ -23,6 +24,7 @@ export default function JobAlerts() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           email,
+          interests,
           consent,
           website: event.currentTarget.elements.website.value,
         }),
@@ -33,6 +35,7 @@ export default function JobAlerts() {
       setStatus("success");
       setMessage("You are subscribed. New-job updates will be sent to this email.");
       setEmail("");
+      setInterests("");
       setConsent(false);
     } catch (error) {
       setStatus("error");
@@ -52,8 +55,22 @@ export default function JobAlerts() {
         <div className="alert-card">
           <div className="alert-kicker">Email alerts</div>
           <h3>Jobs delivered to your inbox</h3>
-          <p>Receive a concise update when new verified vacancies are published.</p>
+          <p>Choose your fields and receive only matching verified vacancies.</p>
           <form onSubmit={subscribe}>
+            <label htmlFor="job-alert-interests">Job fields or positions</label>
+            <input
+              id="job-alert-interests"
+              name="interests"
+              type="text"
+              value={interests}
+              onChange={(event) => setInterests(event.target.value)}
+              placeholder="Graphic Designer, UI Designer"
+              aria-describedby="job-alert-interests-help"
+              required
+            />
+            <small id="job-alert-interests-help" className="field-help">
+              Add up to five interests, separated by commas.
+            </small>
             <label htmlFor="job-alert-email">Email address</label>
             <div className="email-row">
               <input
@@ -120,9 +137,11 @@ export default function JobAlerts() {
         .alert-card { min-width: 0; padding: 1.5rem; background: #fff; border: 1.5px solid #e8ecf0; border-radius: 8px; }
         .alert-card h3 { margin: 0.45rem 0; color: #1b2a3f; font: 700 1rem/1.4 Montserrat, sans-serif; }
         form { margin-top: 1rem; }
-        form > label:first-child { display: block; margin-bottom: 0.35rem; color: #344054; font-size: 0.76rem; font-weight: 600; }
+        form > label:not(.consent) { display: block; margin: 0.8rem 0 0.35rem; color: #344054; font-size: 0.76rem; font-weight: 600; }
+        form > label:first-child { margin-top: 0; }
         .email-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 0.5rem; }
-        input[type="email"] { width: 100%; min-height: 46px; padding: 0 0.85rem; border: 1.5px solid #cfd6df; border-radius: 6px; color: #1b2a3f; font-size: 1rem; }
+        input[type="email"], input[name="interests"] { width: 100%; min-height: 46px; padding: 0 0.85rem; border: 1.5px solid #cfd6df; border-radius: 6px; color: #1b2a3f; font-size: 1rem; }
+        .field-help { display: block; margin-top: 0.35rem; color: #667085; font-size: 0.68rem; }
         button, .whatsapp-card a { min-height: 46px; padding: 0.75rem 1rem; border: 0; border-radius: 6px; font: 700 0.8rem Poppins, sans-serif; cursor: pointer; text-decoration: none; text-align: center; }
         button { background: #00c9a7; color: #1b2a3f; }
         button:disabled { cursor: wait; opacity: 0.65; }

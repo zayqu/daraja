@@ -1,6 +1,7 @@
 require("dotenv").config();
 
 const catalog = require("./config/source-catalog.json");
+const { sendJobAlertDigests } = require("./lib/alerts");
 const { createPrismaClient, saveJobs } = require("./lib/store");
 const { collectAjiraJobs } = require("./sources/ajira");
 const { collectAjiraWebJobs } = require("./sources/ajiraweb");
@@ -62,6 +63,9 @@ async function runScrapers({ dryRun = false, requestedSources = new Set() } = {}
         failures.push({ source: source.id, error: error.message });
         console.error(`${source.name} failed:`, error);
       }
+    }
+    if (!dryRun) {
+      await sendJobAlertDigests(prisma);
     }
   } finally {
     await prisma?.$disconnect();

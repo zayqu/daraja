@@ -84,6 +84,9 @@ export default function JobDetailPage() {
   }
 
   const applicationEmail = getApplicationEmail();
+  const applicationSubject = applicationEmail
+    ? new URL(job.sourceUrl).searchParams.get("subject") || ""
+    : "";
 
   return (
     <>
@@ -303,8 +306,15 @@ export default function JobDetailPage() {
               {applicationEmail && (
                 <p className="apply-note">
                   The recipient, subject and message are prepared. Personalize the highlighted
-                  details and attach your documents. Email:{" "}
-                  <a href={job.sourceUrl}>{applicationEmail}</a>
+                  details and attach your documents.
+                  <br />
+                  Email: <a href={job.sourceUrl}>{applicationEmail}</a>
+                  {applicationSubject && (
+                    <>
+                      <br />
+                      Subject: {applicationSubject}
+                    </>
+                  )}
                 </p>
               )}
               <a

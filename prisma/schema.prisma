@@ -154,6 +154,19 @@ model Payment {
   createdAt DateTime  @default(now())
 }
 
+model JobAlertSubscriber {
+  id             String   @id @default(cuid())
+  email          String   @unique
+  unsubscribeToken String @unique @default(uuid())
+  active         Boolean  @default(true)
+  consentedAt    DateTime
+  lastNotifiedAt DateTime @default(now())
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@index([active, lastNotifiedAt])
+}
+
 enum PayStatus {
   PENDING
   SUCCESS

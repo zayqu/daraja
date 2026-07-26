@@ -1,4 +1,4 @@
-name: Job Source Scrapers
+name: Daraja Job Scrapers
 
 on:
   schedule:
@@ -9,7 +9,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: job-source-scrapers-v2
+  group: job-source-scrapers-v3
   cancel-in-progress: true
 
 jobs:

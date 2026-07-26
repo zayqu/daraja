@@ -4,12 +4,6 @@ import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 
-const SOURCE_NAMES = {
-  ajira: "Ajira Portal",
-  ajiraweb: "AjiraWeb",
-  daraja: "Daraja",
-};
-
 export default function JobDetailPage() {
   const { id } = useParams();
   const [job, setJob] = useState(null);
@@ -102,7 +96,6 @@ export default function JobDetailPage() {
 
         .main-card { background: #fff; border: 1.5px solid #E8ECF0; border-radius: 8px; overflow: hidden; }
         .card-header { padding: 2rem 2rem 1.5rem; border-bottom: 1px solid #F0F3F7; }
-        .job-source { font-size: 0.65rem; font-weight: 600; letter-spacing: 0.18em; text-transform: uppercase; color: #00C9A7; margin-bottom: 0.6rem; }
         .job-title { font-family: 'Montserrat', sans-serif; font-size: 1.4rem; font-weight: 700; color: #1B2A3F; line-height: 1.3; margin-bottom: 0.5rem; letter-spacing: -0.01em; }
         .job-company { font-size: 0.9rem; color: #6B7685; font-weight: 400; margin-bottom: 1.25rem; }
         .job-tags { display: flex; flex-wrap: wrap; gap: 0.4rem; }
@@ -200,9 +193,6 @@ export default function JobDetailPage() {
               <Link href="/jobs" className="back-link">← Back to Jobs</Link>
               <div className="main-card">
                 <div className="card-header">
-                  <div className="job-source">
-                    {SOURCE_NAMES[job.source] || job.source}
-                  </div>
                   <h1 className="job-title">{job.title}</h1>
                   <div className="job-company">{job.company}</div>
                   <div className="job-tags">
@@ -287,10 +277,6 @@ export default function JobDetailPage() {
                       </div>
                     </div>
                   )}
-                  <div className="detail-item">
-                    <div className="detail-label">Source</div>
-                    <div className="detail-value">{SOURCE_NAMES[job.source] || job.source}</div>
-                  </div>
                   <div className="detail-item">
                     <div className="detail-label">Posted</div>
                     <div className="detail-value">{formatDate(job.createdAt)}</div>

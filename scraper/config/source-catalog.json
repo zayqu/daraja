@@ -270,7 +270,7 @@
       "name": "ReliefWeb Tanzania",
       "url": "https://reliefweb.int/jobs?advanced-search=%28C244%29",
       "category": "general_tanzania_job_websites",
-      "enabled": true,
+      "enabled": false,
       "adapter": "reliefweb"
     },
     {

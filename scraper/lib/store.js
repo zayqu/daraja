@@ -24,9 +24,9 @@ async function saveJobs(prisma, jobs, source) {
         OR: [
           { sourceId: job.sourceId },
           {
-            sourceId: null,
             title: job.title,
             company: job.company,
+            deadline: job.deadline,
           },
         ],
       },

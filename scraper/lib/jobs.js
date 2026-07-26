@@ -28,6 +28,28 @@ function parseDeadline(value) {
     return null;
   }
 
+  const named = text.match(/^(\d{1,2})(?:st|nd|rd|th)?\s+([A-Za-z]+)\s+(\d{4})$/i);
+  if (named) {
+    const months = [
+      "january", "february", "march", "april", "may", "june",
+      "july", "august", "september", "october", "november", "december",
+    ];
+    const day = Number(named[1]);
+    const month = months.indexOf(named[2].toLowerCase());
+    const year = Number(named[3]);
+    if (month >= 0) {
+      const date = new Date(Date.UTC(year, month, day, 23, 59, 59));
+      if (
+        date.getUTCFullYear() === year &&
+        date.getUTCMonth() === month &&
+        date.getUTCDate() === day
+      ) {
+        return date;
+      }
+    }
+    return null;
+  }
+
   const parsed = new Date(text);
   return Number.isNaN(parsed.getTime()) ? null : parsed;
 }
@@ -38,6 +60,17 @@ function normalizeUrl(value, baseUrl = AJIRA_VACANCIES_URL) {
 
   try {
     const url = new URL(text, baseUrl);
+    if (url.protocol === "mailto:") {
+      const email = decodeURIComponent(url.pathname).trim();
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return baseUrl;
+      const safeParams = new URLSearchParams();
+      for (const key of ["subject", "body"]) {
+        const value = url.searchParams.get(key);
+        if (value && !/[\r\n]/.test(value)) safeParams.set(key, value);
+      }
+      const query = safeParams.toString();
+      return `mailto:${email}${query ? `?${query}` : ""}`;
+    }
     if (url.protocol !== "https:" && url.protocol !== "http:") return baseUrl;
     url.hash = "";
     return url.toString();

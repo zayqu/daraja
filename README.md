@@ -86,6 +86,19 @@ Job-detail pages remain advertisement-free around the application action so ads
 cannot be confused with the Apply button. Add the real publisher and slot IDs
 only after the domain is approved in AdSense.
 
+## Job-alert configuration
+
+Email subscriptions are stored in PostgreSQL and the hourly scraper sends a
+concise digest of newly published vacancies. Configure:
+
+- GitHub Actions secret `RESEND_API_KEY`
+- GitHub Actions variable `JOB_ALERTS_FROM_EMAIL`, using a sender on a domain
+  verified by Resend, for example `Daraja Jobs <jobs@alerts.example.co.tz>`
+
+If either value is absent, scraping continues normally and email delivery is
+safely skipped. Every alert contains a unique one-click unsubscribe link. The
+WhatsApp CTA always links directly to the official Daraja WhatsApp Channel.
+
 ## Learn More
 
 To learn more about Next.js, take a look at the following resources:

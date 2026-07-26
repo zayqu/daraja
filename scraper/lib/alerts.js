@@ -11,17 +11,9 @@ function escapeHtml(value) {
     .replaceAll("'", "&#039;");
 }
 
-function jobMatchesInterests(job, interests) {
-  const searchable = [
-    job.title,
-    job.category,
-    job.company,
-    job.description,
-  ]
-    .join(" ")
-    .toLowerCase();
-  return interests.some((interest) =>
-    searchable.includes(String(interest).trim().toLowerCase())
+function jobMatchesCategories(job, categories) {
+  return categories.some(
+    (category) => String(category).trim() === String(job.category).trim()
   );
 }
 
@@ -41,7 +33,7 @@ function buildAlertEmail(subscriber, jobs) {
     `${SITE_URL}/api/job-alerts?unsubscribe=${encodeURIComponent(subscriber.unsubscribeToken)}`;
 
   return {
-    subject: `${jobs.length} new matching job${jobs.length === 1 ? "" : "s"} on Daraja`,
+    subject: `${jobs.length} new ${subscriber.categories?.[0] || "matching"} job${jobs.length === 1 ? "" : "s"} on Daraja`,
     html: `
       <div style="max-width:620px;margin:auto;font-family:Arial,sans-serif;color:#1b2a3f;line-height:1.6">
         <h1 style="font-size:24px">New opportunities in Tanzania</h1>
@@ -72,9 +64,11 @@ async function sendJobAlertDigests(prisma, fetchFn = fetch) {
   let sent = 0;
 
   for (const subscriber of subscribers) {
+    if (!subscriber.categories?.length) continue;
     const candidates = await prisma.job.findMany({
       where: {
         active: true,
+        category: { in: subscriber.categories },
         createdAt: { gt: subscriber.lastNotifiedAt },
         OR: [{ deadline: null }, { deadline: { gte: new Date() } }],
       },
@@ -91,7 +85,7 @@ async function sendJobAlertDigests(prisma, fetchFn = fetch) {
       },
     });
     const jobs = candidates
-      .filter((job) => jobMatchesInterests(job, subscriber.interests || []))
+      .filter((job) => jobMatchesCategories(job, subscriber.categories))
       .slice(0, MAX_JOBS_PER_EMAIL);
     if (!jobs.length) {
       if (candidates.length) {
@@ -136,6 +130,6 @@ async function sendJobAlertDigests(prisma, fetchFn = fetch) {
 module.exports = {
   buildAlertEmail,
   escapeHtml,
-  jobMatchesInterests,
+  jobMatchesCategories,
   sendJobAlertDigests,
 };

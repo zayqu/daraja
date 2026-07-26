@@ -15,10 +15,15 @@ test("email application links prepare the recipient, subject and professional bo
   const url = new URL(value);
 
   assert.equal(url.pathname, "recruitment@example.co.tz");
-  assert.equal(url.searchParams.get("subject"), "Application for Credit Analyst");
-  assert.match(url.searchParams.get("body"), /Dear Hiring Manager/);
-  assert.match(url.searchParams.get("body"), /CV and application letter attached/);
-  assert.match(url.searchParams.get("body"), /Full name/);
+  assert.doesNotMatch(value, /\+/);
+  assert.equal(
+    url.searchParams.get("subject"),
+    "Application for Credit Analyst - [Your full name]"
+  );
+  assert.match(url.searchParams.get("body"), /Dear Hiring Team/);
+  assert.match(url.searchParams.get("body"), /I hope you are well/);
+  assert.match(url.searchParams.get("body"), /CV and supporting documents attached/);
+  assert.match(url.searchParams.get("body"), /Best regards/);
 });
 
 test("direct application URL validation rejects unsafe protocols", () => {

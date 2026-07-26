@@ -4,24 +4,26 @@ function buildEmailApplicationUrl({ email, title, company }) {
 
   const position = String(title || "the advertised position").trim();
   const employer = String(company || "your organization").trim();
-  const subject = `Application for ${position}`;
+  const subject = `Application for ${position} - [Your full name]`;
   const body = [
-    "Dear Hiring Manager,",
+    "Dear Hiring Team,",
     "",
-    `I am writing to apply for the ${position} position at ${employer}.`,
+    "I hope you are well.",
     "",
-    "Please find my CV and application letter attached for your consideration.",
+    `I would like to submit my application for the ${position} position at ${employer}.`,
+    "My experience in [briefly mention your most relevant experience or skill] makes me a strong candidate for this opportunity.",
     "",
-    "Candidate details:",
-    "Full name: [Enter your full name]",
-    "Phone number: [Enter your phone number]",
-    "Current location: [Enter your location]",
+    "Please find my CV and supporting documents attached for your review. I would welcome the opportunity to discuss my application further.",
     "",
-    "Kind regards,",
-    "[Enter your full name]",
+    "Thank you for your time and consideration.",
+    "",
+    "Best regards,",
+    "[Your full name]",
+    "[Your phone number]",
+    "[Your current location]",
   ].join("\n");
 
-  return `mailto:${recipient}?${new URLSearchParams({ subject, body }).toString()}`;
+  return `mailto:${recipient}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
 }
 
 function isDirectApplicationUrl(value) {

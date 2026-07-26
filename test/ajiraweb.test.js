@@ -117,10 +117,13 @@ test("email application articles are split into individual vacancies", () => {
   assert.doesNotMatch(jobs[0].description, /Location:/i);
   assert.match(jobs[0].sourceUrl, /^mailto:recruitment@acbbank\.co\.tz/);
   const applicationUrl = new URL(jobs[0].sourceUrl);
-  assert.equal(applicationUrl.searchParams.get("subject"), "Application for Credit Analyst");
-  assert.match(applicationUrl.searchParams.get("body"), /Dear Hiring Manager/);
+  assert.equal(
+    applicationUrl.searchParams.get("subject"),
+    "Application for Credit Analyst - [Your full name]"
+  );
+  assert.match(applicationUrl.searchParams.get("body"), /Dear Hiring Team/);
   assert.match(applicationUrl.searchParams.get("body"), /attach/i);
-  assert.match(applicationUrl.searchParams.get("body"), /Full name/);
+  assert.match(applicationUrl.searchParams.get("body"), /full name/i);
 });
 
 test("Standard Bank vacancies use the direct SmartRecruiters application URL", async () => {

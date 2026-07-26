@@ -72,6 +72,20 @@ article:
 The intended journey is: read the complete vacancy once on Daraja, select
 **Apply**, then submit the application or sign in on the official destination.
 
+## Advertising configuration
+
+The job-listing page contains an optional responsive Google AdSense placement.
+It renders nothing until valid production environment variables are configured:
+
+```bash
+NEXT_PUBLIC_GOOGLE_ADSENSE_CLIENT=ca-pub-xxxxxxxxxxxxxxxx
+NEXT_PUBLIC_GOOGLE_ADSENSE_JOB_LIST_SLOT=xxxxxxxxxx
+```
+
+Job-detail pages remain advertisement-free around the application action so ads
+cannot be confused with the Apply button. Add the real publisher and slot IDs
+only after the domain is approved in AdSense.
+
 ## Learn More
 
 To learn more about Next.js, take a look at the following resources:

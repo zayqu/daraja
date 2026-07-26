@@ -2,6 +2,7 @@ const test = require("node:test");
 const assert = require("node:assert/strict");
 
 const {
+  extractEmailApplicationJobs,
   extractCompany,
   extractDeadline,
   extractOfficialUrl,
@@ -87,4 +88,29 @@ test("company-level career pages without a real job posting are rejected", async
   });
 
   assert.deepEqual(await parseAjiraWebFeed(xml, { fetchFn }), []);
+});
+
+test("email application articles are split into individual vacancies", () => {
+  const jobs = extractEmailApplicationJobs(
+    "Akiba Commercial Bank Plc Vacancies 2026",
+    "https://ajiraweb.com/akiba-commercial-bank-plc-vacancies-2026/",
+    `
+      <h2>Available Vacancies</h2>
+      <h3>1. Credit Analyst</h3>
+      <p>The Credit Analyst assesses credit applications and financial risks.</p>
+      <h3>2. Relationship Manager – Chinese Desk</h3>
+      <p>The Relationship Manager grows relationships with Chinese-speaking clients.</p>
+      <p><strong>Organization:</strong> Akiba Commercial Bank Plc (ACB Bank)</p>
+      <p><strong>Location:</strong> Dar es Salaam, Tanzania</p>
+      <p><strong>Application Deadline:</strong> 31 July 2099</p>
+      <a href="mailto:recruitment@acbbank.co.tz">Apply by email</a>
+    `
+  );
+
+  assert.equal(jobs.length, 2);
+  assert.equal(jobs[0].title, "Credit Analyst");
+  assert.equal(jobs[0].company, "Akiba Commercial Bank Plc (ACB Bank)");
+  assert.equal(jobs[0].deadline, "31 July 2099");
+  assert.match(jobs[0].description, /assesses credit applications/);
+  assert.match(jobs[0].sourceUrl, /^mailto:recruitment@acbbank\.co\.tz/);
 });

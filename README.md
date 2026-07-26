@@ -89,7 +89,9 @@ only after the domain is approved in AdSense.
 ## Job-alert configuration
 
 Email subscriptions are stored in PostgreSQL and the hourly scraper sends a
-concise digest of newly published vacancies. Configure:
+concise digest containing only vacancies that match each subscriber's selected
+job fields or position keywords. Candidates can save up to five interests, such
+as `Graphic Designer`, `UI Designer`, or `Banking & Finance`. Configure:
 
 - GitHub Actions secret `RESEND_API_KEY`
 - GitHub Actions variable `JOB_ALERTS_FROM_EMAIL`, using a sender on a domain

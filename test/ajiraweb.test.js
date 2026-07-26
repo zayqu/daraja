@@ -117,10 +117,7 @@ test("email application articles are split into individual vacancies", () => {
   assert.doesNotMatch(jobs[0].description, /Location:/i);
   assert.match(jobs[0].sourceUrl, /^mailto:recruitment@acbbank\.co\.tz/);
   const applicationUrl = new URL(jobs[0].sourceUrl);
-  assert.equal(
-    applicationUrl.searchParams.get("subject"),
-    "Application for Credit Analyst - [Your full name]"
-  );
+  assert.equal(applicationUrl.searchParams.get("subject"), "Application for Credit Analyst");
   assert.match(applicationUrl.searchParams.get("body"), /Dear Hiring Team/);
   assert.match(applicationUrl.searchParams.get("body"), /attach/i);
   assert.match(applicationUrl.searchParams.get("body"), /full name/i);
@@ -156,5 +153,23 @@ test("Standard Bank vacancies use the direct SmartRecruiters application URL", a
   assert.equal(
     job.sourceUrl,
     "https://jobs.smartrecruiters.com/StandardBankGroup/744000075456789-finance-manager?oga=true"
+  );
+});
+
+test("email vacancies preserve the employer's required subject format", () => {
+  const [job] = extractEmailApplicationJobs(
+    "Example Bank Vacancies",
+    "https://ajiraweb.com/example-bank-vacancies/",
+    `
+      <h3>1. Treasury Dealer</h3>
+      <p>Manage money-market and foreign-exchange positions.</p>
+      <p><strong>Email Subject:</strong> VACANCY APPLICATION - [Job Title]</p>
+      <a href="mailto:careers@example.co.tz">Apply by email</a>
+    `
+  );
+
+  assert.equal(
+    new URL(job.sourceUrl).searchParams.get("subject"),
+    "VACANCY APPLICATION - Treasury Dealer"
   );
 });

@@ -1,10 +1,20 @@
-function buildEmailApplicationUrl({ email, title, company }) {
+function normalizeEmployerSubject(subject, position) {
+  const value = String(subject || "").replace(/\s+/g, " ").trim();
+  if (!value) return `Application for ${position}`;
+
+  return value
+    .replace(/\{\{\s*(?:job|position)\s*title\s*\}\}/gi, position)
+    .replace(/\[\s*(?:job|position)\s*title\s*\]/gi, position)
+    .replace(/\b(?:job|position)\s+title\b/gi, position);
+}
+
+function buildEmailApplicationUrl({ email, title, company, subject }) {
   const recipient = String(email || "").trim().toLowerCase();
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(recipient)) return null;
 
   const position = String(title || "the advertised position").trim();
   const employer = String(company || "your organization").trim();
-  const subject = `Application for ${position} - [Your full name]`;
+  const emailSubject = normalizeEmployerSubject(subject, position);
   const body = [
     "Dear Hiring Team,",
     "",
@@ -23,7 +33,7 @@ function buildEmailApplicationUrl({ email, title, company }) {
     "[Your current location]",
   ].join("\n");
 
-  return `mailto:${recipient}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+  return `mailto:${recipient}?subject=${encodeURIComponent(emailSubject)}&body=${encodeURIComponent(body)}`;
 }
 
 function isDirectApplicationUrl(value) {
@@ -40,4 +50,8 @@ function isDirectApplicationUrl(value) {
   }
 }
 
-module.exports = { buildEmailApplicationUrl, isDirectApplicationUrl };
+module.exports = {
+  buildEmailApplicationUrl,
+  isDirectApplicationUrl,
+  normalizeEmployerSubject,
+};

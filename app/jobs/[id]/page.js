@@ -162,7 +162,7 @@ export default function JobDetailPage() {
         @media (max-width: 720px) {
           .nav { padding: 0 1.25rem; }
           .breadcrumb { padding: 0 1.25rem 1rem; }
-          .body { grid-template-columns: minmax(0, 1fr); grid-template-areas: "back" "header" "details" "about" "browse" "apply"; gap: 1rem; padding: 1.5rem 1.25rem 4rem; }
+          .body { grid-template-columns: minmax(0, 1fr); grid-template-areas: "back" "header" "details" "about" "apply" "browse"; gap: 1rem; padding: 1.5rem 1.25rem 4rem; }
           .main-column, .main-card { display: contents; }
           .main-column .back-link { grid-area: back; margin-bottom: 0; }
           .card-header { grid-area: header; background: #fff; border: 1.5px solid #E8ECF0; border-radius: 8px; padding: 1.5rem; }
@@ -281,18 +281,6 @@ export default function JobDetailPage() {
               </div>
             </section>
 
-            <section className="side-card browse-card" aria-labelledby="browse-more-heading">
-              <h2 className="side-card-title" id="browse-more-heading">Browse More</h2>
-              <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
-                <Link href={"/jobs?category=" + job.category} style={{ fontSize: "0.8rem", color: "#00C9A7", textDecoration: "none", fontWeight: 500 }}>
-                  More {job.category} jobs →
-                </Link>
-                <Link href="/jobs" style={{ fontSize: "0.8rem", color: "#6B7685", textDecoration: "none" }}>
-                  View all positions →
-                </Link>
-              </div>
-            </section>
-
             <section className="side-card application-card" aria-labelledby="apply-heading">
               <h2 className="side-card-title" id="apply-heading">Apply for this role</h2>
               {job.sourceUrl && !isExpired(job.deadline) ? (
@@ -327,6 +315,18 @@ export default function JobDetailPage() {
               >
                 Share on WhatsApp
               </a>
+            </section>
+
+            <section className="side-card browse-card" aria-labelledby="browse-more-heading">
+              <h2 className="side-card-title" id="browse-more-heading">Browse More</h2>
+              <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+                <Link href={"/jobs?category=" + job.category} style={{ fontSize: "0.8rem", color: "#00C9A7", textDecoration: "none", fontWeight: 500 }}>
+                  More {job.category} jobs →
+                </Link>
+                <Link href="/jobs" style={{ fontSize: "0.8rem", color: "#6B7685", textDecoration: "none" }}>
+                  View all positions →
+                </Link>
+              </div>
             </section>
           </main>
         )}

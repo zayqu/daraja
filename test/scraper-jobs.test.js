@@ -50,6 +50,15 @@ test("normalizeUrl accepts official relative links and rejects unsafe protocols"
     normalizeUrl("mailto:jobs@example.co.tz?subject=Application"),
     "mailto:jobs@example.co.tz?subject=Application"
   );
+  const emailUrl = normalizeUrl(
+    "mailto:jobs@example.co.tz?subject=Application%20for%20Credit%20Analyst&body=Dear%20Hiring%20Team%2C%0A%0APlease%20find%20my%20CV%20attached."
+  );
+  assert.doesNotMatch(emailUrl, /\+/);
+  assert.equal(
+    new URL(emailUrl).searchParams.get("subject"),
+    "Application for Credit Analyst"
+  );
+  assert.match(new URL(emailUrl).searchParams.get("body"), /Dear Hiring Team/);
 });
 
 test("getSourceId prefers the vacancy identifier in a detail URL", () => {

@@ -4,6 +4,7 @@ const { cleanText, deduplicateJobs } = require("../lib/jobs");
 
 const AJIRAWEB_FEED_URL = "https://ajiraweb.com/feed/";
 const REQUEST_TIMEOUT_MS = 60000;
+const OFFICIAL_PAGE_TIMEOUT_MS = 20000;
 
 function extractDeadline(text) {
   const value = cleanText(text);
@@ -65,9 +66,35 @@ function extractOfficialUrl(html, articleUrl) {
   return articleUrl;
 }
 
-function parseAjiraWebFeed(xml) {
+function getOfficialLinks(html, articleUrl) {
+  const $ = cheerio.load(html || "");
+  const articleHost = new URL(articleUrl).hostname.replace(/^www\./, "");
+  return $("a[href]")
+    .map((_, link) => $(link).attr("href"))
+    .get()
+    .filter(Boolean)
+    .map((href) => {
+      try {
+        return new URL(href, articleUrl);
+      } catch {
+        return null;
+      }
+    })
+    .filter(
+      (url) =>
+        url &&
+        ["http:", "https:"].includes(url.protocol) &&
+        url.hostname.replace(/^www\./, "") !== articleHost &&
+        !/(facebook|twitter|instagram|linkedin|youtube|whatsapp|google|doubleclick)/i.test(
+          url.hostname
+        )
+    )
+    .map((url) => url.toString());
+}
+
+function discoverAjiraWebLinks(xml) {
   const $ = cheerio.load(xml, { xmlMode: true });
-  const rawJobs = [];
+  const discoveries = [];
 
   $("item").each((_, item) => {
     const node = $(item);
@@ -79,22 +106,154 @@ function parseAjiraWebFeed(xml) {
     const content = node.find("content\\:encoded").first().text() || node.find("description").first().text();
     if (!title || !articleUrl) return;
 
-    const plainDescription = cleanText(cheerio.load(content || "").text());
-    rawJobs.push({
-      sourceId: cleanText(node.find("guid").first().text()) || articleUrl,
-      title,
-      company: extractCompany(title, categories),
-      description: plainDescription.slice(0, 5000),
-      deadline: extractDeadline(plainDescription),
-      sourceUrl: extractOfficialUrl(content, articleUrl),
-    });
+    for (const sourceUrl of getOfficialLinks(content, articleUrl)) {
+      discoveries.push({
+        articleTitle: title,
+        articleUrl,
+        sourceUrl,
+      });
+    }
   });
+
+  return discoveries;
+}
+
+function htmlToText(value) {
+  const $ = cheerio.load(value || "");
+  $("script, style").remove();
+  return cleanText($.text());
+}
+
+function mapEmploymentType(value) {
+  const type = cleanText(value).toLowerCase();
+  if (type.includes("part")) return "PART_TIME";
+  if (type.includes("contract") || type.includes("temporary")) return "CONTRACT";
+  if (type.includes("intern")) return "INTERNSHIP";
+  return "FULL_TIME";
+}
+
+function getJobPostingJson(html) {
+  const $ = cheerio.load(html || "");
+  for (const script of $('script[type="application/ld+json"]').toArray()) {
+    try {
+      const value = JSON.parse($(script).text());
+      const candidates = Array.isArray(value) ? value : value["@graph"] || [value];
+      const posting = candidates.find((item) => item?.["@type"] === "JobPosting");
+      if (posting) return posting;
+    } catch {
+      // Ignore malformed structured data.
+    }
+  }
+  return null;
+}
+
+async function fetchStandardBankJob(sourceUrl, fetchFn) {
+  const url = new URL(sourceUrl);
+  const jobId = url.searchParams.get("jobID");
+  if (!jobId || !/^\d+$/.test(jobId)) return null;
+
+  const apiUrl = `https://api.smartrecruiters.com/v1/companies/StandardBankGroup/postings/${jobId}`;
+  const response = await fetchFn(apiUrl, {
+    headers: { Accept: "application/json", "User-Agent": "DarajaJobsBot/1.0" },
+    signal: AbortSignal.timeout(OFFICIAL_PAGE_TIMEOUT_MS),
+  });
+  if (!response.ok) return null;
+
+  const posting = await response.json();
+  if (!posting.active || posting.location?.country?.toLowerCase() !== "tz") return null;
+
+  const sections = posting.jobAd?.sections || {};
+  const description = [
+    sections.jobDescription?.text,
+    sections.qualifications?.text,
+    sections.additionalInformation?.text,
+  ]
+    .map(htmlToText)
+    .filter(Boolean)
+    .join("\n\n");
+
+  url.searchParams.set("jobSite", posting.company?.identifier || "StandardBankGroup");
+  url.searchParams.set("jobLocale", posting.language?.code || "en-US");
+
+  return {
+    sourceId: `standardbank-${posting.id}`,
+    title: posting.name,
+    company: "Stanbic Bank Tanzania",
+    location: posting.location?.fullLocation || "Tanzania",
+    description,
+    type: mapEmploymentType(posting.typeOfEmployment?.label),
+    sourceUrl: url.toString(),
+  };
+}
+
+async function fetchStructuredJob(sourceUrl, fetchFn) {
+  const response = await fetchFn(sourceUrl, {
+    headers: {
+      Accept: "text/html,application/xhtml+xml",
+      "User-Agent": "DarajaJobsBot/1.0 (+https://www.ajira.daraja.co.tz)",
+    },
+    signal: AbortSignal.timeout(OFFICIAL_PAGE_TIMEOUT_MS),
+  });
+  if (!response.ok || !response.headers.get("content-type")?.includes("text/html")) {
+    return null;
+  }
+
+  const posting = getJobPostingJson(await response.text());
+  if (!posting?.title || !posting?.description) return null;
+
+  const country =
+    posting.jobLocation?.address?.addressCountry ||
+    posting.applicantLocationRequirements?.name ||
+    "";
+  if (country && !/tanzania|\btz\b/i.test(String(country))) return null;
+
+  const location = [
+    posting.jobLocation?.address?.addressLocality,
+    posting.jobLocation?.address?.addressRegion,
+    country,
+  ]
+    .filter(Boolean)
+    .join(", ");
+
+  return {
+    sourceId: cleanText(posting.identifier?.value) || sourceUrl,
+    title: cleanText(posting.title),
+    company: cleanText(posting.hiringOrganization?.name) || "Employer in Tanzania",
+    location: location || "Tanzania",
+    description: htmlToText(posting.description),
+    deadline: posting.validThrough || null,
+    type: mapEmploymentType(posting.employmentType),
+    sourceUrl,
+  };
+}
+
+async function fetchOfficialJob(discovery, fetchFn = fetch) {
+  const host = new URL(discovery.sourceUrl).hostname.replace(/^www\./, "");
+  if (host === "standardbank.com") {
+    return fetchStandardBankJob(discovery.sourceUrl, fetchFn);
+  }
+  return fetchStructuredJob(discovery.sourceUrl, fetchFn);
+}
+
+async function parseAjiraWebFeed(xml, { fetchFn = fetch } = {}) {
+  const discoveries = discoverAjiraWebLinks(xml);
+  const results = await Promise.allSettled(
+    discoveries.map((discovery) => fetchOfficialJob(discovery, fetchFn))
+  );
+  const rawJobs = results
+    .map((result, index) => {
+      if (result.status === "fulfilled") return result.value;
+      console.warn(
+        `Could not resolve official vacancy ${discoveries[index].sourceUrl}: ${result.reason.message}`
+      );
+      return null;
+    })
+    .filter(Boolean);
 
   return deduplicateJobs(rawJobs, {
     source: "ajiraweb",
     baseUrl: AJIRAWEB_FEED_URL,
     location: "Tanzania",
-    description: "Visit the source website for full vacancy details and application instructions.",
   });
 }
 
@@ -111,8 +270,8 @@ async function collectAjiraWebJobs({
   });
   if (!response.ok) throw new Error(`AjiraWeb feed returned HTTP ${response.status}.`);
 
-  const jobs = parseAjiraWebFeed(await response.text());
-  console.log(`AjiraWeb feed: ${jobs.length} Tanzania vacancies`);
+  const jobs = await parseAjiraWebFeed(await response.text(), { fetchFn });
+  console.log(`AjiraWeb discovery: ${jobs.length} verified official vacancies`);
   if (!jobs.length) {
     throw new Error("AjiraWeb produced zero valid Tanzania vacancies; database was not changed.");
   }
@@ -125,5 +284,9 @@ module.exports = {
   extractCompany,
   extractDeadline,
   extractOfficialUrl,
+  discoverAjiraWebLinks,
+  fetchOfficialJob,
+  fetchStandardBankJob,
+  getJobPostingJson,
   parseAjiraWebFeed,
 };

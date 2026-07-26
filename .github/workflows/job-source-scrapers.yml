@@ -24,6 +24,8 @@ jobs:
     timeout-minutes: 15
     env:
       DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+      JOB_ALERTS_FROM_EMAIL: ${{ vars.JOB_ALERTS_FROM_EMAIL }}
     steps:
       - uses: actions/checkout@v5
 

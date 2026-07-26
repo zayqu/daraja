@@ -1,18 +1,10 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import Link from "next/link";
 import AdSenseSlot from "@/components/AdSenseSlot";
 import JobAlerts from "@/components/JobAlerts";
-
-const CATEGORIES = [
-  "Government", "NGO & Development", "Banking & Finance", "Technology",
-  "Health", "Education", "Engineering", "Sales & Marketing",
-  "Accounting & Audit", "HR & Administration", "Legal",
-  "Logistics & Transport", "Hospitality & Tourism", "Agriculture",
-  "Mining, Energy, Oil & Gas", "Manufacturing",
-  "Internships & Graduate Programs", "General",
-];
+import CATEGORIES from "@/config/job-categories.json";
 
 export default function JobsPage() {
   const [jobs, setJobs] = useState([]);
@@ -25,6 +17,7 @@ export default function JobsPage() {
   const [status, setStatus] = useState("active");
   const [page, setPage] = useState(1);
   const [initialized, setInitialized] = useState(false);
+  const recordedSearches = useRef(new Set());
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -56,6 +49,22 @@ export default function JobsPage() {
       const data = await res.json();
       setJobs(data.jobs || []);
       setPagination(data.pagination || {});
+      if (submittedSearch && page === 1) {
+        const signature = `${submittedSearch.toLocaleLowerCase("en")}|${category}|${status}`;
+        if (!recordedSearches.current.has(signature)) {
+          recordedSearches.current.add(signature);
+          fetch("/api/search-insights", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              query: submittedSearch,
+              category,
+              resultCount: Number(data.pagination?.total ?? data.jobs?.length ?? 0),
+            }),
+            keepalive: true,
+          }).catch(() => {});
+        }
+      }
     } catch (error) {
       console.error(error);
       setJobs([]);
@@ -320,7 +329,7 @@ export default function JobsPage() {
             </section>
           )}
 
-          <JobAlerts />
+          <JobAlerts initialCategory={category} />
 
           {/* Pagination */}
           <AdSenseSlot

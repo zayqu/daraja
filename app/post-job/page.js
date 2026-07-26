@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import CATEGORIES from "@/config/job-categories.json";
 
 export default function PostJobPage() {
   const [form, setForm] = useState({
@@ -17,15 +18,6 @@ export default function PostJobPage() {
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState("");
-
-  const categories = [
-    "Government", "NGO & Development", "Banking & Finance", "Technology",
-    "Health", "Education", "Engineering", "Sales & Marketing",
-    "Accounting & Audit", "HR & Administration", "Legal",
-    "Logistics & Transport", "Hospitality & Tourism", "Agriculture",
-    "Mining, Energy, Oil & Gas", "Manufacturing",
-    "Internships & Graduate Programs", "General",
-  ];
 
   const jobTypes = [
     { value: "FULL_TIME", label: "Full Time" },
@@ -230,7 +222,7 @@ export default function PostJobPage() {
                         <label>Category <span>*</span></label>
                         <select name="category" value={form.category} onChange={handleChange}>
                           <option value="">Select category</option>
-                          {categories.map((c) => (
+                          {CATEGORIES.map((c) => (
                             <option key={c} value={c}>{c}</option>
                           ))}
                         </select>

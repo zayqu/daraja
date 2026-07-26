@@ -124,6 +124,110 @@ function htmlToText(value) {
   return cleanText($.text());
 }
 
+function getLabeledValue($, label) {
+  const pattern = new RegExp(`^${label}\\s*:`, "i");
+  for (const element of $("p, li").toArray()) {
+    const text = cleanText($(element).text());
+    if (pattern.test(text)) return text.replace(pattern, "").trim();
+  }
+  return "";
+}
+
+function extractEmailApplicationJobs(articleTitle, articleUrl, html) {
+  const $ = cheerio.load(html || "");
+  const emailHref = $('a[href^="mailto:"]').first().attr("href") || "";
+  const email = emailHref.replace(/^mailto:/i, "").split("?")[0].trim();
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return [];
+
+  const company =
+    getLabeledValue($, "Organization") ||
+    extractCompany(articleTitle);
+  const location = getLabeledValue($, "Location") || "Tanzania";
+  const deadline =
+    getLabeledValue($, "Application Deadline") ||
+    extractDeadline(htmlToText(html));
+  const jobs = [];
+
+  for (const heading of $("h3").toArray()) {
+    const headingText = cleanText($(heading).text());
+    if (!/^\d+\s*[.)-]\s*/.test(headingText)) continue;
+    const title = headingText.replace(/^\d+\s*[.)-]\s*/, "").trim();
+    const details = [];
+    let current = $(heading).next();
+    while (current.length && !/^h[1-3]$/i.test(current[0].tagName)) {
+      const text = cleanText(current.text());
+      if (text) details.push(text);
+      current = current.next();
+    }
+    const instructions = [
+      ...details,
+      `Application method: Email your application to ${email}.`,
+      deadline ? `Application deadline: ${deadline}.` : "",
+    ]
+      .filter(Boolean)
+      .join("\n\n");
+
+    jobs.push({
+      sourceId: `email-${email.toLowerCase()}-${title.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`,
+      title,
+      company,
+      location,
+      description: instructions,
+      deadline,
+      sourceUrl: `mailto:${email}?subject=${encodeURIComponent(`Application for ${title}`)}`,
+    });
+  }
+
+  if (jobs.length) return jobs;
+
+  const availableLabel = $("strong")
+    .filter((_, element) => /^Available Positions\s*:?$/i.test(cleanText($(element).text())))
+    .first();
+  const list = availableLabel.parent().next("ul, ol");
+  return list
+    .find("li")
+    .map((_, item) => {
+      const title = cleanText($(item).text());
+      return {
+        sourceId: `email-${email.toLowerCase()}-${title.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`,
+        title,
+        company,
+        location,
+        description: [
+          `Apply for the ${title} position at ${company}.`,
+          `Application method: Email your application to ${email}.`,
+          deadline ? `Application deadline: ${deadline}.` : "",
+        ]
+          .filter(Boolean)
+          .join("\n\n"),
+        deadline,
+        sourceUrl: `mailto:${email}?subject=${encodeURIComponent(`Application for ${title}`)}`,
+      };
+    })
+    .get()
+    .filter((job) => job.title);
+}
+
+function parseEmailJobsFromFeed(xml) {
+  const $ = cheerio.load(xml, { xmlMode: true });
+  const jobs = [];
+  $("item").each((_, item) => {
+    const node = $(item);
+    const categories = node
+      .find("category")
+      .map((__, category) => cleanText($(category).text()))
+      .get();
+    if (!categories.some((category) => /^jobs? in tanzania$/i.test(category))) return;
+    const articleTitle = cleanText(node.find("title").first().text());
+    const articleUrl = cleanText(node.find("link").first().text());
+    const content =
+      node.find("content\\:encoded").first().text() ||
+      node.find("description").first().text();
+    jobs.push(...extractEmailApplicationJobs(articleTitle, articleUrl, content));
+  });
+  return jobs;
+}
+
 function mapEmploymentType(value) {
   const type = cleanText(value).toLowerCase();
   if (type.includes("part")) return "PART_TIME";
@@ -249,6 +353,7 @@ async function parseAjiraWebFeed(xml, { fetchFn = fetch } = {}) {
       return null;
     })
     .filter(Boolean);
+  rawJobs.push(...parseEmailJobsFromFeed(xml));
 
   return deduplicateJobs(rawJobs, {
     source: "ajiraweb",
@@ -284,9 +389,11 @@ module.exports = {
   extractCompany,
   extractDeadline,
   extractOfficialUrl,
+  extractEmailApplicationJobs,
   discoverAjiraWebLinks,
   fetchOfficialJob,
   fetchStandardBankJob,
   getJobPostingJson,
+  parseEmailJobsFromFeed,
   parseAjiraWebFeed,
 };

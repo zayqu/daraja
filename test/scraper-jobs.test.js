@@ -11,6 +11,7 @@ const {
 
 test("parseDeadline parses Ajira day/month/year dates at end of day UTC", () => {
   assert.equal(parseDeadline("25/07/2026").toISOString(), "2026-07-25T23:59:59.000Z");
+  assert.equal(parseDeadline("31 July 2026").toISOString(), "2026-07-31T23:59:59.000Z");
   assert.equal(parseDeadline("31-02-2026"), null);
   assert.equal(parseDeadline("not a date"), null);
 });
@@ -23,6 +24,10 @@ test("normalizeUrl accepts official relative links and rejects unsafe protocols"
   assert.equal(
     normalizeUrl("javascript:alert(1)"),
     "https://portal.ajira.go.tz/vacancies"
+  );
+  assert.equal(
+    normalizeUrl("mailto:jobs@example.co.tz?subject=Application"),
+    "mailto:jobs@example.co.tz?subject=Application"
   );
 });
 

@@ -113,12 +113,22 @@ export async function POST(request) {
 
     const allowedCategories = [
       "Government",
+      "NGO & Development",
+      "Banking & Finance",
+      "Technology",
+      "Sales & Marketing",
+      "Accounting & Audit",
+      "HR & Administration",
+      "Legal",
+      "Logistics & Transport",
+      "Hospitality & Tourism",
+      "Agriculture",
+      "Mining, Energy, Oil & Gas",
+      "Manufacturing",
+      "Internships & Graduate Programs",
       "Education",
       "Health",
-      "Finance",
-      "IT",
       "Engineering",
-      "NGO",
       "General",
     ];
     const allowedTypes = [

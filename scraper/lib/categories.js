@@ -1,23 +1,4 @@
-const CATEGORIES = [
-  "Government",
-  "NGO & Development",
-  "Banking & Finance",
-  "Technology",
-  "Health",
-  "Education",
-  "Engineering",
-  "Sales & Marketing",
-  "Accounting & Audit",
-  "HR & Administration",
-  "Legal",
-  "Logistics & Transport",
-  "Hospitality & Tourism",
-  "Agriculture",
-  "Mining, Energy, Oil & Gas",
-  "Manufacturing",
-  "Internships & Graduate Programs",
-  "General",
-];
+const CATEGORIES = require("../../config/job-categories.json");
 
 const RULES = [
   ["Internships & Graduate Programs", /\b(intern(ship)?|graduate trainee|management trainee|volunteer|mafunzo kwa vitendo)\b/i],

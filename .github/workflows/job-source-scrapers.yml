@@ -3,6 +3,12 @@ name: Daraja Job Scrapers
 on:
   schedule:
     - cron: "17 * * * *"
+  push:
+    branches:
+      - master
+    paths:
+      - "scraper/**"
+      - ".github/workflows/job-source-scrapers.yml"
   workflow_dispatch:
 
 permissions:

@@ -105,7 +105,11 @@ export default function JobDetailPage() {
         .breadcrumb a:hover { color: #00C9A7; }
         .breadcrumb-sep { color: rgba(255,255,255,0.2); }
 
-        .body { max-width: 860px; margin: 0 auto; padding: 2.5rem 3rem 5rem; display: grid; grid-template-columns: 1fr 300px; gap: 2rem; align-items: start; }
+        .body { max-width: 860px; margin: 0 auto; padding: 2.5rem 3rem 5rem; display: grid; grid-template-columns: minmax(0, 1fr) 300px; grid-template-areas: "content apply" "content details" "content browse"; gap: 1rem 2rem; align-items: start; }
+        .main-column { grid-area: content; }
+        .application-card { grid-area: apply; }
+        .details-card { grid-area: details; }
+        .browse-card { grid-area: browse; }
 
         .main-card { background: #fff; border: 1.5px solid #E8ECF0; border-radius: 8px; overflow: hidden; }
         .card-header { padding: 2rem 2rem 1.5rem; border-bottom: 1px solid #F0F3F7; }
@@ -123,7 +127,6 @@ export default function JobDetailPage() {
         .section-heading:first-child { margin-top: 0; }
         .job-description { font-size: 0.875rem; color: #3D4B5C; line-height: 1.8; white-space: pre-wrap; }
 
-        .sidebar { display: flex; flex-direction: column; gap: 1rem; }
         .side-card { background: #fff; border: 1.5px solid #E8ECF0; border-radius: 8px; padding: 1.5rem; }
         .side-card-title { font-family: 'Montserrat', sans-serif; font-size: 0.72rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: #667085; margin-bottom: 1.1rem; }
 
@@ -159,7 +162,13 @@ export default function JobDetailPage() {
         @media (max-width: 720px) {
           .nav { padding: 0 1.25rem; }
           .breadcrumb { padding: 0 1.25rem 1rem; }
-          .body { grid-template-columns: 1fr; padding: 1.5rem 1.25rem 4rem; }
+          .body { grid-template-columns: minmax(0, 1fr); grid-template-areas: "back" "header" "details" "about" "browse" "apply"; gap: 1rem; padding: 1.5rem 1.25rem 4rem; }
+          .main-column, .main-card { display: contents; }
+          .main-column .back-link { grid-area: back; margin-bottom: 0; }
+          .card-header { grid-area: header; background: #fff; border: 1.5px solid #E8ECF0; border-radius: 8px; padding: 1.5rem; }
+          .card-body { grid-area: about; background: #fff; border: 1.5px solid #E8ECF0; border-radius: 8px; padding: 1.5rem; }
+          .application-card { margin-top: 0.5rem; }
+          .job-description { font-size: 1rem; line-height: 1.75; }
           .footer { padding: 2rem 1.25rem; }
           .footer-inner { flex-direction: column; gap: 1rem; text-align: center; }
         }
@@ -202,7 +211,7 @@ export default function JobDetailPage() {
 
         {!loading && job && (
           <main className="body" id="main-content">
-            <div>
+            <div className="main-column">
               <Link href="/jobs" className="back-link">← Back to Jobs</Link>
               <div className="main-card">
                 <div className="card-header">
@@ -228,45 +237,9 @@ export default function JobDetailPage() {
               </div>
             </div>
 
-            <div className="sidebar">
-              <div className="side-card">
-                <h2 className="side-card-title">Apply for this role</h2>
-                {job.sourceUrl && !isExpired(job.deadline) ? (
-                  <a
-                    href={job.sourceUrl}
-                    target={applicationEmail ? undefined : "_blank"}
-                    rel={applicationEmail ? undefined : "noopener noreferrer"}
-                    className="apply-btn"
-                  >
-                    {applicationEmail ? "Prepare Application Email →" : "Start Application →"}
-                  </a>
-                ) : (
-                  <div className="apply-btn-disabled">Applications Closed</div>
-                )}
-                {job.source === "ajira" && (
-                  <p className="apply-note">
-                    Continue on the official Ajira page to sign in and apply for this vacancy.
-                  </p>
-                )}
-                {applicationEmail && (
-                  <p className="apply-note">
-                    Recipient, subject and email body are prepared. Add your details and attach your
-                    documents. Email: <a href={job.sourceUrl}>{applicationEmail}</a>
-                  </p>
-                )}
-                <a
-                  className="share-btn"
-                  href={`https://wa.me/?text=${encodeURIComponent(getShareMessage())}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  Share on WhatsApp
-                </a>
-              </div>
-
-              <div className="side-card">
-                <h2 className="side-card-title">Job Details</h2>
-                <div className="detail-row">
+            <section className="side-card details-card" aria-labelledby="job-details-heading">
+              <h2 className="side-card-title" id="job-details-heading">Job Details</h2>
+              <div className="detail-row">
                   <div className="detail-item">
                     <div className="detail-label">Company</div>
                     <div className="detail-value">{job.company}</div>
@@ -305,21 +278,56 @@ export default function JobDetailPage() {
                     <div className="detail-label">Posted</div>
                     <div className="detail-value">{formatDate(job.createdAt)}</div>
                   </div>
-                </div>
               </div>
+            </section>
 
-              <div className="side-card">
-                <h2 className="side-card-title">Browse More</h2>
-                <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
-                  <Link href={"/jobs?category=" + job.category} style={{ fontSize: "0.8rem", color: "#00C9A7", textDecoration: "none", fontWeight: 500 }}>
-                    More {job.category} jobs →
-                  </Link>
-                  <Link href="/jobs" style={{ fontSize: "0.8rem", color: "#6B7685", textDecoration: "none" }}>
-                    View all positions →
-                  </Link>
-                </div>
+            <section className="side-card browse-card" aria-labelledby="browse-more-heading">
+              <h2 className="side-card-title" id="browse-more-heading">Browse More</h2>
+              <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+                <Link href={"/jobs?category=" + job.category} style={{ fontSize: "0.8rem", color: "#00C9A7", textDecoration: "none", fontWeight: 500 }}>
+                  More {job.category} jobs →
+                </Link>
+                <Link href="/jobs" style={{ fontSize: "0.8rem", color: "#6B7685", textDecoration: "none" }}>
+                  View all positions →
+                </Link>
               </div>
-            </div>
+            </section>
+
+            <section className="side-card application-card" aria-labelledby="apply-heading">
+              <h2 className="side-card-title" id="apply-heading">Apply for this role</h2>
+              {job.sourceUrl && !isExpired(job.deadline) ? (
+                <a
+                  href={job.sourceUrl}
+                  target={applicationEmail ? undefined : "_blank"}
+                  rel={applicationEmail ? undefined : "noopener noreferrer"}
+                  className="apply-btn"
+                >
+                  Apply Now →
+                </a>
+              ) : (
+                <div className="apply-btn-disabled">Applications Closed</div>
+              )}
+              {job.source === "ajira" && (
+                <p className="apply-note">
+                  Continue on the official Ajira page to sign in and apply for this vacancy.
+                </p>
+              )}
+              {applicationEmail && (
+                <p className="apply-note">
+                  The recipient, subject and message are prepared. Personalize the highlighted
+                  details and attach your documents. Email:{" "}
+                  <a href={job.sourceUrl}>{applicationEmail}</a>
+                </p>
+              )}
+              <a
+                className="share-btn"
+                href={`https://wa.me/?text=${encodeURIComponent(getShareMessage())}`}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Share on WhatsApp
+              </a>
+            </section>
           </main>
         )}
 

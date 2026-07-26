@@ -19,7 +19,7 @@ test("AjiraWeb helpers find company, deadline and official link", () => {
   assert.equal(extractOfficialUrl(html, article), "https://careers.example.co.tz/jobs/42");
 });
 
-test("AjiraWeb feed parser imports only Tanzania jobs", () => {
+test("AjiraWeb feed parser imports only official vacancy-level jobs", async () => {
   const xml = `<?xml version="1.0"?>
     <rss xmlns:content="http://purl.org/rss/1.0/modules/content/"><channel>
       <item>
@@ -39,9 +39,52 @@ test("AjiraWeb feed parser imports only Tanzania jobs", () => {
       </item>
     </channel></rss>`;
 
-  const jobs = parseAjiraWebFeed(xml);
+  const fetchFn = async () => ({
+    ok: true,
+    headers: new Headers({ "content-type": "text/html" }),
+    text: async () => `
+      <script type="application/ld+json">
+        {
+          "@type": "JobPosting",
+          "identifier": {"value": "job-42"},
+          "title": "Software Engineer",
+          "description": "<p>Build secure banking applications.</p>",
+          "employmentType": "FULL_TIME",
+          "validThrough": "2099-12-31",
+          "hiringOrganization": {"name": "Example Bank"},
+          "jobLocation": {"address": {
+            "addressLocality": "Dar es Salaam",
+            "addressCountry": "Tanzania"
+          }}
+        }
+      </script>`,
+  });
+
+  const jobs = await parseAjiraWebFeed(xml, { fetchFn });
   assert.equal(jobs.length, 1);
   assert.equal(jobs[0].sourceId, "job-42");
+  assert.equal(jobs[0].title, "Software Engineer");
+  assert.equal(jobs[0].company, "Example Bank");
   assert.equal(jobs[0].category, "Technology");
   assert.equal(jobs[0].sourceUrl, "https://careers.example.co.tz/jobs/42");
+  assert.match(jobs[0].description, /secure banking applications/);
+});
+
+test("company-level career pages without a real job posting are rejected", async () => {
+  const xml = `<?xml version="1.0"?>
+    <rss xmlns:content="http://purl.org/rss/1.0/modules/content/"><channel><item>
+      <title>Example Bank Vacancies 2026</title>
+      <link>https://ajiraweb.com/example-bank/</link>
+      <category>Jobs in Tanzania</category>
+      <content:encoded><![CDATA[
+        <a href="https://careers.example.co.tz/search">Apply</a>
+      ]]></content:encoded>
+    </item></channel></rss>`;
+  const fetchFn = async () => ({
+    ok: true,
+    headers: new Headers({ "content-type": "text/html" }),
+    text: async () => "<html><title>Careers</title></html>",
+  });
+
+  assert.deepEqual(await parseAjiraWebFeed(xml, { fetchFn }), []);
 });

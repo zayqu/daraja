@@ -16,14 +16,25 @@ test("email application links prepare the recipient, subject and professional bo
 
   assert.equal(url.pathname, "recruitment@example.co.tz");
   assert.doesNotMatch(value, /\+/);
-  assert.equal(
-    url.searchParams.get("subject"),
-    "Application for Credit Analyst - [Your full name]"
-  );
+  assert.equal(url.searchParams.get("subject"), "Application for Credit Analyst");
   assert.match(url.searchParams.get("body"), /Dear Hiring Team/);
   assert.match(url.searchParams.get("body"), /I hope you are well/);
   assert.match(url.searchParams.get("body"), /CV and supporting documents attached/);
   assert.match(url.searchParams.get("body"), /Best regards/);
+});
+
+test("employer email subject guidance takes priority and resolves the job title", () => {
+  const value = buildEmailApplicationUrl({
+    email: "jobs@example.co.tz",
+    title: "Finance Manager",
+    company: "Example Bank",
+    subject: "VACANCY APPLICATION - [Job Title]",
+  });
+
+  assert.equal(
+    new URL(value).searchParams.get("subject"),
+    "VACANCY APPLICATION - Finance Manager"
+  );
 });
 
 test("direct application URL validation rejects unsafe protocols", () => {

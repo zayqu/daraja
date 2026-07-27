@@ -47,8 +47,5 @@ jobs:
             exit 1
           fi
 
-      - name: Apply database migrations
-        run: npx prisma migrate resolve --applied 20260317233531_init || true; npx prisma migrate deploy
-
       - name: Run enabled source scrapers
         run: npm run scrape

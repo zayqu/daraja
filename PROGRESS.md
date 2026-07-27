@@ -21,11 +21,13 @@ require accounts only for personalised or protected features.
 - Consistent application CTA wording.
 - Responsive email and WhatsApp subscription interface.
 - Global browser-security headers, crawl controls and a public sitemap are
-  prepared in the security, SEO and accessibility pull request.
+  prepared in pull request #18.
 - Keyboard skip navigation, visible focus treatment and reduced-motion support
-  are prepared in the security, SEO and accessibility pull request.
+  are prepared in pull request #18.
 - Runtime Google Fonts imports have been removed to improve privacy and
   rendering reliability.
+- The hourly scraper no longer applies or resolves production migrations.
+  Schema deployment is documented as a separate restore-point-gated operation.
 
 ## In progress
 
@@ -39,30 +41,41 @@ require accounts only for personalised or protected features.
 - Deployment blocker: a recent production database backup or restore point has
   not been confirmed.
 
-### Security, SEO and accessibility baseline
+### Pull request #18 — security, SEO and accessibility baseline
 
 - Schema-free batch based directly on `master`.
 - Adds CSP, HSTS, anti-framing, referrer and browser-capability restrictions.
 - Adds `robots.txt`, `sitemap.xml`, skip navigation and motion preferences.
 - Removes third-party runtime font requests and misleading daily-listing copy.
-- No production data, provider credentials or integrations are changed.
-- Local validation: 32 tests passed, ESLint passed, Prisma validation passed
-  and the full Next.js production build passed.
-- Local HTTP smoke testing was unavailable because separate tool processes do
-  not share the preview server socket; the Vercel preview remains the required
-  runtime smoke-test environment.
+- Local validation: 32 tests, ESLint, Prisma validation and production build
+  passed.
+- Vercel preview deployment is ready; runtime smoke verification remains.
+
+### Pull request #19 — public API guardrails
+
+- Schema-free batch based directly on `master`.
+- Adds bounded JSON parsing, media-type validation, response allowlisting and
+  short public-read caching.
+- Local validation: 30 tests, ESLint, Prisma validation and production build
+  passed.
+- Vercel preview deployment is ready; runtime smoke verification remains.
+
+### Scraper migration-safety batch
+
+- Schema-free batch stacked on pull request #18.
+- Removes unattended Prisma migration commands from the hourly production
+  scraper.
+- Documents the restore-point, SQL-review and controlled-deployment procedure.
+- Adds regression tests that fail if schema mutation returns to the scheduled
+  scraper workflow.
 
 ## Safety blockers
 
 ### Production database backup not confirmed
 
-The GitHub scraper workflow currently runs `prisma migrate deploy` against the
-production database. The repository does not document a staging database or a
-pre-migration backup/restore-point check.
-
 Do not merge or deploy schema-changing pull requests until a recent Neon
-backup/restore point is confirmed. Do not run destructive or irreversible
-migrations unattended.
+production backup or restore point is confirmed. Do not run destructive or
+irreversible migrations unattended.
 
 ### Provider credentials and sandbox verification
 

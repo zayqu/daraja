@@ -23,7 +23,7 @@ You can start editing the page by modifying `app/page.js`. The page auto-updates
 
 ## Job source scrapers
 
-The enabled source scrapers run through GitHub Actions every four hours. They
+The enabled source scrapers run through GitHub Actions every hour. They
 validate and deduplicate vacancies before writing them to PostgreSQL, update
 existing vacancies, and archive expired records.
 
@@ -54,6 +54,23 @@ npm run scrape:dry -- --source=reliefweb
 
 The scheduled workflow can also be started manually from **Actions → Job Source
 Scrapers → Run workflow**.
+
+### Production database changes
+
+The hourly scraper never applies Prisma migrations. Scraping and schema
+deployment are deliberately separate so a routine source run cannot change the
+production database structure.
+
+Before deploying a migration:
+
+1. Create or confirm a recent Neon production restore point and record its
+   timestamp.
+2. Review the generated SQL and its rollback or recovery plan.
+3. Apply the migration from a controlled deployment after approval.
+4. Verify the schema and application on preview or staging before production.
+
+Do not add `prisma migrate deploy` or `prisma migrate resolve` to the scheduled
+scraper workflow.
 
 ### Application-link standard
 

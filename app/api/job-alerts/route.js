@@ -1,17 +1,6 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
-
-const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-const MAX_INTERESTS = 5;
-
-function normalizeInterests(value) {
-  const values = Array.isArray(value) ? value : String(value || "").split(",");
-  return [...new Set(
-    values
-      .map((interest) => String(interest).replace(/\s+/g, " ").trim())
-      .filter((interest) => interest.length >= 2 && interest.length <= 60)
-  )].slice(0, MAX_INTERESTS);
-}
+import { validateJobAlertSubscription } from "@/lib/job-alert-validation.mjs";
 
 export async function POST(request) {
   try {
@@ -20,36 +9,37 @@ export async function POST(request) {
       return NextResponse.json({ error: "Request is too large." }, { status: 413 });
     }
 
-    const body = await request.json();
-    const email = String(body.email || "").trim().toLowerCase();
-    const interests = normalizeInterests(body.interests);
+    let body;
+    try {
+      body = await request.json();
+    } catch {
+      return NextResponse.json(
+        { error: "Request body must be valid JSON." },
+        { status: 400 }
+      );
+    }
 
-    if (body.website) {
+    if (body?.website) {
       return NextResponse.json({ subscribed: true });
     }
-    if (!EMAIL_PATTERN.test(email) || email.length > 254) {
-      return NextResponse.json(
-        { error: "Enter a valid email address." },
-        { status: 400 }
-      );
-    }
-    if (body.consent !== true) {
-      return NextResponse.json(
-        { error: "Please agree to receive job alerts." },
-        { status: 400 }
-      );
-    }
-    if (!interests.length) {
-      return NextResponse.json(
-        { error: "Enter at least one job field or position." },
-        { status: 400 }
-      );
+
+    const validation = validateJobAlertSubscription(body);
+    if (validation.error) {
+      return NextResponse.json({ error: validation.error }, { status: 400 });
     }
 
     await prisma.jobAlertSubscriber.upsert({
-      where: { email },
-      update: { active: true, consentedAt: new Date(), interests },
-      create: { email, consentedAt: new Date(), interests },
+      where: { email: validation.email },
+      update: {
+        active: true,
+        consentedAt: new Date(),
+        interests: validation.interests,
+      },
+      create: {
+        email: validation.email,
+        consentedAt: new Date(),
+        interests: validation.interests,
+      },
     });
 
     return NextResponse.json({ subscribed: true });

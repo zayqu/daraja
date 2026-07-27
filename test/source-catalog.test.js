@@ -2,7 +2,7 @@ const test = require("node:test");
 const assert = require("node:assert/strict");
 
 const catalog = require("../scraper/config/source-catalog.json");
-const { getRequestedSources } = require("../scraper/run");
+const { assertRunHealth, getRequestedSources } = require("../scraper/run");
 
 test("source catalogue has unique IDs and excludes Daraja itself", () => {
   const ids = catalog.sources.map((source) => source.id);
@@ -25,5 +25,25 @@ test("getRequestedSources accepts comma-separated source IDs", () => {
   assert.deepEqual(
     [...getRequestedSources(["--dry-run", "--source=ajira,reliefweb"])],
     ["ajira", "reliefweb"]
+  );
+});
+
+test("partial source failures remain visible after successful results are preserved", () => {
+  assert.throws(
+    () =>
+      assertRunHealth(
+        [{ source: "ajira", found: 12, created: 2, updated: 10 }],
+        [{ source: "example", error: "HTTP 503" }]
+      ),
+    /1 successful source result\(s\) were preserved.*HTTP 503/
+  );
+});
+
+test("a fully healthy source run completes normally", () => {
+  assert.doesNotThrow(() =>
+    assertRunHealth(
+      [{ source: "ajira", found: 12, created: 2, updated: 10 }],
+      []
+    )
   );
 });

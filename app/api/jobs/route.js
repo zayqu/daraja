@@ -1,5 +1,9 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
+import { getRequestBodyError, readJsonBody } from "@/lib/http";
+
+const JOB_SUBMISSION_LIMIT = 16 * 1024;
+const LIST_CACHE_CONTROL = "public, s-maxage=60, stale-while-revalidate=300";
 
 export async function GET(request) {
   try {
@@ -79,15 +83,18 @@ export async function GET(request) {
       prisma.job.count({ where }),
     ]);
 
-    return NextResponse.json({
-      jobs,
-      pagination: {
-        total,
-        page,
-        limit,
-        pages: Math.ceil(total / limit),
+    return NextResponse.json(
+      {
+        jobs,
+        pagination: {
+          total,
+          page,
+          limit,
+          pages: Math.ceil(total / limit),
+        },
       },
-    });
+      { headers: { "Cache-Control": LIST_CACHE_CONTROL } }
+    );
   } catch (error) {
     console.error("API error:", error);
     return NextResponse.json(
@@ -99,7 +106,7 @@ export async function GET(request) {
 
 export async function POST(request) {
   try {
-    const body = await request.json();
+    const body = await readJsonBody(request, JOB_SUBMISSION_LIMIT);
     const {
       title,
       company,
@@ -209,6 +216,13 @@ export async function POST(request) {
       { status: 202 }
     );
   } catch (error) {
+    const requestError = getRequestBodyError(error);
+    if (requestError) {
+      return NextResponse.json(
+        { error: requestError.message },
+        { status: requestError.status }
+      );
+    }
     console.error("API error:", error);
     return NextResponse.json(
       { error: "Failed to create job" },

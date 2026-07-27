@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
+import { getRequestBodyError, readJsonBody } from "@/lib/http";
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const MAX_INTERESTS = 5;
@@ -15,12 +16,7 @@ function normalizeInterests(value) {
 
 export async function POST(request) {
   try {
-    const contentLength = Number(request.headers.get("content-length") || 0);
-    if (contentLength > 4096) {
-      return NextResponse.json({ error: "Request is too large." }, { status: 413 });
-    }
-
-    const body = await request.json();
+    const body = await readJsonBody(request, 4096);
     const email = String(body.email || "").trim().toLowerCase();
     const interests = normalizeInterests(body.interests);
 
@@ -54,6 +50,13 @@ export async function POST(request) {
 
     return NextResponse.json({ subscribed: true });
   } catch (error) {
+    const requestError = getRequestBodyError(error);
+    if (requestError) {
+      return NextResponse.json(
+        { error: requestError.message },
+        { status: requestError.status }
+      );
+    }
     console.error("Job alert subscription failed:", error);
     return NextResponse.json(
       { error: "Subscription could not be saved. Please try again." },

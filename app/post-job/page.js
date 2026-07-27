@@ -79,13 +79,11 @@ export default function PostJobPage() {
   return (
     <>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Poppins:wght@300;400;500;600&display=swap');
-
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-        .dr { font-family: 'Poppins', sans-serif; background: #F7F8FA; min-height: 100vh; color: #1B2A3F; }
+        .dr { font-family: inherit; background: #F7F8FA; min-height: 100vh; color: #1B2A3F; }
 
         .nav { background: #1B2A3F; height: 64px; padding: 0 3rem; display: flex; align-items: center; justify-content: space-between; }
-        .nav-logo { font-family: 'Montserrat', sans-serif; font-size: 1.4rem; font-weight: 700; color: #00C9A7; letter-spacing: 0.1em; text-decoration: none; }
+        .nav-logo { font-family: inherit; font-size: 1.4rem; font-weight: 700; color: #00C9A7; letter-spacing: 0.1em; text-decoration: none; }
         .nav-logo span { display: block; font-size: 0.55rem; font-weight: 400; color: rgba(255,255,255,0.35); letter-spacing: 0.3em; text-transform: uppercase; margin-top: 1px; }
         .nav-link { font-size: 0.8rem; color: rgba(255,255,255,0.6); text-decoration: none; transition: color 0.15s; }
         .nav-link:hover { color: #fff; }
@@ -93,7 +91,7 @@ export default function PostJobPage() {
         .header { background: #1B2A3F; padding: 2.5rem 3rem 2rem; }
         .header-inner { max-width: 720px; margin: 0 auto; }
         .header-eyebrow { font-size: 0.68rem; font-weight: 600; letter-spacing: 0.3em; text-transform: uppercase; color: #00C9A7; margin-bottom: 0.6rem; }
-        .header-title { font-family: 'Montserrat', sans-serif; font-size: 1.8rem; font-weight: 700; color: #fff; letter-spacing: -0.02em; }
+        .header-title { font-family: inherit; font-size: 1.8rem; font-weight: 700; color: #fff; letter-spacing: -0.02em; }
 
         .body { max-width: 720px; margin: 0 auto; padding: 2.5rem 3rem 5rem; }
 
@@ -101,7 +99,7 @@ export default function PostJobPage() {
 
         .form-section { margin-bottom: 2rem; padding-bottom: 2rem; border-bottom: 1px solid #F0F3F7; }
         .form-section:last-child { margin-bottom: 0; padding-bottom: 0; border-bottom: none; }
-        .form-section-title { font-family: 'Montserrat', sans-serif; font-size: 0.72rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: #8B95A1; margin-bottom: 1.25rem; }
+        .form-section-title { font-family: inherit; font-size: 0.72rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: #8B95A1; margin-bottom: 1.25rem; }
 
         .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; }
         .form-grid-full { grid-column: 1 / -1; }
@@ -110,7 +108,7 @@ export default function PostJobPage() {
         .field label { font-size: 0.75rem; font-weight: 600; color: #3D4B5C; letter-spacing: 0.03em; }
         .field label span { color: #DC2626; margin-left: 2px; }
         .field input, .field select, .field textarea {
-          font-family: 'Poppins', sans-serif;
+          font-family: inherit;
           font-size: 0.85rem;
           color: #1B2A3F;
           background: #F7F8FA;
@@ -133,14 +131,14 @@ export default function PostJobPage() {
 
         .success-card { background: #fff; border: 1.5px solid #E8ECF0; border-radius: 8px; padding: 3.5rem 2.5rem; text-align: center; }
         .success-icon { width: 52px; height: 52px; background: #E8FAF6; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.25rem; font-size: 1.4rem; }
-        .success-title { font-family: 'Montserrat', sans-serif; font-size: 1.2rem; font-weight: 700; color: #1B2A3F; margin-bottom: 0.5rem; }
+        .success-title { font-family: inherit; font-size: 1.2rem; font-weight: 700; color: #1B2A3F; margin-bottom: 0.5rem; }
         .success-text { font-size: 0.85rem; color: #6B7685; line-height: 1.6; margin-bottom: 1.75rem; }
         .success-btns { display: flex; gap: 0.75rem; justify-content: center; flex-wrap: wrap; }
 
-        .btn-primary { font-family: 'Poppins', sans-serif; font-size: 0.82rem; font-weight: 600; background: #00C9A7; color: #1B2A3F; padding: 0.75rem 1.75rem; border-radius: 4px; text-decoration: none; letter-spacing: 0.03em; transition: opacity 0.2s; display: inline-block; border: none; cursor: pointer; width: 100%; margin-top: 0.5rem; }
+        .btn-primary { font-family: inherit; font-size: 0.82rem; font-weight: 600; background: #00C9A7; color: #1B2A3F; padding: 0.75rem 1.75rem; border-radius: 4px; text-decoration: none; letter-spacing: 0.03em; transition: opacity 0.2s; display: inline-block; border: none; cursor: pointer; width: 100%; margin-top: 0.5rem; }
         .btn-primary:hover { opacity: 0.88; }
         .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
-        .btn-secondary { font-family: 'Poppins', sans-serif; font-size: 0.82rem; font-weight: 500; background: transparent; color: #6B7685; padding: 0.75rem 1.75rem; border-radius: 4px; text-decoration: none; letter-spacing: 0.03em; transition: all 0.2s; display: inline-block; border: 1.5px solid #E8ECF0; }
+        .btn-secondary { font-family: inherit; font-size: 0.82rem; font-weight: 500; background: transparent; color: #6B7685; padding: 0.75rem 1.75rem; border-radius: 4px; text-decoration: none; letter-spacing: 0.03em; transition: all 0.2s; display: inline-block; border: 1.5px solid #E8ECF0; }
         .btn-secondary:hover { border-color: #1B2A3F; color: #1B2A3F; }
 
         .notice { background: #F0FDF9; border: 1px solid #C8EDE7; border-radius: 6px; padding: 1rem 1.25rem; margin-bottom: 2rem; }
@@ -149,7 +147,7 @@ export default function PostJobPage() {
 
         .footer { background: #1B2A3F; border-top: 1px solid rgba(255,255,255,0.06); padding: 2rem 3rem; margin-top: 2rem; }
         .footer-inner { max-width: 860px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; }
-        .footer-logo { font-family: 'Montserrat', sans-serif; font-size: 1rem; font-weight: 700; color: #00C9A7; letter-spacing: 0.12em; }
+        .footer-logo { font-family: inherit; font-size: 1rem; font-weight: 700; color: #00C9A7; letter-spacing: 0.12em; }
         .footer-sub { font-size: 0.6rem; color: rgba(255,255,255,0.25); letter-spacing: 0.25em; text-transform: uppercase; margin-top: 0.2rem; }
         .footer-copy { font-size: 0.72rem; color: rgba(255,255,255,0.25); }
 
@@ -180,7 +178,7 @@ export default function PostJobPage() {
           </div>
         </div>
 
-        <div className="body">
+        <main className="body" id="main-content">
           {success ? (
             <div className="success-card">
               <div className="success-icon">✓</div>
@@ -317,7 +315,7 @@ export default function PostJobPage() {
               </div>
             </>
           )}
-        </div>
+        </main>
 
         <footer className="footer">
           <div className="footer-inner">

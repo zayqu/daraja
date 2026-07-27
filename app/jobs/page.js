@@ -112,30 +112,28 @@ export default function JobsPage() {
   return (
     <>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Poppins:wght@300;400;500;600&display=swap');
-
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-        .dr { font-family: 'Poppins', sans-serif; background: #F7F8FA; min-height: 100vh; color: #1B2A3F; }
+        .dr { font-family: inherit; background: #F7F8FA; min-height: 100vh; color: #1B2A3F; }
 
         /* NAV */
         .nav { background: #1B2A3F; height: 64px; padding: 0 3rem; display: flex; align-items: center; justify-content: space-between; }
-        .nav-logo { font-family: 'Montserrat', sans-serif; font-size: 1.4rem; font-weight: 700; color: #00C9A7; letter-spacing: 0.1em; text-decoration: none; }
+        .nav-logo { font-family: inherit; font-size: 1.4rem; font-weight: 700; color: #00C9A7; letter-spacing: 0.1em; text-decoration: none; }
         .nav-logo span { display: block; font-size: 0.55rem; font-weight: 400; color: rgba(255,255,255,0.35); letter-spacing: 0.3em; text-transform: uppercase; margin-top: 1px; }
-        .nav-cta { font-family: 'Poppins', sans-serif; font-size: 0.78rem; font-weight: 600; background: #00C9A7; color: #1B2A3F; padding: 0.55rem 1.4rem; border-radius: 4px; text-decoration: none; letter-spacing: 0.03em; transition: opacity 0.2s; }
+        .nav-cta { font-family: inherit; font-size: 0.78rem; font-weight: 600; background: #00C9A7; color: #1B2A3F; padding: 0.55rem 1.4rem; border-radius: 4px; text-decoration: none; letter-spacing: 0.03em; transition: opacity 0.2s; }
         .nav-cta:hover { opacity: 0.88; }
 
         /* SEARCH HEADER */
         .header { background: #1B2A3F; padding: 3rem 3rem 2.5rem; }
         .header-inner { max-width: 860px; margin: 0 auto; }
-        .header h1 { font-family: 'Montserrat', sans-serif; font-size: 1.9rem; font-weight: 700; color: #fff; margin-bottom: 1.5rem; letter-spacing: -0.02em; }
+        .header h1 { font-family: inherit; font-size: 1.9rem; font-weight: 700; color: #fff; margin-bottom: 1.5rem; letter-spacing: -0.02em; }
         .header h1 span { color: #00C9A7; }
 
         .search-row { display: flex; }
-        .search-input { flex: 1; padding: 0.85rem 1.2rem; background: #fff; border: none; font-family: 'Poppins', sans-serif; font-size: 0.88rem; color: #1B2A3F; outline: none; border-radius: 4px 0 0 4px; }
+        .search-input { flex: 1; padding: 0.85rem 1.2rem; background: #fff; border: none; font-family: inherit; font-size: 0.88rem; color: #1B2A3F; outline: none; border-radius: 4px 0 0 4px; }
         .search-input::placeholder { color: #A0ACBB; }
         .search-input:focus-visible, .search-btn:focus-visible, .f-btn:focus-visible, .pg-btn:focus-visible, .job-card:focus-visible, .nav-cta:focus-visible, .nav-logo:focus-visible { outline: 3px solid #F59E0B; outline-offset: 3px; }
-        .search-btn { padding: 0.85rem 1.75rem; background: #00C9A7; color: #1B2A3F; font-family: 'Poppins', sans-serif; font-size: 0.82rem; font-weight: 600; border: none; cursor: pointer; border-radius: 0 4px 4px 0; letter-spacing: 0.04em; transition: opacity 0.2s; }
+        .search-btn { padding: 0.85rem 1.75rem; background: #00C9A7; color: #1B2A3F; font-family: inherit; font-size: 0.82rem; font-weight: 600; border: none; cursor: pointer; border-radius: 0 4px 4px 0; letter-spacing: 0.04em; transition: opacity 0.2s; }
         .search-btn:hover { opacity: 0.88; }
 
         /* BODY */
@@ -161,7 +159,7 @@ export default function JobsPage() {
         .jc-left { flex: 1; min-width: 0; }
         .jc-right { text-align: right; flex-shrink: 0; }
 
-        .jc-title { font-family: 'Montserrat', sans-serif; font-size: 0.95rem; font-weight: 600; color: #1B2A3F; line-height: 1.4; margin-bottom: 0.25rem; }
+        .jc-title { font-family: inherit; font-size: 0.95rem; font-weight: 600; color: #1B2A3F; line-height: 1.4; margin-bottom: 0.25rem; }
         .job-card:hover .jc-title { color: #00C9A7; }
         .jc-company { font-size: 0.8rem; color: #6B7685; font-weight: 400; margin-bottom: 0.9rem; }
 
@@ -182,13 +180,13 @@ export default function JobsPage() {
         .state-loading { text-align: center; padding: 5rem 0; font-size: 0.85rem; color: #8B95A1; }
         .state-empty, .state-error { text-align: center; padding: 5rem 0; }
         .state-empty p { font-size: 0.85rem; color: #8B95A1; margin-top: 0.5rem; }
-        .state-empty strong { font-family: 'Montserrat', sans-serif; font-size: 1.1rem; color: #1B2A3F; }
+        .state-empty strong { font-family: inherit; font-size: 1.1rem; color: #1B2A3F; }
         .state-error { color: #B42318; font-size: 0.85rem; }
         .retry-btn { margin-top: 1rem; border: 0; border-radius: 4px; background: #1B2A3F; color: #fff; padding: 0.65rem 1rem; cursor: pointer; font: inherit; }
 
         /* PAGINATION */
         .pager { display: flex; justify-content: center; gap: 0.3rem; margin-top: 2.5rem; }
-        .pg-btn { min-width: 44px; min-height: 44px; display: flex; align-items: center; justify-content: center; font-size: 0.78rem; font-family: 'Poppins', sans-serif; border: 1.5px solid #DDE1E8; border-radius: 4px; background: #fff; cursor: pointer; color: #6B7685; transition: all 0.15s; }
+        .pg-btn { min-width: 44px; min-height: 44px; display: flex; align-items: center; justify-content: center; font-size: 0.78rem; font-family: inherit; border: 1.5px solid #DDE1E8; border-radius: 4px; background: #fff; cursor: pointer; color: #6B7685; transition: all 0.15s; }
         .pg-btn:hover:not(:disabled) { border-color: #1B2A3F; color: #1B2A3F; }
         .pg-btn.active { background: #1B2A3F; color: #00C9A7; border-color: #1B2A3F; }
         .pg-btn:disabled { opacity: 0.3; cursor: not-allowed; }
@@ -196,7 +194,7 @@ export default function JobsPage() {
 
         /* FOOTER */
         .footer { background: #1B2A3F; padding: 2rem 3rem; text-align: center; }
-        .footer-logo { font-family: 'Montserrat', sans-serif; font-size: 1rem; font-weight: 700; color: #00C9A7; letter-spacing: 0.12em; }
+        .footer-logo { font-family: inherit; font-size: 1rem; font-weight: 700; color: #00C9A7; letter-spacing: 0.12em; }
         .footer-sub { font-size: 0.6rem; color: rgba(255,255,255,0.25); letter-spacing: 0.25em; text-transform: uppercase; margin-top: 0.25rem; }
 
         @media (max-width: 640px) {

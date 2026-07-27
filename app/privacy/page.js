@@ -9,6 +9,7 @@ export const metadata = {
 export default function PrivacyPage() {
   return (
     <main
+      id="main-content"
       style={{
         maxWidth: "760px",
         margin: "0 auto",

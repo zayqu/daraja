@@ -21,6 +21,19 @@ function getRequestedSources(args) {
   return new Set(requested);
 }
 
+function assertRunHealth(summaries, failures) {
+  if (!summaries.length) {
+    throw new Error(`All enabled sources failed: ${JSON.stringify(failures)}`);
+  }
+
+  if (failures.length) {
+    throw new Error(
+      `Some sources failed; ${summaries.length} successful source result(s) ` +
+      `were preserved: ${JSON.stringify(failures)}`
+    );
+  }
+}
+
 async function runScrapers({ dryRun = false, requestedSources = new Set() } = {}) {
   const enabledSources = catalog.sources.filter(
     (source) =>
@@ -71,12 +84,7 @@ async function runScrapers({ dryRun = false, requestedSources = new Set() } = {}
     await prisma?.$disconnect();
   }
 
-  if (!summaries.length) {
-    throw new Error(`All enabled sources failed: ${JSON.stringify(failures)}`);
-  }
-  if (failures.length) {
-    console.warn(`Some sources failed; successful sources were preserved: ${JSON.stringify(failures)}`);
-  }
+  assertRunHealth(summaries, failures);
   return summaries;
 }
 
@@ -91,4 +99,4 @@ if (require.main === module) {
   });
 }
 
-module.exports = { getRequestedSources, runScrapers };
+module.exports = { assertRunHealth, getRequestedSources, runScrapers };

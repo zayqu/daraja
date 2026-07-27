@@ -5,19 +5,17 @@ export default function Home() {
   return (
     <>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Poppins:wght@300;400;500;600&display=swap');
-
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-        .home { font-family: 'Poppins', sans-serif; background: #F7F8FA; min-height: 100vh; color: #1B2A3F; }
+        .home { font-family: inherit; background: #F7F8FA; min-height: 100vh; color: #1B2A3F; }
 
         .nav { background: #1B2A3F; height: 64px; padding: 0 3rem; display: flex; align-items: center; justify-content: space-between; }
-        .nav-logo { font-family: 'Montserrat', sans-serif; font-size: 1.4rem; font-weight: 700; color: #00C9A7; letter-spacing: 0.1em; text-decoration: none; }
+        .nav-logo { font-family: inherit; font-size: 1.4rem; font-weight: 700; color: #00C9A7; letter-spacing: 0.1em; text-decoration: none; }
         .nav-logo span { display: block; font-size: 0.55rem; font-weight: 400; color: rgba(255,255,255,0.35); letter-spacing: 0.3em; text-transform: uppercase; margin-top: 1px; }
         .nav-links { display: flex; align-items: center; gap: 2rem; }
         .nav-link { font-size: 0.8rem; font-weight: 500; color: rgba(255,255,255,0.6); text-decoration: none; letter-spacing: 0.03em; transition: color 0.15s; }
         .nav-link:hover { color: #fff; }
-        .nav-cta { font-family: 'Poppins', sans-serif; font-size: 0.78rem; font-weight: 600; background: #00C9A7; color: #1B2A3F; padding: 0.55rem 1.4rem; border-radius: 4px; text-decoration: none; letter-spacing: 0.03em; transition: opacity 0.2s; }
+        .nav-cta { font-family: inherit; font-size: 0.78rem; font-weight: 600; background: #00C9A7; color: #1B2A3F; padding: 0.55rem 1.4rem; border-radius: 4px; text-decoration: none; letter-spacing: 0.03em; transition: opacity 0.2s; }
         .nav-cta:hover { opacity: 0.88; }
 
         .hero { background: #1B2A3F; padding: 5rem 3rem 4.5rem; text-align: center; position: relative; overflow: hidden; }
@@ -25,52 +23,52 @@ export default function Home() {
         .hero::after { content: ''; position: absolute; top: -40px; left: 50%; transform: translateX(-50%); width: 380px; height: 380px; border-radius: 50%; border: 1px solid rgba(0,201,167,0.05); pointer-events: none; }
         .hero-inner { max-width: 680px; margin: 0 auto; position: relative; }
         .hero-eyebrow { font-size: 0.68rem; font-weight: 600; letter-spacing: 0.3em; text-transform: uppercase; color: #00C9A7; margin-bottom: 1.25rem; }
-        .hero-title { font-family: 'Montserrat', sans-serif; font-size: 2.8rem; font-weight: 700; color: #fff; line-height: 1.18; letter-spacing: -0.02em; margin-bottom: 1.25rem; }
+        .hero-title { font-family: inherit; font-size: 2.8rem; font-weight: 700; color: #fff; line-height: 1.18; letter-spacing: -0.02em; margin-bottom: 1.25rem; }
         .hero-title span { color: #00C9A7; }
         .hero-sub { font-size: 0.92rem; font-weight: 300; color: rgba(255,255,255,0.5); line-height: 1.7; margin-bottom: 2.5rem; max-width: 480px; margin-left: auto; margin-right: auto; }
         .hero-btns { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
-        .btn-primary { font-family: 'Poppins', sans-serif; font-size: 0.82rem; font-weight: 600; background: #00C9A7; color: #1B2A3F; padding: 0.8rem 2rem; border-radius: 4px; text-decoration: none; letter-spacing: 0.04em; transition: opacity 0.2s; }
+        .btn-primary { font-family: inherit; font-size: 0.82rem; font-weight: 600; background: #00C9A7; color: #1B2A3F; padding: 0.8rem 2rem; border-radius: 4px; text-decoration: none; letter-spacing: 0.04em; transition: opacity 0.2s; }
         .btn-primary:hover { opacity: 0.88; }
-        .btn-outline { font-family: 'Poppins', sans-serif; font-size: 0.82rem; font-weight: 500; background: transparent; color: rgba(255,255,255,0.7); padding: 0.8rem 2rem; border-radius: 4px; text-decoration: none; letter-spacing: 0.04em; border: 1.5px solid rgba(255,255,255,0.15); transition: all 0.2s; }
+        .btn-outline { font-family: inherit; font-size: 0.82rem; font-weight: 500; background: transparent; color: rgba(255,255,255,0.7); padding: 0.8rem 2rem; border-radius: 4px; text-decoration: none; letter-spacing: 0.04em; border: 1.5px solid rgba(255,255,255,0.15); transition: all 0.2s; }
         .btn-outline:hover { border-color: #00C9A7; color: #00C9A7; }
 
         .stats { background: #fff; border-bottom: 1px solid #E8ECF0; }
         .stats-inner { max-width: 860px; margin: 0 auto; padding: 2.5rem 3rem; display: grid; grid-template-columns: repeat(4, 1fr); }
         .stat { text-align: center; padding: 0 1rem; border-right: 1px solid #E8ECF0; }
         .stat:last-child { border-right: none; }
-        .stat-num { font-family: 'Montserrat', sans-serif; font-size: 1.8rem; font-weight: 700; color: #00C9A7; letter-spacing: -0.02em; }
+        .stat-num { font-family: inherit; font-size: 1.8rem; font-weight: 700; color: #00C9A7; letter-spacing: -0.02em; }
         .stat-label { font-size: 0.75rem; color: #8B95A1; margin-top: 0.25rem; font-weight: 400; }
 
         .section { max-width: 860px; margin: 0 auto; padding: 3.5rem 3rem; }
         .section-label { font-size: 0.68rem; font-weight: 600; letter-spacing: 0.25em; text-transform: uppercase; color: #00C9A7; margin-bottom: 0.75rem; }
-        .section-title { font-family: 'Montserrat', sans-serif; font-size: 1.5rem; font-weight: 700; color: #1B2A3F; margin-bottom: 2rem; letter-spacing: -0.02em; }
+        .section-title { font-family: inherit; font-size: 1.5rem; font-weight: 700; color: #1B2A3F; margin-bottom: 2rem; letter-spacing: -0.02em; }
 
         .cat-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.75rem; }
         .cat-card { background: #fff; border: 1.5px solid #E8ECF0; border-radius: 6px; padding: 1.5rem 1.25rem; text-decoration: none; transition: all 0.15s; display: block; }
         .cat-card:hover { border-color: #00C9A7; box-shadow: 0 2px 12px rgba(0,201,167,0.08); }
-        .cat-name { font-family: 'Montserrat', sans-serif; font-size: 0.85rem; font-weight: 600; color: #1B2A3F; margin-bottom: 0.25rem; }
+        .cat-name { font-family: inherit; font-size: 0.85rem; font-weight: 600; color: #1B2A3F; margin-bottom: 0.25rem; }
         .cat-card:hover .cat-name { color: #00C9A7; }
         .cat-desc { font-size: 0.72rem; color: #8B95A1; line-height: 1.5; }
 
         .why { background: #1B2A3F; }
         .why-inner { max-width: 860px; margin: 0 auto; padding: 3.5rem 3rem; }
         .why-label { font-size: 0.68rem; font-weight: 600; letter-spacing: 0.25em; text-transform: uppercase; color: #00C9A7; margin-bottom: 0.75rem; }
-        .why-title { font-family: 'Montserrat', sans-serif; font-size: 1.5rem; font-weight: 700; color: #fff; margin-bottom: 2rem; letter-spacing: -0.02em; }
+        .why-title { font-family: inherit; font-size: 1.5rem; font-weight: 700; color: #fff; margin-bottom: 2rem; letter-spacing: -0.02em; }
         .why-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; }
         .why-card { border: 1px solid rgba(255,255,255,0.07); border-radius: 6px; padding: 1.5rem; }
         .why-icon { font-size: 1.2rem; margin-bottom: 0.85rem; color: #00C9A7; font-weight: 700; }
-        .why-heading { font-family: 'Montserrat', sans-serif; font-size: 0.88rem; font-weight: 600; color: #fff; margin-bottom: 0.4rem; }
+        .why-heading { font-family: inherit; font-size: 0.88rem; font-weight: 600; color: #fff; margin-bottom: 0.4rem; }
         .why-text { font-size: 0.78rem; color: rgba(255,255,255,0.4); line-height: 1.65; font-weight: 300; }
 
         .cta-strip { background: #00C9A7; padding: 3rem; text-align: center; }
-        .cta-strip h2 { font-family: 'Montserrat', sans-serif; font-size: 1.4rem; font-weight: 700; color: #1B2A3F; margin-bottom: 0.5rem; }
+        .cta-strip h2 { font-family: inherit; font-size: 1.4rem; font-weight: 700; color: #1B2A3F; margin-bottom: 0.5rem; }
         .cta-strip p { font-size: 0.85rem; color: rgba(27,42,63,0.7); margin-bottom: 1.5rem; }
-        .btn-dark { font-family: 'Poppins', sans-serif; font-size: 0.82rem; font-weight: 600; background: #1B2A3F; color: #fff; padding: 0.8rem 2rem; border-radius: 4px; text-decoration: none; letter-spacing: 0.04em; transition: opacity 0.2s; display: inline-block; }
+        .btn-dark { font-family: inherit; font-size: 0.82rem; font-weight: 600; background: #1B2A3F; color: #fff; padding: 0.8rem 2rem; border-radius: 4px; text-decoration: none; letter-spacing: 0.04em; transition: opacity 0.2s; display: inline-block; }
         .btn-dark:hover { opacity: 0.88; }
 
         .footer { background: #1B2A3F; border-top: 1px solid rgba(255,255,255,0.06); padding: 2.5rem 3rem; }
         .footer-inner { max-width: 860px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; }
-        .footer-logo { font-family: 'Montserrat', sans-serif; font-size: 1rem; font-weight: 700; color: #00C9A7; letter-spacing: 0.12em; }
+        .footer-logo { font-family: inherit; font-size: 1rem; font-weight: 700; color: #00C9A7; letter-spacing: 0.12em; }
         .footer-sub { font-size: 0.6rem; color: rgba(255,255,255,0.25); letter-spacing: 0.25em; text-transform: uppercase; margin-top: 0.2rem; }
         .footer-copy { font-size: 0.72rem; color: rgba(255,255,255,0.25); }
 
@@ -106,7 +104,7 @@ export default function Home() {
           </div>
         </nav>
 
-        <div className="hero">
+        <main className="hero" id="main-content">
           <div className="hero-inner">
           <div className="hero-eyebrow">Tanzania&apos;s Professional Job Platform</div>
             <h1 className="hero-title">
@@ -122,7 +120,7 @@ export default function Home() {
               <Link href="/post-job" className="btn-outline">Post a Job</Link>
             </div>
           </div>
-        </div>
+        </main>
 
         <div className="stats">
           <div className="stats-inner">
@@ -135,8 +133,8 @@ export default function Home() {
               <div className="stat-label">To Browse</div>
             </div>
             <div className="stat">
-              <div className="stat-num">Daily</div>
-              <div className="stat-label">New Listings</div>
+              <div className="stat-num">Hourly</div>
+              <div className="stat-label">Source Checks</div>
             </div>
             <div className="stat">
               <div className="stat-num">Clear</div>

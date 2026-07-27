@@ -10,7 +10,10 @@ export default async function UnsubscribedPage({ searchParams }) {
   const failed = params?.status === "error" || params?.status === "invalid";
 
   return (
-    <main style={{ maxWidth: "620px", margin: "0 auto", padding: "5rem 1.25rem" }}>
+    <main
+      id="main-content"
+      style={{ maxWidth: "620px", margin: "0 auto", padding: "5rem 1.25rem" }}
+    >
       <h1>{failed ? "We could not update your alerts" : "You are unsubscribed"}</h1>
       <p style={{ margin: "1rem 0 1.5rem", color: "#667085", lineHeight: 1.7 }}>
         {failed

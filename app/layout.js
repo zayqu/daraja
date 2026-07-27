@@ -22,6 +22,10 @@ export const metadata = {
       "Find current jobs and career opportunities across Tanzania.",
     url: "/",
   },
+  robots: {
+    index: true,
+    follow: true,
+  },
 };
 
 export default function RootLayout({ children }) {
@@ -30,6 +34,9 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <body>
+        <a className="skip-link" href="#main-content">
+          Skip to main content
+        </a>
         {children}
         {adsenseClient && (
           <Script

@@ -91,15 +91,13 @@ export default function JobDetailPage() {
   return (
     <>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Poppins:wght@300;400;500;600&display=swap');
-
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-        .dr { font-family: 'Poppins', sans-serif; background: #F7F8FA; min-height: 100vh; color: #1B2A3F; }
+        .dr { font-family: inherit; background: #F7F8FA; min-height: 100vh; color: #1B2A3F; }
 
         .nav { background: #1B2A3F; height: 64px; padding: 0 3rem; display: flex; align-items: center; justify-content: space-between; }
-        .nav-logo { font-family: 'Montserrat', sans-serif; font-size: 1.4rem; font-weight: 700; color: #00C9A7; letter-spacing: 0.1em; text-decoration: none; }
+        .nav-logo { font-family: inherit; font-size: 1.4rem; font-weight: 700; color: #00C9A7; letter-spacing: 0.1em; text-decoration: none; }
         .nav-logo span { display: block; font-size: 0.55rem; font-weight: 400; color: rgba(255,255,255,0.35); letter-spacing: 0.3em; text-transform: uppercase; margin-top: 1px; }
-        .nav-cta { font-family: 'Poppins', sans-serif; font-size: 0.78rem; font-weight: 600; background: #00C9A7; color: #1B2A3F; padding: 0.55rem 1.4rem; border-radius: 4px; text-decoration: none; transition: opacity 0.2s; }
+        .nav-cta { font-family: inherit; font-size: 0.78rem; font-weight: 600; background: #00C9A7; color: #1B2A3F; padding: 0.55rem 1.4rem; border-radius: 4px; text-decoration: none; transition: opacity 0.2s; }
         .nav-cta:hover { opacity: 0.88; }
 
         .breadcrumb { background: #1B2A3F; padding: 0 3rem 1.25rem; }
@@ -116,7 +114,7 @@ export default function JobDetailPage() {
 
         .main-card { background: #fff; border: 1.5px solid #E8ECF0; border-radius: 8px; overflow: hidden; }
         .card-header { padding: 2rem 2rem 1.5rem; border-bottom: 1px solid #F0F3F7; }
-        .job-title { font-family: 'Montserrat', sans-serif; font-size: 1.4rem; font-weight: 700; color: #1B2A3F; line-height: 1.3; margin-bottom: 0.5rem; letter-spacing: -0.01em; }
+        .job-title { font-family: inherit; font-size: 1.4rem; font-weight: 700; color: #1B2A3F; line-height: 1.3; margin-bottom: 0.5rem; letter-spacing: -0.01em; }
         .job-company { font-size: 0.9rem; color: #6B7685; font-weight: 400; margin-bottom: 1.25rem; }
         .job-tags { display: flex; flex-wrap: wrap; gap: 0.4rem; }
         .tag { font-size: 0.68rem; font-weight: 500; padding: 0.25rem 0.7rem; border-radius: 3px; letter-spacing: 0.03em; }
@@ -126,12 +124,12 @@ export default function JobDetailPage() {
         .t-feat { background: #FEF6E4; color: #92660A; }
 
         .card-body { padding: 1.75rem 2rem; }
-        .section-heading { font-family: 'Montserrat', sans-serif; font-size: 0.78rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: #667085; margin-bottom: 0.85rem; margin-top: 1.75rem; }
+        .section-heading { font-family: inherit; font-size: 0.78rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: #667085; margin-bottom: 0.85rem; margin-top: 1.75rem; }
         .section-heading:first-child { margin-top: 0; }
         .job-description { font-size: 0.875rem; color: #3D4B5C; line-height: 1.8; white-space: pre-wrap; }
 
         .side-card { background: #fff; border: 1.5px solid #E8ECF0; border-radius: 8px; padding: 1.5rem; }
-        .side-card-title { font-family: 'Montserrat', sans-serif; font-size: 0.72rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: #667085; margin-bottom: 1.1rem; }
+        .side-card-title { font-family: inherit; font-size: 0.72rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: #667085; margin-bottom: 1.1rem; }
 
         .detail-row { display: flex; flex-direction: column; gap: 0.85rem; }
         .detail-item { display: flex; flex-direction: column; gap: 0.15rem; }
@@ -141,9 +139,9 @@ export default function JobDetailPage() {
         .detail-value.soon { color: #D97706; }
         .detail-value.ok { color: #0A8C74; }
 
-        .apply-btn { display: block; width: 100%; padding: 0.9rem; background: #00C9A7; color: #1B2A3F; font-family: 'Poppins', sans-serif; font-size: 0.85rem; font-weight: 700; text-align: center; border-radius: 6px; text-decoration: none; letter-spacing: 0.04em; transition: opacity 0.2s; }
+        .apply-btn { display: block; width: 100%; padding: 0.9rem; background: #00C9A7; color: #1B2A3F; font-family: inherit; font-size: 0.85rem; font-weight: 700; text-align: center; border-radius: 6px; text-decoration: none; letter-spacing: 0.04em; transition: opacity 0.2s; }
         .apply-btn:hover { opacity: 0.88; }
-        .apply-btn-disabled { display: block; width: 100%; padding: 0.9rem; background: #E8ECF0; color: #A0ACBB; font-family: 'Poppins', sans-serif; font-size: 0.85rem; font-weight: 700; text-align: center; border-radius: 6px; letter-spacing: 0.04em; cursor: not-allowed; }
+        .apply-btn-disabled { display: block; width: 100%; padding: 0.9rem; background: #E8ECF0; color: #A0ACBB; font-family: inherit; font-size: 0.85rem; font-weight: 700; text-align: center; border-radius: 6px; letter-spacing: 0.04em; cursor: not-allowed; }
         .apply-note { font-size: 0.7rem; color: #A0ACBB; text-align: center; margin-top: 0.65rem; line-height: 1.5; }
         .share-btn { display: block; width: 100%; min-height: 46px; margin-top: 0.75rem; padding: 0.75rem; border: 1.5px solid #25D366; border-radius: 6px; background: #fff; color: #167B3C; font: 700 0.8rem 'Poppins', sans-serif; text-align: center; text-decoration: none; cursor: pointer; }
         .share-btn:hover { background: #F0FFF5; }
@@ -153,12 +151,12 @@ export default function JobDetailPage() {
         .back-link:focus-visible, .nav-logo:focus-visible, .nav-cta:focus-visible, .apply-btn:focus-visible, .share-btn:focus-visible, .breadcrumb a:focus-visible { outline: 3px solid #F59E0B; outline-offset: 3px; }
 
         .state { text-align: center; padding: 5rem 3rem; max-width: 860px; margin: 0 auto; }
-        .state strong { font-family: 'Montserrat', sans-serif; font-size: 1.1rem; color: #1B2A3F; display: block; margin-bottom: 0.5rem; }
+        .state strong { font-family: inherit; font-size: 1.1rem; color: #1B2A3F; display: block; margin-bottom: 0.5rem; }
         .state p { font-size: 0.85rem; color: #8B95A1; }
 
         .footer { background: #1B2A3F; border-top: 1px solid rgba(255,255,255,0.06); padding: 2rem 3rem; }
         .footer-inner { max-width: 860px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; }
-        .footer-logo { font-family: 'Montserrat', sans-serif; font-size: 1rem; font-weight: 700; color: #00C9A7; letter-spacing: 0.12em; }
+        .footer-logo { font-family: inherit; font-size: 1rem; font-weight: 700; color: #00C9A7; letter-spacing: 0.12em; }
         .footer-sub { font-size: 0.6rem; color: rgba(255,255,255,0.25); letter-spacing: 0.25em; text-transform: uppercase; margin-top: 0.2rem; }
         .footer-copy { font-size: 0.72rem; color: rgba(255,255,255,0.25); }
 

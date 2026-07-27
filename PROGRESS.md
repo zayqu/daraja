@@ -69,6 +69,17 @@ require accounts only for personalised or protected features.
 - Adds regression tests that fail if schema mutation returns to the scheduled
   scraper workflow.
 
+### Source failure visibility batch
+
+- Schema-free batch stacked on pull request #20.
+- Preserves jobs written by healthy sources when another adapter fails.
+- Returns a failing workflow status with the exact broken source and error so
+  partial outages cannot appear as healthy scraper runs.
+- Local validation: 32 tests, ESLint, Prisma validation and production build
+  passed.
+- Vercel previews are deployment-ready but protected by Vercel authentication,
+  so unauthenticated runtime smoke verification remains unavailable.
+
 ## Safety blockers
 
 ### Production database backup not confirmed

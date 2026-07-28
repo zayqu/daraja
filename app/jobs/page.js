@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import AdSenseSlot from "@/components/AdSenseSlot";
 import JobAlerts from "@/components/JobAlerts";
+import { trackEvent } from "@/lib/analytics";
 
 const CATEGORIES = [
   "Government", "NGO & Development", "Banking & Finance", "Technology",
@@ -82,8 +83,14 @@ export default function JobsPage() {
 
   function handleSearch(e) {
     e.preventDefault();
+    const query = search.trim();
     setPage(1);
-    setSubmittedSearch(search.trim());
+    setSubmittedSearch(query);
+    trackEvent("search", {
+      search_term: query || "(all jobs)",
+      job_category: category || "All categories",
+      job_status: status,
+    });
   }
 
   function formatDate(d) {
@@ -248,7 +255,15 @@ export default function JobsPage() {
                 id="category-filter"
                 className="filter-select"
                 value={category}
-                onChange={(event) => { setCategory(event.target.value); setPage(1); }}
+                onChange={(event) => {
+                  const value = event.target.value;
+                  setCategory(value);
+                  setPage(1);
+                  trackEvent("job_filter", {
+                    filter_name: "category",
+                    filter_value: value || "All categories",
+                  });
+                }}
               >
                 <option value="">All categories</option>
                 {CATEGORIES.map((cat) => <option key={cat} value={cat}>{cat}</option>)}
@@ -260,7 +275,15 @@ export default function JobsPage() {
                 id="status-filter"
                 className="filter-select"
                 value={status}
-                onChange={(event) => { setStatus(event.target.value); setPage(1); }}
+                onChange={(event) => {
+                  const value = event.target.value;
+                  setStatus(value);
+                  setPage(1);
+                  trackEvent("job_filter", {
+                    filter_name: "status",
+                    filter_value: value,
+                  });
+                }}
               >
                 <option value="active">Open jobs</option>
                 <option value="expired">Expired jobs</option>
@@ -292,7 +315,20 @@ export default function JobsPage() {
           ) : (
             <section className="job-list" aria-label="Job search results">
               {jobs.map((job) => (
-                <Link key={job.id} href={`/jobs/${job.id}`} className="job-card">
+                <Link
+                  key={job.id}
+                  href={`/jobs/${job.id}`}
+                  className="job-card"
+                  onClick={() => trackEvent("select_item", {
+                    item_list_name: "Job search results",
+                    items: [{
+                      item_id: job.id,
+                      item_name: job.title,
+                      item_brand: job.company,
+                      item_category: job.category,
+                    }],
+                  })}
+                >
                   <div className="jc-top">
                     <div className="jc-left">
                       <div className="jc-title">{job.title}</div>

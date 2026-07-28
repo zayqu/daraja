@@ -42,7 +42,8 @@ require accounts only for personalised or protected features.
   protected workflow run on 28 July 2026 at 18:44 UTC.
 - Vercel deployed the merge commit successfully.
 - Public job browsing remains open without an account.
-- Public job links now use immutable, human-readable title-and-employer slugs.
+- Public job links now use immutable position-only slugs, adding an employer or
+  short stable suffix only for genuine title collisions.
 - Legacy database-key URLs return HTTP 308 to the canonical slug.
 - Candidate alert preferences require authentication.
 - Google OAuth and passwordless Resend providers are configured and exposed.
@@ -53,9 +54,8 @@ require accounts only for personalised or protected features.
 - Controlled categories, optional location, experience, work-arrangement,
   organisation and keyword preferences, consent, pause/unsubscribe controls,
   delivery logs, retries and idempotency are deployed.
-- Full provider completion still requires a controlled human Google sign-in and
-  a passwordless-email test to a designated test inbox. These tests must not use
-  a real subscriber.
+- Controlled Google and passwordless-email sign-in, preference management and
+  unsubscribe checks were confirmed on 28 July 2026.
 
 ### Secure unsubscribe flow
 
@@ -71,16 +71,11 @@ require accounts only for personalised or protected features.
 - Publishes the confirmed Google publisher record at `/ads.txt`.
 - Keeps advertisement rendering consent-gated and separate from Apply actions.
 
-## Remaining controlled verification
+## Remaining external integration boundary
 
-- Complete one Google sign-in with an authorised test account and confirm
-  `/account/alerts` loads.
-- Request one passwordless sign-in link to a designated test inbox and confirm
-  the link creates a session.
-- Save, reload, pause and unsubscribe a test preference, then remove or deactivate
-  the test record.
-- Do not use a real subscriber address. WhatsApp delivery remains unavailable
-  until an official WhatsApp Business API integration is configured and tested.
+- WhatsApp delivery remains unavailable until an official WhatsApp Business API
+  integration is configured and tested. No unverified channel is shown as an
+  active alert option.
 
 ## Current professional experience release
 
@@ -94,8 +89,20 @@ require accounts only for personalised or protected features.
   demand signals without fragmenting the controlled category catalogue.
 - Creative, Design & Media, Construction & Real Estate, and Security &
   Protective Services are now classified automatically.
-- Production slug normalization is protected by a manual confirmation workflow
-  and the recorded Neon restore point.
+- Pull request #35 and workflow run #30392729901 normalized production slugs,
+  verified uniqueness and preserved permanent redirects from previous URLs.
+
+## Current release: lifecycle and source-health observability
+
+- Expired vacancies are archived globally even when an individual source is
+  temporarily unavailable.
+- Every scraper run emits a machine-readable health report with per-source
+  counts, timings, lifecycle changes, delivery totals and sanitized failures.
+- Individual official vacancy links that cannot be resolved are recorded as
+  degraded-source warnings without discarding other verified vacancies.
+- GitHub Actions shows the same health information in the run summary and keeps
+  the JSON evidence for 30 days, including failed runs.
+- This release is schema-free and does not change production access controls.
 
 ## Definition-of-done evidence
 

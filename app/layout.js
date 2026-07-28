@@ -30,7 +30,8 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   const adsenseClient = process.env.NEXT_PUBLIC_GOOGLE_ADSENSE_CLIENT;
-  const analyticsId = process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS_ID;
+  const analyticsId =
+    process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS_ID || "G-89Q157X930";
 
   return (
     <html lang="en">

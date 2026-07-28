@@ -1,0 +1,85 @@
+name: Apply candidate milestone migrations
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirmation:
+        description: "Type APPLY-CANDIDATE-MILESTONE to confirm the restore point exists"
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: production-database-migration
+  cancel-in-progress: false
+
+jobs:
+  migrate:
+    if: github.event.inputs.confirmation == 'APPLY-CANDIDATE-MILESTONE'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+    steps:
+      - name: Check out reviewed migrations
+        uses: actions/checkout@v5
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: "24"
+          cache: npm
+
+      - name: Install locked dependencies
+        run: npm ci
+
+      - name: Validate protected configuration
+        run: |
+          if [ -z "$DATABASE_URL" ]; then
+            echo "DATABASE_URL is not configured."
+            exit 1
+          fi
+
+      - name: Apply reviewed migrations
+        run: npx prisma migrate deploy
+
+      - name: Verify production schema
+        run: |
+          node <<'NODE'
+          const { Client } = require("pg");
+
+          async function verify() {
+            const client = new Client({
+              connectionString: process.env.DATABASE_URL,
+              ssl: { rejectUnauthorized: false },
+            });
+            await client.connect();
+            const result = await client.query(`
+              SELECT
+                (SELECT COUNT(*)::int FROM "Job" WHERE "slug" IS NULL) AS "missingSlugs",
+                to_regclass('"Job_slug_key"') IS NOT NULL AS "slugIndex",
+                to_regclass('"Account"') IS NOT NULL AS "accountTable",
+                to_regclass('"Session"') IS NOT NULL AS "sessionTable",
+                to_regclass('"JobAlertDelivery"') IS NOT NULL AS "deliveryTable"
+            `);
+            await client.end();
+            const checks = result.rows[0];
+            console.log(checks);
+            if (
+              checks.missingSlugs !== 0 ||
+              !checks.slugIndex ||
+              !checks.accountTable ||
+              !checks.sessionTable ||
+              !checks.deliveryTable
+            ) {
+              throw new Error("Production schema verification failed.");
+            }
+          }
+
+          verify().catch((error) => {
+            console.error(error);
+            process.exit(1);
+          });
+          NODE

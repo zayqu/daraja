@@ -317,7 +317,7 @@ export default function JobsPage() {
               {jobs.map((job) => (
                 <Link
                   key={job.id}
-                  href={`/jobs/${job.id}`}
+                  href={`/jobs/${job.slug || job.id}`}
                   className="job-card"
                   onClick={() => trackEvent("select_item", {
                     item_list_name: "Job search results",

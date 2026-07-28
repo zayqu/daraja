@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { trackEvent } from "@/lib/analytics";
 
 const WHATSAPP_CHANNEL =
   "https://whatsapp.com/channel/0029Vanw1OQ1CYoYdxl32g3V";
@@ -37,6 +38,9 @@ export default function JobAlerts() {
       setEmail("");
       setInterests("");
       setConsent(false);
+      trackEvent("sign_up", {
+        method: "job_alert_email",
+      });
     } catch (error) {
       setStatus("error");
       setMessage(error.message || "Please try again.");
@@ -120,7 +124,14 @@ export default function JobAlerts() {
           <div className="alert-kicker">WhatsApp Channel</div>
           <h3>Follow Daraja on WhatsApp</h3>
           <p>See new vacancies and important deadline reminders in WhatsApp.</p>
-          <a href={WHATSAPP_CHANNEL} target="_blank" rel="noopener noreferrer">
+          <a
+            href={WHATSAPP_CHANNEL}
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={() => trackEvent("whatsapp_channel_click", {
+              placement: "job_alerts",
+            })}
+          >
             Join WhatsApp Channel
           </a>
           <small>WhatsApp opens the official Daraja channel.</small>

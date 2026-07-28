@@ -21,77 +21,61 @@ require accounts only for personalised or protected features.
 - Consistent application CTA wording.
 - Responsive email and WhatsApp subscription interface.
 - Global browser-security headers, crawl controls and a public sitemap are
-  prepared in pull request #18.
+  deployed.
 - Keyboard skip navigation, visible focus treatment and reduced-motion support
-  are prepared in pull request #18.
+  are deployed.
 - Runtime Google Fonts imports have been removed to improve privacy and
   rendering reliability.
 - The hourly scraper no longer applies or resolves production migrations.
   Schema deployment is documented as a separate restore-point-gated operation.
-- Consent-gated GA4 conversion tracking for job searches, filters, job views,
-  application clicks, sharing, WhatsApp Channel visits and alert sign-ups was
-  merged in pull request #27.
+- Privacy-aware GA4 tracking is deployed and production measurement is active.
+- Candidate funnel events for search, filters, job views, applications, shares
+  and subscriptions were merged in pull request #27.
 
 ## In progress
 
-### Immutable human-readable job URLs
+### Pull request #28 — immutable job URLs
 
-- Generates readable, stable and collision-resistant URLs from the job title
-  and employer.
-- Preserves slugs when a scraped vacancy is updated.
-- Resolves both the new slug and the legacy database ID.
-- Permanently redirects legacy database-ID links to the canonical slug.
-- Includes a deterministic backfill and unique database constraint.
-- Local validation: 46 tests, ESLint, Prisma validation and production build
-  passed.
-- Deployment blocker: the migration must not run until a recent Neon
-  production restore point is confirmed.
+- Replaces database-key public URLs with immutable title-and-employer slugs.
+- Preserves existing links through permanent canonical redirects.
+- Generates collision-resistant slugs without exposing database IDs.
+- Local validation: 50 tests, ESLint, Prisma validation and production build
+  passed after updating against current `master`.
+- Production recovery point confirmed: permanent Neon snapshot of the
+  `production` branch created on 28 July 2026 at 14:36:30 UTC
+  (17:36:30 Africa/Dar_es_Salaam), 40.35 MB, no expiry.
+- The additive migration must still be applied and verified in a controlled
+  step before the code is merged.
 
-### Pull request #17 — category-based alerts
+### Secure unsubscribe flow
 
-- Replaces free-text interests with controlled categories.
-- Uses exact category matching for alert delivery.
-- Centralises the category catalogue.
-- Adds anonymous zero-result/search-demand records.
-- Status: local validation and the Vercel preview check passed.
-- Deployment blocker: a recent production database backup or restore point has
-  not been confirmed.
+- Replaces state-changing email-link GET requests with a confirmation page.
+- Adds standards-compliant one-click POST unsubscribe headers for supporting
+  email clients.
+- Deployed in pull request #29 without a database migration.
 
-### Pull request #18 — security, SEO and accessibility baseline
+### Authentication and candidate accounts
 
-- Schema-free batch based directly on `master`.
-- Adds CSP, HSTS, anti-framing, referrer and browser-capability restrictions.
-- Adds `robots.txt`, `sitemap.xml`, skip navigation and motion preferences.
-- Removes third-party runtime font requests and misleading daily-listing copy.
-- Local validation: 32 tests, ESLint, Prisma validation and production build
-  passed.
-- Vercel preview deployment is ready; runtime smoke verification remains.
+- Public job discovery will remain available without an account.
+- Saving alert preferences will require an authenticated candidate account.
+- Planned providers: Google OAuth and passwordless verified email.
+- Production blockers: Google OAuth credentials and sandbox verification for
+  transactional email.
 
-### Pull request #19 — public API guardrails
+### AdSense trust and transparency
 
-- Schema-free batch based directly on `master`.
-- Adds bounded JSON parsing, media-type validation, response allowlisting and
-  short public-read caching.
-- Local validation: 30 tests, ESLint, Prisma validation and production build
-  passed.
-- Vercel preview deployment is ready; runtime smoke verification remains.
-
-### Scraper migration-safety batch
-
-- Schema-free batch stacked on pull request #18.
-- Removes unattended Prisma migration commands from the hourly production
-  scraper.
-- Documents the restore-point, SQL-review and controlled-deployment procedure.
-- Adds regression tests that fail if schema mutation returns to the scheduled
-  scraper workflow.
+- Adds public About, Contact, Editorial Policy and Terms pages.
+- Adds site-wide company and legal navigation.
+- Publishes the confirmed Google publisher record at `/ads.txt`.
+- Keeps advertisement rendering consent-gated and separate from Apply actions.
 
 ## Safety blockers
 
-### Production database backup not confirmed
+### Production database recovery point confirmed
 
-Do not merge or deploy schema-changing pull requests until a recent Neon
-production backup or restore point is confirmed. Do not run destructive or
-irreversible migrations unattended.
+The permanent Neon snapshot above clears the recovery-point gate for this
+milestone. Migration SQL must still be reviewed, applied once and verified
+before schema-dependent code is merged.
 
 ### Provider credentials and sandbox verification
 
@@ -103,16 +87,13 @@ irreversible migrations unattended.
 
 ## Next safe implementation batches
 
-1. Confirm database backup/restore point and preview/staging environment.
-2. Finish subscriptions vertically:
-   verification, preferences, delivery log, idempotent retry and unsubscribe.
-3. Deploy the prepared immutable job-slug migration after confirming a restore
-   point, then verify legacy redirects and canonical URLs.
-4. Add job lifecycle/source-health models and revalidation.
-5. Add secure authentication and role-based candidate, employer and admin
-   vertical flows.
-6. Add entitlements and sandbox billing behind feature flags.
-7. Complete accessibility, security, SEO, performance and responsive QA.
+1. Apply and verify the additive slug migration against the recorded snapshot.
+2. Finish authenticated candidate subscriptions vertically:
+   secure sessions, verification, preferences, delivery log, idempotent retry
+   and account-level unsubscribe controls.
+3. Deploy immutable job slugs and verify legacy redirects and canonical URLs.
+4. Do not begin another product phase until this milestone is production
+   smoke-tested.
 
 ## Definition-of-done evidence
 

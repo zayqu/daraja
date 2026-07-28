@@ -104,6 +104,21 @@ require accounts only for personalised or protected features.
   the JSON evidence for 30 days, including failed runs.
 - This release is schema-free and does not change production access controls.
 
+## In review: secure employer and admin foundation
+
+- Employer and administrator workspaces are protected by authenticated,
+  database-backed role checks and an explicit disabled-by-default feature flag.
+- Employer profiles enter a pending verification state; only administrators
+  can verify, reject or suspend them.
+- Vacancy moderation supports publish, reject and archive decisions, with a
+  required reason for rejection.
+- Verification and moderation changes are transactional and write sanitized
+  audit events tied to the authenticated actor.
+- Existing public and imported vacancies remain published by the additive
+  migration; no current job is deleted or hidden.
+- Production activation is intentionally blocked until a new Neon restore point
+  is recorded for this migration and the preview passes.
+
 ## Definition-of-done evidence
 
 Every batch must record:

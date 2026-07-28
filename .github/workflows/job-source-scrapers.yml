@@ -26,6 +26,7 @@ jobs:
       DATABASE_URL: ${{ secrets.DATABASE_URL }}
       RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
       JOB_ALERTS_FROM_EMAIL: ${{ vars.JOB_ALERTS_FROM_EMAIL }}
+      SCRAPER_HEALTH_REPORT: scraper-health.json
     steps:
       - uses: actions/checkout@v5
 
@@ -49,3 +50,12 @@ jobs:
 
       - name: Run enabled source scrapers
         run: npm run scrape
+
+      - name: Preserve scraper health report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: scraper-health-${{ github.run_id }}
+          path: scraper-health.json
+          if-no-files-found: warn
+          retention-days: 30

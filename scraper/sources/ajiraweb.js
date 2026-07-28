@@ -352,9 +352,11 @@ async function parseAjiraWebFeed(xml, { fetchFn = fetch } = {}) {
   const results = await Promise.allSettled(
     discoveries.map((discovery) => fetchOfficialJob(discovery, fetchFn))
   );
+  let unresolved = 0;
   const rawJobs = results
     .map((result, index) => {
       if (result.status === "fulfilled") return result.value;
+      unresolved += 1;
       console.warn(
         `Could not resolve official vacancy ${discoveries[index].sourceUrl}: ${result.reason.message}`
       );
@@ -363,11 +365,19 @@ async function parseAjiraWebFeed(xml, { fetchFn = fetch } = {}) {
     .filter(Boolean);
   rawJobs.push(...parseEmailJobsFromFeed(xml));
 
-  return deduplicateJobs(rawJobs, {
+  const jobs = deduplicateJobs(rawJobs, {
     source: "ajiraweb",
     baseUrl: AJIRAWEB_FEED_URL,
     location: "Tanzania",
   });
+  Object.defineProperty(jobs, "health", {
+    enumerable: false,
+    value: {
+      discovered: discoveries.length,
+      unresolved,
+    },
+  });
+  return jobs;
 }
 
 async function collectAjiraWebJobs({

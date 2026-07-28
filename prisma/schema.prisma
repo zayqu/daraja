@@ -68,6 +68,7 @@ model Freelancer {
 
 model Job {
   id          String    @id @default(cuid())
+  slug        String    @unique
   sourceId    String?
   title       String
   company     String

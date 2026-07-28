@@ -1,6 +1,6 @@
 # Daraja Jobs production-readiness progress
 
-Last updated: 27 July 2026
+Last updated: 28 July 2026
 
 ## Current objective
 
@@ -21,53 +21,35 @@ require accounts only for personalised or protected features.
 - Consistent application CTA wording.
 - Responsive email and WhatsApp subscription interface.
 - Global browser-security headers, crawl controls and a public sitemap are
-  prepared in pull request #18.
+  deployed.
 - Keyboard skip navigation, visible focus treatment and reduced-motion support
-  are prepared in pull request #18.
+  are deployed.
 - Runtime Google Fonts imports have been removed to improve privacy and
   rendering reliability.
 - The hourly scraper no longer applies or resolves production migrations.
   Schema deployment is documented as a separate restore-point-gated operation.
+- Privacy-aware GA4 tracking is deployed and production measurement is active.
+- Candidate funnel events for search, filters, job views, applications, shares
+  and subscriptions were merged in pull request #27.
 
 ## In progress
 
-### Pull request #17 — category-based alerts
+### Pull request #28 — immutable job URLs
 
-- Replaces free-text interests with controlled categories.
-- Uses exact category matching for alert delivery.
-- Centralises the category catalogue.
-- Adds anonymous zero-result/search-demand records.
-- Status: local validation and the Vercel preview check passed.
-- Deployment blocker: a recent production database backup or restore point has
-  not been confirmed.
-
-### Pull request #18 — security, SEO and accessibility baseline
-
-- Schema-free batch based directly on `master`.
-- Adds CSP, HSTS, anti-framing, referrer and browser-capability restrictions.
-- Adds `robots.txt`, `sitemap.xml`, skip navigation and motion preferences.
-- Removes third-party runtime font requests and misleading daily-listing copy.
-- Local validation: 32 tests, ESLint, Prisma validation and production build
+- Replaces database-key public URLs with immutable title-and-employer slugs.
+- Preserves existing links through permanent canonical redirects.
+- Generates collision-resistant slugs without exposing database IDs.
+- Local validation: 46 tests, ESLint, Prisma validation and production build
   passed.
-- Vercel preview deployment is ready; runtime smoke verification remains.
+- Deployment blocker: a recent Neon production restore point has not been
+  confirmed, so the additive slug migration must not be deployed yet.
 
-### Pull request #19 — public API guardrails
+### Secure unsubscribe flow
 
-- Schema-free batch based directly on `master`.
-- Adds bounded JSON parsing, media-type validation, response allowlisting and
-  short public-read caching.
-- Local validation: 30 tests, ESLint, Prisma validation and production build
-  passed.
-- Vercel preview deployment is ready; runtime smoke verification remains.
-
-### Scraper migration-safety batch
-
-- Schema-free batch stacked on pull request #18.
-- Removes unattended Prisma migration commands from the hourly production
-  scraper.
-- Documents the restore-point, SQL-review and controlled-deployment procedure.
-- Adds regression tests that fail if schema mutation returns to the scheduled
-  scraper workflow.
+- Replaces state-changing email-link GET requests with a confirmation page.
+- Adds standards-compliant one-click POST unsubscribe headers for supporting
+  email clients.
+- Requires no database migration.
 
 ## Safety blockers
 
@@ -90,7 +72,7 @@ irreversible migrations unattended.
 1. Confirm database backup/restore point and preview/staging environment.
 2. Finish subscriptions vertically:
    verification, preferences, delivery log, idempotent retry and unsubscribe.
-3. Add immutable, unique job slugs with old-ID permanent redirects.
+3. Deploy immutable job slugs after the restore-point gate is satisfied.
 4. Add job lifecycle/source-health models and revalidation.
 5. Add secure authentication and role-based candidate, employer and admin
    vertical flows.

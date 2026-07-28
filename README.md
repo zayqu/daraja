@@ -115,7 +115,9 @@ as `Graphic Designer`, `UI Designer`, or `Banking & Finance`. Configure:
   verified by Resend, for example `Daraja Jobs <jobs@alerts.example.co.tz>`
 
 If either value is absent, scraping continues normally and email delivery is
-safely skipped. Every alert contains a unique one-click unsubscribe link. The
+safely skipped. Every alert contains a unique unsubscribe link with a
+confirmation screen, plus standards-compliant one-click unsubscribe headers
+for supporting email clients. The
 WhatsApp CTA always links directly to the official Daraja WhatsApp Channel.
 
 ## Learn More

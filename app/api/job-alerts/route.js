@@ -15,6 +15,22 @@ function normalizeInterests(value) {
 
 export async function POST(request) {
   try {
+    const unsubscribeToken = new URL(request.url).searchParams.get("unsubscribe");
+    if (unsubscribeToken) {
+      if (!/^[0-9a-f-]{36}$/i.test(unsubscribeToken)) {
+        return NextResponse.redirect(
+          new URL("/alerts/unsubscribed?status=invalid", request.url),
+          303
+        );
+      }
+
+      await prisma.jobAlertSubscriber.updateMany({
+        where: { unsubscribeToken },
+        data: { active: false },
+      });
+      return NextResponse.redirect(new URL("/alerts/unsubscribed", request.url), 303);
+    }
+
     const contentLength = Number(request.headers.get("content-length") || 0);
     if (contentLength > 4096) {
       return NextResponse.json({ error: "Request is too large." }, { status: 413 });
@@ -63,19 +79,14 @@ export async function POST(request) {
 }
 
 export async function GET(request) {
-  try {
-    const token = new URL(request.url).searchParams.get("unsubscribe");
-    if (!token || !/^[0-9a-f-]{36}$/i.test(token)) {
-      return NextResponse.redirect(new URL("/alerts/unsubscribed?status=invalid", request.url));
-    }
-
-    await prisma.jobAlertSubscriber.updateMany({
-      where: { unsubscribeToken: token },
-      data: { active: false },
-    });
-    return NextResponse.redirect(new URL("/alerts/unsubscribed", request.url));
-  } catch (error) {
-    console.error("Job alert unsubscribe failed:", error);
-    return NextResponse.redirect(new URL("/alerts/unsubscribed?status=error", request.url));
+  const token = new URL(request.url).searchParams.get("unsubscribe");
+  if (!token || !/^[0-9a-f-]{36}$/i.test(token)) {
+    return NextResponse.redirect(
+      new URL("/alerts/unsubscribed?status=invalid", request.url)
+    );
   }
+
+  return NextResponse.redirect(
+    new URL(`/alerts/unsubscribe?token=${encodeURIComponent(token)}`, request.url)
+  );
 }

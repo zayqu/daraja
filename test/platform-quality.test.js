@@ -53,6 +53,7 @@ test("every public page provides a valid target for the global skip link", async
     "app/jobs/[id]/page.js",
     "app/post-job/page.js",
     "app/privacy/page.js",
+    "app/alerts/unsubscribe/page.js",
     "app/alerts/unsubscribed/page.js",
   ];
 

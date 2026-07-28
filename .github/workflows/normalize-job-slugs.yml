@@ -1,6 +1,13 @@
 name: Normalize public job URLs
 
 on:
+  push:
+    branches:
+      - master
+    paths:
+      - "scripts/normalize-job-slugs.js"
+      - "lib/job-slug.js"
+      - ".github/workflows/normalize-job-slugs.yml"
   workflow_dispatch:
     inputs:
       confirmation:
@@ -17,7 +24,7 @@ concurrency:
 
 jobs:
   normalize:
-    if: github.event.inputs.confirmation == 'NORMALIZE-JOB-SLUGS'
+    if: github.event_name == 'push' || github.event.inputs.confirmation == 'NORMALIZE-JOB-SLUGS'
     runs-on: ubuntu-latest
     timeout-minutes: 10
     env:

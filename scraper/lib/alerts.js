@@ -37,11 +37,17 @@ function buildAlertEmail(subscriber, jobs) {
         </li>`
     )
     .join("");
-  const unsubscribeUrl =
-    `${SITE_URL}/api/job-alerts?unsubscribe=${encodeURIComponent(subscriber.unsubscribeToken)}`;
+  const encodedToken = encodeURIComponent(subscriber.unsubscribeToken);
+  const unsubscribeUrl = `${SITE_URL}/alerts/unsubscribe?token=${encodedToken}`;
+  const oneClickUnsubscribeUrl =
+    `${SITE_URL}/api/job-alerts?unsubscribe=${encodedToken}`;
 
   return {
     subject: `${jobs.length} new matching job${jobs.length === 1 ? "" : "s"} on Daraja`,
+    headers: {
+      "List-Unsubscribe": `<${oneClickUnsubscribeUrl}>`,
+      "List-Unsubscribe-Post": "List-Unsubscribe=One-Click",
+    },
     html: `
       <div style="max-width:620px;margin:auto;font-family:Arial,sans-serif;color:#1b2a3f;line-height:1.6">
         <h1 style="font-size:24px">New opportunities in Tanzania</h1>
@@ -115,6 +121,7 @@ async function sendJobAlertDigests(prisma, fetchFn = fetch) {
         to: [subscriber.email],
         subject: email.subject,
         html: email.html,
+        headers: email.headers,
       }),
     });
     if (!response.ok) {

@@ -21,7 +21,7 @@ export default function PrivacyPage() {
     >
       <Link href="/" style={{ color: "#087F6C" }}>← Back to Daraja Jobs</Link>
       <h1 style={{ margin: "1.5rem 0 0.5rem", lineHeight: 1.25 }}>Privacy Policy</h1>
-      <p style={{ color: "#667085" }}>Last updated: 26 July 2026</p>
+      <p style={{ color: "#667085" }}>Last updated: 28 July 2026</p>
 
       <h2 style={{ marginTop: "2rem" }}>Information we process</h2>
       <p>
@@ -44,7 +44,9 @@ export default function PrivacyPage() {
         Daraja may use cookies or similar technologies for security, analytics and
         advertising. If Google advertising is enabled, Google and its partners may
         use cookies to show and measure ads in accordance with Google&apos;s policies.
-        Where required, visitors will be offered appropriate consent choices.
+        Optional analytics and advertising do not load until a visitor accepts
+        them. Visitors can decline without losing access to job search or
+        application links, and can reopen their privacy choices at any time.
       </p>
 
       <h2 style={{ marginTop: "2rem" }}>Job-alert subscriptions</h2>

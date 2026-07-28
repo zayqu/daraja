@@ -1,5 +1,5 @@
 import "./globals.css";
-import Script from "next/script";
+import PrivacyControls from "@/components/PrivacyControls";
 
 export const metadata = {
   metadataBase: new URL("https://www.ajira.daraja.co.tz"),
@@ -30,6 +30,7 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   const adsenseClient = process.env.NEXT_PUBLIC_GOOGLE_ADSENSE_CLIENT;
+  const analyticsId = process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS_ID;
 
   return (
     <html lang="en">
@@ -38,15 +39,7 @@ export default function RootLayout({ children }) {
           Skip to main content
         </a>
         {children}
-        {adsenseClient && (
-          <Script
-            id="google-adsense"
-            async
-            strategy="afterInteractive"
-            crossOrigin="anonymous"
-            src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${encodeURIComponent(adsenseClient)}`}
-          />
-        )}
+        <PrivacyControls analyticsId={analyticsId} adsenseClient={adsenseClient} />
       </body>
     </html>
   );

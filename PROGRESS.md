@@ -32,20 +32,30 @@ require accounts only for personalised or protected features.
 - Candidate funnel events for search, filters, job views, applications, shares
   and subscriptions were merged in pull request #27.
 
-## In progress
+## Completed milestone: immutable URLs and candidate alerts
 
-### Pull request #28 — immutable job URLs
-
-- Replaces database-key public URLs with immutable title-and-employer slugs.
-- Preserves existing links through permanent canonical redirects.
-- Generates collision-resistant slugs without exposing database IDs.
-- Local validation: 54 tests, ESLint, Prisma validation and production build
-  passed with the candidate-account milestone.
-- Production recovery point confirmed: permanent Neon snapshot of the
-  `production` branch created on 28 July 2026 at 14:36:30 UTC
-  (17:36:30 Africa/Dar_es_Salaam), 40.35 MB, no expiry.
-- The pull-request check passed. The additive migration must still be applied
-  and verified in a controlled step before the code is merged.
+- Pull request #31 merged into `master` as commit
+  `f8c4c941f69f6c81dfcf349998398f12a0d8320e`.
+- The permanent Neon production snapshot from 28 July 2026 at 14:36:30 UTC
+  remains the recorded rollback point.
+- The reviewed additive migrations were applied and schema-verified by the
+  protected workflow run on 28 July 2026 at 18:44 UTC.
+- Vercel deployed the merge commit successfully.
+- Public job browsing remains open without an account.
+- Public job links now use immutable, human-readable title-and-employer slugs.
+- Legacy database-key URLs return HTTP 308 to the canonical slug.
+- Candidate alert preferences require authentication.
+- Google OAuth and passwordless Resend providers are configured and exposed.
+- Unauthenticated account access redirects to sign-in and the alert API returns
+  HTTP 401.
+- Google sign-in initiates successfully with PKCE and the exact production
+  callback URL.
+- Controlled categories, optional location, experience, work-arrangement,
+  organisation and keyword preferences, consent, pause/unsubscribe controls,
+  delivery logs, retries and idempotency are deployed.
+- Full provider completion still requires a controlled human Google sign-in and
+  a passwordless-email test to a designated test inbox. These tests must not use
+  a real subscriber.
 
 ### Secure unsubscribe flow
 
@@ -54,24 +64,6 @@ require accounts only for personalised or protected features.
   email clients.
 - Deployed in pull request #29 without a database migration.
 
-### Authentication and candidate accounts
-
-- Public job discovery will remain available without an account.
-- Saving alert preferences requires an authenticated candidate account.
-- Google OAuth and passwordless verified-email access are implemented with
-  database-backed sessions.
-- Alert preferences support controlled categories plus optional location,
-  experience, work-arrangement, organisation and keyword refinements.
-- Account management includes explicit consent, preference updates, pausing
-  alerts and secure sign-out.
-- Delivery records use stable deduplication keys, provider idempotency headers,
-  bounded retries and account-linked unsubscribe controls.
-- Authentication, Google and Resend configuration is present in Vercel for
-  Production and Preview. Provider behaviour is not yet claimed end to end.
-- Remaining blocker: apply and verify the reviewed additive migrations, then
-  perform Google and passwordless-email smoke tests with a controlled test
-  account. Never use a real subscriber for testing.
-
 ### AdSense trust and transparency
 
 - Adds public About, Contact, Editorial Policy and Terms pages.
@@ -79,31 +71,16 @@ require accounts only for personalised or protected features.
 - Publishes the confirmed Google publisher record at `/ads.txt`.
 - Keeps advertisement rendering consent-gated and separate from Apply actions.
 
-## Safety blockers
+## Remaining controlled verification
 
-### Production database recovery point confirmed
-
-The permanent Neon snapshot above clears the recovery-point gate for this
-milestone. Migration SQL must still be reviewed, applied once and verified
-before schema-dependent code is merged.
-
-### Provider credentials and sandbox verification
-
-- `RESEND_API_KEY` and `JOB_ALERTS_FROM_EMAIL` are referenced by the workflow.
-- Both are configured in Vercel for Production and Preview.
-- End-to-end delivery has not been verified with a sandbox/test inbox.
-- No WhatsApp Business API integration is configured; the public CTA links to
-  the official Daraja WhatsApp Channel only.
-- Do not send test alerts to real subscribers.
-
-## Next safe implementation batches
-
-1. Apply and verify the two additive milestone migrations against the recorded
-   snapshot.
-2. Deploy immutable slugs and authenticated candidate alerts together.
-3. Smoke-test legacy redirects, canonical URLs, Google sign-in and passwordless
-   email using a controlled test account.
-4. Do not start another product phase until this milestone is live and verified.
+- Complete one Google sign-in with an authorised test account and confirm
+  `/account/alerts` loads.
+- Request one passwordless sign-in link to a designated test inbox and confirm
+  the link creates a session.
+- Save, reload, pause and unsubscribe a test preference, then remove or deactivate
+  the test record.
+- Do not use a real subscriber address. WhatsApp delivery remains unavailable
+  until an official WhatsApp Business API integration is configured and tested.
 
 ## Definition-of-done evidence
 

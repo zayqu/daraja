@@ -39,10 +39,13 @@ require accounts only for personalised or protected features.
 - Replaces database-key public URLs with immutable title-and-employer slugs.
 - Preserves existing links through permanent canonical redirects.
 - Generates collision-resistant slugs without exposing database IDs.
-- Local validation: 46 tests, ESLint, Prisma validation and production build
-  passed.
-- Deployment blocker: a recent Neon production restore point has not been
-  confirmed, so the additive slug migration must not be deployed yet.
+- Local validation: 54 tests, ESLint, Prisma validation and production build
+  passed with the candidate-account milestone.
+- Production recovery point confirmed: permanent Neon snapshot of the
+  `production` branch created on 28 July 2026 at 14:36:30 UTC
+  (17:36:30 Africa/Dar_es_Salaam), 40.35 MB, no expiry.
+- The pull-request check passed. The additive migration must still be applied
+  and verified in a controlled step before the code is merged.
 
 ### Secure unsubscribe flow
 
@@ -54,10 +57,20 @@ require accounts only for personalised or protected features.
 ### Authentication and candidate accounts
 
 - Public job discovery will remain available without an account.
-- Saving alert preferences will require an authenticated candidate account.
-- Planned providers: Google OAuth and passwordless verified email.
-- Production blockers: Google OAuth credentials, a recent Neon restore point
-  and sandbox verification for transactional email.
+- Saving alert preferences requires an authenticated candidate account.
+- Google OAuth and passwordless verified-email access are implemented with
+  database-backed sessions.
+- Alert preferences support controlled categories plus optional location,
+  experience, work-arrangement, organisation and keyword refinements.
+- Account management includes explicit consent, preference updates, pausing
+  alerts and secure sign-out.
+- Delivery records use stable deduplication keys, provider idempotency headers,
+  bounded retries and account-linked unsubscribe controls.
+- Authentication, Google and Resend configuration is present in Vercel for
+  Production and Preview. Provider behaviour is not yet claimed end to end.
+- Remaining blocker: apply and verify the reviewed additive migrations, then
+  perform Google and passwordless-email smoke tests with a controlled test
+  account. Never use a real subscriber for testing.
 
 ### AdSense trust and transparency
 
@@ -68,15 +81,16 @@ require accounts only for personalised or protected features.
 
 ## Safety blockers
 
-### Production database backup not confirmed
+### Production database recovery point confirmed
 
-Do not merge or deploy schema-changing pull requests until a recent Neon
-production backup or restore point is confirmed. Do not run destructive or
-irreversible migrations unattended.
+The permanent Neon snapshot above clears the recovery-point gate for this
+milestone. Migration SQL must still be reviewed, applied once and verified
+before schema-dependent code is merged.
 
 ### Provider credentials and sandbox verification
 
 - `RESEND_API_KEY` and `JOB_ALERTS_FROM_EMAIL` are referenced by the workflow.
+- Both are configured in Vercel for Production and Preview.
 - End-to-end delivery has not been verified with a sandbox/test inbox.
 - No WhatsApp Business API integration is configured; the public CTA links to
   the official Daraja WhatsApp Channel only.
@@ -84,16 +98,12 @@ irreversible migrations unattended.
 
 ## Next safe implementation batches
 
-1. Confirm database backup/restore point and preview/staging environment.
-2. Finish authenticated candidate subscriptions vertically:
-   secure sessions, verification, preferences, delivery log, idempotent retry
-   and account-level unsubscribe controls.
-3. Deploy immutable job slugs after the restore-point gate is satisfied.
-4. Add job lifecycle/source-health models and revalidation.
-5. Add secure authentication and role-based candidate, employer and admin
-   vertical flows.
-6. Add entitlements and sandbox billing behind feature flags.
-7. Complete accessibility, security, SEO, performance and responsive QA.
+1. Apply and verify the two additive milestone migrations against the recorded
+   snapshot.
+2. Deploy immutable slugs and authenticated candidate alerts together.
+3. Smoke-test legacy redirects, canonical URLs, Google sign-in and passwordless
+   email using a controlled test account.
+4. Do not start another product phase until this milestone is live and verified.
 
 ## Definition-of-done evidence
 

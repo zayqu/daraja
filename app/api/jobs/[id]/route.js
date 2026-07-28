@@ -7,11 +7,15 @@ export async function GET(request, context) {
 
     const job = await prisma.job.findFirst({
       where: {
-        id,
         active: true,
+        OR: [
+          { id },
+          { slug: id },
+        ],
       },
       select: {
         id: true,
+        slug: true,
         title: true,
         company: true,
         location: true,

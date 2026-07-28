@@ -1,17 +1,26 @@
 import prisma from "@/lib/prisma";
+import { permanentRedirect } from "next/navigation";
+
+async function findActiveJob(identifier, select) {
+  return prisma.job.findFirst({
+    where: {
+      active: true,
+      OR: [
+        { id: identifier },
+        { slug: identifier },
+      ],
+    },
+    select,
+  });
+}
 
 export async function generateMetadata({ params }) {
   const { id } = await params;
-  const job = await prisma.job.findFirst({
-    where: {
-      id,
-      active: true,
-    },
-    select: {
-      title: true,
-      company: true,
-      description: true,
-    },
+  const job = await findActiveJob(id, {
+    slug: true,
+    title: true,
+    company: true,
+    description: true,
   });
 
   if (!job) {
@@ -33,17 +42,27 @@ export async function generateMetadata({ params }) {
     title: job.title,
     description,
     alternates: {
-      canonical: `/jobs/${id}`,
+      canonical: `/jobs/${job.slug}`,
     },
     openGraph: {
       title: `${job.title} | Daraja`,
       description,
-      url: `/jobs/${id}`,
+      url: `/jobs/${job.slug}`,
       type: "article",
     },
   };
 }
 
-export default function JobDetailLayout({ children }) {
+export default async function JobDetailLayout({ children, params }) {
+  const { id } = await params;
+  const job = await findActiveJob(id, {
+    id: true,
+    slug: true,
+  });
+
+  if (job && id !== job.slug) {
+    permanentRedirect(`/jobs/${job.slug}`);
+  }
+
   return children;
 }

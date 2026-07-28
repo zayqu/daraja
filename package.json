@@ -14,6 +14,7 @@
     "scrape:ajira:dry": "node scraper/sources/ajira.js --dry-run"
   },
   "dependencies": {
+    "@auth/prisma-adapter": "^2.11.3",
     "@neondatabase/serverless": "^1.0.2",
     "@prisma/adapter-neon": "^7.5.0",
     "@prisma/adapter-pg": "^7.5.0",
@@ -23,6 +24,7 @@
     "crypto-js": "^4.2.0",
     "dotenv": "^17.3.1",
     "next": "16.1.7",
+    "next-auth": "^5.0.0-beta.32",
     "node-cron": "^4.2.1",
     "pg": "^8.20.0",
     "playwright": "^1.58.2",

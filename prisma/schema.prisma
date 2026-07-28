@@ -7,16 +7,61 @@ datasource db {
 }
 
 model User {
-  id        String   @id @default(cuid())
-  email     String   @unique
-  password  String
-  role      Role     @default(JOB_SEEKER)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id            String    @id @default(cuid())
+  name          String?
+  email         String    @unique
+  emailVerified DateTime?
+  image         String?
+  password      String?
+  role          Role      @default(JOB_SEEKER)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
 
   employer   Employer?
   freelancer Freelancer?
   jobSeeker  JobSeeker?
+  accounts   Account[]
+  sessions   Session[]
+  jobAlerts  JobAlertSubscriber[]
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@index([userId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model VerificationToken {
+  identifier String
+  token      String
+  expires    DateTime
+
+  @@unique([identifier, token])
 }
 
 enum Role {
@@ -68,6 +113,7 @@ model Freelancer {
 
 model Job {
   id          String    @id @default(cuid())
+  slug        String    @unique
   sourceId    String?
   title       String
   company     String
@@ -155,17 +201,53 @@ model Payment {
 }
 
 model JobAlertSubscriber {
-  id             String   @id @default(cuid())
-  email          String   @unique
+  id               String   @id @default(cuid())
+  userId           String?  @unique
+  email            String   @unique
   unsubscribeToken String @unique @default(uuid())
-  interests      String[] @default([])
-  active         Boolean  @default(true)
-  consentedAt    DateTime
-  lastNotifiedAt DateTime @default(now())
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
+  categories       String[] @default([])
+  locations        String[] @default([])
+  experienceLevels String[] @default([])
+  workArrangements String[] @default([])
+  organisations    String[] @default([])
+  keywords         String[] @default([])
+  interests        String[] @default([])
+  active           Boolean  @default(true)
+  consentedAt      DateTime
+  lastNotifiedAt   DateTime @default(now())
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  user       User?              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  deliveries JobAlertDelivery[]
 
   @@index([active, lastNotifiedAt])
+}
+
+model JobAlertDelivery {
+  id                String              @id @default(cuid())
+  subscriberId      String
+  deduplicationKey  String              @unique
+  status            AlertDeliveryStatus @default(PENDING)
+  jobIds            String[]
+  attemptCount      Int                 @default(0)
+  nextAttemptAt     DateTime?
+  providerMessageId String?
+  lastError         String?
+  sentAt            DateTime?
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime            @updatedAt
+
+  subscriber JobAlertSubscriber @relation(fields: [subscriberId], references: [id], onDelete: Cascade)
+
+  @@index([status, nextAttemptAt])
+  @@index([subscriberId, createdAt])
+}
+
+enum AlertDeliveryStatus {
+  PENDING
+  SENT
+  FAILED
 }
 
 enum PayStatus {

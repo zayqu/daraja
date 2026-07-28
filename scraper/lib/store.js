@@ -1,5 +1,6 @@
 const { PrismaClient } = require("@prisma/client");
 const { PrismaPg } = require("@prisma/adapter-pg");
+const { createJobSlug } = require("../../lib/job-slug");
 
 function createPrismaClient() {
   if (!process.env.DATABASE_URL) {
@@ -40,7 +41,16 @@ async function saveJobs(prisma, jobs, source) {
       });
       updated += 1;
     } else {
-      await prisma.job.create({ data: job });
+      await prisma.job.create({
+        data: {
+          ...job,
+          slug: createJobSlug({
+            title: job.title,
+            company: job.company,
+            identity: `${source}:${job.sourceId}`,
+          }),
+        },
+      });
       created += 1;
     }
   }

@@ -13,6 +13,17 @@ function createPrismaClient() {
   return new PrismaClient({ adapter });
 }
 
+async function archiveExpiredJobs(prisma, now = new Date()) {
+  const result = await prisma.job.updateMany({
+    where: {
+      active: true,
+      deadline: { lt: now },
+    },
+    data: { active: false },
+  });
+  return result.count;
+}
+
 async function saveJobs(prisma, jobs, source) {
   const now = new Date();
   let created = 0;
@@ -80,4 +91,4 @@ async function saveJobs(prisma, jobs, source) {
   };
 }
 
-module.exports = { createPrismaClient, saveJobs };
+module.exports = { archiveExpiredJobs, createPrismaClient, saveJobs };

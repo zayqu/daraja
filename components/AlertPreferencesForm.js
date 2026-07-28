@@ -31,7 +31,10 @@ export default function AlertPreferencesForm({ initialPreferences }) {
   const [keywords, setKeywords] = useState(
     (initialPreferences?.keywords || []).join(", ")
   );
+  const [missingField, setMissingField] = useState("");
   const [consent, setConsent] = useState(false);
+  const [alertsActive, setAlertsActive] = useState(Boolean(initialPreferences?.active));
+  const [lastSaved, setLastSaved] = useState(null);
   const [status, setStatus] = useState("idle");
   const [message, setMessage] = useState("");
 
@@ -46,6 +49,13 @@ export default function AlertPreferencesForm({ initialPreferences }) {
     setStatus("loading");
     setMessage("");
     try {
+      const keywordValues = parseList(keywords);
+      const requestedField = missingField.replace(/\s+/g, " ").trim();
+      if (requestedField && !keywordValues.some(
+        (value) => value.toLowerCase() === requestedField.toLowerCase()
+      )) {
+        keywordValues.push(requestedField);
+      }
       const response = await fetch("/api/job-alerts", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -55,14 +65,24 @@ export default function AlertPreferencesForm({ initialPreferences }) {
           experienceLevels,
           workArrangements,
           organisations: parseList(organisations),
-          keywords: parseList(keywords),
+          keywords: keywordValues,
           consent,
         }),
       });
       const data = await response.json();
       if (!response.ok) throw new Error(data.error || "Preferences could not be saved.");
+      setLastSaved(data.preferences);
+      setAlertsActive(true);
+      setCategories([]);
+      setExperienceLevels([]);
+      setWorkArrangements([]);
+      setLocations("");
+      setOrganisations("");
+      setKeywords("");
+      setMissingField("");
+      setConsent(false);
       setStatus("success");
-      setMessage("Your job-alert preferences are saved.");
+      setMessage("Your alert preferences have been saved. This form is ready for a new selection.");
       trackEvent("sign_up", { method: "authenticated_job_alert" });
     } catch (error) {
       setStatus("error");
@@ -75,6 +95,7 @@ export default function AlertPreferencesForm({ initialPreferences }) {
     setStatus("loading");
     const response = await fetch("/api/job-alerts", { method: "DELETE" });
     if (response.ok) {
+      setAlertsActive(false);
       setStatus("success");
       setMessage("Email job alerts are now paused.");
     } else {
@@ -85,6 +106,19 @@ export default function AlertPreferencesForm({ initialPreferences }) {
 
   return (
     <form className="preferences" onSubmit={save}>
+      {lastSaved && (
+        <section className="saved-summary" aria-labelledby="saved-title">
+          <div className="saved-mark" aria-hidden="true">✓</div>
+          <div>
+            <h2 id="saved-title">Preferences saved</h2>
+            <p>
+              Alerts are active for {lastSaved.categories.length} selected
+              {lastSaved.categories.length === 1 ? " category" : " categories"}.
+              We cleared the form to prevent accidental duplicate submissions.
+            </p>
+          </div>
+        </section>
+      )}
       <fieldset>
         <legend>Job categories <span>Required</span></legend>
         <p>Select one or more categories. Alerts use these exact categories.</p>
@@ -129,6 +163,24 @@ export default function AlertPreferencesForm({ initialPreferences }) {
           onChange={(event) => setKeywords(event.target.value)}
           placeholder="Graphic Designer, Credit Analyst"
         />
+        <small>Use role names or skills to make category alerts more precise.</small>
+
+        <div className="missing-field">
+          <label className="text-label" htmlFor="alert-missing-field">
+            Can’t find your professional field?
+          </label>
+          <input
+            id="alert-missing-field"
+            value={missingField}
+            onChange={(event) => setMissingField(event.target.value)}
+            maxLength={80}
+            placeholder="For example: Creative Design"
+          />
+          <small>
+            Add it here. We will use it as a matching keyword and aggregate
+            candidate demand when reviewing new categories.
+          </small>
+        </div>
 
         <div className="option-columns">
           <div>
@@ -182,7 +234,7 @@ export default function AlertPreferencesForm({ initialPreferences }) {
         <button type="submit" disabled={status === "loading" || !categories.length}>
           {status === "loading" ? "Saving..." : "Save alert preferences"}
         </button>
-        {initialPreferences?.active && (
+        {alertsActive && (
           <button className="secondary" type="button" onClick={disableAlerts}>
             Pause email alerts
           </button>
@@ -191,6 +243,10 @@ export default function AlertPreferencesForm({ initialPreferences }) {
 
       <style jsx>{`
         .preferences { margin-top: 2rem; }
+        .saved-summary { display: flex; gap: .85rem; margin: 0 0 1.5rem; padding: 1rem 1.1rem; border: 1px solid #a6f4c5; border-radius: 10px; background: #ecfdf3; color: #065f46; }
+        .saved-mark { display: grid; width: 30px; height: 30px; flex: 0 0 30px; place-items: center; border-radius: 50%; background: #087f6c; color: white; font-weight: 800; }
+        .saved-summary h2 { margin: 0 0 .2rem; color: #065f46; font-size: .9rem; }
+        .saved-summary p { margin: 0; font-size: .76rem; line-height: 1.55; }
         fieldset { margin: 0 0 1.5rem; padding: 1.25rem; border: 1px solid #e4e7ec; border-radius: 9px; }
         legend { padding: 0 .4rem; font-weight: 750; }
         legend span { margin-left: .35rem; color: #087f6c; font-size: .68rem; text-transform: uppercase; }
@@ -202,6 +258,8 @@ export default function AlertPreferencesForm({ initialPreferences }) {
         .text-label:first-of-type { margin-top: 0; }
         input:not([type="checkbox"]) { width: 100%; min-height: 46px; padding: 0 .8rem; border: 1.5px solid #cfd6df; border-radius: 6px; font: inherit; }
         small { display: block; margin-top: .3rem; color: #667085; font-size: .68rem; }
+        .missing-field { margin-top: 1.15rem; padding: 1rem; border-radius: 8px; background: #f8fafc; }
+        .missing-field .text-label { margin-top: 0; }
         .option-columns { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1.25rem; }
         h2 { margin: 0 0 .55rem; font-size: .8rem; }
         .compact-choice { min-height: 38px; margin-bottom: .4rem; }

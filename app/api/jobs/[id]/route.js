@@ -1,11 +1,14 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
+import legacySlug from "@/lib/legacy-job-slug";
+
+const { findJobByLegacySlug } = legacySlug;
 
 export async function GET(request, context) {
   try {
     const { id } = await context.params;
 
-    const job = await prisma.job.findFirst({
+    let job = await prisma.job.findFirst({
       where: {
         active: true,
         OR: [
@@ -29,6 +32,22 @@ export async function GET(request, context) {
         createdAt: true,
       },
     });
+    if (!job) {
+      job = await findJobByLegacySlug(prisma, id, {
+        slug: true,
+        title: true,
+        company: true,
+        location: true,
+        description: true,
+        category: true,
+        type: true,
+        salary: true,
+        deadline: true,
+        sourceUrl: true,
+        source: true,
+        createdAt: true,
+      });
+    }
 
     if (!job) {
       return NextResponse.json({ error: "Job not found" }, { status: 404 });

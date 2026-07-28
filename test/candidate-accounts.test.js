@@ -20,6 +20,10 @@ test("candidate preferences use the controlled category catalogue", () => {
   assert.match(route, /normalizeList\(body\.categories, JOB_CATEGORIES\)/);
   assert.match(form, /JOB_CATEGORIES\.map/);
   assert.match(form, /Alerts use these exact categories/);
+  assert.match(form, /Can’t find your professional field/);
+  assert.match(form, /setCategories\(\[\]\)/);
+  assert.match(form, /setConsent\(false\)/);
+  assert.match(form, /aggregate\s+candidate demand/);
 });
 
 test("only fully configured sign-in providers are presented", () => {

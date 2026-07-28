@@ -39,13 +39,10 @@ require accounts only for personalised or protected features.
 - Replaces database-key public URLs with immutable title-and-employer slugs.
 - Preserves existing links through permanent canonical redirects.
 - Generates collision-resistant slugs without exposing database IDs.
-- Local validation: 50 tests, ESLint, Prisma validation and production build
-  passed after updating against current `master`.
-- Production recovery point confirmed: permanent Neon snapshot of the
-  `production` branch created on 28 July 2026 at 14:36:30 UTC
-  (17:36:30 Africa/Dar_es_Salaam), 40.35 MB, no expiry.
-- The additive migration must still be applied and verified in a controlled
-  step before the code is merged.
+- Local validation: 46 tests, ESLint, Prisma validation and production build
+  passed.
+- Deployment blocker: a recent Neon production restore point has not been
+  confirmed, so the additive slug migration must not be deployed yet.
 
 ### Secure unsubscribe flow
 
@@ -59,8 +56,8 @@ require accounts only for personalised or protected features.
 - Public job discovery will remain available without an account.
 - Saving alert preferences will require an authenticated candidate account.
 - Planned providers: Google OAuth and passwordless verified email.
-- Production blockers: Google OAuth credentials and sandbox verification for
-  transactional email.
+- Production blockers: Google OAuth credentials, a recent Neon restore point
+  and sandbox verification for transactional email.
 
 ### AdSense trust and transparency
 
@@ -71,11 +68,11 @@ require accounts only for personalised or protected features.
 
 ## Safety blockers
 
-### Production database recovery point confirmed
+### Production database backup not confirmed
 
-The permanent Neon snapshot above clears the recovery-point gate for this
-milestone. Migration SQL must still be reviewed, applied once and verified
-before schema-dependent code is merged.
+Do not merge or deploy schema-changing pull requests until a recent Neon
+production backup or restore point is confirmed. Do not run destructive or
+irreversible migrations unattended.
 
 ### Provider credentials and sandbox verification
 
@@ -87,13 +84,16 @@ before schema-dependent code is merged.
 
 ## Next safe implementation batches
 
-1. Apply and verify the additive slug migration against the recorded snapshot.
+1. Confirm database backup/restore point and preview/staging environment.
 2. Finish authenticated candidate subscriptions vertically:
    secure sessions, verification, preferences, delivery log, idempotent retry
    and account-level unsubscribe controls.
-3. Deploy immutable job slugs and verify legacy redirects and canonical URLs.
-4. Do not begin another product phase until this milestone is production
-   smoke-tested.
+3. Deploy immutable job slugs after the restore-point gate is satisfied.
+4. Add job lifecycle/source-health models and revalidation.
+5. Add secure authentication and role-based candidate, employer and admin
+   vertical flows.
+6. Add entitlements and sandbox billing behind feature flags.
+7. Complete accessibility, security, SEO, performance and responsive QA.
 
 ## Definition-of-done evidence
 

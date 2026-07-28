@@ -49,7 +49,22 @@ require accounts only for personalised or protected features.
 - Replaces state-changing email-link GET requests with a confirmation page.
 - Adds standards-compliant one-click POST unsubscribe headers for supporting
   email clients.
-- Requires no database migration.
+- Deployed in pull request #29 without a database migration.
+
+### Authentication and candidate accounts
+
+- Public job discovery will remain available without an account.
+- Saving alert preferences will require an authenticated candidate account.
+- Planned providers: Google OAuth and passwordless verified email.
+- Production blockers: Google OAuth credentials, a recent Neon restore point
+  and sandbox verification for transactional email.
+
+### AdSense trust and transparency
+
+- Adds public About, Contact, Editorial Policy and Terms pages.
+- Adds site-wide company and legal navigation.
+- Publishes the confirmed Google publisher record at `/ads.txt`.
+- Keeps advertisement rendering consent-gated and separate from Apply actions.
 
 ## Safety blockers
 
@@ -70,8 +85,9 @@ irreversible migrations unattended.
 ## Next safe implementation batches
 
 1. Confirm database backup/restore point and preview/staging environment.
-2. Finish subscriptions vertically:
-   verification, preferences, delivery log, idempotent retry and unsubscribe.
+2. Finish authenticated candidate subscriptions vertically:
+   secure sessions, verification, preferences, delivery log, idempotent retry
+   and account-level unsubscribe controls.
 3. Deploy immutable job slugs after the restore-point gate is satisfied.
 4. Add job lifecycle/source-health models and revalidation.
 5. Add secure authentication and role-based candidate, employer and admin

@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
+import { trackEvent } from "@/lib/analytics";
 
 export default function JobDetailPage() {
   const { id } = useParams();
@@ -16,6 +17,14 @@ export default function JobDetailPage() {
       if (res.status === 404) { setNotFound(true); return; }
       const data = await res.json();
       setJob(data.job);
+      trackEvent("view_item", {
+        items: [{
+          item_id: data.job.id,
+          item_name: data.job.title,
+          item_brand: data.job.company,
+          item_category: data.job.category,
+        }],
+      });
     } catch (error) {
       console.error(error);
       setNotFound(true);
@@ -290,6 +299,14 @@ export default function JobDetailPage() {
                   target={applicationEmail ? undefined : "_blank"}
                   rel={applicationEmail ? undefined : "noopener noreferrer"}
                   className="apply-btn"
+                  onClick={() => trackEvent("apply_job", {
+                    job_id: job.id,
+                    job_title: job.title,
+                    employer: job.company,
+                    category: job.category,
+                    application_method: applicationEmail ? "email" : "external",
+                    source: job.source,
+                  })}
                 >
                   Apply Now →
                 </a>
@@ -320,6 +337,11 @@ export default function JobDetailPage() {
                 href={`https://wa.me/?text=${encodeURIComponent(getShareMessage())}`}
                 target="_blank"
                 rel="noopener noreferrer"
+                onClick={() => trackEvent("share", {
+                  method: "WhatsApp",
+                  content_type: "job",
+                  item_id: job.id,
+                })}
               >
                 Share on WhatsApp
               </a>

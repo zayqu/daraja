@@ -22,4 +22,8 @@ test("scraper workflow remains hourly, bounded and least privilege", () => {
   assert.match(workflow, /timeout-minutes:\s*15/);
   assert.match(workflow, /permissions:\s*\n\s+contents:\s*read/);
   assert.match(workflow, /run:\s*npm run scrape/);
+  assert.match(workflow, /SCRAPER_HEALTH_REPORT:\s*scraper-health\.json/);
+  assert.match(workflow, /if:\s*always\(\)/);
+  assert.match(workflow, /uses:\s*actions\/upload-artifact@v4/);
+  assert.match(workflow, /retention-days:\s*30/);
 });

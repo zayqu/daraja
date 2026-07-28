@@ -1,0 +1,61 @@
+name: Normalize public job URLs
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirmation:
+        description: "Type NORMALIZE-JOB-SLUGS to confirm the recorded restore point exists"
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: production-job-slug-normalization
+  cancel-in-progress: false
+
+jobs:
+  normalize:
+    if: github.event.inputs.confirmation == 'NORMALIZE-JOB-SLUGS'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: "24"
+          cache: npm
+      - run: npm ci
+      - run: npx prisma generate
+      - name: Normalize active and archived job URLs
+        run: node scripts/normalize-job-slugs.js
+      - name: Verify every job has a unique URL
+        run: |
+          node <<'NODE'
+          const { Client } = require("pg");
+          async function verify() {
+            const client = new Client({
+              connectionString: process.env.DATABASE_URL,
+              ssl: { rejectUnauthorized: false },
+            });
+            await client.connect();
+            const { rows: [checks] } = await client.query(`
+              SELECT
+                COUNT(*) FILTER (WHERE "slug" IS NULL OR "slug" = '')::int AS "missing",
+                (COUNT(*) - COUNT(DISTINCT "slug"))::int AS "duplicates"
+              FROM "Job"
+            `);
+            await client.end();
+            console.log(checks);
+            if (checks.missing || checks.duplicates) {
+              throw new Error("Job URL verification failed.");
+            }
+          }
+          verify().catch((error) => {
+            console.error(error);
+            process.exit(1);
+          });
+          NODE

@@ -5,9 +5,15 @@ const path = require("node:path");
 const {
   MAX_SLUG_BASE_LENGTH,
   createJobSlug,
+  createMigratedJobSlug,
+  createJobWithPositionSlug,
+  createPositionSlug,
+  createUniquePositionSlug,
   slugify,
 } = require("../lib/job-slug");
 const { saveJobs } = require("../scraper/lib/store");
+const { findJobByLegacySlug } = require("../lib/legacy-job-slug");
+const { normalizeJobSlugs } = require("../scripts/normalize-job-slugs");
 
 test("job slugs are readable, normalized and deterministic", () => {
   const input = {
@@ -47,6 +53,62 @@ test("job slug bases are bounded and identities prevent title collisions", () =>
   );
 });
 
+test("public job URLs use only the position unless a real collision exists", async () => {
+  const seen = new Set();
+  const prisma = {
+    job: {
+      findFirst: async ({ where }) => seen.has(where.slug) ? { id: "taken" } : null,
+    },
+  };
+
+  assert.equal(createPositionSlug("Associate WASH Officer"), "associate-wash-officer");
+  assert.equal(
+    await createUniquePositionSlug(prisma, {
+      title: "Associate WASH Officer",
+      company: "UNHCR",
+      identity: "one",
+    }),
+    "associate-wash-officer"
+  );
+
+  seen.add("associate-wash-officer");
+  assert.equal(
+    await createUniquePositionSlug(prisma, {
+      title: "Associate WASH Officer",
+      company: "UNHCR",
+      identity: "two",
+    }),
+    "associate-wash-officer-at-unhcr"
+  );
+});
+
+test("concurrent title collisions retry with the professional fallback URL", async () => {
+  let creates = 0;
+  const saved = new Set();
+  const prisma = {
+    job: {
+      findFirst: async ({ where }) => saved.has(where.slug) ? { id: "taken" } : null,
+      create: async ({ data }) => {
+        creates += 1;
+        if (creates === 1) {
+          saved.add(data.slug);
+          const error = new Error("Unique constraint");
+          error.code = "P2002";
+          throw error;
+        }
+        saved.add(data.slug);
+        return data;
+      },
+    },
+  };
+  const job = await createJobWithPositionSlug(
+    prisma,
+    { title: "Accountant", company: "Beta Ltd" },
+    "beta:1"
+  );
+  assert.equal(job.slug, "accountant-at-beta-ltd");
+});
+
 test("slug migration backfills every job before enforcing uniqueness", async () => {
   const migration = await readFile(
     path.join(
@@ -73,6 +135,28 @@ test("legacy job IDs receive a permanent redirect to the canonical slug", async 
   assert.match(layout, /\{ slug: identifier \}/);
 });
 
+test("the first readable URL format remains resolvable after normalization", async () => {
+  const job = {
+    id: "cms4mfki30001uz4sw86lin69",
+    source: "ajira",
+    sourceId: "vacancy-42",
+    title: "Associate WASH Officer",
+    company: "United Nations High Commissioner for Refugees",
+    slug: "associate-wash-officer",
+    active: true,
+  };
+  const oldSlug = createMigratedJobSlug({
+    title: job.title,
+    company: job.company,
+    id: job.id,
+  });
+  const prisma = { job: { findMany: async () => [job] } };
+  assert.equal(
+    (await findJobByLegacySlug(prisma, oldSlug, { slug: true })).id,
+    job.id
+  );
+});
+
 test("scraped jobs receive a slug once and updates never rewrite it", async () => {
   const creates = [];
   const updates = [];
@@ -96,10 +180,38 @@ test("scraped jobs receive a slug once and updates never rewrite it", async () =
   await saveJobs(prisma, [job], "ajiraweb");
   assert.match(
     creates[0].data.slug,
-    /^credit-analyst-at-akiba-commercial-bank-[a-f0-9]{12}$/
+    /^credit-analyst$/
   );
 
   existing = { id: "existing-job" };
   await saveJobs(prisma, [{ ...job, title: "Senior Credit Analyst" }], "ajiraweb");
   assert.equal(Object.hasOwn(updates[0].data, "slug"), false);
+});
+
+test("slug normalization updates rows without creating duplicates", async () => {
+  const rows = [
+    {
+      id: "1", title: "Accountant", company: "Alpha", source: "a",
+      sourceId: "1", slug: "accountant-at-alpha-old",
+    },
+    {
+      id: "2", title: "Accountant", company: "Beta", source: "b",
+      sourceId: "2", slug: "accountant-at-beta-old",
+    },
+  ];
+  const updates = [];
+  const prisma = {
+    job: {
+      findMany: async () => rows,
+      findFirst: async ({ where }) => {
+        const pending = updates.find((update) => update.data.slug === where.slug);
+        return pending ? { id: pending.where.id } : null;
+      },
+      update: async (payload) => updates.push(payload),
+    },
+  };
+  const result = await normalizeJobSlugs(prisma);
+  assert.deepEqual(result, { found: 2, updated: 2 });
+  assert.equal(updates[0].data.slug, "accountant");
+  assert.equal(updates[1].data.slug, "accountant-at-beta");
 });

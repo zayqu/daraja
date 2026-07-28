@@ -3,7 +3,7 @@ import { randomUUID } from "node:crypto";
 import prisma from "@/lib/prisma";
 import slugUtils from "@/lib/job-slug";
 
-const { createJobSlug } = slugUtils;
+const { createJobWithPositionSlug } = slugUtils;
 
 export async function GET(request) {
   try {
@@ -190,13 +190,9 @@ export async function POST(request) {
       );
     }
 
-    const job = await prisma.job.create({
-      data: {
-        slug: createJobSlug({
-          title: cleanTitle,
-          company: cleanCompany,
-          identity: randomUUID(),
-        }),
+    const job = await createJobWithPositionSlug(
+      prisma,
+      {
         title: cleanTitle,
         company: cleanCompany,
         location: cleanLocation,
@@ -209,7 +205,8 @@ export async function POST(request) {
         language: "en",
         active: false,
       },
-    });
+      randomUUID()
+    );
 
     return NextResponse.json(
       {

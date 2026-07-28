@@ -1,8 +1,11 @@
 import prisma from "@/lib/prisma";
 import { permanentRedirect } from "next/navigation";
+import legacySlug from "@/lib/legacy-job-slug";
+
+const { findJobByLegacySlug } = legacySlug;
 
 async function findActiveJob(identifier, select) {
-  return prisma.job.findFirst({
+  const job = await prisma.job.findFirst({
     where: {
       active: true,
       OR: [
@@ -12,6 +15,8 @@ async function findActiveJob(identifier, select) {
     },
     select,
   });
+  if (job) return job;
+  return findJobByLegacySlug(prisma, identifier, select);
 }
 
 export async function generateMetadata({ params }) {

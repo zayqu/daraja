@@ -3,6 +3,7 @@ const CATEGORIES = [
   "NGO & Development",
   "Banking & Finance",
   "Technology",
+  "Creative, Design & Media",
   "Health",
   "Education",
   "Engineering",
@@ -15,12 +16,15 @@ const CATEGORIES = [
   "Agriculture",
   "Mining, Energy, Oil & Gas",
   "Manufacturing",
+  "Construction & Real Estate",
+  "Security & Protective Services",
   "Internships & Graduate Programs",
   "General",
 ];
 
 const RULES = [
   ["Internships & Graduate Programs", /\b(intern(ship)?|graduate trainee|management trainee|volunteer|mafunzo kwa vitendo)\b/i],
+  ["Creative, Design & Media", /\b(graphic|designer|creative|art director|copywriter|content creator|photograph|videograph|animator|illustrator|media|journalist|editor|broadcast|ubunifu|mwandishi|mpiga picha)\w*/i],
   ["Technology", /\b(software|developer|programmer|data scientist|data analyst|cyber|information technology|\bit\b|ict|tehama|network|systems? administrator|digital|programu|mifumo ya kompyuta)\b/i],
   ["Health", /\b(doctor|nurse|medical|clinical|pharmac|health|laborator|nutrition|radiolog|dentist|midwi|daktari|tabibu|muuguzi|afya|mfamasia|maabara)\w*/i],
   ["Education", /\b(teacher|lecturer|tutor|professor|education|academic|school|university|research|mwalimu|mhadhiri|mkufunzi|elimu|mtafiti|utafiti)\b/i],
@@ -34,6 +38,8 @@ const RULES = [
   ["Agriculture", /\b(agricultur|agronom|farmer|livestock|veterinar|fisher|forestry|kilimo|mifugo|uvuvi|misitu)\w*/i],
   ["Mining, Energy, Oil & Gas", /\b(mining|mine|energy|petroleum|oil|gas|geolog|solar|renewable|madini|mgodi|nishati|mafuta|jiolojia)\w*/i],
   ["Manufacturing", /\b(manufactur|production|factory|plant operator|quality control|kiwanda|uzalishaji|udhibiti ubora)\w*/i],
+  ["Construction & Real Estate", /\b(construction|quantity survey|site manager|property|real estate|facilities manager|estate officer|ujenzi|mali isiyohamishika)\w*/i],
+  ["Security & Protective Services", /\b(security officer|security guard|loss prevention|firefighter|protective services|usalama|mlinzi|zimamoto)\w*/i],
   ["Banking & Finance", /\b(bank|banking|finance|financial|credit|loan|insurance|investment|microfinance|fintech|benki|fedha|mikopo|bima|uwekezaji)\b/i],
   ["NGO & Development", /\b(ngo|non-government|humanitarian|development|united nations|\bun\b|foundation|charity|relief|programme officer|maendeleo|kibinadamu|hisani)\b/i],
   ["Government", /\b(government|ministry|municipal|council|authority|public service|taasisi|halmashauri|wizara|serikali|manispaa)\b/i],

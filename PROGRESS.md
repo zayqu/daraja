@@ -82,6 +82,21 @@ require accounts only for personalised or protected features.
 - Do not use a real subscriber address. WhatsApp delivery remains unavailable
   until an official WhatsApp Business API integration is configured and tested.
 
+## Current professional experience release
+
+- Position-only public URLs are implemented by default, with an employer or
+  short stable suffix used only when two live records would otherwise collide.
+- The previous readable URL format remains resolvable and permanently redirects
+  to the cleaner canonical URL.
+- Alert preference forms clear after a successful save and show a durable,
+  accessible confirmation summary.
+- Missing candidate fields can be submitted as matching keywords and aggregated
+  demand signals without fragmenting the controlled category catalogue.
+- Creative, Design & Media, Construction & Real Estate, and Security &
+  Protective Services are now classified automatically.
+- Production slug normalization is protected by a manual confirmation workflow
+  and the recorded Neon restore point.
+
 ## Definition-of-done evidence
 
 Every batch must record:

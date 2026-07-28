@@ -103,6 +103,11 @@ Job-detail pages remain advertisement-free around the application action so ads
 cannot be confused with the Apply button. Add the real publisher and slot IDs
 only after the domain is approved in AdSense.
 
+Daraja publishes the confirmed Google publisher authorization record at
+`/ads.txt` and provides public About, Contact, Editorial Policy, Privacy and
+Terms pages. Advertising remains visually separated from vacancy content and
+application actions.
+
 ## Job-alert configuration
 
 Email subscriptions are stored in PostgreSQL and the hourly scraper sends a

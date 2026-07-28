@@ -1,6 +1,6 @@
 # Daraja Jobs production-readiness progress
 
-Last updated: 27 July 2026
+Last updated: 28 July 2026
 
 ## Current objective
 
@@ -28,8 +28,24 @@ require accounts only for personalised or protected features.
   rendering reliability.
 - The hourly scraper no longer applies or resolves production migrations.
   Schema deployment is documented as a separate restore-point-gated operation.
+- Consent-gated GA4 conversion tracking for job searches, filters, job views,
+  application clicks, sharing, WhatsApp Channel visits and alert sign-ups was
+  merged in pull request #27.
 
 ## In progress
+
+### Immutable human-readable job URLs
+
+- Generates readable, stable and collision-resistant URLs from the job title
+  and employer.
+- Preserves slugs when a scraped vacancy is updated.
+- Resolves both the new slug and the legacy database ID.
+- Permanently redirects legacy database-ID links to the canonical slug.
+- Includes a deterministic backfill and unique database constraint.
+- Local validation: 46 tests, ESLint, Prisma validation and production build
+  passed.
+- Deployment blocker: the migration must not run until a recent Neon
+  production restore point is confirmed.
 
 ### Pull request #17 — category-based alerts
 
@@ -90,7 +106,8 @@ irreversible migrations unattended.
 1. Confirm database backup/restore point and preview/staging environment.
 2. Finish subscriptions vertically:
    verification, preferences, delivery log, idempotent retry and unsubscribe.
-3. Add immutable, unique job slugs with old-ID permanent redirects.
+3. Deploy the prepared immutable job-slug migration after confirming a restore
+   point, then verify legacy redirects and canonical URLs.
 4. Add job lifecycle/source-health models and revalidation.
 5. Add secure authentication and role-based candidate, employer and admin
    vertical flows.

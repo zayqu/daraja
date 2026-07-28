@@ -1,3 +1,5 @@
+const crypto = require("node:crypto");
+
 const SITE_URL = "https://www.ajira.daraja.co.tz";
 const MAX_SUBSCRIBERS_PER_RUN = 50;
 const MAX_JOBS_PER_EMAIL = 12;
@@ -11,18 +13,33 @@ function escapeHtml(value) {
     .replaceAll("'", "&#039;");
 }
 
-function jobMatchesInterests(job, interests) {
-  const searchable = [
-    job.title,
-    job.category,
-    job.company,
-    job.description,
-  ]
+function containsAny(searchable, values) {
+  if (!values?.length) return true;
+  return values.some((value) =>
+    searchable.includes(String(value).trim().toLowerCase())
+  );
+}
+
+function jobMatchesPreferences(job, subscriber) {
+  if (!subscriber.categories?.includes(job.category)) return false;
+  const roleText = [job.title, job.description].join(" ").toLowerCase();
+  const organisation = String(job.company || "").toLowerCase();
+  const location = String(job.location || "").toLowerCase();
+  const arrangementText = [job.title, job.description, job.location]
     .join(" ")
     .toLowerCase();
-  return interests.some((interest) =>
-    searchable.includes(String(interest).trim().toLowerCase())
+
+  return (
+    containsAny(location, subscriber.locations) &&
+    containsAny(organisation, subscriber.organisations) &&
+    containsAny(roleText, subscriber.keywords) &&
+    containsAny(roleText, subscriber.experienceLevels) &&
+    containsAny(arrangementText, subscriber.workArrangements)
   );
+}
+
+function jobMatchesInterests(job, interests) {
+  return jobMatchesPreferences(job, { categories: interests });
 }
 
 function buildAlertEmail(subscriber, jobs) {
@@ -30,7 +47,7 @@ function buildAlertEmail(subscriber, jobs) {
     .map(
       (job) => `
         <li style="margin:0 0 18px">
-          <a href="${SITE_URL}/jobs/${encodeURIComponent(job.id)}" style="color:#087f6c;font-weight:700;text-decoration:none">
+          <a href="${SITE_URL}/jobs/${encodeURIComponent(job.slug || job.id)}" style="color:#087f6c;font-weight:700;text-decoration:none">
             ${escapeHtml(job.title)}
           </a><br>
           <span style="color:#344054">${escapeHtml(job.company)} · ${escapeHtml(job.location)}</span>
@@ -50,16 +67,37 @@ function buildAlertEmail(subscriber, jobs) {
     },
     html: `
       <div style="max-width:620px;margin:auto;font-family:Arial,sans-serif;color:#1b2a3f;line-height:1.6">
-        <h1 style="font-size:24px">New opportunities in Tanzania</h1>
-        <p>Here are the latest verified vacancies published since your previous update.</p>
+        <h1 style="font-size:24px">New opportunities matching your preferences</h1>
+        <p>Here are verified vacancies published since your previous update.</p>
         <ul style="padding-left:22px">${jobRows}</ul>
         <p><a href="${SITE_URL}/jobs" style="display:inline-block;padding:12px 18px;border-radius:6px;background:#00c9a7;color:#1b2a3f;font-weight:700;text-decoration:none">Browse all jobs</a></p>
         <p style="margin-top:32px;font-size:12px;color:#667085">
-          You received this because you subscribed to Daraja job alerts.
+          You received this because job alerts are enabled in your Daraja candidate account.
           <a href="${unsubscribeUrl}" style="color:#667085">Unsubscribe</a>
         </p>
       </div>`,
   };
+}
+
+function deliveryKey(subscriberId, jobs) {
+  return crypto
+    .createHash("sha256")
+    .update(`${subscriberId}:${jobs.map((job) => job.id).sort().join(",")}`)
+    .digest("hex");
+}
+
+async function recordFailure(prisma, delivery, message) {
+  const attemptCount = delivery.attemptCount + 1;
+  const delayMinutes = Math.min(60, 2 ** Math.min(attemptCount, 6));
+  await prisma.jobAlertDelivery.update({
+    where: { id: delivery.id },
+    data: {
+      status: "FAILED",
+      attemptCount,
+      lastError: String(message).slice(0, 500),
+      nextAttemptAt: new Date(Date.now() + delayMinutes * 60_000),
+    },
+  });
 }
 
 async function sendJobAlertDigests(prisma, fetchFn = fetch) {
@@ -71,7 +109,7 @@ async function sendJobAlertDigests(prisma, fetchFn = fetch) {
   }
 
   const subscribers = await prisma.jobAlertSubscriber.findMany({
-    where: { active: true },
+    where: { active: true, userId: { not: null } },
     orderBy: { lastNotifiedAt: "asc" },
     take: MAX_SUBSCRIBERS_PER_RUN,
   });
@@ -88,6 +126,7 @@ async function sendJobAlertDigests(prisma, fetchFn = fetch) {
       take: 100,
       select: {
         id: true,
+        slug: true,
         title: true,
         company: true,
         location: true,
@@ -97,7 +136,7 @@ async function sendJobAlertDigests(prisma, fetchFn = fetch) {
       },
     });
     const jobs = candidates
-      .filter((job) => jobMatchesInterests(job, subscriber.interests || []))
+      .filter((job) => jobMatchesPreferences(job, subscriber))
       .slice(0, MAX_JOBS_PER_EMAIL);
     if (!jobs.length) {
       if (candidates.length) {
@@ -109,30 +148,64 @@ async function sendJobAlertDigests(prisma, fetchFn = fetch) {
       continue;
     }
 
-    const email = buildAlertEmail(subscriber, jobs);
-    const response = await fetchFn("https://api.resend.com/emails", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${apiKey}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        from,
-        to: [subscriber.email],
-        subject: email.subject,
-        html: email.html,
-        headers: email.headers,
-      }),
+    const deduplicationKey = deliveryKey(subscriber.id, jobs);
+    const existing = await prisma.jobAlertDelivery.findUnique({
+      where: { deduplicationKey },
     });
-    if (!response.ok) {
-      console.error(`Email alert failed for subscriber ${subscriber.id}: HTTP ${response.status}`);
+    if (existing?.status === "SENT") continue;
+    if (existing?.nextAttemptAt && existing.nextAttemptAt > new Date()) continue;
+    const delivery = existing || await prisma.jobAlertDelivery.create({
+      data: {
+        subscriberId: subscriber.id,
+        deduplicationKey,
+        jobIds: jobs.map((job) => job.id),
+      },
+    });
+
+    const email = buildAlertEmail(subscriber, jobs);
+    let response;
+    try {
+      response = await fetchFn("https://api.resend.com/emails", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${apiKey}`,
+          "Content-Type": "application/json",
+          "Idempotency-Key": deduplicationKey,
+        },
+        body: JSON.stringify({
+          from,
+          to: [subscriber.email],
+          subject: email.subject,
+          html: email.html,
+          headers: email.headers,
+        }),
+      });
+    } catch (error) {
+      await recordFailure(prisma, delivery, error.message);
       continue;
     }
-
-    await prisma.jobAlertSubscriber.update({
-      where: { id: subscriber.id },
-      data: { lastNotifiedAt: jobs.at(-1).createdAt },
-    });
+    if (!response.ok) {
+      await recordFailure(prisma, delivery, `Resend HTTP ${response.status}`);
+      continue;
+    }
+    const result = await response.json().catch(() => ({}));
+    await prisma.$transaction([
+      prisma.jobAlertDelivery.update({
+        where: { id: delivery.id },
+        data: {
+          status: "SENT",
+          attemptCount: delivery.attemptCount + 1,
+          sentAt: new Date(),
+          nextAttemptAt: null,
+          lastError: null,
+          providerMessageId: result.id || null,
+        },
+      }),
+      prisma.jobAlertSubscriber.update({
+        where: { id: subscriber.id },
+        data: { lastNotifiedAt: jobs.at(-1).createdAt },
+      }),
+    ]);
     sent += 1;
   }
 
@@ -142,7 +215,9 @@ async function sendJobAlertDigests(prisma, fetchFn = fetch) {
 
 module.exports = {
   buildAlertEmail,
+  deliveryKey,
   escapeHtml,
   jobMatchesInterests,
+  jobMatchesPreferences,
   sendJobAlertDigests,
 };

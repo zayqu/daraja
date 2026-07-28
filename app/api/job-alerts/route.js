@@ -1,92 +1,155 @@
 import { NextResponse } from "next/server";
+import { auth } from "@/auth";
 import prisma from "@/lib/prisma";
+import {
+  EXPERIENCE_LEVELS,
+  JOB_CATEGORIES,
+  WORK_ARRANGEMENTS,
+} from "@/lib/job-categories";
 
-const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-const MAX_INTERESTS = 5;
+const MAX_VALUES = 10;
+const MAX_VALUE_LENGTH = 80;
 
-function normalizeInterests(value) {
-  const values = Array.isArray(value) ? value : String(value || "").split(",");
-  return [...new Set(
+function normalizeList(value, allowedValues) {
+  const values = Array.isArray(value) ? value : [];
+  const normalized = [...new Set(
     values
-      .map((interest) => String(interest).replace(/\s+/g, " ").trim())
-      .filter((interest) => interest.length >= 2 && interest.length <= 60)
-  )].slice(0, MAX_INTERESTS);
+      .map((item) => String(item).replace(/\s+/g, " ").trim())
+      .filter((item) => item && item.length <= MAX_VALUE_LENGTH)
+  )].slice(0, MAX_VALUES);
+  return allowedValues
+    ? normalized.filter((item) => allowedValues.includes(item))
+    : normalized;
+}
+
+function publicPreferences(subscriber) {
+  if (!subscriber) return null;
+  return {
+    categories: subscriber.categories,
+    locations: subscriber.locations,
+    experienceLevels: subscriber.experienceLevels,
+    workArrangements: subscriber.workArrangements,
+    organisations: subscriber.organisations,
+    keywords: subscriber.keywords,
+    active: subscriber.active,
+    consentedAt: subscriber.consentedAt,
+  };
+}
+
+async function getSessionUser() {
+  const session = await auth();
+  if (!session?.user?.id || !session.user.email) return null;
+  return session.user;
+}
+
+export async function GET(request) {
+  const token = new URL(request.url).searchParams.get("unsubscribe");
+  if (token) {
+    if (!/^[0-9a-f-]{36}$/i.test(token)) {
+      return NextResponse.redirect(
+        new URL("/alerts/unsubscribed?status=invalid", request.url)
+      );
+    }
+    return NextResponse.redirect(
+      new URL(`/alerts/unsubscribe?token=${encodeURIComponent(token)}`, request.url)
+    );
+  }
+
+  const user = await getSessionUser();
+  if (!user) {
+    return NextResponse.json({ error: "Sign in to manage job alerts." }, { status: 401 });
+  }
+  const subscriber = await prisma.jobAlertSubscriber.findUnique({
+    where: { userId: user.id },
+  });
+  return NextResponse.json({ preferences: publicPreferences(subscriber) });
 }
 
 export async function POST(request) {
+  const unsubscribeToken = new URL(request.url).searchParams.get("unsubscribe");
+  if (unsubscribeToken) {
+    if (!/^[0-9a-f-]{36}$/i.test(unsubscribeToken)) {
+      return NextResponse.redirect(
+        new URL("/alerts/unsubscribed?status=invalid", request.url),
+        303
+      );
+    }
+    await prisma.jobAlertSubscriber.updateMany({
+      where: { unsubscribeToken },
+      data: { active: false },
+    });
+    return NextResponse.redirect(new URL("/alerts/unsubscribed", request.url), 303);
+  }
+
+  const user = await getSessionUser();
+  if (!user) {
+    return NextResponse.json({ error: "Sign in to save job alerts." }, { status: 401 });
+  }
+  const contentLength = Number(request.headers.get("content-length") || 0);
+  if (contentLength > 8192) {
+    return NextResponse.json({ error: "Request is too large." }, { status: 413 });
+  }
+
   try {
-    const unsubscribeToken = new URL(request.url).searchParams.get("unsubscribe");
-    if (unsubscribeToken) {
-      if (!/^[0-9a-f-]{36}$/i.test(unsubscribeToken)) {
-        return NextResponse.redirect(
-          new URL("/alerts/unsubscribed?status=invalid", request.url),
-          303
-        );
-      }
-
-      await prisma.jobAlertSubscriber.updateMany({
-        where: { unsubscribeToken },
-        data: { active: false },
-      });
-      return NextResponse.redirect(new URL("/alerts/unsubscribed", request.url), 303);
-    }
-
-    const contentLength = Number(request.headers.get("content-length") || 0);
-    if (contentLength > 4096) {
-      return NextResponse.json({ error: "Request is too large." }, { status: 413 });
-    }
-
     const body = await request.json();
-    const email = String(body.email || "").trim().toLowerCase();
-    const interests = normalizeInterests(body.interests);
-
-    if (body.website) {
-      return NextResponse.json({ subscribed: true });
-    }
-    if (!EMAIL_PATTERN.test(email) || email.length > 254) {
+    const categories = normalizeList(body.categories, JOB_CATEGORIES);
+    if (!categories.length) {
       return NextResponse.json(
-        { error: "Enter a valid email address." },
+        { error: "Choose at least one job category." },
         { status: 400 }
       );
     }
     if (body.consent !== true) {
       return NextResponse.json(
-        { error: "Please agree to receive job alerts." },
-        { status: 400 }
-      );
-    }
-    if (!interests.length) {
-      return NextResponse.json(
-        { error: "Enter at least one job field or position." },
+        { error: "Consent is required before alerts can be enabled." },
         { status: 400 }
       );
     }
 
-    await prisma.jobAlertSubscriber.upsert({
-      where: { email },
-      update: { active: true, consentedAt: new Date(), interests },
-      create: { email, consentedAt: new Date(), interests },
+    const subscriber = await prisma.jobAlertSubscriber.upsert({
+      where: { email: user.email.toLowerCase() },
+      update: {
+        userId: user.id,
+        categories,
+        locations: normalizeList(body.locations),
+        experienceLevels: normalizeList(body.experienceLevels, EXPERIENCE_LEVELS),
+        workArrangements: normalizeList(body.workArrangements, WORK_ARRANGEMENTS),
+        organisations: normalizeList(body.organisations),
+        keywords: normalizeList(body.keywords),
+        interests: [],
+        active: true,
+        consentedAt: new Date(),
+      },
+      create: {
+        userId: user.id,
+        email: user.email.toLowerCase(),
+        categories,
+        locations: normalizeList(body.locations),
+        experienceLevels: normalizeList(body.experienceLevels, EXPERIENCE_LEVELS),
+        workArrangements: normalizeList(body.workArrangements, WORK_ARRANGEMENTS),
+        organisations: normalizeList(body.organisations),
+        keywords: normalizeList(body.keywords),
+        consentedAt: new Date(),
+      },
     });
-
-    return NextResponse.json({ subscribed: true });
+    return NextResponse.json({ preferences: publicPreferences(subscriber) });
   } catch (error) {
-    console.error("Job alert subscription failed:", error);
+    console.error("Job alert preferences failed:", error);
     return NextResponse.json(
-      { error: "Subscription could not be saved. Please try again." },
+      { error: "Preferences could not be saved. Please try again." },
       { status: 500 }
     );
   }
 }
 
-export async function GET(request) {
-  const token = new URL(request.url).searchParams.get("unsubscribe");
-  if (!token || !/^[0-9a-f-]{36}$/i.test(token)) {
-    return NextResponse.redirect(
-      new URL("/alerts/unsubscribed?status=invalid", request.url)
-    );
+export async function DELETE() {
+  const user = await getSessionUser();
+  if (!user) {
+    return NextResponse.json({ error: "Sign in to manage job alerts." }, { status: 401 });
   }
-
-  return NextResponse.redirect(
-    new URL(`/alerts/unsubscribe?token=${encodeURIComponent(token)}`, request.url)
-  );
+  await prisma.jobAlertSubscriber.updateMany({
+    where: { userId: user.id },
+    data: { active: false },
+  });
+  return NextResponse.json({ active: false });
 }

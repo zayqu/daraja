@@ -110,10 +110,27 @@ application actions.
 
 ## Job-alert configuration
 
-Email subscriptions are stored in PostgreSQL and the hourly scraper sends a
-concise digest containing only vacancies that match each subscriber's selected
-job fields or position keywords. Candidates can save up to five interests, such
-as `Graphic Designer`, `UI Designer`, or `Banking & Finance`. Configure:
+Public job browsing remains open. Saving job-alert preferences requires a
+verified candidate account using Google OAuth or a passwordless email link.
+Configure the following Vercel variables for Preview and Production:
+
+- `AUTH_SECRET`
+- `AUTH_GOOGLE_ID`
+- `AUTH_GOOGLE_SECRET`
+- `RESEND_API_KEY`
+- `JOB_ALERTS_FROM_EMAIL`, using a sender on a domain verified by Resend
+
+Google's authorized production callback URL is:
+
+`https://www.ajira.daraja.co.tz/api/auth/callback/google`
+
+The hourly scraper sends a concise digest containing only vacancies in a
+candidate's exact selected categories, further limited by any optional
+location, experience, work-arrangement, organisation or keyword preferences.
+Delivery attempts are logged and use stable idempotency keys to prevent
+duplicate messages.
+
+The scraper workflow also requires:
 
 - GitHub Actions secret `RESEND_API_KEY`
 - GitHub Actions variable `JOB_ALERTS_FROM_EMAIL`, using a sender on a domain

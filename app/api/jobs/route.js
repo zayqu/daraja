@@ -1,5 +1,9 @@
 import { NextResponse } from "next/server";
+import { randomUUID } from "node:crypto";
 import prisma from "@/lib/prisma";
+import slugUtils from "@/lib/job-slug";
+
+const { createJobSlug } = slugUtils;
 
 export async function GET(request) {
   try {
@@ -62,6 +66,7 @@ export async function GET(request) {
         take: limit,
         select: {
           id: true,
+          slug: true,
           title: true,
           company: true,
           location: true,
@@ -187,6 +192,11 @@ export async function POST(request) {
 
     const job = await prisma.job.create({
       data: {
+        slug: createJobSlug({
+          title: cleanTitle,
+          company: cleanCompany,
+          identity: randomUUID(),
+        }),
         title: cleanTitle,
         company: cleanCompany,
         location: cleanLocation,

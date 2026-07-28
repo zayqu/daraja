@@ -113,3 +113,16 @@ Every batch must record:
 - Preview deployment URL and smoke-test result.
 - Commit and pull-request links.
 - Remaining external configuration or production blockers.
+
+## In review: candidate career foundation
+
+- An authenticated candidate workspace provides profile metadata, HTTPS-only
+  document references, saved vacancies and application status tracking.
+- Saved jobs and applications are always scoped to the signed-in database user.
+- Daraja applications prevent duplicates and accept submissions only while a
+  vacancy is active and open.
+- Third-party vacancies preserve their direct official application destination
+  instead of collecting an application on Daraja.
+- Candidates may withdraw only their own pending or reviewed applications.
+- The release is disabled by default with `CANDIDATE_CAREER_ENABLED` and its
+  additive migration will not run without a newly recorded Neon restore point.

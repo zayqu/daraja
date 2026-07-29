@@ -149,6 +149,18 @@ require accounts only for personalised or protected features.
 - The production snapshot from 29 July 2026 at 06:11:39 UTC is the recorded
   rollback point for this additive migration.
 
+## In review: entitlements and sandbox billing foundation
+
+- Deterministic free, employer and candidate plan limits use a safe free-plan
+  fallback.
+- Authenticated users can inspect their effective plan, limits and invoices.
+- Invoice and usage ledgers use idempotency and integer minor units.
+- Checkout is disabled unless billing, sandbox mode and the internal test
+  provider are all explicitly enabled.
+- The foundation cannot create a live payment or claim an external provider.
+- The production snapshot from 29 July 2026 at 06:11:39 UTC is the recorded
+  rollback point for this additive migration.
+
 ## Definition-of-done evidence
 
 Every batch must record:

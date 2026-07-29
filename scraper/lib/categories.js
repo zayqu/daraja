@@ -45,13 +45,79 @@ const RULES = [
   ["Government", /\b(government|ministry|municipal|council|authority|public service|taasisi|halmashauri|wizara|serikali|manispaa)\b/i],
 ];
 
-function categorizeJob(job = {}) {
+function classifyJob(job = {}) {
   const title = job.title || "";
-  const titleCategory = RULES.find(([, pattern]) => pattern.test(title))?.[0];
-  if (titleCategory) return titleCategory;
+  const titleRule = RULES.find(([, pattern]) => pattern.test(title));
+  if (titleRule) {
+    return {
+      category: titleRule[0],
+      confidence: 0.98,
+      evidence: "title",
+    };
+  }
 
   const context = [job.company, job.description].filter(Boolean).join(" ");
-  return RULES.find(([, pattern]) => pattern.test(context))?.[0] || "General";
+  const contextRule = RULES.find(([, pattern]) => pattern.test(context));
+  if (contextRule) {
+    return {
+      category: contextRule[0],
+      confidence: 0.72,
+      evidence: "context",
+    };
+  }
+  return { category: "General", confidence: 0.2, evidence: "fallback" };
 }
 
-module.exports = { CATEGORIES, categorizeJob };
+function categorizeJob(job = {}) {
+  return classifyJob(job).category;
+}
+
+function acceptAssistedClassification(deterministic, suggestion = {}) {
+  const category = String(suggestion.category || "").trim();
+  const confidence = Number(suggestion.confidence);
+  if (
+    deterministic.category !== "General" ||
+    !CATEGORIES.includes(category) ||
+    category === "General" ||
+    !Number.isFinite(confidence) ||
+    confidence < 0.9
+  ) {
+    return deterministic;
+  }
+  return {
+    category,
+    confidence: Math.min(confidence, 0.95),
+    evidence: "reviewed-assistance",
+  };
+}
+
+function summarizeClassifications(jobs = []) {
+  const distribution = {};
+  const review = [];
+  for (const job of jobs) {
+    const result = classifyJob(job);
+    distribution[result.category] = (distribution[result.category] || 0) + 1;
+    if (result.confidence < 0.7) {
+      review.push({
+        sourceId: String(job.sourceId || "").slice(0, 120) || null,
+        title: String(job.title || "").slice(0, 160),
+        category: result.category,
+        confidence: result.confidence,
+      });
+    }
+  }
+  return {
+    total: jobs.length,
+    distribution,
+    needsReview: review.length,
+    review: review.slice(0, 20),
+  };
+}
+
+module.exports = {
+  CATEGORIES,
+  acceptAssistedClassification,
+  categorizeJob,
+  classifyJob,
+  summarizeClassifications,
+};

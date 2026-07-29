@@ -1,0 +1,51 @@
+name: Build cPanel staging bundle
+
+on:
+  push:
+    branches:
+      - ops/cpanel-staging-build
+    paths:
+      - ".github/workflows/cpanel-staging-build.yml"
+      - "server.js"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      NEXT_TELEMETRY_DISABLED: "1"
+      NEXT_PUBLIC_GOOGLE_ANALYTICS_ID: G-89Q157X930
+      NEXT_PUBLIC_GOOGLE_ADSENSE_CLIENT: ca-pub-5101856964689063
+
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+
+      - name: Use Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+
+      - name: Install locked dependencies
+        run: npm ci --include=dev
+
+      - name: Build production bundle
+        run: npx prisma generate && npx next build --webpack
+
+      - name: Package cPanel bundle
+        run: |
+          tar             --exclude=".next/cache"             -czf daraja-cpanel-build.tar.gz             .next             public             server.js
+
+      - name: Upload cPanel bundle
+        uses: actions/upload-artifact@v4
+        with:
+          name: daraja-cpanel-build
+          path: daraja-cpanel-build.tar.gz
+          if-no-files-found: error
+          retention-days: 7

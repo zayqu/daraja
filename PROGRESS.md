@@ -113,3 +113,14 @@ Every batch must record:
 - Preview deployment URL and smoke-test result.
 - Commit and pull-request links.
 - Remaining external configuration or production blockers.
+
+## In review: entitlements and sandbox billing foundation
+
+- Deterministic free, employer and candidate plan limits use a safe free-plan
+  fallback.
+- Authenticated users can inspect their effective plan, limits and invoices.
+- Invoice and usage ledgers use idempotency and integer minor units.
+- Checkout is disabled unless billing, sandbox mode and the internal test
+  provider are all explicitly enabled.
+- The foundation cannot create a live payment or claim an external provider.
+- Its additive migration remains blocked until a new Neon restore point.

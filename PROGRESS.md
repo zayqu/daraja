@@ -115,6 +115,8 @@ require accounts only for personalised or protected features.
   identity instead of being duplicated.
 - A valid empty Tanzania feed is treated as healthy, while HTTP and malformed
   API failures remain visible in scraper health reporting.
+- Empty aggregator cycles preserve existing verified jobs and are reported as
+  degraded health warnings without failing healthy official sources.
 - Live dry-run evidence on 29 July 2026 found six current Tanzania vacancies.
 - This release is schema-free and requires no production migration.
 

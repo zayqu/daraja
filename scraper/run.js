@@ -88,6 +88,7 @@ async function runScrapers({ dryRun = false, requestedSources = new Set() } = {}
         const collect = adapters[source.adapter];
         if (!collect) throw new Error(`Unknown adapter: ${source.adapter}`);
         const jobs = await collect();
+        const sourceHealth = jobs.health || {};
         const summary = dryRun
           ? {
               source: source.id,
@@ -101,8 +102,16 @@ async function runScrapers({ dryRun = false, requestedSources = new Set() } = {}
                 })
               ),
             }
+          : sourceHealth.preserveExisting && jobs.length === 0
+            ? {
+                source: source.id,
+                found: 0,
+                created: 0,
+                updated: 0,
+                archived: 0,
+                preserved: true,
+              }
           : await saveJobs(prisma, jobs, source.id);
-        const sourceHealth = jobs.health || {};
         summaries.push({
           ...summary,
           ...sourceHealth,
@@ -114,6 +123,13 @@ async function runScrapers({ dryRun = false, requestedSources = new Set() } = {}
             warning:
               `${sourceHealth.unresolved} of ${sourceHealth.discovered} ` +
               "discovered official vacancy links could not be resolved",
+          });
+        }
+        if (sourceHealth.preserveExisting && jobs.length === 0) {
+          warnings.push({
+            source: source.id,
+            warning:
+              "No verified vacancies were discovered; existing records were preserved",
           });
         }
         console.log(JSON.stringify(summary));

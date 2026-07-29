@@ -1,0 +1,102 @@
+name: Build and publish cPanel release
+
+on:
+  pull_request:
+    branches:
+      - master
+  push:
+    branches:
+      - master
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: cpanel-production-release
+  cancel-in-progress: true
+
+jobs:
+  validate-build-publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      NEXT_TELEMETRY_DISABLED: "1"
+      NEXT_PUBLIC_GOOGLE_ANALYTICS_ID: G-89Q157X930
+      NEXT_PUBLIC_GOOGLE_ADSENSE_CLIENT: ca-pub-5101856964689063
+
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+
+      - name: Use Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+
+      - name: Install locked dependencies
+        run: npm ci --include=dev
+
+      - name: Generate Prisma Client
+        run: npx prisma generate
+
+      - name: Run tests
+        run: npm test
+
+      - name: Run ESLint
+        run: npm run lint
+
+      - name: Validate Prisma schema
+        run: npx prisma validate
+
+      - name: Build production bundle
+        run: npx next build --webpack
+
+      - name: Package cPanel bundle
+        run: |
+          tar \
+            --exclude=".next/cache" \
+            -czf daraja-cpanel-build.tar.gz \
+            .next \
+            public \
+            server.js \
+            package.json \
+            package-lock.json \
+            prisma \
+            prisma.config.ts \
+            next.config.mjs
+          sha256sum daraja-cpanel-build.tar.gz > daraja-cpanel-build.sha256
+          printf '%s\n' "$GITHUB_SHA" > daraja-cpanel-build.commit
+
+      - name: Upload workflow artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: daraja-cpanel-build
+          path: |
+            daraja-cpanel-build.tar.gz
+            daraja-cpanel-build.sha256
+            daraja-cpanel-build.commit
+          if-no-files-found: error
+          retention-days: 7
+
+      - name: Publish stable cPanel release
+        if: github.event_name != 'pull_request'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if gh release view cpanel-production >/dev/null 2>&1; then
+            gh release edit cpanel-production \
+              --title "Daraja cPanel production" \
+              --notes "Verified cPanel bundle for commit $GITHUB_SHA"
+          else
+            gh release create cpanel-production \
+              --title "Daraja cPanel production" \
+              --notes "Verified cPanel bundle for commit $GITHUB_SHA"
+          fi
+          gh release upload cpanel-production \
+            daraja-cpanel-build.tar.gz \
+            daraja-cpanel-build.sha256 \
+            daraja-cpanel-build.commit \
+            --clobber

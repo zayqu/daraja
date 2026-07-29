@@ -16,6 +16,7 @@ const { collectAjiraJobs } = require("./sources/ajira");
 const { collectAjiraWebJobs } = require("./sources/ajiraweb");
 const { collectReliefWebJobs } = require("./sources/reliefweb");
 const { collectStandardBankJobs } = require("./sources/standardbank");
+const { summarizeClassifications } = require("./lib/categories");
 
 const adapters = {
   ajira: collectAjiraJobs,
@@ -115,6 +116,7 @@ async function runScrapers({ dryRun = false, requestedSources = new Set() } = {}
         summaries.push({
           ...summary,
           ...sourceHealth,
+          classification: summarizeClassifications(jobs),
           durationMs: Date.now() - sourceStartedAt,
         });
         if (sourceHealth.unresolved) {

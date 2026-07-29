@@ -84,13 +84,24 @@ test("health reports are written as JSON and GitHub markdown", () => {
   const report = createHealthReport({
     startedAt: new Date("2026-07-28T20:00:00.000Z"),
     finishedAt: new Date("2026-07-28T20:00:01.000Z"),
-    summaries: [{ source: "ajira", found: 10 }],
+    summaries: [{
+      source: "ajira",
+      found: 10,
+      classification: {
+        total: 10,
+        distribution: { Government: 9, General: 1 },
+        needsReview: 1,
+        review: [],
+      },
+    }],
   });
 
   writeHealthReport(report, { jsonPath, summaryPath });
 
   assert.equal(JSON.parse(readFileSync(jsonPath, "utf8")).status, "healthy");
   assert.match(readFileSync(summaryPath, "utf8"), /scraper health: healthy/);
+  assert.match(readFileSync(summaryPath, "utf8"), /Classification quality/);
+  assert.match(readFileSync(summaryPath, "utf8"), /\| ajira \| 10 \| 1 \|/);
 });
 
 test("error sanitization removes bearer tokens", () => {

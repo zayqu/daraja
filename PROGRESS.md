@@ -1,6 +1,6 @@
 # Daraja Jobs production-readiness progress
 
-Last updated: 28 July 2026
+Last updated: 30 July 2026
 
 ## Current objective
 
@@ -148,6 +148,19 @@ require accounts only for personalised or protected features.
 - The release is disabled by default with `CANDIDATE_CAREER_ENABLED`.
 - The production snapshot from 29 July 2026 at 06:11:39 UTC is the recorded
   rollback point for this additive migration.
+
+## In review: controlled classification quality
+
+- Every source run reports its controlled category distribution and the number
+  of low-confidence vacancies requiring review.
+- Title matches remain authoritative; employer and description context are used
+  only when the role title is not decisive.
+- Assisted suggestions can only select an existing controlled category, require
+  at least 90% confidence and cannot override a deterministic role match.
+- Review evidence is bounded and excludes job descriptions and credentials.
+- No external AI service is enabled or claimed by this schema-free foundation.
+- This branch is refreshed on the current cPanel deployment baseline and
+  requires no production database migration.
 
 ## Definition-of-done evidence
 

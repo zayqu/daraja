@@ -120,6 +120,21 @@ require accounts only for personalised or protected features.
 - Live dry-run evidence on 29 July 2026 found six current Tanzania vacancies.
 - This release is schema-free and requires no production migration.
 
+## In review: secure employer and admin foundation
+
+- Employer and administrator workspaces are protected by authenticated,
+  database-backed role checks and an explicit disabled-by-default feature flag.
+- Employer profiles enter a pending verification state; only administrators
+  can verify, reject or suspend them.
+- Vacancy moderation supports publish, reject and archive decisions, with a
+  required reason for rejection.
+- Verification and moderation changes are transactional and write sanitized
+  audit events tied to the authenticated actor.
+- Existing public and imported vacancies remain published by the additive
+  migration; no current job is deleted or hidden.
+- The permanent production snapshot from 29 July 2026 at 06:11:39 UTC is the
+  recorded rollback point for this reviewed additive migration.
+
 ## Definition-of-done evidence
 
 Every batch must record:

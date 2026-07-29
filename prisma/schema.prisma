@@ -17,12 +17,14 @@ model User {
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 
-  employer   Employer?
-  freelancer Freelancer?
-  jobSeeker  JobSeeker?
-  accounts   Account[]
-  sessions   Session[]
-  jobAlerts  JobAlertSubscriber[]
+  employer      Employer?
+  freelancer    Freelancer?
+  jobSeeker     JobSeeker?
+  accounts      Account[]
+  sessions      Session[]
+  jobAlerts     JobAlertSubscriber[]
+  moderatedJobs Job[]                @relation("JobModerator")
+  auditEvents   AuditEvent[]         @relation("AuditActor")
 }
 
 model Account {
@@ -72,17 +74,29 @@ enum Role {
 }
 
 model Employer {
-  id          String   @id @default(cuid())
-  userId      String   @unique
-  companyName String
-  industry    String?
-  website     String?
-  logo        String?
-  verified    Boolean  @default(false)
-  createdAt   DateTime @default(now())
+  id                 String                     @id @default(cuid())
+  userId             String                     @unique
+  companyName        String
+  industry           String?
+  website            String?
+  logo               String?
+  verified           Boolean                    @default(false)
+  verificationStatus EmployerVerificationStatus @default(PENDING)
+  verificationNote   String?
+  verifiedAt         DateTime?
+  updatedAt          DateTime                   @updatedAt
+  createdAt          DateTime                   @default(now())
 
-  user User  @relation(fields: [userId], references: [id])
-  jobs Job[]
+  user        User         @relation(fields: [userId], references: [id])
+  jobs        Job[]
+  auditEvents AuditEvent[]
+}
+
+enum EmployerVerificationStatus {
+  PENDING
+  VERIFIED
+  REJECTED
+  SUSPENDED
 }
 
 model JobSeeker {
@@ -112,31 +126,64 @@ model Freelancer {
 }
 
 model Job {
-  id          String    @id @default(cuid())
-  slug        String    @unique
-  sourceId    String?
-  title       String
-  company     String
-  location    String
-  description String
-  category    String
-  type        JobType   @default(FULL_TIME)
-  salary      String?
-  deadline    DateTime?
-  sourceUrl   String?
-  source      String    @default("daraja")
-  language    String    @default("en")
-  featured    Boolean   @default(false)
-  active      Boolean   @default(true)
-  employerId  String?
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  id               String              @id @default(cuid())
+  slug             String              @unique
+  sourceId         String?
+  title            String
+  company          String
+  location         String
+  description      String
+  category         String
+  type             JobType             @default(FULL_TIME)
+  salary           String?
+  deadline         DateTime?
+  sourceUrl        String?
+  source           String              @default("daraja")
+  language         String              @default("en")
+  featured         Boolean             @default(false)
+  active           Boolean             @default(true)
+  employerId       String?
+  moderationStatus JobModerationStatus @default(PUBLISHED)
+  moderationNote   String?
+  submittedById    String?
+  moderatedById    String?
+  moderatedAt      DateTime?
+  createdAt        DateTime            @default(now())
+  updatedAt        DateTime            @updatedAt
 
   employer     Employer?     @relation(fields: [employerId], references: [id])
+  moderatedBy  User?         @relation("JobModerator", fields: [moderatedById], references: [id])
   applications Application[]
 
   @@unique([source, sourceId])
   @@index([source, active, deadline])
+  @@index([employerId, moderationStatus, updatedAt])
+}
+
+enum JobModerationStatus {
+  DRAFT
+  PENDING_REVIEW
+  PUBLISHED
+  REJECTED
+  ARCHIVED
+}
+
+model AuditEvent {
+  id          String   @id @default(cuid())
+  actorUserId String?
+  employerId  String?
+  action      String
+  entityType  String
+  entityId    String
+  metadata    Json?
+  createdAt   DateTime @default(now())
+
+  actor    User?     @relation("AuditActor", fields: [actorUserId], references: [id], onDelete: SetNull)
+  employer Employer? @relation(fields: [employerId], references: [id], onDelete: SetNull)
+
+  @@index([entityType, entityId, createdAt])
+  @@index([employerId, createdAt])
+  @@index([actorUserId, createdAt])
 }
 
 enum JobType {
@@ -204,7 +251,7 @@ model JobAlertSubscriber {
   id               String   @id @default(cuid())
   userId           String?  @unique
   email            String   @unique
-  unsubscribeToken String @unique @default(uuid())
+  unsubscribeToken String   @unique @default(uuid())
   categories       String[] @default([])
   locations        String[] @default([])
   experienceLevels String[] @default([])

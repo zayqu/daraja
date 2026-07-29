@@ -1,0 +1,12 @@
+.shell { width: min(1120px, calc(100% - 2rem)); margin: 0 auto; padding: 3rem 0 5rem; color: #1b2a3f; }
+.header { max-width: 720px; margin-bottom: 2rem; }
+.header h1 { font-size: clamp(2rem, 5vw, 3.25rem); line-height: 1.08; margin: .4rem 0 1rem; }
+.header p, .card p, .card li { line-height: 1.65; color: #526071; }
+.eyebrow { color: #087f6b !important; font-size: .78rem; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; }
+.grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; }
+.card { background: #fff; border: 1px solid #dfe5eb; border-radius: 12px; padding: 1.5rem; }
+.card h2 { font-size: 1.15rem; margin-bottom: .75rem; }
+.card ul { padding-left: 1.2rem; }
+.action { display: inline-flex; min-height: 44px; align-items: center; margin-top: 1rem; padding: .7rem 1rem; border-radius: 6px; background: #087f6b; color: #fff; font-weight: 700; text-decoration: none; }
+.action:focus-visible { outline: 3px solid #1b2a3f; outline-offset: 3px; }
+@media (max-width: 700px) { .shell { padding-top: 2rem; } .grid { grid-template-columns: 1fr; } }

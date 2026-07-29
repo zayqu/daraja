@@ -81,6 +81,19 @@ function renderHealthSummary(report) {
         .map((warning) => `- **${warning.source}:** ${warning.warning}`)
         .join("\n")}\n`
     : "";
+  const classificationRows = report.sources
+    .filter((source) => source.classification)
+    .map(
+      (source) =>
+        `| ${source.source} | ${source.classification.total} | ` +
+        `${source.classification.needsReview} |`
+    )
+    .join("\n");
+  const classifications = classificationRows
+    ? `\n### Classification quality\n\n` +
+      `| Source | Classified | Needs review |\n` +
+      `| --- | ---: | ---: |\n${classificationRows}\n`
+    : "";
 
   return `## ${icon} Daraja scraper health: ${report.status}
 
@@ -91,7 +104,7 @@ function renderHealthSummary(report) {
 | Source | Found | Created | Updated | Archived | Duration (ms) |
 | --- | ---: | ---: | ---: | ---: | ---: |
 ${rows}
-${warnings}${failures}`;
+${classifications}${warnings}${failures}`;
 }
 
 function writeHealthReport(report, {

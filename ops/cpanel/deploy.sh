@@ -41,7 +41,9 @@ rm -rf prisma
 cp -a "$WORK_DIR/extracted/prisma" prisma
 cp "$WORK_DIR/extracted/prisma.config.ts" prisma.config.ts
 cp "$WORK_DIR/extracted/next.config.mjs" next.config.mjs
-npm install --omit=dev --no-audit --no-fund
+# Prisma CLI is a development dependency, so it must remain available here.
+# cPanel cannot compile the app, but generation itself is lightweight and safe.
+npm install --include=dev --no-audit --no-fund
 npx prisma generate
 
 rm -rf .next.previous

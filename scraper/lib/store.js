@@ -24,6 +24,13 @@ async function archiveExpiredJobs(prisma, now = new Date()) {
   return result.count;
 }
 
+function getCandidateSources(source) {
+  if (source === "standardbank-tanzania") {
+    return { in: ["standardbank-tanzania", "ajiraweb"] };
+  }
+  return source;
+}
+
 async function saveJobs(prisma, jobs, source) {
   const now = new Date();
   let created = 0;
@@ -32,7 +39,7 @@ async function saveJobs(prisma, jobs, source) {
   for (const job of jobs) {
     const existing = await prisma.job.findFirst({
       where: {
-        source,
+        source: getCandidateSources(source),
         OR: [
           { sourceId: job.sourceId },
           {
@@ -91,4 +98,9 @@ async function saveJobs(prisma, jobs, source) {
   };
 }
 
-module.exports = { archiveExpiredJobs, createPrismaClient, saveJobs };
+module.exports = {
+  archiveExpiredJobs,
+  createPrismaClient,
+  getCandidateSources,
+  saveJobs,
+};

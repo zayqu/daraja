@@ -23,6 +23,7 @@ model User {
   accounts      Account[]
   sessions      Session[]
   jobAlerts     JobAlertSubscriber[]
+  savedJobs     SavedJob[]
   moderatedJobs Job[]                @relation("JobModerator")
   auditEvents   AuditEvent[]         @relation("AuditActor")
 }
@@ -100,15 +101,44 @@ enum EmployerVerificationStatus {
 }
 
 model JobSeeker {
-  id        String   @id @default(cuid())
-  userId    String   @unique
-  fullName  String
-  phone     String?
-  cvUrl     String?
-  createdAt DateTime @default(now())
+  id              String   @id @default(cuid())
+  userId          String   @unique
+  fullName        String
+  phone           String?
+  cvUrl           String?
+  headline        String?
+  location        String?
+  experienceLevel String?
+  workArrangement String?
+  portfolioUrl    String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
 
-  user         User          @relation(fields: [userId], references: [id])
+  user         User                @relation(fields: [userId], references: [id])
   applications Application[]
+  documents    CandidateDocument[]
+}
+
+model CandidateDocument {
+  id          String                @id @default(cuid())
+  jobSeekerId String
+  name        String
+  kind        CandidateDocumentKind
+  url         String
+  createdAt   DateTime              @default(now())
+  updatedAt   DateTime              @updatedAt
+
+  jobSeeker JobSeeker @relation(fields: [jobSeekerId], references: [id], onDelete: Cascade)
+
+  @@index([jobSeekerId, createdAt])
+}
+
+enum CandidateDocumentKind {
+  CV
+  COVER_LETTER
+  CERTIFICATE
+  PORTFOLIO
+  OTHER
 }
 
 model Freelancer {
@@ -154,6 +184,7 @@ model Job {
   employer     Employer?     @relation(fields: [employerId], references: [id])
   moderatedBy  User?         @relation("JobModerator", fields: [moderatedById], references: [id])
   applications Application[]
+  savedBy      SavedJob[]
 
   @@unique([source, sourceId])
   @@index([source, active, deadline])
@@ -195,22 +226,42 @@ enum JobType {
 }
 
 model Application {
-  id          String    @id @default(cuid())
-  jobId       String
-  jobSeekerId String
-  coverLetter String?
-  status      AppStatus @default(PENDING)
-  createdAt   DateTime  @default(now())
+  id             String    @id @default(cuid())
+  jobId          String
+  jobSeekerId    String
+  coverLetter    String?
+  applicationKey String?   @unique
+  status         AppStatus @default(PENDING)
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
 
   job       Job       @relation(fields: [jobId], references: [id])
   jobSeeker JobSeeker @relation(fields: [jobSeekerId], references: [id])
+
+  @@index([jobSeekerId, createdAt])
+  @@index([jobId, status])
+}
+
+model SavedJob {
+  id        String   @id @default(cuid())
+  userId    String
+  jobId     String
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  job  Job  @relation(fields: [jobId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, jobId])
+  @@index([userId, createdAt])
 }
 
 enum AppStatus {
   PENDING
   REVIEWED
   SHORTLISTED
+  OFFERED
   REJECTED
+  WITHDRAWN
 }
 
 model Subscription {

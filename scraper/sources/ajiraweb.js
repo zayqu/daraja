@@ -396,7 +396,7 @@ async function collectAjiraWebJobs({
   const jobs = await parseAjiraWebFeed(await response.text(), { fetchFn });
   console.log(`AjiraWeb discovery: ${jobs.length} verified official vacancies`);
   if (!jobs.length) {
-    throw new Error("AjiraWeb produced zero valid Tanzania vacancies; database was not changed.");
+    jobs.health.preserveExisting = true;
   }
   return jobs;
 }

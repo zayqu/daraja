@@ -15,11 +15,13 @@ const {
 const { collectAjiraJobs } = require("./sources/ajira");
 const { collectAjiraWebJobs } = require("./sources/ajiraweb");
 const { collectReliefWebJobs } = require("./sources/reliefweb");
+const { collectStandardBankJobs } = require("./sources/standardbank");
 
 const adapters = {
   ajira: collectAjiraJobs,
   ajiraweb: collectAjiraWebJobs,
   reliefweb: collectReliefWebJobs,
+  standardbank: collectStandardBankJobs,
 };
 
 function getRequestedSources(args) {

@@ -354,12 +354,12 @@
       "adapter": null
     },
     {
-      "id": "stanbic-bank-standard-bank-careers",
-      "name": "Stanbic Bank / Standard Bank Careers",
-      "url": "https://careers.standardbank.com/",
+      "id": "standardbank-tanzania",
+      "name": "Stanbic Bank Tanzania official careers",
+      "url": "https://jobs.smartrecruiters.com/StandardBankGroup",
       "category": "banks_and_financial_institutions",
-      "enabled": false,
-      "adapter": null
+      "enabled": true,
+      "adapter": "standardbank"
     },
     {
       "id": "citi-careers",

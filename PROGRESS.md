@@ -135,6 +135,20 @@ require accounts only for personalised or protected features.
 - The permanent production snapshot from 29 July 2026 at 06:11:39 UTC is the
   recorded rollback point for this reviewed additive migration.
 
+## In review: candidate career foundation
+
+- An authenticated candidate workspace provides profile metadata, HTTPS-only
+  document references, saved vacancies and application status tracking.
+- Saved jobs and applications are always scoped to the signed-in database user.
+- Daraja applications prevent duplicates and accept submissions only while a
+  vacancy is active and open.
+- Third-party vacancies preserve their direct official application destination
+  instead of collecting an application on Daraja.
+- Candidates may withdraw only their own pending or reviewed applications.
+- The release is disabled by default with `CANDIDATE_CAREER_ENABLED`.
+- The production snapshot from 29 July 2026 at 06:11:39 UTC is the recorded
+  rollback point for this additive migration.
+
 ## Definition-of-done evidence
 
 Every batch must record:

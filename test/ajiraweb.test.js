@@ -6,6 +6,7 @@ const {
   extractCompany,
   extractDeadline,
   extractOfficialUrl,
+  collectAjiraWebJobs,
   parseAjiraWebFeed,
 } = require("../scraper/sources/ajiraweb");
 
@@ -88,6 +89,18 @@ test("company-level career pages without a real job posting are rejected", async
   });
 
   assert.deepEqual(await parseAjiraWebFeed(xml, { fetchFn }), []);
+});
+
+test("an empty aggregator cycle is non-fatal and preserves existing records", async () => {
+  const jobs = await collectAjiraWebJobs({
+    fetchFn: async () => ({
+      ok: true,
+      text: async () => "<rss><channel></channel></rss>",
+    }),
+  });
+
+  assert.deepEqual(jobs, []);
+  assert.equal(jobs.health.preserveExisting, true);
 });
 
 test("email application articles are split into individual vacancies", () => {

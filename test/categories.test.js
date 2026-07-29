@@ -1,7 +1,13 @@
 const test = require("node:test");
 const assert = require("node:assert/strict");
 
-const { CATEGORIES, categorizeJob } = require("../scraper/lib/categories");
+const {
+  CATEGORIES,
+  acceptAssistedClassification,
+  categorizeJob,
+  classifyJob,
+  summarizeClassifications,
+} = require("../scraper/lib/categories");
 
 test("category catalogue contains unique user-facing categories", () => {
   assert.equal(new Set(CATEGORIES).size, CATEGORIES.length);
@@ -46,4 +52,57 @@ test("Ajira vacancies use the role category instead of one source-wide category"
   assert.equal(categorizeJob({ title: "MHASIBU DARAJA LA II", source: "ajira" }), "Accounting & Audit");
   assert.equal(categorizeJob({ title: "MUUGUZI DARAJA LA II", source: "ajira" }), "Health");
   assert.equal(categorizeJob({ title: "DEREVA DARAJA LA II", source: "ajira" }), "Logistics & Transport");
+});
+
+test("classification reports deterministic confidence and evidence", () => {
+  assert.deepEqual(classifyJob({ title: "Senior Graphic Designer" }), {
+    category: "Creative, Design & Media",
+    confidence: 0.98,
+    evidence: "title",
+  });
+  assert.deepEqual(classifyJob({ title: "Opportunity", company: "Example Bank" }), {
+    category: "Banking & Finance",
+    confidence: 0.72,
+    evidence: "context",
+  });
+});
+
+test("assisted classification cannot override a deterministic category", () => {
+  const deterministic = classifyJob({ title: "Software Engineer" });
+  assert.deepEqual(
+    acceptAssistedClassification(deterministic, {
+      category: "Banking & Finance",
+      confidence: 0.99,
+    }),
+    deterministic
+  );
+});
+
+test("assisted classification accepts only a controlled high-confidence fallback", () => {
+  const fallback = classifyJob({ title: "Specialist" });
+  assert.equal(
+    acceptAssistedClassification(fallback, {
+      category: "Creative, Design & Media",
+      confidence: 0.91,
+    }).category,
+    "Creative, Design & Media"
+  );
+  assert.deepEqual(
+    acceptAssistedClassification(fallback, {
+      category: "Made Up Category",
+      confidence: 1,
+    }),
+    fallback
+  );
+});
+
+test("classification summaries expose bounded review records", () => {
+  const summary = summarizeClassifications([
+    { sourceId: "1", title: "Software Engineer" },
+    { sourceId: "2", title: "Unrecognised Specialist" },
+  ]);
+  assert.equal(summary.total, 2);
+  assert.equal(summary.needsReview, 1);
+  assert.equal(summary.review[0].sourceId, "2");
+  assert.equal(summary.distribution.Technology, 1);
 });

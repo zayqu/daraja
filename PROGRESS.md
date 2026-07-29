@@ -104,6 +104,20 @@ require accounts only for personalised or protected features.
   the JSON evidence for 30 days, including failed runs.
 - This release is schema-free and does not change production access controls.
 
+## Phase 4 release: verified employer sources
+
+- The official Standard Bank Group SmartRecruiters API is the source of record
+  for Stanbic Bank Tanzania vacancies.
+- Only active postings whose official country code is Tanzania are imported.
+- Every imported vacancy keeps its complete official description and exact
+  `jobs.smartrecruiters.com` application destination.
+- Existing matching AjiraWeb records are promoted to the official source
+  identity instead of being duplicated.
+- A valid empty Tanzania feed is treated as healthy, while HTTP and malformed
+  API failures remain visible in scraper health reporting.
+- Live dry-run evidence on 29 July 2026 found six current Tanzania vacancies.
+- This release is schema-free and requires no production migration.
+
 ## Definition-of-done evidence
 
 Every batch must record:

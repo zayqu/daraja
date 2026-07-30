@@ -149,7 +149,7 @@ require accounts only for personalised or protected features.
 - The production snapshot from 29 July 2026 at 06:11:39 UTC is the recorded
   rollback point for this additive migration.
 
-## In review: controlled classification quality
+## Completed: controlled classification quality
 
 - Every source run reports its controlled category distribution and the number
   of low-confidence vacancies requiring review.
@@ -159,8 +159,23 @@ require accounts only for personalised or protected features.
   at least 90% confidence and cannot override a deterministic role match.
 - Review evidence is bounded and excludes job descriptions and credentials.
 - No external AI service is enabled or claimed by this schema-free foundation.
-- This branch is refreshed on the current cPanel deployment baseline and
-  requires no production database migration.
+- Pull request #48 merged into `master`; its complete cPanel release bundle
+  passed tests, ESLint, Prisma validation and the production build.
+- This schema-free release requires no production database migration.
+
+## In progress: AdSense and Core Web Vitals readiness
+
+- Google Consent Mode defaults analytics, advertising, user-data and
+  personalisation storage to denied until the visitor explicitly accepts.
+- Core Web Vitals are reported to the configured GA4 property only after
+  consent, using bounded metric identifiers and no candidate data.
+- AdSense remains disabled unless both the publisher ID and a complete numeric
+  slot ID are configured.
+- The single job-list placement is clearly labelled, separated from Apply
+  actions and reserves responsive space to reduce layout shift.
+- Google account approval and creation of the production ad slot remain
+  external gates; no advertisement is claimed live before those gates pass.
+- This batch is schema-free and does not require a production migration.
 
 ## Definition-of-done evidence
 

@@ -105,3 +105,26 @@ select {
     transition-duration: 0.01ms !important;
   }
 }
+
+.adsense-placement {
+  min-height: 280px;
+  margin: 1.5rem 0;
+  overflow: hidden;
+  text-align: center;
+  contain: layout paint;
+}
+
+.adsense-label {
+  display: block;
+  margin-bottom: 0.35rem;
+  color: #64748b;
+  font-size: 0.7rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+@media (max-width: 640px) {
+  .adsense-placement {
+    min-height: 250px;
+  }
+}

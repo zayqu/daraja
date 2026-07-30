@@ -93,6 +93,46 @@ test("AdSense publisher authorization is available at the standard path", async 
   );
 });
 
+test("advertising remains consent-gated and isolated from application actions", async () => {
+  const slot = await readFile(
+    path.join(__dirname, "..", "components", "AdSenseSlot.js"),
+    "utf8"
+  );
+  const jobs = await readFile(
+    path.join(__dirname, "..", "app", "jobs", "page.js"),
+    "utf8"
+  );
+
+  assert.match(slot, /consent !== "accepted"/);
+  assert.match(slot, /isValidAdSenseSlot/);
+  assert.match(slot, /className="adsense-placement"/);
+  assert.match(jobs, /Sponsored job-listing advertisement/);
+  assert.doesNotMatch(slot, /Apply/);
+});
+
+test("Google services use consent mode and privacy-gated Web Vitals", async () => {
+  const controls = await readFile(
+    path.join(__dirname, "..", "components", "PrivacyControls.js"),
+    "utf8"
+  );
+  const vitals = await readFile(
+    path.join(__dirname, "..", "components", "WebVitals.js"),
+    "utf8"
+  );
+
+  for (const permission of [
+    "ad_storage",
+    "analytics_storage",
+    "ad_user_data",
+    "ad_personalization",
+  ]) {
+    assert.match(controls, new RegExp(permission));
+  }
+  assert.match(controls, /'denied'/);
+  assert.match(vitals, /useReportWebVitals/);
+  assert.match(vitals, /CONSENT_STORAGE_KEY/);
+});
+
 test("company and legal information is linked from every page", async () => {
   const layout = await readFile(
     path.join(__dirname, "..", "app", "layout.js"),

@@ -42,14 +42,12 @@ export default function AdSenseSlot({ slot, label = "Advertisement" }) {
 
   return (
     <aside
+      className="adsense-placement"
       aria-label={label}
-      style={{
-        minHeight: "100px",
-        margin: "1.5rem 0",
-        overflow: "hidden",
-        textAlign: "center",
-      }}
     >
+      <span className="adsense-label" aria-hidden="true">
+        Advertisement
+      </span>
       <ins
         className="adsbygoogle"
         style={{ display: "block" }}

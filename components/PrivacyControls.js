@@ -47,6 +47,15 @@ export default function PrivacyControls({ analyticsId, adsenseClient }) {
 
   function saveConsent(value) {
     window.localStorage.setItem(CONSENT_STORAGE_KEY, value);
+    if (typeof window.gtag === "function") {
+      const permission = value === "accepted" ? "granted" : "denied";
+      window.gtag("consent", "update", {
+        ad_storage: permission,
+        analytics_storage: permission,
+        ad_user_data: permission,
+        ad_personalization: permission,
+      });
+    }
     setConsent(value);
     setIsOpen(false);
     window.dispatchEvent(new CustomEvent(CONSENT_EVENT, { detail: value }));
@@ -56,6 +65,21 @@ export default function PrivacyControls({ analyticsId, adsenseClient }) {
 
   return (
     <>
+      <Script id="google-consent-default" strategy="afterInteractive">
+        {`
+          window.dataLayer = window.dataLayer || [];
+          function gtag(){dataLayer.push(arguments);}
+          window.gtag = window.gtag || gtag;
+          gtag('consent', 'default', {
+            ad_storage: 'denied',
+            analytics_storage: 'denied',
+            ad_user_data: 'denied',
+            ad_personalization: 'denied',
+            wait_for_update: 500
+          });
+        `}
+      </Script>
+
       {consent === "accepted" && analyticsEnabled && (
         <>
           <Script
@@ -68,6 +92,12 @@ export default function PrivacyControls({ analyticsId, adsenseClient }) {
               window.dataLayer = window.dataLayer || [];
               function gtag(){dataLayer.push(arguments);}
               window.gtag = gtag;
+              gtag('consent', 'update', {
+                ad_storage: 'granted',
+                analytics_storage: 'granted',
+                ad_user_data: 'granted',
+                ad_personalization: 'granted'
+              });
               gtag('js', new Date());
               gtag('config', '${analyticsId}', { anonymize_ip: true });
             `}

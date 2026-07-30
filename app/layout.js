@@ -1,6 +1,7 @@
 import "./globals.css";
 import PrivacyControls from "@/components/PrivacyControls";
 import SiteFooterLinks from "@/components/SiteFooterLinks";
+import WebVitals from "@/components/WebVitals";
 
 export const metadata = {
   metadataBase: new URL("https://www.ajira.daraja.co.tz"),
@@ -42,6 +43,7 @@ export default function RootLayout({ children }) {
         </a>
         {children}
         <SiteFooterLinks />
+        <WebVitals analyticsId={analyticsId} />
         <PrivacyControls analyticsId={analyticsId} adsenseClient={adsenseClient} />
       </body>
     </html>

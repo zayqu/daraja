@@ -46,6 +46,6 @@ test("NMB official careers page produces named vacancies", () => {
   assert.equal(jobs.length, 1);
   assert.equal(jobs[0].title, "Client Analyst; Commercial - Origination");
   assert.equal(jobs[0].company, "NMB Bank Plc");
-  assert.equal(jobs[0].deadline, "07/08/2026");
+  assert.equal(jobs[0].deadline.toISOString(), "2026-08-07T23:59:59.000Z");
   assert.match(jobs[0].sourceUrl, /^https:\/\/careers\.nmbbank\.co\.tz\//);
 });

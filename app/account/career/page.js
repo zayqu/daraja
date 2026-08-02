@@ -4,6 +4,7 @@ import { candidateCareerEnabled, getCandidateUser } from "@/lib/candidate-access
 import styles from "./career.module.css";
 
 export const metadata = { title: "Career workspace | Daraja" };
+export const dynamic = "force-dynamic";
 
 export default async function CareerPage() {
   if (!candidateCareerEnabled()) notFound();

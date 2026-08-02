@@ -5,6 +5,7 @@ import EmployerProfileForm from "@/components/EmployerProfileForm";
 import styles from "../portal.module.css";
 
 export const metadata = { title: "Employer workspace | Daraja" };
+export const dynamic = "force-dynamic";
 
 export default async function EmployerPage() {
   if (!employerPortalEnabled()) notFound();

@@ -8,6 +8,7 @@ export const metadata = {
   description: "Submit a vacancy from an authenticated Daraja employer account.",
   robots: { index: false, follow: false },
 };
+export const dynamic = "force-dynamic";
 
 export default async function PostJobPage() {
   if (!employerPortalEnabled()) notFound();

@@ -1,6 +1,6 @@
 # Daraja Jobs production-readiness progress
 
-Last updated: 30 July 2026
+Last updated: 2 August 2026
 
 ## Current objective
 
@@ -212,6 +212,15 @@ require accounts only for personalised or protected features.
 - The batch is schema-free and does not delete or migrate production records.
 - Regression coverage exercises both legacy-source reconciliation and
   concurrent unique-identity recovery.
+
+## In review: runtime feature-flag activation
+
+- Employer, administrator, vacancy-submission and candidate workspaces are now
+  explicitly dynamic server routes, so disabled-at-build feature flags can be
+  enabled later without publishing a different frontend bundle.
+- Runtime activation preserves the existing authenticated user, employer
+  ownership and administrator role checks; public job browsing is unchanged.
+- This batch is schema-free and does not change any production feature flag.
 
 ## Definition-of-done evidence
 

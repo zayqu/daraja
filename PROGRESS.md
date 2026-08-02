@@ -187,7 +187,7 @@ require accounts only for personalised or protected features.
   hosting-operation gate; Google approval and a numeric ad slot remain external
   account gates.
 
-## In progress: final public-surface security and quality audit
+## Final release: public-surface security and quality audit
 
 - Public job discovery is read-only; vacancy creation is available only through
   the authenticated employer workspace.
@@ -196,6 +196,12 @@ require accounts only for personalised or protected features.
 - Production framework, database client and HTTP/WebSocket dependencies are
   updated to supported patched releases.
 - This batch is schema-free and requires no production migration.
+- Pull request #52 contains the focused release. Its recovered source tree was
+  verified byte-for-byte before publication.
+- All 98 tests, ESLint, Prisma validation and the production build passed on
+  2 August 2026; the runtime dependency audit reports zero vulnerabilities.
+- Merge and production deployment remain gated on required GitHub checks and a
+  post-deployment smoke test.
 
 ## Definition-of-done evidence
 

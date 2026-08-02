@@ -1,6 +1,7 @@
 require("dotenv").config();
 
 const catalog = require("./config/source-catalog.json");
+const bankCatalog = require("./config/bank-source-catalog.json");
 const { sendJobAlertDigests } = require("./lib/alerts");
 const {
   archiveExpiredJobs,
@@ -14,6 +15,7 @@ const {
 } = require("./lib/health");
 const { collectAjiraJobs } = require("./sources/ajira");
 const { collectAjiraWebJobs } = require("./sources/ajiraweb");
+const { collectNmbJobs } = require("./sources/nmb");
 const { collectReliefWebJobs } = require("./sources/reliefweb");
 const { collectStandardBankJobs } = require("./sources/standardbank");
 const { summarizeClassifications } = require("./lib/categories");
@@ -21,9 +23,18 @@ const { summarizeClassifications } = require("./lib/categories");
 const adapters = {
   ajira: collectAjiraJobs,
   ajiraweb: collectAjiraWebJobs,
+  nmb: collectNmbJobs,
   reliefweb: collectReliefWebJobs,
   standardbank: collectStandardBankJobs,
 };
+
+function getSourceCatalog() {
+  const sources = new Map();
+  for (const source of [...catalog.sources, ...bankCatalog.sources]) {
+    sources.set(source.id, source);
+  }
+  return [...sources.values()];
+}
 
 function getRequestedSources(args) {
   const requested = args
@@ -48,7 +59,7 @@ function assertRunHealth(summaries, failures) {
 
 async function runScrapers({ dryRun = false, requestedSources = new Set() } = {}) {
   const startedAt = new Date();
-  const enabledSources = catalog.sources.filter(
+  const enabledSources = getSourceCatalog().filter(
     (source) =>
       source.enabled &&
       source.adapter &&
@@ -112,7 +123,7 @@ async function runScrapers({ dryRun = false, requestedSources = new Set() } = {}
                 archived: 0,
                 preserved: true,
               }
-          : await saveJobs(prisma, jobs, source.id);
+            : await saveJobs(prisma, jobs, source.id);
         summaries.push({
           ...summary,
           ...sourceHealth,
@@ -187,4 +198,9 @@ if (require.main === module) {
   });
 }
 
-module.exports = { assertRunHealth, getRequestedSources, runScrapers };
+module.exports = {
+  assertRunHealth,
+  getRequestedSources,
+  getSourceCatalog,
+  runScrapers,
+};

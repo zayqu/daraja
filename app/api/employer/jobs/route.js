@@ -3,9 +3,11 @@ import prisma from "@/lib/prisma";
 import { randomUUID } from "node:crypto";
 import slugUtils from "@/lib/job-slug";
 import { employerPortalEnabled, getActor, safeAuditMetadata } from "@/lib/employer-access";
+import { JOB_CATEGORIES } from "@/lib/job-categories";
 
 const { createJobWithPositionSlug } = slugUtils;
 const clean = (value, max) => typeof value === "string" ? value.trim().slice(0, max) : "";
+const JOB_TYPES = new Set(["FULL_TIME", "PART_TIME", "CONTRACT", "INTERNSHIP", "FREELANCE"]);
 
 export async function GET() {
   if (!employerPortalEnabled()) return NextResponse.json({ error: "Not found" }, { status: 404 });
@@ -56,6 +58,9 @@ export async function POST(request) {
   };
   if (!data.title || !data.location || !data.description || !data.category) {
     return NextResponse.json({ error: "Title, location, category and description are required" }, { status: 400 });
+  }
+  if (!JOB_CATEGORIES.includes(data.category) || !JOB_TYPES.has(data.type)) {
+    return NextResponse.json({ error: "Choose a supported category and job type" }, { status: 400 });
   }
   const job = await createJobWithPositionSlug(prisma, data, randomUUID());
   await prisma.auditEvent.create({

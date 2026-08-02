@@ -9,4 +9,24 @@
 .card ul { padding-left: 1.2rem; }
 .action { display: inline-flex; min-height: 44px; align-items: center; margin-top: 1rem; padding: .7rem 1rem; border-radius: 6px; background: #087f6b; color: #fff; font-weight: 700; text-decoration: none; }
 .action:focus-visible { outline: 3px solid #1b2a3f; outline-offset: 3px; }
-@media (max-width: 700px) { .shell { padding-top: 2rem; } .grid { grid-template-columns: 1fr; } }
+.card:has(form) { grid-column: 1 / -1; }
+:global(.portal-form) { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; margin-top: 1.25rem; }
+:global(.portal-field) { display: flex; flex-direction: column; gap: .4rem; min-width: 0; }
+:global(.portal-field-wide), :global(.portal-message), :global(.portal-actions) { grid-column: 1 / -1; }
+:global(.portal-field label) { color: #344054; font-size: .85rem; font-weight: 700; }
+:global(.portal-field input), :global(.portal-field select), :global(.portal-field textarea) { width: 100%; min-height: 46px; border: 1px solid #cfd8e3; border-radius: 7px; background: #fff; color: #1b2a3f; padding: .7rem .8rem; }
+:global(.portal-field textarea) { min-height: 12rem; resize: vertical; line-height: 1.6; }
+:global(.portal-field input[readonly]) { background: #f2f4f7; color: #526071; }
+:global(.portal-field small) { color: #667085; line-height: 1.45; }
+:global(.portal-message) { border-radius: 7px; padding: .8rem 1rem; }
+:global(.portal-message.success) { background: #ecfdf3; color: #067647; }
+:global(.portal-message.error) { background: #fef3f2; color: #b42318; }
+:global(.portal-actions) { display: flex; flex-wrap: wrap; align-items: center; gap: 1rem; }
+:global(.portal-actions a) { color: #087f6b; font-weight: 700; }
+:global(.portal-submit) { min-height: 46px; border: 0; border-radius: 7px; background: #087f6b; color: #fff; cursor: pointer; padding: .75rem 1rem; font-weight: 700; }
+:global(.portal-submit:disabled) { cursor: wait; opacity: .55; }
+:global(.portal-submit:focus-visible), :global(.portal-field input:focus-visible), :global(.portal-field select:focus-visible), :global(.portal-field textarea:focus-visible) { outline: 3px solid #f59e0b; outline-offset: 2px; }
+@media (max-width: 700px) {
+  .shell { padding-top: 2rem; }
+  .grid, :global(.portal-form) { grid-template-columns: 1fr; }
+}

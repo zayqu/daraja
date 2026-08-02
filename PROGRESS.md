@@ -120,7 +120,7 @@ require accounts only for personalised or protected features.
 - Live dry-run evidence on 29 July 2026 found six current Tanzania vacancies.
 - This release is schema-free and requires no production migration.
 
-## In review: secure employer and admin foundation
+## Completed: secure employer and admin foundation
 
 - Employer and administrator workspaces are protected by authenticated,
   database-backed role checks and an explicit disabled-by-default feature flag.
@@ -132,10 +132,14 @@ require accounts only for personalised or protected features.
   audit events tied to the authenticated actor.
 - Existing public and imported vacancies remain published by the additive
   migration; no current job is deleted or hidden.
+- Pull request #42 deployed the reviewed migration. Anonymous vacancy creation
+  has since been removed: profile and vacancy submissions now require an
+  authenticated employer account, use the server-owned employer identity and
+  accept only controlled job categories and employment types.
 - The permanent production snapshot from 29 July 2026 at 06:11:39 UTC is the
   recorded rollback point for this reviewed additive migration.
 
-## In review: candidate career foundation
+## Completed: candidate career foundation
 
 - An authenticated candidate workspace provides profile metadata, HTTPS-only
   document references, saved vacancies and application status tracking.
@@ -146,6 +150,8 @@ require accounts only for personalised or protected features.
   instead of collecting an application on Daraja.
 - Candidates may withdraw only their own pending or reviewed applications.
 - The release is disabled by default with `CANDIDATE_CAREER_ENABLED`.
+- Pull request #43 deployed the reviewed candidate career migration and
+  protected workspace.
 - The production snapshot from 29 July 2026 at 06:11:39 UTC is the recorded
   rollback point for this additive migration.
 
@@ -163,7 +169,7 @@ require accounts only for personalised or protected features.
   passed tests, ESLint, Prisma validation and the production build.
 - This schema-free release requires no production database migration.
 
-## In progress: AdSense and Core Web Vitals readiness
+## Completed foundation: AdSense and Core Web Vitals readiness
 
 - Google Consent Mode defaults analytics, advertising, user-data and
   personalisation storage to denied until the visitor explicitly accepts.
@@ -176,6 +182,20 @@ require accounts only for personalised or protected features.
 - Google account approval and creation of the production ad slot remain
   external gates; no advertisement is claimed live before those gates pass.
 - This batch is schema-free and does not require a production migration.
+- Pull request #49 merged after 94 tests, ESLint, Prisma validation and the
+  production build passed. Activating its verified cPanel bundle remains a
+  hosting-operation gate; Google approval and a numeric ad slot remain external
+  account gates.
+
+## In progress: final public-surface security and quality audit
+
+- Public job discovery is read-only; vacancy creation is available only through
+  the authenticated employer workspace.
+- Employer profile and vacancy forms use accessible status feedback, controlled
+  values and server-owned organisation identity.
+- Production framework, database client and HTTP/WebSocket dependencies are
+  updated to supported patched releases.
+- This batch is schema-free and requires no production migration.
 
 ## Definition-of-done evidence
 

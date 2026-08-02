@@ -34,7 +34,7 @@ export default function JobDetailPage() {
   }, [id]);
 
   useEffect(() => {
-    if (id) fetchJob();
+    if (id) queueMicrotask(fetchJob);
   }, [id, fetchJob]);
 
   function formatDate(d) {

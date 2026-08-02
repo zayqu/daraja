@@ -28,18 +28,20 @@ export default function JobsPage() {
   const [initialized, setInitialized] = useState(false);
 
   useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const initialSearch = params.get("search") || "";
-    const initialCategory = params.get("category") || "";
-    const initialStatus = params.get("status") || "active";
-    const initialPage = Number.parseInt(params.get("page") || "1", 10);
+    queueMicrotask(() => {
+      const params = new URLSearchParams(window.location.search);
+      const initialSearch = params.get("search") || "";
+      const initialCategory = params.get("category") || "";
+      const initialStatus = params.get("status") || "active";
+      const initialPage = Number.parseInt(params.get("page") || "1", 10);
 
-    setSearch(initialSearch);
-    setSubmittedSearch(initialSearch);
-    setCategory(CATEGORIES.includes(initialCategory) ? initialCategory : "");
-    setStatus(["active", "expired", "all"].includes(initialStatus) ? initialStatus : "active");
-    setPage(Number.isFinite(initialPage) && initialPage > 0 ? initialPage : 1);
-    setInitialized(true);
+      setSearch(initialSearch);
+      setSubmittedSearch(initialSearch);
+      setCategory(CATEGORIES.includes(initialCategory) ? initialCategory : "");
+      setStatus(["active", "expired", "all"].includes(initialStatus) ? initialStatus : "active");
+      setPage(Number.isFinite(initialPage) && initialPage > 0 ? initialPage : 1);
+      setInitialized(true);
+    });
   }, []);
 
   const fetchJobs = useCallback(async function fetchJobs() {
@@ -70,7 +72,7 @@ export default function JobsPage() {
   useEffect(() => {
     if (!initialized) return;
 
-    fetchJobs();
+    queueMicrotask(fetchJobs);
 
     const params = new URLSearchParams();
     if (submittedSearch) params.set("search", submittedSearch);

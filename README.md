@@ -142,6 +142,34 @@ confirmation screen, plus standards-compliant one-click unsubscribe headers
 for supporting email clients. The
 WhatsApp CTA always links directly to the official Daraja WhatsApp Channel.
 
+### WhatsApp Business sandbox transport
+
+The repository includes a template-only WhatsApp Business Cloud API transport,
+but it is not connected to subscriber delivery and is disabled by default. It
+may be exercised only with an approved Meta sandbox template and the exact test
+recipient covered by recorded end-to-end evidence. Configure all of these
+values in a protected preview or sandbox environment. See Meta's official
+[Cloud API message reference](https://developers.facebook.com/documentation/business-messaging/whatsapp/reference/whatsapp-business-phone-number/message-api/)
+for the provider contract.
+
+- `WHATSAPP_BUSINESS_ENABLED=true`
+- `WHATSAPP_SANDBOX_VERIFIED=true`
+- `WHATSAPP_SANDBOX_EVIDENCE_ID`, an internal reference to the retained test
+  result
+- `WHATSAPP_SANDBOX_VERIFIED_AT`, the completed test time in ISO 8601 format
+- `WHATSAPP_GRAPH_API_VERSION`, matching the approved Meta Graph API version
+- `WHATSAPP_PHONE_NUMBER_ID`
+- `WHATSAPP_ACCESS_TOKEN`
+- `WHATSAPP_TEMPLATE_NAME`, using a Meta-approved lowercase template
+- `WHATSAPP_TEMPLATE_LANGUAGE`, such as `en_US`
+- `WHATSAPP_TEST_RECIPIENT`, the exact verified E.164 number without `+`
+
+Missing or invalid configuration prevents the HTTP request. The transport also
+refuses any recipient other than the configured test recipient, accepts only
+bounded text parameters for the approved template and sanitizes provider
+failures. Do not enable subscriber delivery until webhook status evidence and
+the production consent/opt-out workflow have been reviewed separately.
+
 ## Learn More
 
 To learn more about Next.js, take a look at the following resources:

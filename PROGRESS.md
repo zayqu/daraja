@@ -77,6 +77,24 @@ require accounts only for personalised or protected features.
   integration is configured and tested. No unverified channel is shown as an
   active alert option.
 
+## In review: WhatsApp Business sandbox guardrails
+
+- A template-only Meta WhatsApp Business Cloud API transport is implemented but
+  remains disconnected from subscriber delivery and disabled by default.
+- The transport requires the official access token, phone-number ID, explicit
+  Graph API version, approved template and exact allowlisted test recipient.
+- No request can be made until a bounded evidence ID and past verification
+  timestamp record an end-to-end sandbox result.
+- Arbitrary recipients, free-form message bodies, malformed template values and
+  unsanitized provider failures are rejected deterministically.
+- Tests use only a mock HTTP client, fake credentials and a reserved test number;
+  no real subscriber contact or WhatsApp recipient is used.
+- Official credentials, a verified Meta test recipient and retained end-to-end
+  sandbox plus webhook-status evidence remain external gates. No WhatsApp
+  publishing or alert delivery is claimed live.
+- This batch is schema-free, changes no production flag and leaves public job
+  browsing unchanged.
+
 ## Current professional experience release
 
 - Position-only public URLs are implemented by default, with an employer or

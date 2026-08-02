@@ -188,6 +188,72 @@ test("scraped jobs receive a slug once and updates never rewrite it", async () =
   assert.equal(Object.hasOwn(updates[0].data, "slug"), false);
 });
 
+test("NMB updates legacy source records using the canonical source identity", async () => {
+  const updates = [];
+  const prisma = {
+    job: {
+      findFirst: async ({ where }) => {
+        assert.deepEqual(where.source, {
+          in: ["nmb-bank-careers", "nmb-bank"],
+        });
+        return { id: "legacy-nmb-job" };
+      },
+      update: async (payload) => updates.push(payload),
+      updateMany: async () => ({ count: 0 }),
+    },
+  };
+  const job = {
+    source: "nmb-bank-careers",
+    sourceId: "nmb-credit-analyst",
+    title: "Credit Analyst",
+    company: "NMB Bank Plc",
+    deadline: new Date("2099-07-31T23:59:59.000Z"),
+    active: true,
+  };
+
+  const summary = await saveJobs(prisma, [job], "nmb-bank-careers");
+
+  assert.equal(summary.created, 0);
+  assert.equal(summary.updated, 1);
+  assert.equal(updates[0].where.id, "legacy-nmb-job");
+  assert.equal(updates[0].data.source, "nmb-bank-careers");
+});
+
+test("concurrent scraper identity inserts are recovered as idempotent updates", async () => {
+  let identityLookups = 0;
+  const updates = [];
+  const duplicate = new Error("Unique source identity");
+  duplicate.code = "P2002";
+  const prisma = {
+    job: {
+      findFirst: async ({ where }) => {
+        if (where.slug) return null;
+        identityLookups += 1;
+        return identityLookups === 1 ? null : { id: "concurrent-job" };
+      },
+      create: async () => {
+        throw duplicate;
+      },
+      update: async (payload) => updates.push(payload),
+      updateMany: async () => ({ count: 0 }),
+    },
+  };
+  const job = {
+    source: "nmb-bank-careers",
+    sourceId: "nmb-credit-analyst",
+    title: "Credit Analyst",
+    company: "NMB Bank Plc",
+    deadline: new Date("2099-07-31T23:59:59.000Z"),
+    active: true,
+  };
+
+  const summary = await saveJobs(prisma, [job], "nmb-bank-careers");
+
+  assert.equal(summary.created, 0);
+  assert.equal(summary.updated, 1);
+  assert.equal(updates[0].where.id, "concurrent-job");
+});
+
 test("slug normalization updates rows without creating duplicates", async () => {
   const rows = [
     {

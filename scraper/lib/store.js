@@ -28,7 +28,27 @@ function getCandidateSources(source) {
   if (source === "standardbank-tanzania") {
     return { in: ["standardbank-tanzania", "ajiraweb"] };
   }
+  if (source === "nmb-bank-careers") {
+    return { in: ["nmb-bank-careers", "nmb-bank"] };
+  }
   return source;
+}
+
+async function findExistingJob(prisma, job, source) {
+  return prisma.job.findFirst({
+    where: {
+      source: getCandidateSources(source),
+      OR: [
+        { sourceId: job.sourceId },
+        {
+          title: job.title,
+          company: job.company,
+          deadline: job.deadline,
+        },
+      ],
+    },
+    select: { id: true },
+  });
 }
 
 async function saveJobs(prisma, jobs, source) {
@@ -37,20 +57,7 @@ async function saveJobs(prisma, jobs, source) {
   let updated = 0;
 
   for (const job of jobs) {
-    const existing = await prisma.job.findFirst({
-      where: {
-        source: getCandidateSources(source),
-        OR: [
-          { sourceId: job.sourceId },
-          {
-            title: job.title,
-            company: job.company,
-            deadline: job.deadline,
-          },
-        ],
-      },
-      select: { id: true },
-    });
+    const existing = await findExistingJob(prisma, job, source);
 
     if (existing) {
       await prisma.job.update({
@@ -60,12 +67,27 @@ async function saveJobs(prisma, jobs, source) {
       });
       updated += 1;
     } else {
-      await createJobWithPositionSlug(
-        prisma,
-        job,
-        `${source}:${job.sourceId}`
-      );
-      created += 1;
+      try {
+        await createJobWithPositionSlug(
+          prisma,
+          job,
+          `${source}:${job.sourceId}`
+        );
+        created += 1;
+      } catch (error) {
+        if (error?.code !== "P2002") throw error;
+
+        // Another writer may have reserved the source identity after the
+        // initial lookup. Re-read it and apply this cycle's canonical data.
+        const concurrent = await findExistingJob(prisma, job, source);
+        if (!concurrent) throw error;
+        await prisma.job.update({
+          where: { id: concurrent.id },
+          data: job,
+          select: { id: true },
+        });
+        updated += 1;
+      }
     }
   }
 
@@ -102,6 +124,7 @@ async function saveJobs(prisma, jobs, source) {
 module.exports = {
   archiveExpiredJobs,
   createPrismaClient,
+  findExistingJob,
   getCandidateSources,
   saveJobs,
 };

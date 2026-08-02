@@ -96,7 +96,9 @@ require accounts only for personalised or protected features.
   browsing unchanged.
 - Draft pull request #57 contains the focused batch. Its 108 tests, ESLint,
   Prisma validation, production build and runtime dependency audit passed on
-  2 August 2026; required GitHub checks remain pending.
+  2 August 2026. Vercel and cPanel release workflow run #30 passed for reviewed
+  commit `380670a`; the preview is protected by Vercel SSO and redirects
+  unauthenticated route smoke checks to sign-in.
 
 ## Current professional experience release
 

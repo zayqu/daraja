@@ -56,6 +56,7 @@ async function saveJobs(prisma, jobs, source) {
       await prisma.job.update({
         where: { id: existing.id },
         data: job,
+        select: { id: true },
       });
       updated += 1;
     } else {

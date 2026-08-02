@@ -1,6 +1,6 @@
 # Daraja Jobs production-readiness progress
 
-Last updated: 30 July 2026
+Last updated: 2 August 2026
 
 ## Current objective
 
@@ -196,12 +196,34 @@ require accounts only for personalised or protected features.
 - Production framework, database client and HTTP/WebSocket dependencies are
   updated to supported patched releases.
 - This batch is schema-free and requires no production migration.
-- Pull request #52 contains the focused release. Its recovered source tree was
+- Pull request #52 merged the focused release. Its recovered source tree was
   verified byte-for-byte before publication.
 - All 98 tests, ESLint, Prisma validation and the production build passed on
   2 August 2026; the runtime dependency audit reports zero vulnerabilities.
-- Merge and production deployment remain gated on required GitHub checks and a
-  post-deployment smoke test.
+- Its first cPanel activation exposed a mixed-build deployment race, so the
+  frontend was rolled back to the previous healthy build while the release
+  process is hardened. Public browsing is healthy on the rollback build.
+
+## Current release: atomic cPanel deployment and rollback
+
+- The protected additive milestone migration completed successfully in
+  workflow run #2 on 2 August 2026; no destructive migration was used.
+- Job scraper run #90 then completed successfully against the updated schema:
+  Ajira found 141 vacancies, AjiraWeb found two and the Standard Bank adapter
+  updated three, with no source failures.
+- The cPanel deploy script now handles CloudLinux virtual-environment activation
+  safely and restarts the exact registered Node.js application explicitly.
+- Each release records its commit inside the installed build and verifies the
+  exact public Next.js build manifest plus the job list before recording
+  deployment success.
+- Health checks retry bounded HTTP and connection failures. A failed check
+  automatically restores the previous build, public assets and startup file,
+  restarts the application and preserves the failed build for diagnosis.
+- The batch remains schema-free and never runs Prisma migrations or database
+  pushes.
+- The next production activation remains blocked until the credentials exposed
+  during hosting diagnosis have been rotated. Repository validation and preview
+  checks may continue without using those credentials.
 
 ## Definition-of-done evidence
 

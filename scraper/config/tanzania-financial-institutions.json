@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "source": "user-provided Bank of Tanzania institution list",
+  "institutions": [
+    { "id": "bank-of-baroda-tanzania", "name": "Bank of Baroda Tanzania", "url": "https://www.bankofbaroda.co.tz" },
+    { "id": "canara-bank-tanzania", "name": "Canara Bank Tanzania", "url": "https://www.canarabank.co.tz" },
+    { "id": "china-dasheng-bank", "name": "China Dasheng Bank", "url": "https://www.dashengbank.co.tz" },
+    { "id": "gtbank-tanzania", "name": "Guaranty Trust Bank Tanzania", "url": "https://www.gtbank.co.tz" },
+    { "id": "habib-african-bank", "name": "Habib African Bank", "url": "https://www.habibafricanbank.com" },
+    { "id": "icbc-standard-bank-tanzania", "name": "ICBC Standard Bank Tanzania", "url": "https://www.icbcstandardbank.com" },
+    { "id": "uchumi-commercial-bank", "name": "Uchumi Commercial Bank", "url": "https://www.uchumibank.co.tz" },
+    { "id": "mucoba-bank", "name": "MUCOBA Bank", "url": "https://www.mucobabank.co.tz" },
+    { "id": "tandahimba-community-bank", "name": "Tandahimba Community Bank", "url": "https://www.tacoba.co.tz" },
+    { "id": "mbinga-community-bank", "name": "Mbinga Community Bank", "url": "https://www.mbcbank.co.tz" },
+    { "id": "njombe-community-bank", "name": "Njombe Community Bank", "url": "https://www.njombecb.co.tz" },
+    { "id": "tanzania-agricultural-development-bank", "name": "Tanzania Agricultural Development Bank", "url": "https://www.tadb.co.tz" },
+    { "id": "tanzania-investment-bank", "name": "Tanzania Investment Bank", "url": "https://www.tib.co.tz" },
+    { "id": "tanzania-mortgage-refinance-company", "name": "Tanzania Mortgage Refinance Company", "url": "https://www.tmrc.co.tz" },
+    { "id": "selcom-microfinance-bank", "name": "Selcom Microfinance Bank", "url": "https://www.selcompesa.co.tz" },
+    { "id": "lolc-tanzania-microfinance-bank", "name": "LOLC Tanzania Microfinance Bank", "url": "https://www.lolc.co.tz" },
+    { "id": "radiance-microfinance-bank", "name": "Radiance Microfinance Bank", "url": "https://www.rmfb.co.tz" },
+    { "id": "pride-tanzania", "name": "PRIDE Tanzania", "url": "https://www.pride.or.tz" },
+    { "id": "asa-tanzania", "name": "ASA Tanzania", "url": "https://www.asa.or.tz" },
+    { "id": "efc-tanzania", "name": "EFC Tanzania", "url": "https://www.efc.co.tz" },
+    { "id": "platinum-credit-tanzania", "name": "Platinum Credit Tanzania", "url": "https://www.platinumcredit.co.tz" }
+  ]
+}

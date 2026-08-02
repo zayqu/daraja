@@ -18,7 +18,19 @@ const { collectAjiraWebJobs } = require("./sources/ajiraweb");
 const { collectNmbJobs } = require("./sources/nmb");
 const { collectReliefWebJobs } = require("./sources/reliefweb");
 const { collectStandardBankJobs } = require("./sources/standardbank");
+const {
+  collectTanzaniaFinancialInstitutionJobs,
+} = require("./sources/tanzania-financial-institutions");
 const { summarizeClassifications } = require("./lib/categories");
+
+const FINANCIAL_INSTITUTIONS_SOURCE = {
+  id: "tanzania-financial-institutions",
+  name: "Tanzania financial institution official careers",
+  url: "https://www.bot.go.tz/",
+  category: "banks_and_financial_institutions",
+  enabled: true,
+  adapter: "tanzaniaFinancialInstitutions",
+};
 
 const adapters = {
   ajira: collectAjiraJobs,
@@ -26,11 +38,16 @@ const adapters = {
   nmb: collectNmbJobs,
   reliefweb: collectReliefWebJobs,
   standardbank: collectStandardBankJobs,
+  tanzaniaFinancialInstitutions: collectTanzaniaFinancialInstitutionJobs,
 };
 
 function getSourceCatalog() {
   const sources = new Map();
-  for (const source of [...catalog.sources, ...bankCatalog.sources]) {
+  for (const source of [
+    ...catalog.sources,
+    ...bankCatalog.sources,
+    FINANCIAL_INSTITUTIONS_SOURCE,
+  ]) {
     sources.set(source.id, source);
   }
   return [...sources.values()];
@@ -136,6 +153,13 @@ async function runScrapers({ dryRun = false, requestedSources = new Set() } = {}
             warning:
               `${sourceHealth.unresolved} of ${sourceHealth.discovered} ` +
               "discovered official vacancy links could not be resolved",
+          });
+        }
+        if (sourceHealth.failedInstitutions) {
+          warnings.push({
+            source: source.id,
+            warning:
+              `${sourceHealth.failedInstitutions} official institution site(s) could not be checked`,
           });
         }
         if (sourceHealth.preserveExisting && jobs.length === 0) {

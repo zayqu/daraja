@@ -65,10 +65,16 @@ function formatDeadline(value) {
   return match ? `${match[3]}/${match[2]}/${match[1]}` : value;
 }
 
+function isGenericVacancyTitle(value) {
+  return /^(?:email|physical|postal|online|manual|website|portal|walk[ -]?in)\s+application(?:\s+method)?$|^(?:how to apply|application method|apply now)$/i.test(
+    String(value || "").trim()
+  );
+}
+
 function mapAjiraVacancy(vacancy) {
   const id = String(vacancy?.id || "").trim();
-  const title = vacancy?.scheme?.codeNo;
-  if (!id || !title) return null;
+  const title = String(vacancy?.scheme?.codeNo || "").trim();
+  if (!id || !title || isGenericVacancyTitle(title)) return null;
 
   return {
     sourceId: id,
@@ -124,7 +130,10 @@ async function fetchAjiraVacancies({
 async function collectAjiraJobs(options = {}) {
   const vacancies = await fetchAjiraVacancies(options);
   const rawJobs = vacancies.map(mapAjiraVacancy).filter(Boolean);
-  console.log(`Ajira API: ${vacancies.length} vacancies`);
+  const rejectedGenericTitles = vacancies.length - rawJobs.length;
+  console.log(
+    `Ajira API: ${vacancies.length} vacancies; ${rejectedGenericTitles} invalid or generic titles skipped`
+  );
 
   const jobs = deduplicateJobs(rawJobs, {
     source: AJIRA_SOURCE,
@@ -139,6 +148,10 @@ async function collectAjiraJobs(options = {}) {
       "Ajira API produced zero valid vacancies; database was not changed."
     );
   }
+  Object.defineProperty(jobs, "health", {
+    enumerable: false,
+    value: { rejectedGenericTitles },
+  });
   return jobs;
 }
 
@@ -185,6 +198,7 @@ module.exports = {
   encryptAjiraId,
   fetchAjiraVacancies,
   getAjiraDetailUrl,
+  isGenericVacancyTitle,
   mapAjiraVacancy,
   saveJobs,
   scrapeAjira,

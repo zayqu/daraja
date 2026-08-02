@@ -94,6 +94,9 @@ require accounts only for personalised or protected features.
   publishing or alert delivery is claimed live.
 - This batch is schema-free, changes no production flag and leaves public job
   browsing unchanged.
+- Draft pull request #57 contains the focused batch. Its 108 tests, ESLint,
+  Prisma validation, production build and runtime dependency audit passed on
+  2 August 2026; required GitHub checks remain pending.
 
 ## Current professional experience release
 

@@ -1,6 +1,6 @@
 # Daraja Jobs production-readiness progress
 
-Last updated: 30 July 2026
+Last updated: 2 August 2026
 
 ## Current objective
 
@@ -154,6 +154,23 @@ require accounts only for personalised or protected features.
   protected workspace.
 - The production snapshot from 29 July 2026 at 06:11:39 UTC is the recorded
   rollback point for this additive migration.
+
+## In review: entitlements and sandbox billing foundation
+
+- Deterministic free, employer and candidate plan limits use a safe free-plan
+  fallback and reject role-incompatible paid plans.
+- Authenticated users can inspect their effective plan and their own invoices;
+  invoice responses never expose provider or idempotency identifiers.
+- New invoice and usage ledgers use integer minor units, bounded indexes and
+  user-scoped foreign keys. Historical floating-point payments remain available
+  only as legacy records and are labelled as such.
+- Checkout is disabled unless billing, sandbox mode and the internal test
+  provider are all explicitly enabled. It hashes idempotency keys, handles
+  duplicate requests and cannot select a live payment environment. Sandbox
+  invoice amounts are test fixtures, not approved production prices.
+- The additive migration aborts before creating foreign keys if it detects
+  orphan legacy subscription or payment rows. It is not approved for production
+  until a new Neon restore point has been recorded specifically for it.
 
 ## Completed: controlled classification quality
 

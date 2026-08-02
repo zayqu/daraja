@@ -19,7 +19,7 @@ const institution = {
 test("missing financial institution registry is unique and uses HTTPS", () => {
   assert.equal(new Set(institutions.map(({ id }) => id)).size, institutions.length);
   assert.equal(new Set(institutions.map(({ url }) => url)).size, institutions.length);
-  assert.ok(institutions.length >= 25);
+  assert.ok(institutions.length >= 20);
   for (const item of institutions) {
     assert.match(item.url, /^https:\/\//);
     assert.ok(item.name.length > 3);

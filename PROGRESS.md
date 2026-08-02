@@ -203,6 +203,16 @@ require accounts only for personalised or protected features.
 - Merge and production deployment remain gated on required GitHub checks and a
   post-deployment smoke test.
 
+## Current batch: idempotent NMB source identity
+
+- NMB records use the canonical `nmb-bank-careers` source identity while still
+  discovering and upgrading records created under the legacy `nmb-bank` alias.
+- A concurrent source-identity insert is recovered as an idempotent update
+  after the initial lookup, without weakening database uniqueness.
+- The batch is schema-free and does not delete or migrate production records.
+- Regression coverage exercises both legacy-source reconciliation and
+  concurrent unique-identity recovery.
+
 ## Definition-of-done evidence
 
 Every batch must record:

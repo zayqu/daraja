@@ -1,0 +1,1 @@
+The `tanzania-financial-institutions.json` registry contains only institutions that were not already represented by Daraja's existing official bank source catalog when the registry was added. Dedicated adapters remain authoritative for institutions such as NMB Bank and Stanbic Bank Tanzania.

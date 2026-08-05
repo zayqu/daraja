@@ -24,6 +24,7 @@ function isGenericJobTitle(value) {
 }
 
 async function archiveGenericJobTitles(prisma) {
+  if (typeof prisma?.job?.findMany !== "function") return 0;
   const activeJobs = await prisma.job.findMany({
     where: { active: true },
     select: { id: true, title: true },

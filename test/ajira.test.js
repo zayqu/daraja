@@ -29,35 +29,24 @@ test("Ajira detail URL contains the encrypted official vacancy ID", () => {
   );
 });
 
-test("collectAjiraJobs maps the public API response into a valid job", async () => {
-  const fetchFn = async () => ({
-    ok: true,
-    json: async () => ({
-      data: {
-        getVacancies: [
-          {
-            id: 13755,
-            noOfPost: 4,
-            closeDate: "2027-08-06T00:00",
-            scheme: {
-              codeNo: "ARTISAN II (MINERAL LABORATORY)",
-              emp: { name: "Geological Survey of Tanzania" },
-            },
-          },
-        ],
+test("collectAjiraJobs maps the rendered Advert Name into a valid job", async () => {
+  const sourceUrl = getAjiraDetailUrl(13755);
+  const jobs = await collectAjiraJobs({
+    rows: [
+      {
+        title: "ARTISAN II (MINERAL LABORATORY)",
+        company: "Geological Survey of Tanzania",
+        deadline: "06/08/2027",
+        numberOfPosts: "4 Posts",
+        sourceUrl,
       },
-    }),
+    ],
   });
 
-  const jobs = await collectAjiraJobs({ fetchFn, signal: undefined });
-
   assert.equal(jobs.length, 1);
-  assert.equal(jobs[0].sourceId, "13755");
+  assert.match(jobs[0].sourceId, /^advert-/);
   assert.equal(jobs[0].title, "ARTISAN II (MINERAL LABORATORY)");
   assert.equal(jobs[0].company, "Geological Survey of Tanzania");
   assert.equal(jobs[0].deadline.toISOString(), "2027-08-06T23:59:59.000Z");
-  assert.match(
-    jobs[0].sourceUrl,
-    /^https:\/\/portal\.ajira\.go\.tz\/view-advert\//
-  );
+  assert.equal(jobs[0].sourceUrl, sourceUrl);
 });

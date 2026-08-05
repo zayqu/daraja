@@ -19,7 +19,11 @@ function isGenericJobTitle(value) {
     !title ||
     title.length < 4 ||
     /^(?:email|physical|postal|online|manual|website|portal|walk[ -]?in)\s+application(?:\s+method)?$/i.test(title) ||
-    /^(?:how to apply|application method|apply now|view|view details|details|vacancies?|jobs?)$/i.test(title)
+    /^(?:how to apply|application method|apply now|view|view details|details|vacancies?|jobs?|home|read more|reset|swahili|english)$/i.test(title) ||
+    /^(?:vacancies?|jobs?)\s+(?:and|&)\s+(?:tenders?|opportunities)$/i.test(title) ||
+    /^(?:working at|why join)\b/i.test(title) ||
+    /^(?:careers?|vacancies?|jobs?)\s+(?:overview|page|portal)$/i.test(title) ||
+    /(?:bank|microfinance bank|commercial bank|community bank|finance ltd|financial institution)$/i.test(title)
   );
 }
 

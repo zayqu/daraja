@@ -51,7 +51,7 @@ test("Ajira rendered Advert Name becomes the published job title", () => {
   assert.equal(job.company, "Survival Hospital");
   assert.equal(job.deadline, "31/08/2026");
   assert.equal(job.numberOfPosts, "2 Posts");
-  assert.match(job.sourceId, /^advert-/);
+  assert.equal(job.sourceId, "13243");
 });
 
 test("NMB official careers page produces named vacancies", () => {

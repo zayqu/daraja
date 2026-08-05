@@ -17,7 +17,7 @@ test("rendered Ajira URLs preserve the original numeric vacancy identity", () =>
   assert.ok(encrypted.length > 10);
 });
 
-test("generic application labels are detected without rejecting real roles", () => {
+test("generic application and bank navigation labels are detected", () => {
   for (const value of [
     "Email Application",
     "Physical Application",
@@ -25,10 +25,18 @@ test("generic application labels are detected without rejecting real roles", () 
     "Application Method",
     "Apply Now",
     "View Details",
+    "Home",
+    "Swahili",
+    "Vacancies and Tenders",
+    "Working at GTBank",
+    "Why Join GTBank?",
+    "Careers Overview",
+    "LOLC Tanzania Microfinance Bank",
   ]) {
-    assert.equal(isGenericJobTitle(value), true);
+    assert.equal(isGenericJobTitle(value), true, value);
   }
   assert.equal(isGenericJobTitle("Human Resources Officer"), false);
+  assert.equal(isGenericJobTitle("Specialist; Risk MI & Analytics"), false);
 });
 
 test("generic legacy records are archived reversibly", async () => {
@@ -38,7 +46,8 @@ test("generic legacy records are archived reversibly", async () => {
       findMany: async () => [
         { id: "bad-1", title: "Email Application" },
         { id: "good-1", title: "Accountant" },
-        { id: "bad-2", title: "Physical Application" },
+        { id: "bad-2", title: "Vacancies and Tenders" },
+        { id: "bad-3", title: "LOLC Tanzania Microfinance Bank" },
       ],
       updateMany: async (args) => {
         updates.push(args);
@@ -48,7 +57,7 @@ test("generic legacy records are archived reversibly", async () => {
   };
 
   const count = await archiveGenericJobTitles(prisma);
-  assert.equal(count, 2);
-  assert.deepEqual(updates[0].where.id.in, ["bad-1", "bad-2"]);
+  assert.equal(count, 3);
+  assert.deepEqual(updates[0].where.id.in, ["bad-1", "bad-2", "bad-3"]);
   assert.deepEqual(updates[0].data, { active: false });
 });

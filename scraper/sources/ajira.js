@@ -1,4 +1,5 @@
 const crypto = require("node:crypto");
+const CryptoJS = require("crypto-js");
 const { chromium } = require("playwright");
 require("dotenv").config();
 
@@ -9,8 +10,30 @@ const {
 } = require("../lib/jobs");
 const { createPrismaClient, saveJobs } = require("../lib/store");
 
+const AJIRA_DETAIL_URL = "https://portal.ajira.go.tz/view-advert";
+const AJIRA_ENCRYPTION_KEY = "*n%^+-$#@$$^@1ERFWFW";
 const REQUEST_TIMEOUT_MS = 60000;
 const MAX_PAGES = 100;
+
+function encryptAjiraId(id) {
+  const value = String(id || "").trim();
+  if (!/^\d+$/.test(value)) {
+    throw new Error(`Invalid Ajira vacancy ID: ${value || "(empty)"}`);
+  }
+  const key = CryptoJS.enc.Utf8.parse(AJIRA_ENCRYPTION_KEY);
+  return CryptoJS.AES.encrypt(CryptoJS.enc.Utf8.parse(value), key, {
+    keySize: 128 / 32,
+    iv: key,
+    mode: CryptoJS.mode.CBC,
+    padding: CryptoJS.pad.Pkcs7,
+  })
+    .toString()
+    .replace(/\//g, "juam");
+}
+
+function getAjiraDetailUrl(id) {
+  return `${AJIRA_DETAIL_URL}/${encryptAjiraId(id)}`;
+}
 
 function formatDeadline(value) {
   const text = String(value || "").trim();
@@ -63,10 +86,8 @@ function mapRenderedVacancy(row) {
   };
 }
 
-// Retained for compatibility with existing tests and callers. The API field
-// scheme.codeNo is accepted only when it is a real role title; production
-// collection now uses the rendered Advert Name column instead.
 function mapAjiraVacancy(vacancy) {
+  const id = String(vacancy?.id || "").trim();
   return mapRenderedVacancy({
     title:
       vacancy?.advertName ||
@@ -79,7 +100,7 @@ function mapAjiraVacancy(vacancy) {
     numberOfPosts: vacancy?.noOfPost
       ? `Number of Posts: ${vacancy.noOfPost}`
       : "",
-    sourceUrl: vacancy?.sourceUrl || AJIRA_VACANCIES_URL,
+    sourceUrl: /^\d+$/.test(id) ? getAjiraDetailUrl(id) : AJIRA_VACANCIES_URL,
   });
 }
 
@@ -89,7 +110,6 @@ async function extractRenderedRows(page) {
       .map((row) => {
         const cells = row.querySelectorAll("td");
         if (cells.length < 4) return null;
-
         const titleCell = cells[1];
         const title =
           titleCell.querySelector("div > div:first-child")?.textContent ||
@@ -104,7 +124,6 @@ async function extractRenderedRows(page) {
         const deadline =
           cells[3].querySelector("span")?.textContent || cells[3].textContent;
         const link = row.querySelector('a[href*="view-advert"]')?.href || "";
-
         return {
           title: title?.trim(),
           company: employer?.trim(),
@@ -117,10 +136,11 @@ async function extractRenderedRows(page) {
   );
 }
 
-async function collectAjiraJobs({ launch = chromium.launch } = {}) {
+async function fetchRenderedRows({
+  launch = (options) => chromium.launch(options),
+} = {}) {
   const browser = await launch({ headless: true });
   const rows = [];
-
   try {
     const page = await browser.newPage({
       userAgent: "DarajaJobsBot/1.0 (+https://www.ajira.daraja.co.tz)",
@@ -152,7 +172,11 @@ async function collectAjiraJobs({ launch = chromium.launch } = {}) {
   } finally {
     await browser.close();
   }
+  return rows;
+}
 
+async function collectAjiraJobs(options = {}) {
+  const rows = options.rows || (await fetchRenderedRows(options));
   const mapped = rows.map(mapRenderedVacancy).filter(Boolean);
   const rejectedGenericTitles = rows.length - mapped.length;
   const jobs = deduplicateJobs(mapped, {
@@ -182,7 +206,6 @@ async function collectAjiraJobs({ launch = chromium.launch } = {}) {
 async function scrapeAjira({ dryRun = false } = {}) {
   console.log(`Starting Ajira scraper${dryRun ? " (dry run)" : ""}...`);
   const jobs = await collectAjiraJobs();
-
   if (dryRun) {
     const summary = {
       found: jobs.length,
@@ -217,8 +240,11 @@ if (require.main === module) {
 
 module.exports = {
   collectAjiraJobs,
+  encryptAjiraId,
   extractRenderedRows,
+  fetchRenderedRows,
   formatDeadline,
+  getAjiraDetailUrl,
   isGenericVacancyTitle,
   mapAjiraVacancy,
   mapRenderedVacancy,

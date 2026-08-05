@@ -13,6 +13,33 @@ function createPrismaClient() {
   return new PrismaClient({ adapter });
 }
 
+function isGenericJobTitle(value) {
+  const title = String(value || "").replace(/\s+/g, " ").trim();
+  return (
+    !title ||
+    title.length < 4 ||
+    /^(?:email|physical|postal|online|manual|website|portal|walk[ -]?in)\s+application(?:\s+method)?$/i.test(title) ||
+    /^(?:how to apply|application method|apply now|view|view details|details|vacancies?|jobs?)$/i.test(title)
+  );
+}
+
+async function archiveGenericJobTitles(prisma) {
+  const activeJobs = await prisma.job.findMany({
+    where: { active: true },
+    select: { id: true, title: true },
+  });
+  const invalidIds = activeJobs
+    .filter((job) => isGenericJobTitle(job.title))
+    .map((job) => job.id);
+
+  if (!invalidIds.length) return 0;
+  const result = await prisma.job.updateMany({
+    where: { id: { in: invalidIds } },
+    data: { active: false },
+  });
+  return result.count;
+}
+
 async function archiveExpiredJobs(prisma, now = new Date()) {
   const result = await prisma.job.updateMany({
     where: {
@@ -77,8 +104,6 @@ async function saveJobs(prisma, jobs, source) {
       } catch (error) {
         if (error?.code !== "P2002") throw error;
 
-        // Another writer may have reserved the source identity after the
-        // initial lookup. Re-read it and apply this cycle's canonical data.
         const concurrent = await findExistingJob(prisma, job, source);
         if (!concurrent) throw error;
         await prisma.job.update({
@@ -112,19 +137,24 @@ async function saveJobs(prisma, jobs, source) {
     });
   }
 
+  const invalidTitlesArchived = await archiveGenericJobTitles(prisma);
+
   return {
     source,
     found: jobs.length,
     created,
     updated,
-    archived: expired.count + retiredUnverified.count,
+    archived: expired.count + retiredUnverified.count + invalidTitlesArchived,
+    invalidTitlesArchived,
   };
 }
 
 module.exports = {
   archiveExpiredJobs,
+  archiveGenericJobTitles,
   createPrismaClient,
   findExistingJob,
   getCandidateSources,
+  isGenericJobTitle,
   saveJobs,
 };

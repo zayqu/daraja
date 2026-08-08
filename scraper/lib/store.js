@@ -13,8 +13,18 @@ function createPrismaClient() {
   return new PrismaClient({ adapter });
 }
 
-function isGenericJobTitle(value) {
-  const title = String(value || "").replace(/\s+/g, " ").trim();
+function normalizeTitle(value) {
+  return String(value || "").replace(/\s+/g, " ").trim();
+}
+
+function isGenericJobTitle(value, { company, source } = {}) {
+  const title = normalizeTitle(value);
+  const isRetiredInstitutionHomepage =
+    source === "tanzania-financial-institutions" &&
+    title.length > 0 &&
+    title.toLocaleLowerCase("en") ===
+      normalizeTitle(company).toLocaleLowerCase("en");
+
   return (
     !title ||
     title.length < 4 ||
@@ -23,7 +33,7 @@ function isGenericJobTitle(value) {
     /^(?:vacancies?|jobs?)\s+(?:and|&)\s+(?:tenders?|opportunities)$/i.test(title) ||
     /^(?:working at|why join)\b/i.test(title) ||
     /^(?:careers?|vacancies?|jobs?)\s+(?:overview|page|portal)$/i.test(title) ||
-    /(?:bank|microfinance bank|commercial bank|community bank|finance ltd|financial institution)$/i.test(title)
+    isRetiredInstitutionHomepage
   );
 }
 
@@ -31,10 +41,10 @@ async function archiveGenericJobTitles(prisma) {
   if (typeof prisma?.job?.findMany !== "function") return 0;
   const activeJobs = await prisma.job.findMany({
     where: { active: true },
-    select: { id: true, title: true },
+    select: { id: true, title: true, company: true, source: true },
   });
   const invalidIds = activeJobs
-    .filter((job) => isGenericJobTitle(job.title))
+    .filter((job) => isGenericJobTitle(job.title, job))
     .map((job) => job.id);
 
   if (!invalidIds.length) return 0;

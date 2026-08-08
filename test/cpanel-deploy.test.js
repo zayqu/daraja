@@ -19,6 +19,9 @@ test("cPanel deployment verifies the exact public build before recording success
   assert.match(deployScript, /curl -fsSL --connect-timeout 10 --max-time 30/);
   assert.match(deployScript, /_next\/static\/\$BUILD_ID\/_buildManifest\.js/);
   assert.match(deployScript, /"\$HEALTHCHECK_ORIGIN\/jobs"/);
+  assert.match(deployScript, /jobs_api_healthcheck \|\| HEALTHCHECK_FAILED=1/);
+  assert.match(deployScript, /Array\.isArray\(payload\.jobs\)/);
+  assert.match(deployScript, /Number\.isFinite\(payload\.pagination\.total\)/);
   assert.ok(
     deployScript.indexOf("HEALTHCHECK_FAILED") <
       deployScript.indexOf('> "$STATE_DIR/deployed.commit"'),

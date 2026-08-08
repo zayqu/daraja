@@ -223,8 +223,8 @@ require accounts only for personalised or protected features.
 - Retired financial-institution crawler rows are archived only when the stored
   title exactly matches the stored employer. Legitimate role titles ending in
   words such as “Bank” are explicitly preserved.
-- The batch is rebased on the merged PostgreSQL web-adapter fix and contains no
-  schema migration.
+- The batch was validated on top of the merged PostgreSQL web-adapter fix and
+  contains no schema migration.
 - All 106 tests, ESLint, Prisma validation and the production build passed on
   8 August 2026.
 - Production pages return HTTP 200, but the live jobs API still returns HTTP

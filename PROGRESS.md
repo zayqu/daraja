@@ -1,6 +1,6 @@
 # Daraja Jobs production-readiness progress
 
-Last updated: 30 July 2026
+Last updated: 8 August 2026
 
 ## Current objective
 
@@ -212,6 +212,24 @@ require accounts only for personalised or protected features.
 - The batch is schema-free and does not delete or migrate production records.
 - Regression coverage exercises both legacy-source reconciliation and
   concurrent unique-identity recovery.
+
+## Current batch: safe Ajira title reconciliation
+
+- Rendered Ajira vacancy URLs are decoded back to the stable numeric vacancy
+  identity so corrected titles update existing records instead of creating
+  parallel jobs.
+- Generic application and navigation labels are archived reversibly by setting
+  `active=false`; records are never deleted.
+- Retired financial-institution crawler rows are archived only when the stored
+  title exactly matches the stored employer. Legitimate role titles ending in
+  words such as “Bank” are explicitly preserved.
+- The batch is rebased on the merged PostgreSQL web-adapter fix and contains no
+  schema migration.
+- All 106 tests, ESLint, Prisma validation and the production build passed on
+  8 August 2026.
+- Production pages return HTTP 200, but the live jobs API still returns HTTP
+  500. No cleanup or deployment may run until the corrected cPanel release is
+  active and the jobs API returns valid JSON.
 
 ## Definition-of-done evidence
 

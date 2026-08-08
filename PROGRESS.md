@@ -219,11 +219,24 @@ require accounts only for personalised or protected features.
 - Health checks retry bounded HTTP and connection failures. A failed check
   automatically restores the previous build, public assets and startup file,
   restarts the application and preserves the failed build for diagnosis.
+- The deployment gate validates the public jobs API response shape as well as
+  its HTTP status. An error payload can no longer be mistaken for a healthy
+  release when an intermediary rewrites its status code.
 - The batch remains schema-free and never runs Prisma migrations or database
   pushes.
 - The next production activation remains blocked until the credentials exposed
   during hosting diagnosis have been rotated. Repository validation and preview
   checks may continue without using those credentials.
+
+## Current batch: idempotent NMB source identity
+
+- NMB records use the canonical `nmb-bank-careers` source identity while still
+  discovering and upgrading records created under the legacy `nmb-bank` alias.
+- A concurrent source-identity insert is recovered as an idempotent update
+  after the initial lookup, without weakening database uniqueness.
+- The batch is schema-free and does not delete or migrate production records.
+- Regression coverage exercises both legacy-source reconciliation and
+  concurrent unique-identity recovery.
 
 ## Definition-of-done evidence
 

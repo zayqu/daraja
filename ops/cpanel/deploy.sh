@@ -25,6 +25,31 @@ healthcheck() {
   return 1
 }
 
+jobs_api_healthcheck() {
+  local url="$HEALTHCHECK_ORIGIN/api/jobs?page=1&limit=1&status=active"
+  local response_file="$WORK_DIR/jobs-api-health.json"
+  local attempt
+
+  for attempt in 1 2 3 4 5; do
+    if curl -fsSL --connect-timeout 10 --max-time 30 \
+      -H "Accept: application/json" \
+      "$url" \
+      -o "$response_file" && \
+      node -e '
+        const payload = JSON.parse(require("node:fs").readFileSync(process.argv[1], "utf8"));
+        if (!Array.isArray(payload.jobs)) process.exit(1);
+        if (!payload.pagination || !Number.isFinite(payload.pagination.total)) process.exit(1);
+      ' "$response_file"; then
+      return 0
+    fi
+    if [[ "$attempt" -lt 5 ]]; then
+      sleep 3
+    fi
+  done
+
+  return 1
+}
+
 mkdir -p "$STATE_DIR"
 WORK_DIR="$(mktemp -d "$STATE_DIR/work.XXXXXX")"
 trap 'rm -rf "$WORK_DIR"' EXIT
@@ -107,6 +132,7 @@ BUILD_ID="$(tr -d '\r\n' < .next/BUILD_ID)"
 HEALTHCHECK_FAILED=0
 healthcheck "$HEALTHCHECK_ORIGIN/_next/static/$BUILD_ID/_buildManifest.js" || HEALTHCHECK_FAILED=1
 healthcheck "$HEALTHCHECK_ORIGIN/jobs" || HEALTHCHECK_FAILED=1
+jobs_api_healthcheck || HEALTHCHECK_FAILED=1
 
 if [[ "$HEALTHCHECK_FAILED" -ne 0 ]]; then
   FAILED_DIR=".next.failed.$(date -u +%Y%m%dT%H%M%SZ)"

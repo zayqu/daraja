@@ -31,12 +31,26 @@ test("generic application and bank navigation labels are detected", () => {
     "Working at GTBank",
     "Why Join GTBank?",
     "Careers Overview",
-    "LOLC Tanzania Microfinance Bank",
   ]) {
     assert.equal(isGenericJobTitle(value), true, value);
   }
   assert.equal(isGenericJobTitle("Human Resources Officer"), false);
   assert.equal(isGenericJobTitle("Specialist; Risk MI & Analytics"), false);
+  assert.equal(isGenericJobTitle("Relationship Manager Corporate Bank"), false);
+  assert.equal(
+    isGenericJobTitle("LOLC Tanzania Microfinance Bank", {
+      company: "LOLC Tanzania Microfinance Bank",
+      source: "tanzania-financial-institutions",
+    }),
+    true,
+  );
+  assert.equal(
+    isGenericJobTitle("LOLC Tanzania Microfinance Bank", {
+      company: "Different employer",
+      source: "ajiraweb",
+    }),
+    false,
+  );
 });
 
 test("generic legacy records are archived reversibly", async () => {
@@ -44,10 +58,21 @@ test("generic legacy records are archived reversibly", async () => {
   const prisma = {
     job: {
       findMany: async () => [
-        { id: "bad-1", title: "Email Application" },
-        { id: "good-1", title: "Accountant" },
-        { id: "bad-2", title: "Vacancies and Tenders" },
-        { id: "bad-3", title: "LOLC Tanzania Microfinance Bank" },
+        { id: "bad-1", title: "Email Application", source: "ajira" },
+        { id: "good-1", title: "Accountant", source: "ajira" },
+        { id: "bad-2", title: "Vacancies and Tenders", source: "ajiraweb" },
+        {
+          id: "bad-3",
+          title: "LOLC Tanzania Microfinance Bank",
+          company: "LOLC Tanzania Microfinance Bank",
+          source: "tanzania-financial-institutions",
+        },
+        {
+          id: "good-2",
+          title: "Relationship Manager Corporate Bank",
+          company: "Example Bank",
+          source: "tanzania-financial-institutions",
+        },
       ],
       updateMany: async (args) => {
         updates.push(args);

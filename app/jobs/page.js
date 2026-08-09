@@ -4,6 +4,8 @@ import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import AdSenseSlot from "@/components/AdSenseSlot";
 import JobAlerts from "@/components/JobAlerts";
+import SiteNav from "@/components/SiteNav";
+import SiteFooter from "@/components/SiteFooter";
 import { trackEvent } from "@/lib/analytics";
 
 const CATEGORIES = [
@@ -125,13 +127,6 @@ export default function JobsPage() {
 
         .dr { font-family: inherit; background: #F7F8FA; min-height: 100vh; color: #1B2A3F; }
 
-        /* NAV */
-        .nav { background: #1B2A3F; height: 64px; padding: 0 3rem; display: flex; align-items: center; justify-content: space-between; }
-        .nav-logo { font-family: inherit; font-size: 1.4rem; font-weight: 700; color: #00C9A7; letter-spacing: 0.1em; text-decoration: none; }
-        .nav-logo span { display: block; font-size: 0.55rem; font-weight: 400; color: rgba(255,255,255,0.35); letter-spacing: 0.3em; text-transform: uppercase; margin-top: 1px; }
-        .nav-cta { font-family: inherit; font-size: 0.78rem; font-weight: 600; background: #00C9A7; color: #1B2A3F; padding: 0.55rem 1.4rem; border-radius: 4px; text-decoration: none; letter-spacing: 0.03em; transition: opacity 0.2s; }
-        .nav-cta:hover { opacity: 0.88; }
-
         /* SEARCH HEADER */
         .header { background: #1B2A3F; padding: 3rem 3rem 2.5rem; }
         .header-inner { max-width: 860px; margin: 0 auto; }
@@ -141,7 +136,7 @@ export default function JobsPage() {
         .search-row { display: flex; }
         .search-input { flex: 1; padding: 0.85rem 1.2rem; background: #fff; border: none; font-family: inherit; font-size: 0.88rem; color: #1B2A3F; outline: none; border-radius: 4px 0 0 4px; }
         .search-input::placeholder { color: #A0ACBB; }
-        .search-input:focus-visible, .search-btn:focus-visible, .f-btn:focus-visible, .pg-btn:focus-visible, .job-card:focus-visible, .nav-cta:focus-visible, .nav-logo:focus-visible { outline: 3px solid #F59E0B; outline-offset: 3px; }
+        .search-input:focus-visible, .search-btn:focus-visible, .f-btn:focus-visible, .pg-btn:focus-visible, .job-card:focus-visible { outline: 3px solid #F59E0B; outline-offset: 3px; }
         .search-btn { padding: 0.85rem 1.75rem; background: #00C9A7; color: #1B2A3F; font-family: inherit; font-size: 0.82rem; font-weight: 600; border: none; cursor: pointer; border-radius: 0 4px 4px 0; letter-spacing: 0.04em; transition: opacity 0.2s; }
         .search-btn:hover { opacity: 0.88; }
 
@@ -201,16 +196,14 @@ export default function JobsPage() {
         .pg-btn:disabled { opacity: 0.3; cursor: not-allowed; }
         .pg-nav { width: auto; padding: 0 0.9rem; font-size: 0.75rem; font-weight: 500; }
 
-        /* FOOTER */
-        .footer { background: #1B2A3F; padding: 2rem 3rem; text-align: center; }
-        .footer-logo { font-family: inherit; font-size: 1rem; font-weight: 700; color: #00C9A7; letter-spacing: 0.12em; }
-        .footer-sub { font-size: 0.6rem; color: rgba(255,255,255,0.25); letter-spacing: 0.25em; text-transform: uppercase; margin-top: 0.25rem; }
+        @media (max-width: 1024px) and (min-width: 641px) {
+          .header { padding: 2.5rem 2rem 2rem; }
+          .body { padding: 1.75rem 2rem 3.5rem; }
+        }
 
         @media (max-width: 640px) {
-          .nav { padding: 0 1.25rem; }
           .header { padding: 2rem 1.25rem; }
           .body { padding: 1.5rem 1.25rem 3rem; }
-          .footer { padding: 1.5rem 1.25rem; }
           .header h1 { font-size: 1.4rem; }
           .jc-top { flex-direction: column; gap: 0.75rem; }
           .jc-right { text-align: left; }
@@ -219,14 +212,7 @@ export default function JobsPage() {
       `}</style>
 
       <div className="dr">
-        {/* Navbar */}
-        <nav className="nav">
-          <Link href="/" className="nav-logo">
-            DARAJA
-            <span>Kazi Na Fursa Tanzania</span>
-          </Link>
-          <Link href="/post-job" className="nav-cta">Post a Job</Link>
-        </nav>
+        <SiteNav />
 
         {/* Search header */}
         <header className="header">
@@ -373,11 +359,7 @@ export default function JobsPage() {
           )}
         </main>
 
-        {/* Footer */}
-        <footer className="footer">
-          <div className="footer-logo">DARAJA</div>
-          <div className="footer-sub">Kazi Na Fursa Tanzania</div>
-        </footer>
+        <SiteFooter />
       </div>
     </>
   );

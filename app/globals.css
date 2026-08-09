@@ -1,5 +1,37 @@
 @import "tailwindcss";
 
+:root {
+  /* Brand tokens shared by marketing pages (home, jobs, job detail, portal shell) */
+  --color-navy: #1b2a3f;
+  --color-navy-soft: rgba(255, 255, 255, 0.6);
+  --color-teal: #00c9a7;
+  --color-teal-deep: #087f6c;
+  --color-bg: #f7f8fa;
+  --color-border: #e8ecf0;
+  --color-text: #1b2a3f;
+  --color-text-muted: #6b7685;
+  --color-text-faint: #8b95a1;
+
+  /* Layout */
+  --content-max: 860px;
+  --nav-height: 64px;
+
+  /* Responsive gutters — one scale used across breakpoints */
+  --gutter: 3rem;
+}
+
+@media (max-width: 1024px) {
+  :root {
+    --gutter: 2rem;
+  }
+}
+
+@media (max-width: 640px) {
+  :root {
+    --gutter: 1.25rem;
+  }
+}
+
 * {
   box-sizing: border-box;
   margin: 0;

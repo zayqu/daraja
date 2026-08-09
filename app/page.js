@@ -1,5 +1,7 @@
 import Link from "next/link";
 import JobAlerts from "@/components/JobAlerts";
+import SiteNav from "@/components/SiteNav";
+import SiteFooter from "@/components/SiteFooter";
 
 export default function Home() {
   return (
@@ -8,15 +10,6 @@ export default function Home() {
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
         .home { font-family: inherit; background: #F7F8FA; min-height: 100vh; color: #1B2A3F; }
-
-        .nav { background: #1B2A3F; height: 64px; padding: 0 3rem; display: flex; align-items: center; justify-content: space-between; }
-        .nav-logo { font-family: inherit; font-size: 1.4rem; font-weight: 700; color: #00C9A7; letter-spacing: 0.1em; text-decoration: none; }
-        .nav-logo span { display: block; font-size: 0.55rem; font-weight: 400; color: rgba(255,255,255,0.35); letter-spacing: 0.3em; text-transform: uppercase; margin-top: 1px; }
-        .nav-links { display: flex; align-items: center; gap: 2rem; }
-        .nav-link { font-size: 0.8rem; font-weight: 500; color: rgba(255,255,255,0.6); text-decoration: none; letter-spacing: 0.03em; transition: color 0.15s; }
-        .nav-link:hover { color: #fff; }
-        .nav-cta { font-family: inherit; font-size: 0.78rem; font-weight: 600; background: #00C9A7; color: #1B2A3F; padding: 0.55rem 1.4rem; border-radius: 4px; text-decoration: none; letter-spacing: 0.03em; transition: opacity 0.2s; }
-        .nav-cta:hover { opacity: 0.88; }
 
         .hero { background: #1B2A3F; padding: 5rem 3rem 4.5rem; text-align: center; position: relative; overflow: hidden; }
         .hero::before { content: ''; position: absolute; top: -80px; left: 50%; transform: translateX(-50%); width: 600px; height: 600px; border-radius: 50%; border: 1px solid rgba(0,201,167,0.06); pointer-events: none; }
@@ -66,15 +59,11 @@ export default function Home() {
         .btn-dark { font-family: inherit; font-size: 0.82rem; font-weight: 600; background: #1B2A3F; color: #fff; padding: 0.8rem 2rem; border-radius: 4px; text-decoration: none; letter-spacing: 0.04em; transition: opacity 0.2s; display: inline-block; }
         .btn-dark:hover { opacity: 0.88; }
 
-        .footer { background: #1B2A3F; border-top: 1px solid rgba(255,255,255,0.06); padding: 2.5rem 3rem; }
-        .footer-inner { max-width: 860px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; }
-        .footer-logo { font-family: inherit; font-size: 1rem; font-weight: 700; color: #00C9A7; letter-spacing: 0.12em; }
-        .footer-sub { font-size: 0.6rem; color: rgba(255,255,255,0.25); letter-spacing: 0.25em; text-transform: uppercase; margin-top: 0.2rem; }
-        .footer-copy { font-size: 0.72rem; color: rgba(255,255,255,0.25); }
+        @media (max-width: 1024px) and (min-width: 641px) {
+          .cat-grid { grid-template-columns: repeat(3, 1fr); }
+        }
 
         @media (max-width: 640px) {
-          .nav { padding: 0 1.25rem; }
-          .nav-links .nav-link { display: none; }
           .hero { padding: 3.5rem 1.25rem 3rem; }
           .hero-title { font-size: 1.9rem; }
           .stats-inner { grid-template-columns: repeat(2, 1fr); gap: 1.5rem; padding: 2rem 1.25rem; }
@@ -84,25 +73,12 @@ export default function Home() {
           .why-inner { padding: 2.5rem 1.25rem; }
           .why-grid { grid-template-columns: 1fr; gap: 1rem; }
           .cta-strip { padding: 2.5rem 1.25rem; }
-          .footer { padding: 2rem 1.25rem; }
-          .footer-inner { flex-direction: column; gap: 1rem; text-align: center; }
         }
       `}</style>
 
       <div className="home">
 
-        <nav className="nav">
-          <Link href="/" className="nav-logo">
-            DARAJA
-            <span>Kazi Na Fursa Tanzania</span>
-          </Link>
-          <div className="nav-links">
-            <Link href="/jobs" className="nav-link">Browse Jobs</Link>
-            <Link href="/jobs?category=Government" className="nav-link">Government</Link>
-            <Link href="/jobs?category=NGO%20%26%20Development" className="nav-link">NGO</Link>
-            <Link href="/post-job" className="nav-cta">Post a Job</Link>
-          </div>
-        </nav>
+        <SiteNav />
 
         <main className="hero" id="main-content">
           <div className="hero-inner">
@@ -207,17 +183,7 @@ export default function Home() {
           <Link href="/post-job" className="btn-dark">Post a Job Today</Link>
         </div>
 
-        <footer className="footer">
-          <div className="footer-inner">
-            <div>
-              <div className="footer-logo">DARAJA</div>
-              <div className="footer-sub">Kazi Na Fursa Tanzania</div>
-            </div>
-            <div className="footer-copy">
-              {new Date().getFullYear()} Daraja. All rights reserved.
-            </div>
-          </div>
-        </footer>
+        <SiteFooter />
 
       </div>
     </>

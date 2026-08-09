@@ -3,6 +3,8 @@
 import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
+import SiteNav from "@/components/SiteNav";
+import SiteFooter from "@/components/SiteFooter";
 import { trackEvent } from "@/lib/analytics";
 
 export default function JobDetailPage() {
@@ -103,12 +105,6 @@ export default function JobDetailPage() {
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
         .dr { font-family: inherit; background: #F7F8FA; min-height: 100vh; color: #1B2A3F; }
 
-        .nav { background: #1B2A3F; height: 64px; padding: 0 3rem; display: flex; align-items: center; justify-content: space-between; }
-        .nav-logo { font-family: inherit; font-size: 1.4rem; font-weight: 700; color: #00C9A7; letter-spacing: 0.1em; text-decoration: none; }
-        .nav-logo span { display: block; font-size: 0.55rem; font-weight: 400; color: rgba(255,255,255,0.35); letter-spacing: 0.3em; text-transform: uppercase; margin-top: 1px; }
-        .nav-cta { font-family: inherit; font-size: 0.78rem; font-weight: 600; background: #00C9A7; color: #1B2A3F; padding: 0.55rem 1.4rem; border-radius: 4px; text-decoration: none; transition: opacity 0.2s; }
-        .nav-cta:hover { opacity: 0.88; }
-
         .breadcrumb { background: #1B2A3F; padding: 0 3rem 1.25rem; }
         .breadcrumb-inner { max-width: 860px; margin: 0 auto; display: flex; align-items: center; gap: 0.5rem; font-size: 0.75rem; color: rgba(255,255,255,0.35); }
         .breadcrumb a { color: rgba(255,255,255,0.4); text-decoration: none; transition: color 0.15s; }
@@ -157,20 +153,18 @@ export default function JobDetailPage() {
 
         .back-link { display: inline-flex; align-items: center; gap: 0.4rem; font-size: 0.78rem; color: #6B7685; text-decoration: none; margin-bottom: 1.5rem; transition: color 0.15s; }
         .back-link:hover { color: #00C9A7; }
-        .back-link:focus-visible, .nav-logo:focus-visible, .nav-cta:focus-visible, .apply-btn:focus-visible, .share-btn:focus-visible, .breadcrumb a:focus-visible { outline: 3px solid #F59E0B; outline-offset: 3px; }
+        .back-link:focus-visible, .apply-btn:focus-visible, .share-btn:focus-visible, .breadcrumb a:focus-visible { outline: 3px solid #F59E0B; outline-offset: 3px; }
 
         .state { text-align: center; padding: 5rem 3rem; max-width: 860px; margin: 0 auto; }
         .state strong { font-family: inherit; font-size: 1.1rem; color: #1B2A3F; display: block; margin-bottom: 0.5rem; }
         .state p { font-size: 0.85rem; color: #8B95A1; }
 
-        .footer { background: #1B2A3F; border-top: 1px solid rgba(255,255,255,0.06); padding: 2rem 3rem; }
-        .footer-inner { max-width: 860px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; }
-        .footer-logo { font-family: inherit; font-size: 1rem; font-weight: 700; color: #00C9A7; letter-spacing: 0.12em; }
-        .footer-sub { font-size: 0.6rem; color: rgba(255,255,255,0.25); letter-spacing: 0.25em; text-transform: uppercase; margin-top: 0.2rem; }
-        .footer-copy { font-size: 0.72rem; color: rgba(255,255,255,0.25); }
+        @media (max-width: 1024px) and (min-width: 721px) {
+          .breadcrumb { padding: 0 2rem 1.25rem; }
+          .body { padding: 2.5rem 2rem 5rem; grid-template-columns: minmax(0, 1fr) 260px; }
+        }
 
         @media (max-width: 720px) {
-          .nav { padding: 0 1.25rem; }
           .breadcrumb { padding: 0 1.25rem 1rem; }
           .body { grid-template-columns: minmax(0, 1fr); grid-template-areas: "back" "header" "details" "about" "apply" "browse"; gap: 1rem; padding: 1.5rem 1.25rem 4rem; }
           .main-column, .main-card { display: contents; }
@@ -179,19 +173,11 @@ export default function JobDetailPage() {
           .card-body { grid-area: about; background: #fff; border: 1.5px solid #E8ECF0; border-radius: 8px; padding: 1.5rem; }
           .application-card { margin-top: 0.5rem; }
           .job-description { font-size: 1rem; line-height: 1.75; }
-          .footer { padding: 2rem 1.25rem; }
-          .footer-inner { flex-direction: column; gap: 1rem; text-align: center; }
         }
       `}</style>
 
       <div className="dr">
-        <nav className="nav">
-          <Link href="/" className="nav-logo">
-            DARAJA
-            <span>Kazi Na Fursa Tanzania</span>
-          </Link>
-          <Link href="/post-job" className="nav-cta">Post a Job</Link>
-        </nav>
+        <SiteNav />
 
         <nav className="breadcrumb" aria-label="Breadcrumb">
           <div className="breadcrumb-inner">
@@ -361,15 +347,7 @@ export default function JobDetailPage() {
           </main>
         )}
 
-        <footer className="footer">
-          <div className="footer-inner">
-            <div>
-              <div className="footer-logo">DARAJA</div>
-              <div className="footer-sub">Kazi Na Fursa Tanzania</div>
-            </div>
-            <div className="footer-copy">{new Date().getFullYear()} Daraja. All rights reserved.</div>
-          </div>
-        </footer>
+        <SiteFooter />
       </div>
     </>
   );

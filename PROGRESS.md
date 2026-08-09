@@ -228,10 +228,14 @@ require accounts only for personalised or protected features.
   timestamp and replaced by CloudLinux's required virtual-environment symlink;
   no dependency directory is deleted.
 - Failed releases restore the prior build, public assets and startup file.
+- The release workflow now publishes the deploy runner with its own checksum,
+  installs that verified runner over fingerprint-authenticated SSH and then
+  activates the release. This closes the stale-server-script bootstrap gap
+  without storing a GitHub token on cPanel.
 - This batch is schema-free and never runs a Prisma migration or database push.
-- Validation completed on 9 August 2026: 107 tests, ESLint, Prisma schema
-  validation, shell syntax validation and the production build passed; the
-  runtime dependency audit reports zero vulnerabilities.
+- Validation completed on 9 August 2026: 108 tests, ESLint, Prisma schema
+  validation, workflow YAML parsing, shell syntax validation and the production
+  build passed; the runtime dependency audit reports zero vulnerabilities.
 
 ## Definition-of-done evidence
 

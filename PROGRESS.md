@@ -1,6 +1,6 @@
 # Daraja Jobs production-readiness progress
 
-Last updated: 30 July 2026
+Last updated: 9 August 2026
 
 ## Current objective
 
@@ -212,6 +212,26 @@ require accounts only for personalised or protected features.
 - The batch is schema-free and does not delete or migrate production records.
 - Regression coverage exercises both legacy-source reconciliation and
   concurrent unique-identity recovery.
+
+## Current batch: permanent cPanel deployment recovery
+
+- Production database credentials were rotated and the reviewed additive
+  candidate milestone migrations were applied to the `daraja` database after
+  creating the non-expiring Neon snapshot
+  `pre-job-slug-migration-2026-08-09`.
+- Public pages and the jobs API return HTTP 200 with valid job data, and three
+  consecutive scraper runs completed successfully after the repair.
+- The deployment script now detects when its commit marker disagrees with the
+  installed Next.js bundle, handles CloudLinux activation safely and validates
+  the real jobs API before recording success.
+- A misplaced application-local `node_modules` directory is preserved with a
+  timestamp and replaced by CloudLinux's required virtual-environment symlink;
+  no dependency directory is deleted.
+- Failed releases restore the prior build, public assets and startup file.
+- This batch is schema-free and never runs a Prisma migration or database push.
+- Validation completed on 9 August 2026: 107 tests, ESLint, Prisma schema
+  validation, shell syntax validation and the production build passed; the
+  runtime dependency audit reports zero vulnerabilities.
 
 ## Definition-of-done evidence
 

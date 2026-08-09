@@ -72,6 +72,9 @@ jobs:
             next.config.mjs
           sha256sum daraja-cpanel-build.tar.gz > daraja-cpanel-build.sha256
           printf '%s\n' "$GITHUB_SHA" > daraja-cpanel-build.commit
+          cp ops/cpanel/deploy.sh daraja-cpanel-deploy.sh
+          chmod 0755 daraja-cpanel-deploy.sh
+          sha256sum daraja-cpanel-deploy.sh > daraja-cpanel-deploy.sha256
 
       - name: Upload workflow artifact
         uses: actions/upload-artifact@v4
@@ -81,6 +84,8 @@ jobs:
             daraja-cpanel-build.tar.gz
             daraja-cpanel-build.sha256
             daraja-cpanel-build.commit
+            daraja-cpanel-deploy.sh
+            daraja-cpanel-deploy.sha256
           if-no-files-found: error
           retention-days: 7
 
@@ -102,4 +107,58 @@ jobs:
             daraja-cpanel-build.tar.gz \
             daraja-cpanel-build.sha256 \
             daraja-cpanel-build.commit \
+            daraja-cpanel-deploy.sh \
+            daraja-cpanel-deploy.sha256 \
             --clobber
+
+      - name: Require authenticated cPanel SSH configuration
+        if: github.event_name != 'pull_request'
+        env:
+          CPANEL_SSH_HOST_FINGERPRINT: ${{ secrets.CPANEL_SSH_HOST_FINGERPRINT }}
+        run: |
+          if [[ -z "$CPANEL_SSH_HOST_FINGERPRINT" ]]; then
+            echo "::error::CPANEL_SSH_HOST_FINGERPRINT must contain the verified SHA256 host-key fingerprint."
+            exit 1
+          fi
+
+      - name: Install deploy runner and release to cPanel
+        if: github.event_name != 'pull_request'
+        uses: appleboy/ssh-action@0ff4204d59e8e51228ff73bce53f80d53301dee2
+        with:
+          host: ${{ secrets.CPANEL_SSH_HOST }}
+          username: ${{ secrets.CPANEL_SSH_USER }}
+          port: ${{ secrets.CPANEL_SSH_PORT }}
+          key: ${{ secrets.CPANEL_SSH_PRIVATE_KEY }}
+          passphrase: ${{ secrets.CPANEL_SSH_KEY_PASSPHRASE }}
+          fingerprint: ${{ secrets.CPANEL_SSH_HOST_FINGERPRINT }}
+          command_timeout: 20m
+          script: |
+            set -Eeuo pipefail
+
+            app_dir="/home/darajaco/repositories/daraja"
+            state_dir="/home/darajaco/.daraja-deploy"
+            release_url="https://github.com/zayqu/daraja/releases/download/cpanel-production"
+
+            mkdir -p "$app_dir/ops/cpanel" "$state_dir"
+            bootstrap_dir="$(mktemp -d "$state_dir/bootstrap.XXXXXX")"
+            trap 'rm -rf "$bootstrap_dir"' EXIT
+
+            curl -fsSL --retry 3 --retry-all-errors \
+              --connect-timeout 10 --max-time 60 \
+              "$release_url/daraja-cpanel-deploy.sh" \
+              -o "$bootstrap_dir/daraja-cpanel-deploy.sh"
+            curl -fsSL --retry 3 --retry-all-errors \
+              --connect-timeout 10 --max-time 60 \
+              "$release_url/daraja-cpanel-deploy.sha256" \
+              -o "$bootstrap_dir/daraja-cpanel-deploy.sha256"
+
+            (
+              cd "$bootstrap_dir"
+              sha256sum -c daraja-cpanel-deploy.sha256
+              bash -n daraja-cpanel-deploy.sh
+            )
+
+            install -m 0755 \
+              "$bootstrap_dir/daraja-cpanel-deploy.sh" \
+              "$app_dir/ops/cpanel/deploy.sh"
+            /bin/bash "$app_dir/ops/cpanel/deploy.sh"

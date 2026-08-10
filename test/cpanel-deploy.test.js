@@ -31,7 +31,10 @@ test("cPanel deployment verifies the exact public build before recording success
   assert.match(deployScript, /\.next\/\.daraja-commit/);
   assert.match(deployScript, /for attempt in 1 2 3 4 5/);
   assert.match(deployScript, /curl -fsSL --connect-timeout 10 --max-time 30/);
-  assert.match(deployScript, /_next\/static\/\$BUILD_ID\/_buildManifest\.js/);
+  assert.match(deployScript, /frontend_asset_healthcheck \|\| HEALTHCHECK_FAILED=1/);
+  assert.match(deployScript, /candidate\.origin === origin\.origin/);
+  assert.match(deployScript, /application\/javascript/);
+  assert.doesNotMatch(deployScript, /_buildManifest\.js/);
   assert.match(deployScript, /"\$HEALTHCHECK_ORIGIN\/jobs"/);
   assert.match(deployScript, /jobs_api_healthcheck \|\| HEALTHCHECK_FAILED=1/);
   assert.match(deployScript, /Array\.isArray\(payload\.jobs\)/);

@@ -27,6 +27,53 @@ healthcheck() {
   return 1
 }
 
+frontend_asset_healthcheck() {
+  local page_file="$WORK_DIR/frontend-health.html"
+  local asset_file="$WORK_DIR/frontend-health.js"
+  local headers_file="$WORK_DIR/frontend-health.headers"
+  local asset_url
+  local content_type
+  local attempt
+
+  for attempt in 1 2 3 4 5; do
+    if curl -fsSL --connect-timeout 10 --max-time 30 \
+      "$HEALTHCHECK_ORIGIN/" \
+      -o "$page_file"; then
+      asset_url="$(node -e '
+        const html = require("node:fs").readFileSync(process.argv[1], "utf8");
+        const origin = new URL(process.argv[2]);
+        const matches = html.matchAll(/<script[^>]+src=["\x27]([^"\x27]+)["\x27]/gi);
+        for (const match of matches) {
+          const candidate = new URL(match[1].replaceAll("&amp;", "&"), origin);
+          if (candidate.origin === origin.origin && /^\/_next\/static\/.*\.js$/.test(candidate.pathname)) {
+            process.stdout.write(candidate.href);
+            process.exit(0);
+          }
+        }
+        process.exit(1);
+      ' "$page_file" "$HEALTHCHECK_ORIGIN" 2>/dev/null || true)"
+
+      if [[ -n "$asset_url" ]] && \
+        curl -fsSL --connect-timeout 10 --max-time 30 \
+          -D "$headers_file" \
+          "$asset_url" \
+          -o "$asset_file" && \
+        [[ -s "$asset_file" ]]; then
+        content_type="$(awk 'BEGIN { IGNORECASE=1 } /^content-type:/ { value=$0 } END { sub(/^[^:]+:[[:space:]]*/, "", value); sub(/\r$/, "", value); print tolower(value) }' "$headers_file")"
+        if [[ "$content_type" == application/javascript* || "$content_type" == text/javascript* ]]; then
+          return 0
+        fi
+      fi
+    fi
+
+    if [[ "$attempt" -lt 5 ]]; then
+      sleep 3
+    fi
+  done
+
+  return 1
+}
+
 jobs_api_healthcheck() {
   local url="$HEALTHCHECK_ORIGIN/api/jobs?page=1&limit=1&status=active"
   local response_file="$WORK_DIR/jobs-api-health.json"
@@ -162,9 +209,8 @@ cloudlinux-selector restart \
   --user "$APP_USER" \
   --app-root "$CLOUDLINUX_APP_ROOT"
 
-BUILD_ID="$(tr -d '\r\n' < .next/BUILD_ID)"
 HEALTHCHECK_FAILED=0
-healthcheck "$HEALTHCHECK_ORIGIN/_next/static/$BUILD_ID/_buildManifest.js" || HEALTHCHECK_FAILED=1
+frontend_asset_healthcheck || HEALTHCHECK_FAILED=1
 healthcheck "$HEALTHCHECK_ORIGIN/jobs" || HEALTHCHECK_FAILED=1
 jobs_api_healthcheck || HEALTHCHECK_FAILED=1
 

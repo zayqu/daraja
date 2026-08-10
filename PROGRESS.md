@@ -273,6 +273,23 @@ require accounts only for personalised or protected features.
   validation and the production build passed; the runtime dependency audit
   reports zero vulnerabilities.
 
+## Current batch: Next.js-aware cPanel release verification
+
+- The cPanel deployer no longer assumes that Next.js publishes the legacy
+  `/_next/static/<BUILD_ID>/_buildManifest.js` path. That false assumption
+  caused the healthy 10 August release to be rolled back after five HTTP 404s.
+- Release verification now loads the deployed homepage, selects a same-origin
+  JavaScript file actually referenced under `/_next/static/`, and requires a
+  non-empty response with a JavaScript MIME type.
+- The public jobs page and structured jobs API checks remain mandatory, and any
+  failed check still restores the previous frontend atomically.
+- The asset-selection guard cannot follow third-party script URLs.
+- This batch is schema-free and does not run or require a database migration.
+- Validation completed on 10 August 2026: all 113 tests, ESLint, Prisma schema
+  validation, shell syntax validation and the production build passed. The
+  replacement check also selected and validated a live same-origin Next.js
+  asset with the `application/javascript` MIME type.
+
 ## Definition-of-done evidence
 
 Every batch must record:

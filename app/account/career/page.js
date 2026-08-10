@@ -1,10 +1,11 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { candidateCareerEnabled, getCandidateUser } from "@/lib/candidate-access";
-import SiteNav from "@/components/SiteNav";
+import PublicSiteNav from "@/components/PublicSiteNav";
 import styles from "./career.module.css";
 
 export const metadata = { title: "Career workspace | Daraja" };
+export const dynamic = "force-dynamic";
 
 export default async function CareerPage() {
   if (!candidateCareerEnabled()) notFound();
@@ -12,7 +13,7 @@ export default async function CareerPage() {
   if (!user) redirect("/auth/signin?callbackUrl=/account/career");
   return (
     <>
-      <SiteNav />
+      <PublicSiteNav />
       <main className={styles.shell} id="main-content">
         <header className={styles.header}>
           <p>Candidate workspace</p>

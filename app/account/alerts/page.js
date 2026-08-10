@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 import { auth, signOut } from "@/auth";
 import AlertPreferencesForm from "@/components/AlertPreferencesForm";
-import SiteNav from "@/components/SiteNav";
+import PublicSiteNav from "@/components/PublicSiteNav";
 import prisma from "@/lib/prisma";
 
 export const metadata = {
@@ -42,7 +42,7 @@ export default async function AlertAccountPage() {
 
   return (
     <main id="main-content" className="account-page">
-      <SiteNav links={[{ href: "/jobs", label: "Browse Jobs" }]} right={signOutForm} />
+      <PublicSiteNav links={[{ href: "/jobs", label: "Browse Jobs" }]} right={signOutForm} />
       <section className="account-shell">
         <p className="eyebrow">Candidate account</p>
         <h1>My job alerts</h1>

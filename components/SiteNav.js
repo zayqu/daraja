@@ -23,8 +23,16 @@ const DEFAULT_LINKS = [
  * `showSearch` docks a compact search field in the bar itself (submitting
  * takes the visitor straight to /jobs?q=...), instead of requiring a
  * separate search header further down the page.
+ *
+ * `showEmployerCta` keeps disabled employer entry points out of public
+ * navigation while preserving the same component inside enabled workspaces.
  */
-export default function SiteNav({ links = DEFAULT_LINKS, right, showSearch = false }) {
+export default function SiteNav({
+  links = DEFAULT_LINKS,
+  right,
+  showSearch = false,
+  showEmployerCta = true,
+}) {
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
   const router = useRouter();
@@ -88,15 +96,16 @@ export default function SiteNav({ links = DEFAULT_LINKS, right, showSearch = fal
             </Link>
           ))}
           <div className={styles.right}>
-            {right ?? (
-              <Link
-                href="/post-job"
-                className={styles.cta}
-                onClick={() => setOpen(false)}
-              >
-                Post a Job
-              </Link>
-            )}
+            {right ??
+              (showEmployerCta ? (
+                <Link
+                  href="/post-job"
+                  className={styles.cta}
+                  onClick={() => setOpen(false)}
+                >
+                  Post a Job
+                </Link>
+              ) : null)}
           </div>
         </div>
       </div>

@@ -1,10 +1,10 @@
 import Link from "next/link";
-import SiteNav from "@/components/SiteNav";
+import PublicSiteNav from "@/components/PublicSiteNav";
 
 export default function ContentPage({ title, description, children }) {
   return (
     <>
-      <SiteNav />
+      <PublicSiteNav />
       <main
         id="main-content"
         style={{

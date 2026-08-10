@@ -6,6 +6,10 @@ const deployScript = await readFile(
   new URL("../ops/cpanel/deploy.sh", import.meta.url),
   "utf8",
 );
+const releaseWorkflow = await readFile(
+  new URL("../.github/workflows/cpanel-staging-build.yml", import.meta.url),
+  "utf8",
+);
 
 test("cPanel deployment handles CloudLinux activation and restart safely", () => {
   assert.match(deployScript, /set \+u\nsource "\$VENV"\nset -u/);
@@ -44,4 +48,22 @@ test("cPanel deployment automatically restores the previous frontend on failure"
   assert.match(deployScript, /mv public\.previous public/);
   assert.match(deployScript, /mv server\.js\.previous server\.js/);
   assert.doesNotMatch(deployScript, /prisma (?:migrate|db push)/);
+});
+
+test("cPanel release securely bootstraps the current deploy runner", () => {
+  assert.match(releaseWorkflow, /sha256sum daraja-cpanel-deploy\.sh/);
+  assert.match(releaseWorkflow, /daraja-cpanel-deploy\.sha256/);
+  assert.match(
+    releaseWorkflow,
+    /appleboy\/ssh-action@0ff4204d59e8e51228ff73bce53f80d53301dee2/,
+  );
+  assert.match(
+    releaseWorkflow,
+    /fingerprint: \$\{\{ secrets\.CPANEL_SSH_HOST_FINGERPRINT \}\}/,
+  );
+  assert.match(releaseWorkflow, /sha256sum -c daraja-cpanel-deploy\.sha256/);
+  assert.match(releaseWorkflow, /bash -n daraja-cpanel-deploy\.sh/);
+  assert.match(releaseWorkflow, /install -m 0755/);
+  assert.match(releaseWorkflow, /\/bin\/bash "\$app_dir\/ops\/cpanel\/deploy\.sh"/);
+  assert.doesNotMatch(releaseWorkflow, /appleboy\/ssh-action@v\d/);
 });

@@ -228,14 +228,10 @@ require accounts only for personalised or protected features.
   timestamp and replaced by CloudLinux's required virtual-environment symlink;
   no dependency directory is deleted.
 - Failed releases restore the prior build, public assets and startup file.
-- The release workflow publishes the deploy runner with its own checksum,
-  installs that verified runner over fingerprint-authenticated SSH and then
-  activates the release. This closes the stale-server-script bootstrap gap
-  without storing a GitHub token on cPanel.
 - This batch is schema-free and never runs a Prisma migration or database push.
-- Validation completed on 9 August 2026: 108 tests, ESLint, Prisma schema
-  validation, workflow YAML parsing, shell syntax validation and the production
-  build passed; the runtime dependency audit reports zero vulnerabilities.
+- Validation completed on 9 August 2026: 107 tests, ESLint, Prisma schema
+  validation, shell syntax validation and the production build passed; the
+  runtime dependency audit reports zero vulnerabilities.
 
 ## Current batch: feature-aware employer entry points
 
@@ -272,6 +268,23 @@ require accounts only for personalised or protected features.
 - Validation completed on 10 August 2026: all 113 tests, ESLint, Prisma
   validation and the production build passed; the runtime dependency audit
   reports zero vulnerabilities.
+
+## Current batch: Next.js-aware cPanel release verification
+
+- The cPanel deployer no longer assumes that Next.js publishes the legacy
+  `/_next/static/<BUILD_ID>/_buildManifest.js` path. That false assumption
+  caused the healthy 10 August release to be rolled back after five HTTP 404s.
+- Release verification now loads the deployed homepage, selects a same-origin
+  JavaScript file actually referenced under `/_next/static/`, and requires a
+  non-empty response with a JavaScript MIME type.
+- The public jobs page and structured jobs API checks remain mandatory, and any
+  failed check still restores the previous frontend atomically.
+- The asset-selection guard cannot follow third-party script URLs.
+- This batch is schema-free and does not run or require a database migration.
+- Validation completed on 10 August 2026: all 113 tests, ESLint, Prisma schema
+  validation, shell syntax validation and the production build passed. The
+  replacement check also selected and validated a live same-origin Next.js
+  asset with the `application/javascript` MIME type.
 
 ## Definition-of-done evidence
 

@@ -28,6 +28,22 @@ const invoiceSelect = {
   createdAt: true,
 };
 
+function requestIsSameOrigin(request) {
+  const fetchSite = request.headers.get("sec-fetch-site");
+  if (fetchSite === "cross-site") return false;
+
+  const origin = request.headers.get("origin");
+  if (!origin) return true;
+
+  const forwardedHost = request.headers.get("x-forwarded-host");
+  const host = forwardedHost || request.headers.get("host");
+  if (!host) return false;
+
+  const forwardedProtocol = request.headers.get("x-forwarded-proto");
+  const protocol = forwardedProtocol || new URL(request.url).protocol.replace(":", "");
+  return origin === `${protocol}://${host}`;
+}
+
 async function existingCheckout(idempotencyKey) {
   return prisma.payment.findUnique({
     where: { idempotencyKey },
@@ -42,6 +58,9 @@ function checkoutResponse(checkout) {
 
 export async function POST(request) {
   if (!billingEnabled()) return NextResponse.json({ error: "Not found" }, { status: 404 });
+  if (!requestIsSameOrigin(request)) {
+    return NextResponse.json({ error: "Cross-site checkout is not allowed" }, { status: 403 });
+  }
   if (!sandboxCheckoutEnabled()) {
     return NextResponse.json(
       { error: "Sandbox checkout is not configured. No payment was created." },

@@ -6,8 +6,8 @@ const root = path.join(__dirname, "..");
 const read = (file) => fs.readFileSync(path.join(root, file), "utf8");
 
 test("employer portal is disabled unless explicitly configured", () => {
-  const access = read("lib/employer-access.js");
-  assert.match(access, /EMPLOYER_PORTAL_ENABLED === "true"/);
+  const features = read("lib/features.js");
+  assert.match(features, /EMPLOYER_PORTAL_ENABLED === "true"/);
   assert.match(read("app/api/employer/profile/route.js"), /status: 404/);
 });
 

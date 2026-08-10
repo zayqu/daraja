@@ -64,6 +64,13 @@ test("sandbox checkout hashes idempotency keys and never creates a live payment"
   assert.match(entitlements, /SANDBOX_PLAN_PRICES_MINOR/);
 });
 
+test("sandbox checkout rejects cross-site requests before creating records", () => {
+  const route = read("app/api/billing/checkout/route.js");
+  assert.match(route, /fetchSite === "cross-site"/);
+  assert.match(route, /origin === `\$\{protocol\}:\/\/\$\{host\}`/);
+  assert.match(route, /Cross-site checkout is not allowed/);
+});
+
 test("invoice reads are user scoped and payment responses exclude sensitive keys", () => {
   const access = read("lib/billing-access.js");
   const checkout = read("app/api/billing/checkout/route.js");

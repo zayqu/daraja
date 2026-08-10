@@ -1,5 +1,71 @@
 @import "tailwindcss";
 
+:root {
+  /* Brand tokens shared by marketing pages (home, jobs, job detail, portal shell) */
+  --color-navy: #1b2a3f;
+  --color-navy-soft: rgba(255, 255, 255, 0.6);
+  --color-teal: #00c9a7;
+  --color-teal-deep: #087f6c;
+  --color-bg: #f7f8fa;
+  --color-border: #e8ecf0;
+  --color-text: #1b2a3f;
+  --color-text-muted: #6b7685;
+  --color-text-faint: #8b95a1;
+
+  /* Layout */
+  --content-max: 860px;
+  --nav-height: 64px;
+
+  /* Responsive gutters — one scale used across breakpoints */
+  --gutter: 3rem;
+
+  /* Radius system — one value per component type, don't mix across types */
+  --radius-input: 12px;
+  --radius-button: 12px;
+  --radius-card: 16px;
+  --radius-pill: 999px;
+
+  /* Elevation — a single soft shadow, reserved for real elevation moments
+     (hover states, dropdowns) — never stacked, never decorative */
+  --shadow-soft: 0 2px 12px rgba(0, 201, 167, 0.08);
+  --shadow-card: 0 9px 20px rgba(15, 23, 42, 0.06);
+
+  /* Type scale — size, tracking and leading move together: tight tracking
+     and tight leading at display sizes, normal tracking and airy leading
+     at body sizes. Don't use a size without its paired tracking/leading. */
+  --text-display: 3rem;
+  --leading-display: 1.05;
+  --tracking-display: -0.03em;
+
+  --text-heading: 1.5rem;
+  --leading-heading: 1.25;
+  --tracking-heading: -0.02em;
+
+  --text-subheading: 1rem;
+  --leading-subheading: 1.4;
+  --tracking-subheading: -0.01em;
+
+  --text-body: 0.88rem;
+  --leading-body: 1.6;
+  --tracking-body: normal;
+
+  --text-caption: 0.72rem;
+  --leading-caption: 1.5;
+  --tracking-caption: 0.02em;
+}
+
+@media (max-width: 1024px) {
+  :root {
+    --gutter: 2rem;
+  }
+}
+
+@media (max-width: 640px) {
+  :root {
+    --gutter: 1.25rem;
+  }
+}
+
 * {
   box-sizing: border-box;
   margin: 0;

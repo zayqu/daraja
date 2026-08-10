@@ -61,7 +61,7 @@ function parseNmbCareers(html) {
   });
 
   const results = deduplicateJobs(jobs, {
-    source: "nmb-bank",
+    source: "nmb-bank-careers",
     baseUrl: NMB_CAREERS_URL,
     location: "Tanzania",
   });

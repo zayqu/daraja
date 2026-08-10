@@ -1,6 +1,6 @@
 # Daraja Jobs production-readiness progress
 
-Last updated: 2 August 2026
+Last updated: 10 August 2026
 
 ## Current objective
 
@@ -166,11 +166,15 @@ require accounts only for personalised or protected features.
   only as legacy records and are labelled as such.
 - Checkout is disabled unless billing, sandbox mode and the internal test
   provider are all explicitly enabled. It hashes idempotency keys, handles
-  duplicate requests and cannot select a live payment environment. Sandbox
-  invoice amounts are test fixtures, not approved production prices.
+  duplicate requests, rejects cross-site browser requests and cannot select a
+  live payment environment. Sandbox invoice amounts are test fixtures, not
+  approved production prices.
 - The additive migration aborts before creating foreign keys if it detects
   orphan legacy subscription or payment rows. It is not approved for production
   until a new Neon restore point has been recorded specifically for it.
+- Validation completed on 10 August 2026: all 121 tests, ESLint, Prisma schema
+  validation and the production build passed; the runtime dependency audit
+  reports zero vulnerabilities. No production migration was applied.
 
 ## Completed: controlled classification quality
 
@@ -219,6 +223,73 @@ require accounts only for personalised or protected features.
   2 August 2026; the runtime dependency audit reports zero vulnerabilities.
 - Merge and production deployment remain gated on required GitHub checks and a
   post-deployment smoke test.
+
+## Current batch: idempotent NMB source identity
+
+- NMB records use the canonical `nmb-bank-careers` source identity while still
+  discovering and upgrading records created under the legacy `nmb-bank` alias.
+- A concurrent source-identity insert is recovered as an idempotent update
+  after the initial lookup, without weakening database uniqueness.
+- The batch is schema-free and does not delete or migrate production records.
+- Regression coverage exercises both legacy-source reconciliation and
+  concurrent unique-identity recovery.
+
+## Current batch: permanent cPanel deployment recovery
+
+- Production database credentials were rotated and the reviewed additive
+  candidate milestone migrations were applied to the `daraja` database after
+  creating the non-expiring Neon snapshot
+  `pre-job-slug-migration-2026-08-09`.
+- Public pages and the jobs API return HTTP 200 with valid job data, and three
+  consecutive scraper runs completed successfully after the repair.
+- The deployment script now detects when its commit marker disagrees with the
+  installed Next.js bundle, handles CloudLinux activation safely and validates
+  the real jobs API before recording success.
+- A misplaced application-local `node_modules` directory is preserved with a
+  timestamp and replaced by CloudLinux's required virtual-environment symlink;
+  no dependency directory is deleted.
+- Failed releases restore the prior build, public assets and startup file.
+- This batch is schema-free and never runs a Prisma migration or database push.
+- Validation completed on 9 August 2026: 107 tests, ESLint, Prisma schema
+  validation, shell syntax validation and the production build passed; the
+  runtime dependency audit reports zero vulnerabilities.
+
+## Current batch: feature-aware employer entry points
+
+- Public navigation, homepage calls to action and the sitemap advertise the
+  employer workspace only when `EMPLOYER_PORTAL_ENABLED` is active.
+- Employer, administrator, vacancy-submission and candidate workspaces evaluate
+  their feature flags at request time instead of freezing disabled CI values
+  into the release bundle.
+- Disabled employer and administrator routes continue to return not found, and
+  all existing authentication, role and verification checks remain unchanged.
+- Candidate job browsing, account navigation and direct source applications
+  remain public or protected exactly as before.
+- The feature flag is evaluated on the server without exposing configuration to
+  the browser or adding a database dependency to public metadata generation.
+- This batch is schema-free and requires no production migration.
+- It supersedes the stale runtime-feature-flags draft in pull request #56.
+- Validation completed on 10 August 2026: all 110 tests, ESLint, Prisma
+  validation and the production build passed; the runtime dependency audit
+  reports zero vulnerabilities.
+
+## Current batch: safe Ajira title reconciliation
+
+- Rendered Ajira vacancy URLs are decoded back to the stable numeric vacancy
+  identity so corrected titles update existing records instead of creating
+  parallel jobs.
+- Generic application and navigation labels are archived reversibly by setting
+  `active=false`; records are never deleted.
+- Retired financial-institution crawler rows are archived only when the stored
+  title exactly matches the stored employer. Legitimate role titles ending in
+  words such as “Bank” are explicitly preserved.
+- The live jobs API returns valid job JSON, resolving the original production
+  gate. Scraper run #202 executed the cleanup successfully: seven exact invalid
+  legacy titles were archived reversibly, with zero source failures or warnings.
+- This batch contains no schema migration or record deletion.
+- Validation completed on 10 August 2026: all 113 tests, ESLint, Prisma
+  validation and the production build passed; the runtime dependency audit
+  reports zero vulnerabilities.
 
 ## Definition-of-done evidence
 

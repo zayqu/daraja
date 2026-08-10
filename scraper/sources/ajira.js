@@ -1,4 +1,6 @@
+const crypto = require("node:crypto");
 const CryptoJS = require("crypto-js");
+const { chromium } = require("playwright");
 require("dotenv").config();
 
 const {
@@ -8,44 +10,21 @@ const {
 } = require("../lib/jobs");
 const { createPrismaClient, saveJobs } = require("../lib/store");
 
-const AJIRA_GRAPHQL_URL = "https://portal.ajira.go.tz/candidates/graphql";
 const AJIRA_DETAIL_URL = "https://portal.ajira.go.tz/view-advert";
 const AJIRA_ENCRYPTION_KEY = "*n%^+-$#@$$^@1ERFWFW";
 const REQUEST_TIMEOUT_MS = 60000;
+const MAX_PAGES = 100;
 
-const VACANCIES_QUERY = `
-  query GetVacancies {
-    getVacancies {
-      id
-      scheme {
-        id
-        codeNo
-        emp {
-          id
-          name
-        }
-      }
-      openDate
-      closeDate
-      noOfPost
-      shortlistConfirmed
-      vacancyStatus {
-        isClosed
-        daysClosedAgo
-        statusText
-        daysRemaining
-      }
-    }
-  }
-`;
+function getAjiraKey() {
+  return CryptoJS.enc.Utf8.parse(AJIRA_ENCRYPTION_KEY);
+}
 
 function encryptAjiraId(id) {
   const value = String(id || "").trim();
   if (!/^\d+$/.test(value)) {
     throw new Error(`Invalid Ajira vacancy ID: ${value || "(empty)"}`);
   }
-
-  const key = CryptoJS.enc.Utf8.parse(AJIRA_ENCRYPTION_KEY);
+  const key = getAjiraKey();
   return CryptoJS.AES.encrypt(CryptoJS.enc.Utf8.parse(value), key, {
     keySize: 128 / 32,
     iv: key,
@@ -56,86 +35,173 @@ function encryptAjiraId(id) {
     .replace(/\//g, "juam");
 }
 
+function decryptAjiraId(value) {
+  try {
+    const encrypted = decodeURIComponent(String(value || ""))
+      .replace(/juam/g, "/")
+      .trim();
+    if (!encrypted) return null;
+    const key = getAjiraKey();
+    const id = CryptoJS.AES.decrypt(encrypted, key, {
+      keySize: 128 / 32,
+      iv: key,
+      mode: CryptoJS.mode.CBC,
+      padding: CryptoJS.pad.Pkcs7,
+    }).toString(CryptoJS.enc.Utf8);
+    return /^\d+$/.test(id) ? id : null;
+  } catch {
+    return null;
+  }
+}
+
 function getAjiraDetailUrl(id) {
   return `${AJIRA_DETAIL_URL}/${encryptAjiraId(id)}`;
 }
 
 function formatDeadline(value) {
-  const match = String(value || "").match(/^(\d{4})-(\d{2})-(\d{2})/);
-  return match ? `${match[3]}/${match[2]}/${match[1]}` : value;
+  const text = String(value || "").trim();
+  const iso = text.match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if (iso) return `${iso[3]}/${iso[2]}/${iso[1]}`;
+  const display = text.match(/^(\d{1,2})[\/-](\d{1,2})[\/-](\d{4})/);
+  return display
+    ? `${display[1].padStart(2, "0")}/${display[2].padStart(2, "0")}/${display[3]}`
+    : text || null;
 }
 
 function isGenericVacancyTitle(value) {
-  return /^(?:email|physical|postal|online|manual|website|portal|walk[ -]?in)\s+application(?:\s+method)?$|^(?:how to apply|application method|apply now)$/i.test(
-    String(value || "").trim()
+  const title = String(value || "").replace(/\s+/g, " ").trim();
+  return (
+    !title ||
+    title.length < 4 ||
+    /^(?:email|physical|postal|online|manual|website|portal|walk[ -]?in)\s+application(?:\s+method)?$/i.test(title) ||
+    /^(?:how to apply|application method|apply now|view|view details|details|vacancies?|jobs?)$/i.test(title)
   );
+}
+
+function sourceIdFor(url, title, company) {
+  const match = String(url || "").match(/view-advert\/([^?#]+)/i);
+  const numericId = match ? decryptAjiraId(match[1]) : null;
+  if (numericId) return numericId;
+  return `rendered-${crypto
+    .createHash("sha256")
+    .update(`${title}|${company}|${url || AJIRA_VACANCIES_URL}`)
+    .digest("hex")
+    .slice(0, 24)}`;
+}
+
+function mapRenderedVacancy(row) {
+  const title = String(row?.title || "").replace(/\s+/g, " ").trim();
+  const company = String(row?.company || "Government of Tanzania")
+    .replace(/\s+/g, " ")
+    .trim();
+  if (isGenericVacancyTitle(title)) return null;
+
+  const sourceUrl = /^https:\/\/portal\.ajira\.go\.tz\//i.test(row?.sourceUrl || "")
+    ? row.sourceUrl
+    : AJIRA_VACANCIES_URL;
+
+  return {
+    sourceId: sourceIdFor(sourceUrl, title, company),
+    title,
+    company: company || "Government of Tanzania",
+    deadline: formatDeadline(row?.deadline),
+    numberOfPosts: row?.numberOfPosts || "",
+    sourceUrl,
+  };
 }
 
 function mapAjiraVacancy(vacancy) {
   const id = String(vacancy?.id || "").trim();
-  const title = String(vacancy?.scheme?.codeNo || "").trim();
-  if (!id || !title || isGenericVacancyTitle(title)) return null;
-
-  return {
-    sourceId: id,
-    title,
-    company: vacancy.scheme?.emp?.name,
-    deadline: formatDeadline(vacancy.closeDate),
-    numberOfPosts: vacancy.noOfPost
+  return mapRenderedVacancy({
+    title:
+      vacancy?.advertName ||
+      vacancy?.title ||
+      vacancy?.scheme?.name ||
+      vacancy?.scheme?.title ||
+      vacancy?.scheme?.codeNo,
+    company: vacancy?.scheme?.emp?.name,
+    deadline: vacancy?.closeDate,
+    numberOfPosts: vacancy?.noOfPost
       ? `Number of Posts: ${vacancy.noOfPost}`
       : "",
-    sourceUrl: getAjiraDetailUrl(id),
-  };
+    sourceUrl: /^\d+$/.test(id) ? getAjiraDetailUrl(id) : AJIRA_VACANCIES_URL,
+  });
 }
 
-async function fetchAjiraVacancies({
-  fetchFn = fetch,
-  signal = AbortSignal.timeout(REQUEST_TIMEOUT_MS),
-} = {}) {
-  const response = await fetchFn(AJIRA_GRAPHQL_URL, {
-    method: "POST",
-    headers: {
-      Accept: "application/json",
-      "Content-Type": "application/json",
-      "User-Agent": "DarajaJobsBot/1.0 (+https://www.ajira.daraja.co.tz)",
-    },
-    body: JSON.stringify({
-      operationName: "GetVacancies",
-      query: VACANCIES_QUERY,
-      variables: {},
-    }),
-    signal,
-  });
-
-  if (!response.ok) {
-    throw new Error(`Ajira vacancy API returned HTTP ${response.status}.`);
-  }
-
-  const payload = await response.json();
-  if (payload.errors?.length) {
-    const message = payload.errors
-      .map((error) => error.message)
+async function extractRenderedRows(page) {
+  return page.evaluate(() =>
+    [...document.querySelectorAll("table tbody tr")]
+      .map((row) => {
+        const cells = row.querySelectorAll("td");
+        if (cells.length < 4) return null;
+        const titleCell = cells[1];
+        const title =
+          titleCell.querySelector("div > div:first-child")?.textContent ||
+          titleCell.querySelector("a")?.textContent ||
+          titleCell.textContent;
+        const posts =
+          titleCell.querySelector(".text-gray-600")?.textContent ||
+          titleCell.querySelector("small")?.textContent ||
+          "";
+        const employer =
+          cells[2].querySelector("div")?.textContent || cells[2].textContent;
+        const deadline =
+          cells[3].querySelector("span")?.textContent || cells[3].textContent;
+        const link = row.querySelector('a[href*="view-advert"]')?.href || "";
+        return {
+          title: title?.trim(),
+          company: employer?.trim(),
+          deadline: deadline?.trim(),
+          numberOfPosts: posts?.trim(),
+          sourceUrl: link,
+        };
+      })
       .filter(Boolean)
-      .join("; ");
-    throw new Error(`Ajira vacancy API error: ${message || "unknown error"}`);
-  }
+  );
+}
 
-  const vacancies = payload.data?.getVacancies;
-  if (!Array.isArray(vacancies)) {
-    throw new Error("Ajira vacancy API returned an invalid response.");
+async function fetchRenderedRows({ launch = (options) => chromium.launch(options) } = {}) {
+  const browser = await launch({ headless: true });
+  const rows = [];
+  try {
+    const page = await browser.newPage({
+      userAgent: "DarajaJobsBot/1.0 (+https://www.ajira.daraja.co.tz)",
+    });
+    await page.goto(AJIRA_VACANCIES_URL, {
+      waitUntil: "networkidle",
+      timeout: REQUEST_TIMEOUT_MS,
+    });
+    await page.waitForSelector("table tbody tr", { timeout: REQUEST_TIMEOUT_MS });
+
+    const pageSize = page.locator("select").first();
+    if (await pageSize.count()) {
+      const options = await pageSize.locator("option").evaluateAll((items) =>
+        items.map((item) => Number(item.value)).filter(Number.isFinite)
+      );
+      if (options.length) {
+        await pageSize.selectOption(String(Math.max(...options)));
+        await page.waitForTimeout(750);
+      }
+    }
+
+    for (let pageNumber = 1; pageNumber <= MAX_PAGES; pageNumber += 1) {
+      rows.push(...(await extractRenderedRows(page)));
+      const next = page.getByRole("button", { name: /next/i }).first();
+      if (!(await next.count()) || (await next.isDisabled())) break;
+      await next.click();
+      await page.waitForTimeout(750);
+    }
+  } finally {
+    await browser.close();
   }
-  return vacancies;
+  return rows;
 }
 
 async function collectAjiraJobs(options = {}) {
-  const vacancies = await fetchAjiraVacancies(options);
-  const rawJobs = vacancies.map(mapAjiraVacancy).filter(Boolean);
-  const rejectedGenericTitles = vacancies.length - rawJobs.length;
-  console.log(
-    `Ajira API: ${vacancies.length} vacancies; ${rejectedGenericTitles} invalid or generic titles skipped`
-  );
-
-  const jobs = deduplicateJobs(rawJobs, {
+  const rows = options.rows || (await fetchRenderedRows(options));
+  const mapped = rows.map(mapRenderedVacancy).filter(Boolean);
+  const rejectedGenericTitles = rows.length - mapped.length;
+  const jobs = deduplicateJobs(mapped, {
     source: AJIRA_SOURCE,
     baseUrl: AJIRA_VACANCIES_URL,
     language: "sw",
@@ -145,12 +211,16 @@ async function collectAjiraJobs(options = {}) {
 
   if (!jobs.length) {
     throw new Error(
-      "Ajira API produced zero valid vacancies; database was not changed."
+      "Ajira rendered listings produced zero valid vacancies; database was not changed."
     );
   }
+
+  console.log(
+    `Ajira rendered listings: ${rows.length} rows; ${jobs.length} valid vacancies; ${rejectedGenericTitles} invalid titles skipped`
+  );
   Object.defineProperty(jobs, "health", {
     enumerable: false,
-    value: { rejectedGenericTitles },
+    value: { rejectedGenericTitles, renderedRows: rows.length },
   });
   return jobs;
 }
@@ -158,7 +228,6 @@ async function collectAjiraJobs(options = {}) {
 async function scrapeAjira({ dryRun = false } = {}) {
   console.log(`Starting Ajira scraper${dryRun ? " (dry run)" : ""}...`);
   const jobs = await collectAjiraJobs();
-
   if (dryRun) {
     const summary = {
       found: jobs.length,
@@ -192,14 +261,17 @@ if (require.main === module) {
 }
 
 module.exports = {
-  AJIRA_GRAPHQL_URL,
-  VACANCIES_QUERY,
   collectAjiraJobs,
+  decryptAjiraId,
   encryptAjiraId,
-  fetchAjiraVacancies,
+  extractRenderedRows,
+  fetchRenderedRows,
+  formatDeadline,
   getAjiraDetailUrl,
   isGenericVacancyTitle,
   mapAjiraVacancy,
+  mapRenderedVacancy,
   saveJobs,
   scrapeAjira,
+  sourceIdFor,
 };

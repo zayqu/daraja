@@ -15,14 +15,14 @@ export default function Home() {
         .hero::before { content: ''; position: absolute; top: -80px; left: 50%; transform: translateX(-50%); width: 600px; height: 600px; border-radius: 50%; border: 1px solid rgba(0,201,167,0.06); pointer-events: none; }
         .hero::after { content: ''; position: absolute; top: -40px; left: 50%; transform: translateX(-50%); width: 380px; height: 380px; border-radius: 50%; border: 1px solid rgba(0,201,167,0.05); pointer-events: none; }
         .hero-inner { max-width: 680px; margin: 0 auto; position: relative; }
-        .hero-eyebrow { font-size: 0.68rem; font-weight: 600; letter-spacing: 0.3em; text-transform: uppercase; color: #00C9A7; margin-bottom: 1.25rem; }
-        .hero-title { font-family: inherit; font-size: 2.8rem; font-weight: 700; color: #fff; line-height: 1.18; letter-spacing: -0.02em; margin-bottom: 1.25rem; }
+        .hero-eyebrow { font-size: 0.68rem; font-weight: 600; letter-spacing: var(--tracking-caption); text-transform: uppercase; color: #00C9A7; margin-bottom: 1.25rem; }
+        .hero-title { font-family: inherit; font-size: 3.1rem; font-weight: 700; color: #fff; line-height: var(--leading-display); letter-spacing: var(--tracking-display); margin-bottom: 1.25rem; }
         .hero-title span { color: #00C9A7; }
         .hero-sub { font-size: 0.92rem; font-weight: 300; color: rgba(255,255,255,0.5); line-height: 1.7; margin-bottom: 2.5rem; max-width: 480px; margin-left: auto; margin-right: auto; }
         .hero-btns { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
-        .btn-primary { font-family: inherit; font-size: 0.82rem; font-weight: 600; background: #00C9A7; color: #1B2A3F; padding: 0.8rem 2rem; border-radius: 4px; text-decoration: none; letter-spacing: 0.04em; transition: opacity 0.2s; }
+        .btn-primary { font-family: inherit; font-size: 0.82rem; font-weight: 600; background: #00C9A7; color: #1B2A3F; padding: 0.8rem 2rem; border-radius: var(--radius-button); text-decoration: none; letter-spacing: 0.04em; transition: opacity 0.2s; }
         .btn-primary:hover { opacity: 0.88; }
-        .btn-outline { font-family: inherit; font-size: 0.82rem; font-weight: 500; background: transparent; color: rgba(255,255,255,0.7); padding: 0.8rem 2rem; border-radius: 4px; text-decoration: none; letter-spacing: 0.04em; border: 1.5px solid rgba(255,255,255,0.15); transition: all 0.2s; }
+        .btn-outline { font-family: inherit; font-size: 0.82rem; font-weight: 500; background: transparent; color: rgba(255,255,255,0.7); padding: 0.8rem 2rem; border-radius: var(--radius-button); text-decoration: none; letter-spacing: 0.04em; border: 1.5px solid rgba(255,255,255,0.15); transition: all 0.2s; }
         .btn-outline:hover { border-color: #00C9A7; color: #00C9A7; }
 
         .stats { background: #fff; border-bottom: 1px solid #E8ECF0; }
@@ -34,11 +34,11 @@ export default function Home() {
 
         .section { max-width: 860px; margin: 0 auto; padding: 3.5rem 3rem; }
         .section-label { font-size: 0.68rem; font-weight: 600; letter-spacing: 0.25em; text-transform: uppercase; color: #00C9A7; margin-bottom: 0.75rem; }
-        .section-title { font-family: inherit; font-size: 1.5rem; font-weight: 700; color: #1B2A3F; margin-bottom: 2rem; letter-spacing: -0.02em; }
+        .section-title { font-family: inherit; font-size: var(--text-heading); font-weight: 700; color: #1B2A3F; margin-bottom: 2rem; letter-spacing: var(--tracking-heading); }
 
         .cat-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.75rem; }
-        .cat-card { background: #fff; border: 1.5px solid #E8ECF0; border-radius: 6px; padding: 1.5rem 1.25rem; text-decoration: none; transition: all 0.15s; display: block; }
-        .cat-card:hover { border-color: #00C9A7; box-shadow: 0 2px 12px rgba(0,201,167,0.08); }
+        .cat-card { background: #fff; border: 1.5px solid #E8ECF0; border-radius: var(--radius-card); padding: 1.5rem 1.25rem; text-decoration: none; transition: all 0.15s; display: block; }
+        .cat-card:hover { border-color: #00C9A7; box-shadow: var(--shadow-soft); }
         .cat-name { font-family: inherit; font-size: 0.85rem; font-weight: 600; color: #1B2A3F; margin-bottom: 0.25rem; }
         .cat-card:hover .cat-name { color: #00C9A7; }
         .cat-desc { font-size: 0.72rem; color: #8B95A1; line-height: 1.5; }
@@ -46,9 +46,9 @@ export default function Home() {
         .why { background: #1B2A3F; }
         .why-inner { max-width: 860px; margin: 0 auto; padding: 3.5rem 3rem; }
         .why-label { font-size: 0.68rem; font-weight: 600; letter-spacing: 0.25em; text-transform: uppercase; color: #00C9A7; margin-bottom: 0.75rem; }
-        .why-title { font-family: inherit; font-size: 1.5rem; font-weight: 700; color: #fff; margin-bottom: 2rem; letter-spacing: -0.02em; }
+        .why-title { font-family: inherit; font-size: var(--text-heading); font-weight: 700; color: #fff; margin-bottom: 2rem; letter-spacing: var(--tracking-heading); }
         .why-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; }
-        .why-card { border: 1px solid rgba(255,255,255,0.07); border-radius: 6px; padding: 1.5rem; }
+        .why-card { border: 1px solid rgba(255,255,255,0.07); border-radius: var(--radius-card); padding: 1.5rem; }
         .why-icon { font-size: 1.2rem; margin-bottom: 0.85rem; color: #00C9A7; font-weight: 700; }
         .why-heading { font-family: inherit; font-size: 0.88rem; font-weight: 600; color: #fff; margin-bottom: 0.4rem; }
         .why-text { font-size: 0.78rem; color: rgba(255,255,255,0.4); line-height: 1.65; font-weight: 300; }
@@ -56,7 +56,7 @@ export default function Home() {
         .cta-strip { background: #00C9A7; padding: 3rem; text-align: center; }
         .cta-strip h2 { font-family: inherit; font-size: 1.4rem; font-weight: 700; color: #1B2A3F; margin-bottom: 0.5rem; }
         .cta-strip p { font-size: 0.85rem; color: rgba(27,42,63,0.7); margin-bottom: 1.5rem; }
-        .btn-dark { font-family: inherit; font-size: 0.82rem; font-weight: 600; background: #1B2A3F; color: #fff; padding: 0.8rem 2rem; border-radius: 4px; text-decoration: none; letter-spacing: 0.04em; transition: opacity 0.2s; display: inline-block; }
+        .btn-dark { font-family: inherit; font-size: 0.82rem; font-weight: 600; background: #1B2A3F; color: #fff; padding: 0.8rem 2rem; border-radius: var(--radius-button); text-decoration: none; letter-spacing: 0.04em; transition: opacity 0.2s; display: inline-block; }
         .btn-dark:hover { opacity: 0.88; }
 
         @media (max-width: 1024px) and (min-width: 641px) {
@@ -65,7 +65,7 @@ export default function Home() {
 
         @media (max-width: 640px) {
           .hero { padding: 3.5rem 1.25rem 3rem; }
-          .hero-title { font-size: 1.9rem; }
+          .hero-title { font-size: 2rem; }
           .stats-inner { grid-template-columns: repeat(2, 1fr); gap: 1.5rem; padding: 2rem 1.25rem; }
           .stat { border-right: none; }
           .section { padding: 2.5rem 1.25rem; }
@@ -78,7 +78,7 @@ export default function Home() {
 
       <div className="home">
 
-        <SiteNav />
+        <SiteNav showSearch />
 
         <main className="hero" id="main-content">
           <div className="hero-inner">

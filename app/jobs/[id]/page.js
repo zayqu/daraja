@@ -117,12 +117,12 @@ export default function JobDetailPage() {
         .details-card { grid-area: details; }
         .browse-card { grid-area: browse; }
 
-        .main-card { background: #fff; border: 1.5px solid #E8ECF0; border-radius: 8px; overflow: hidden; }
+        .main-card { background: #fff; border: 1.5px solid #E8ECF0; border-radius: var(--radius-card); overflow: hidden; }
         .card-header { padding: 2rem 2rem 1.5rem; border-bottom: 1px solid #F0F3F7; }
         .job-title { font-family: inherit; font-size: 1.4rem; font-weight: 700; color: #1B2A3F; line-height: 1.3; margin-bottom: 0.5rem; letter-spacing: -0.01em; }
         .job-company { font-size: 0.9rem; color: #6B7685; font-weight: 400; margin-bottom: 1.25rem; }
         .job-tags { display: flex; flex-wrap: wrap; gap: 0.4rem; }
-        .tag { font-size: 0.68rem; font-weight: 500; padding: 0.25rem 0.7rem; border-radius: 3px; letter-spacing: 0.03em; }
+        .tag { font-size: 0.68rem; font-weight: 500; padding: 0.25rem 0.75rem; border-radius: var(--radius-pill); letter-spacing: 0.03em; }
         .t-cat { background: #E8FAF6; color: #0A8C74; }
         .t-loc { background: #F2F4F7; color: #6B7685; }
         .t-type { background: #F2F4F7; color: #6B7685; }
@@ -133,7 +133,7 @@ export default function JobDetailPage() {
         .section-heading:first-child { margin-top: 0; }
         .job-description { font-size: 0.875rem; color: #3D4B5C; line-height: 1.8; white-space: pre-wrap; }
 
-        .side-card { background: #fff; border: 1.5px solid #E8ECF0; border-radius: 8px; padding: 1.5rem; }
+        .side-card { background: #fff; border: 1.5px solid #E8ECF0; border-radius: var(--radius-card); padding: 1.5rem; }
         .side-card-title { font-family: inherit; font-size: 0.72rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: #667085; margin-bottom: 1.1rem; }
 
         .detail-row { display: flex; flex-direction: column; gap: 0.85rem; }
@@ -144,11 +144,11 @@ export default function JobDetailPage() {
         .detail-value.soon { color: #D97706; }
         .detail-value.ok { color: #0A8C74; }
 
-        .apply-btn { display: block; width: 100%; padding: 0.9rem; background: #00C9A7; color: #1B2A3F; font-family: inherit; font-size: 0.85rem; font-weight: 700; text-align: center; border-radius: 6px; text-decoration: none; letter-spacing: 0.04em; transition: opacity 0.2s; }
+        .apply-btn { display: block; width: 100%; padding: 0.9rem; background: #00C9A7; color: #1B2A3F; font-family: inherit; font-size: 0.85rem; font-weight: 700; text-align: center; border-radius: var(--radius-button); text-decoration: none; letter-spacing: 0.04em; transition: opacity 0.2s; }
         .apply-btn:hover { opacity: 0.88; }
-        .apply-btn-disabled { display: block; width: 100%; padding: 0.9rem; background: #E8ECF0; color: #A0ACBB; font-family: inherit; font-size: 0.85rem; font-weight: 700; text-align: center; border-radius: 6px; letter-spacing: 0.04em; cursor: not-allowed; }
+        .apply-btn-disabled { display: block; width: 100%; padding: 0.9rem; background: #E8ECF0; color: #A0ACBB; font-family: inherit; font-size: 0.85rem; font-weight: 700; text-align: center; border-radius: var(--radius-button); letter-spacing: 0.04em; cursor: not-allowed; }
         .apply-note { font-size: 0.7rem; color: #A0ACBB; text-align: center; margin-top: 0.65rem; line-height: 1.5; }
-        .share-btn { display: block; width: 100%; min-height: 46px; margin-top: 0.75rem; padding: 0.75rem; border: 1.5px solid #25D366; border-radius: 6px; background: #fff; color: #167B3C; font: 700 0.8rem 'Poppins', sans-serif; text-align: center; text-decoration: none; cursor: pointer; }
+        .share-btn { display: block; width: 100%; min-height: 46px; margin-top: 0.75rem; padding: 0.75rem; border: 1.5px solid #25D366; border-radius: var(--radius-button); background: #fff; color: #167B3C; font: 700 0.8rem 'Poppins', sans-serif; text-align: center; text-decoration: none; cursor: pointer; }
         .share-btn:hover { background: #F0FFF5; }
 
         .back-link { display: inline-flex; align-items: center; gap: 0.4rem; font-size: 0.78rem; color: #6B7685; text-decoration: none; margin-bottom: 1.5rem; transition: color 0.15s; }
@@ -169,15 +169,15 @@ export default function JobDetailPage() {
           .body { grid-template-columns: minmax(0, 1fr); grid-template-areas: "back" "header" "details" "about" "apply" "browse"; gap: 1rem; padding: 1.5rem 1.25rem 4rem; }
           .main-column, .main-card { display: contents; }
           .main-column .back-link { grid-area: back; margin-bottom: 0; }
-          .card-header { grid-area: header; background: #fff; border: 1.5px solid #E8ECF0; border-radius: 8px; padding: 1.5rem; }
-          .card-body { grid-area: about; background: #fff; border: 1.5px solid #E8ECF0; border-radius: 8px; padding: 1.5rem; }
+          .card-header { grid-area: header; background: #fff; border: 1.5px solid #E8ECF0; border-radius: var(--radius-card); padding: 1.5rem; }
+          .card-body { grid-area: about; background: #fff; border: 1.5px solid #E8ECF0; border-radius: var(--radius-card); padding: 1.5rem; }
           .application-card { margin-top: 0.5rem; }
           .job-description { font-size: 1rem; line-height: 1.75; }
         }
       `}</style>
 
       <div className="dr">
-        <SiteNav />
+        <SiteNav showSearch />
 
         <nav className="breadcrumb" aria-label="Breadcrumb">
           <div className="breadcrumb-inner">

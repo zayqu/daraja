@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import styles from "./SiteNav.module.css";
 
 const DEFAULT_LINKS = [
@@ -18,9 +19,22 @@ const DEFAULT_LINKS = [
  * `right` lets a page swap the default "Post a Job" CTA for something else
  * (e.g. a sign-out form), including server-rendered content passed down
  * from a parent Server Component.
+ *
+ * `showSearch` docks a compact search field in the bar itself (submitting
+ * takes the visitor straight to /jobs?q=...), instead of requiring a
+ * separate search header further down the page.
  */
-export default function SiteNav({ links = DEFAULT_LINKS, right }) {
+export default function SiteNav({ links = DEFAULT_LINKS, right, showSearch = false }) {
   const [open, setOpen] = useState(false);
+  const [query, setQuery] = useState("");
+  const router = useRouter();
+
+  function handleSearch(event) {
+    event.preventDefault();
+    setOpen(false);
+    const trimmed = query.trim();
+    router.push(trimmed ? `/jobs?q=${encodeURIComponent(trimmed)}` : "/jobs");
+  }
 
   return (
     <nav className={styles.nav} aria-label="Primary">
@@ -29,6 +43,22 @@ export default function SiteNav({ links = DEFAULT_LINKS, right }) {
           DARAJA
           <span>Kazi Na Fursa Tanzania</span>
         </Link>
+
+        {showSearch && (
+          <form className={styles.search} onSubmit={handleSearch} role="search">
+            <input
+              type="search"
+              className={styles.searchInput}
+              placeholder="Search job title or company"
+              value={query}
+              onChange={(event) => setQuery(event.target.value)}
+              aria-label="Search jobs"
+            />
+            <button type="submit" className={styles.searchBtn} aria-label="Search">
+              Search
+            </button>
+          </form>
+        )}
 
         <button
           type="button"

@@ -1,9 +1,11 @@
 import Link from "next/link";
 import JobAlerts from "@/components/JobAlerts";
-import SiteNav from "@/components/SiteNav";
+import PublicSiteNav from "@/components/PublicSiteNav";
+import { employerPortalEnabled } from "@/lib/features";
 import SiteFooter from "@/components/SiteFooter";
 
 export default function Home() {
+  const employerEnabled = employerPortalEnabled();
   return (
     <>
       <style>{`
@@ -78,7 +80,7 @@ export default function Home() {
 
       <div className="home">
 
-        <SiteNav showSearch />
+        <PublicSiteNav showSearch />
 
         <main className="hero" id="main-content">
           <div className="hero-inner">
@@ -93,7 +95,9 @@ export default function Home() {
             </p>
             <div className="hero-btns">
               <Link href="/jobs" className="btn-primary">Browse All Jobs</Link>
-              <Link href="/post-job" className="btn-outline">Post a Job</Link>
+              {employerEnabled && (
+                <Link href="/post-job" className="btn-outline">Post a Job</Link>
+              )}
             </div>
           </div>
         </main>
@@ -177,11 +181,13 @@ export default function Home() {
 
         <JobAlerts />
 
-        <div className="cta-strip">
-          <h2>Are you hiring?</h2>
-          <p>Post your job on Daraja and reach thousands of qualified candidates across Tanzania.</p>
-          <Link href="/post-job" className="btn-dark">Post a Job Today</Link>
-        </div>
+        {employerEnabled && (
+          <div className="cta-strip">
+            <h2>Are you hiring?</h2>
+            <p>Post your job on Daraja and reach thousands of qualified candidates across Tanzania.</p>
+            <Link href="/post-job" className="btn-dark">Post a Job Today</Link>
+          </div>
+        )}
 
         <SiteFooter />
 

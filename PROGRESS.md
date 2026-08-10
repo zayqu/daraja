@@ -1,6 +1,6 @@
 # Daraja Jobs production-readiness progress
 
-Last updated: 9 August 2026
+Last updated: 10 August 2026
 
 ## Current objective
 
@@ -232,6 +232,25 @@ require accounts only for personalised or protected features.
 - Validation completed on 9 August 2026: 107 tests, ESLint, Prisma schema
   validation, shell syntax validation and the production build passed; the
   runtime dependency audit reports zero vulnerabilities.
+
+## Current batch: feature-aware employer entry points
+
+- Public navigation, homepage calls to action and the sitemap advertise the
+  employer workspace only when `EMPLOYER_PORTAL_ENABLED` is active.
+- Employer, administrator, vacancy-submission and candidate workspaces evaluate
+  their feature flags at request time instead of freezing disabled CI values
+  into the release bundle.
+- Disabled employer and administrator routes continue to return not found, and
+  all existing authentication, role and verification checks remain unchanged.
+- Candidate job browsing, account navigation and direct source applications
+  remain public or protected exactly as before.
+- The feature flag is evaluated on the server without exposing configuration to
+  the browser or adding a database dependency to public metadata generation.
+- This batch is schema-free and requires no production migration.
+- It supersedes the stale runtime-feature-flags draft in pull request #56.
+- Validation completed on 10 August 2026: all 110 tests, ESLint, Prisma
+  validation and the production build passed; the runtime dependency audit
+  reports zero vulnerabilities.
 
 ## Definition-of-done evidence
 

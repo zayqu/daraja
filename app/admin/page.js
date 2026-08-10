@@ -4,6 +4,7 @@ import SiteNav from "@/components/SiteNav";
 import styles from "../portal.module.css";
 
 export const metadata = { title: "Moderation | Daraja" };
+export const dynamic = "force-dynamic";
 
 export default async function AdminPage() {
   if (!employerPortalEnabled()) notFound();

@@ -13,6 +13,48 @@ function createPrismaClient() {
   return new PrismaClient({ adapter });
 }
 
+function normalizeTitle(value) {
+  return String(value || "").replace(/\s+/g, " ").trim();
+}
+
+function isGenericJobTitle(value, { company, source } = {}) {
+  const title = normalizeTitle(value);
+  const isRetiredInstitutionHomepage =
+    source === "tanzania-financial-institutions" &&
+    title.length > 0 &&
+    title.toLocaleLowerCase("en") ===
+      normalizeTitle(company).toLocaleLowerCase("en");
+
+  return (
+    !title ||
+    title.length < 4 ||
+    /^(?:email|physical|postal|online|manual|website|portal|walk[ -]?in)\s+application(?:\s+method)?$/i.test(title) ||
+    /^(?:how to apply|application method|apply now|view|view details|details|vacancies?|jobs?|home|read more|reset|swahili|english)$/i.test(title) ||
+    /^(?:vacancies?|jobs?)\s+(?:and|&)\s+(?:tenders?|opportunities)$/i.test(title) ||
+    /^(?:working at|why join)\b/i.test(title) ||
+    /^(?:careers?|vacancies?|jobs?)\s+(?:overview|page|portal)$/i.test(title) ||
+    isRetiredInstitutionHomepage
+  );
+}
+
+async function archiveGenericJobTitles(prisma) {
+  if (typeof prisma?.job?.findMany !== "function") return 0;
+  const activeJobs = await prisma.job.findMany({
+    where: { active: true },
+    select: { id: true, title: true, company: true, source: true },
+  });
+  const invalidIds = activeJobs
+    .filter((job) => isGenericJobTitle(job.title, job))
+    .map((job) => job.id);
+
+  if (!invalidIds.length) return 0;
+  const result = await prisma.job.updateMany({
+    where: { id: { in: invalidIds } },
+    data: { active: false },
+  });
+  return result.count;
+}
+
 async function archiveExpiredJobs(prisma, now = new Date()) {
   const result = await prisma.job.updateMany({
     where: {
@@ -77,8 +119,6 @@ async function saveJobs(prisma, jobs, source) {
       } catch (error) {
         if (error?.code !== "P2002") throw error;
 
-        // Another writer may have reserved the source identity after the
-        // initial lookup. Re-read it and apply this cycle's canonical data.
         const concurrent = await findExistingJob(prisma, job, source);
         if (!concurrent) throw error;
         await prisma.job.update({
@@ -112,19 +152,24 @@ async function saveJobs(prisma, jobs, source) {
     });
   }
 
+  const invalidTitlesArchived = await archiveGenericJobTitles(prisma);
+
   return {
     source,
     found: jobs.length,
     created,
     updated,
-    archived: expired.count + retiredUnverified.count,
+    archived: expired.count + retiredUnverified.count + invalidTitlesArchived,
+    invalidTitlesArchived,
   };
 }
 
 module.exports = {
   archiveExpiredJobs,
+  archiveGenericJobTitles,
   createPrismaClient,
   findExistingJob,
   getCandidateSources,
+  isGenericJobTitle,
   saveJobs,
 };

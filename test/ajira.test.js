@@ -44,7 +44,7 @@ test("collectAjiraJobs maps the rendered Advert Name into a valid job", async ()
   });
 
   assert.equal(jobs.length, 1);
-  assert.match(jobs[0].sourceId, /^advert-/);
+  assert.equal(jobs[0].sourceId, "13755");
   assert.equal(jobs[0].title, "ARTISAN II (MINERAL LABORATORY)");
   assert.equal(jobs[0].company, "Geological Survey of Tanzania");
   assert.equal(jobs[0].deadline.toISOString(), "2027-08-06T23:59:59.000Z");

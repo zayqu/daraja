@@ -15,12 +15,16 @@ const AJIRA_ENCRYPTION_KEY = "*n%^+-$#@$$^@1ERFWFW";
 const REQUEST_TIMEOUT_MS = 60000;
 const MAX_PAGES = 100;
 
+function getAjiraKey() {
+  return CryptoJS.enc.Utf8.parse(AJIRA_ENCRYPTION_KEY);
+}
+
 function encryptAjiraId(id) {
   const value = String(id || "").trim();
   if (!/^\d+$/.test(value)) {
     throw new Error(`Invalid Ajira vacancy ID: ${value || "(empty)"}`);
   }
-  const key = CryptoJS.enc.Utf8.parse(AJIRA_ENCRYPTION_KEY);
+  const key = getAjiraKey();
   return CryptoJS.AES.encrypt(CryptoJS.enc.Utf8.parse(value), key, {
     keySize: 128 / 32,
     iv: key,
@@ -29,6 +33,25 @@ function encryptAjiraId(id) {
   })
     .toString()
     .replace(/\//g, "juam");
+}
+
+function decryptAjiraId(value) {
+  try {
+    const encrypted = decodeURIComponent(String(value || ""))
+      .replace(/juam/g, "/")
+      .trim();
+    if (!encrypted) return null;
+    const key = getAjiraKey();
+    const id = CryptoJS.AES.decrypt(encrypted, key, {
+      keySize: 128 / 32,
+      iv: key,
+      mode: CryptoJS.mode.CBC,
+      padding: CryptoJS.pad.Pkcs7,
+    }).toString(CryptoJS.enc.Utf8);
+    return /^\d+$/.test(id) ? id : null;
+  } catch {
+    return null;
+  }
 }
 
 function getAjiraDetailUrl(id) {
@@ -57,7 +80,8 @@ function isGenericVacancyTitle(value) {
 
 function sourceIdFor(url, title, company) {
   const match = String(url || "").match(/view-advert\/([^?#]+)/i);
-  if (match) return `advert-${match[1]}`;
+  const numericId = match ? decryptAjiraId(match[1]) : null;
+  if (numericId) return numericId;
   return `rendered-${crypto
     .createHash("sha256")
     .update(`${title}|${company}|${url || AJIRA_VACANCIES_URL}`)
@@ -136,9 +160,7 @@ async function extractRenderedRows(page) {
   );
 }
 
-async function fetchRenderedRows({
-  launch = (options) => chromium.launch(options),
-} = {}) {
+async function fetchRenderedRows({ launch = (options) => chromium.launch(options) } = {}) {
   const browser = await launch({ headless: true });
   const rows = [];
   try {
@@ -240,6 +262,7 @@ if (require.main === module) {
 
 module.exports = {
   collectAjiraJobs,
+  decryptAjiraId,
   encryptAjiraId,
   extractRenderedRows,
   fetchRenderedRows,

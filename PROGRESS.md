@@ -252,6 +252,23 @@ require accounts only for personalised or protected features.
   validation and the production build passed; the runtime dependency audit
   reports zero vulnerabilities.
 
+## Current batch: safe Ajira title reconciliation
+
+- Rendered Ajira vacancy URLs are decoded back to the stable numeric vacancy
+  identity so corrected titles update existing records instead of creating
+  parallel jobs.
+- Generic application and navigation labels are archived reversibly by setting
+  `active=false`; records are never deleted.
+- Retired financial-institution crawler rows are archived only when the stored
+  title exactly matches the stored employer. Legitimate role titles ending in
+  words such as “Bank” are explicitly preserved.
+- The live jobs API returns valid job JSON, resolving the original production
+  gate. Activating this cleanup still depends on the verified cPanel release.
+- This batch contains no schema migration or record deletion.
+- Validation completed on 10 August 2026: all 113 tests, ESLint, Prisma
+  validation and the production build passed; the runtime dependency audit
+  reports zero vulnerabilities.
+
 ## Definition-of-done evidence
 
 Every batch must record:

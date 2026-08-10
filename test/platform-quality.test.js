@@ -34,27 +34,70 @@ test("robots rules protect private endpoints and publish the sitemap", async () 
   );
 });
 
-test("public sitemap contains the primary candidate and employer pages", async () => {
+test("public sitemap includes employer entry points only when enabled", async () => {
   const { default: sitemap } = await import("../app/sitemap.js");
-  const urls = sitemap().map((entry) => entry.url);
+  const previousFlag = process.env.EMPLOYER_PORTAL_ENABLED;
+  try {
+    delete process.env.EMPLOYER_PORTAL_ENABLED;
+    const urls = sitemap().map((entry) => entry.url);
 
-  assert.deepEqual(urls, [
-    "https://www.ajira.daraja.co.tz",
-    "https://www.ajira.daraja.co.tz/jobs",
-    "https://www.ajira.daraja.co.tz/post-job",
-    "https://www.ajira.daraja.co.tz/about",
-    "https://www.ajira.daraja.co.tz/editorial-policy",
-    "https://www.ajira.daraja.co.tz/contact",
-    "https://www.ajira.daraja.co.tz/privacy",
-    "https://www.ajira.daraja.co.tz/terms",
-  ]);
+    assert.deepEqual(urls, [
+      "https://www.ajira.daraja.co.tz",
+      "https://www.ajira.daraja.co.tz/jobs",
+      "https://www.ajira.daraja.co.tz/about",
+      "https://www.ajira.daraja.co.tz/editorial-policy",
+      "https://www.ajira.daraja.co.tz/contact",
+      "https://www.ajira.daraja.co.tz/privacy",
+      "https://www.ajira.daraja.co.tz/terms",
+    ]);
+
+    process.env.EMPLOYER_PORTAL_ENABLED = "true";
+    assert.ok(
+      sitemap().some(
+        (entry) => entry.url === "https://www.ajira.daraja.co.tz/post-job"
+      )
+    );
+  } finally {
+    if (previousFlag === undefined) delete process.env.EMPLOYER_PORTAL_ENABLED;
+    else process.env.EMPLOYER_PORTAL_ENABLED = previousFlag;
+  }
+});
+
+test("disabled employer entry points are not advertised publicly", async () => {
+  const nav = await readFile(
+    path.join(__dirname, "..", "components", "PublicSiteNav.js"),
+    "utf8"
+  );
+  const siteNav = await readFile(
+    path.join(__dirname, "..", "components", "SiteNav.js"),
+    "utf8"
+  );
+  const home = await readFile(
+    path.join(__dirname, "..", "app", "page.js"),
+    "utf8"
+  );
+  const jobsPage = await readFile(
+    path.join(__dirname, "..", "app", "jobs", "page.js"),
+    "utf8"
+  );
+  const jobPage = await readFile(
+    path.join(__dirname, "..", "app", "jobs", "[id]", "page.js"),
+    "utf8"
+  );
+
+  assert.match(nav, /showEmployerCta=\{employerPortalEnabled\(\)\}/);
+  assert.match(siteNav, /showEmployerCta \? \(/);
+  assert.match(home, /const employerEnabled = employerPortalEnabled\(\)/);
+  assert.equal((home.match(/\{employerEnabled && \(/g) || []).length, 2);
+  assert.match(jobsPage, /showEmployerCta=\{employerPortalEnabled\(\)\}/);
+  assert.match(jobPage, /showEmployerCta=\{employerPortalEnabled\(\)\}/);
 });
 
 test("every public page provides a valid target for the global skip link", async () => {
   const pages = [
     "app/page.js",
-    "app/jobs/page.js",
-    "app/jobs/[id]/page.js",
+    "app/jobs/JobsPageClient.js",
+    "app/jobs/[id]/JobDetailPageClient.js",
     "app/post-job/page.js",
     "app/privacy/page.js",
     "app/alerts/unsubscribe/page.js",
@@ -99,7 +142,7 @@ test("advertising remains consent-gated and isolated from application actions", 
     "utf8"
   );
   const jobs = await readFile(
-    path.join(__dirname, "..", "app", "jobs", "page.js"),
+    path.join(__dirname, "..", "app", "jobs", "JobsPageClient.js"),
     "utf8"
   );
 

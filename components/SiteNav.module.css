@@ -1,0 +1,227 @@
+.nav {
+  position: relative;
+  background: var(--color-navy);
+  z-index: 40;
+}
+
+.bar {
+  height: var(--nav-height);
+  padding: 0 var(--gutter);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.logo {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--color-teal);
+  letter-spacing: 0.1em;
+  text-decoration: none;
+  flex-shrink: 0;
+}
+
+.logo span {
+  display: block;
+  font-size: 0.55rem;
+  font-weight: 400;
+  color: rgba(255, 255, 255, 0.35);
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  margin-top: 1px;
+}
+
+.search {
+  display: flex;
+  align-items: stretch;
+  flex: 1;
+  max-width: 360px;
+  margin: 0 0.5rem;
+}
+
+.searchInput {
+  flex: 1;
+  min-width: 0;
+  height: 38px;
+  padding: 0 0.9rem;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-right: none;
+  border-radius: var(--radius-input) 0 0 var(--radius-input);
+  background: rgba(255, 255, 255, 0.06);
+  color: #fff;
+  font-size: 0.82rem;
+  outline: none;
+}
+
+.searchInput::placeholder {
+  color: rgba(255, 255, 255, 0.4);
+}
+
+.searchInput:focus {
+  border-color: var(--color-teal);
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.searchBtn {
+  height: 38px;
+  padding: 0 1.1rem;
+  border: none;
+  border-radius: 0 var(--radius-input) var(--radius-input) 0;
+  background: var(--color-teal);
+  color: var(--color-navy);
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+  transition: opacity 0.2s;
+}
+
+.searchBtn:hover {
+  opacity: 0.88;
+}
+
+.links {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+}
+
+.link {
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.6);
+  text-decoration: none;
+  letter-spacing: 0.03em;
+  transition: color 0.15s;
+  white-space: nowrap;
+}
+
+.link:hover,
+.link:focus-visible {
+  color: #fff;
+}
+
+.right {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.cta {
+  font-size: 0.78rem;
+  font-weight: 600;
+  background: var(--color-teal);
+  color: var(--color-navy);
+  padding: 0.55rem 1.4rem;
+  border-radius: var(--radius-button);
+  text-decoration: none;
+  letter-spacing: 0.03em;
+  transition: opacity 0.2s;
+  white-space: nowrap;
+}
+
+.cta:hover {
+  opacity: 0.88;
+}
+
+.toggle {
+  display: none;
+  flex-direction: column;
+  justify-content: center;
+  gap: 5px;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.toggleBar {
+  display: block;
+  width: 20px;
+  height: 2px;
+  background: #fff;
+  border-radius: 2px;
+  transition: transform 0.2s, opacity 0.2s;
+}
+
+.nav :global(.portal-form) {
+  /* no-op guard so nav CSS never leaks into forms via specificity in build tools */
+}
+
+.link:focus-visible,
+.cta:focus-visible,
+.logo:focus-visible,
+.toggle:focus-visible {
+  outline: 3px solid #f59e0b;
+  outline-offset: 3px;
+}
+
+@media (max-width: 768px) {
+  .bar {
+    height: 60px;
+  }
+
+  .search {
+    display: none;
+  }
+
+  .toggle {
+    display: inline-flex;
+  }
+
+  .links {
+    position: absolute;
+    top: 60px;
+    left: 0;
+    right: 0;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0;
+    background: var(--color-navy);
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.18);
+    max-height: 0;
+    overflow: hidden;
+    visibility: hidden;
+    transition: max-height 0.2s ease;
+  }
+
+  .linksOpen {
+    max-height: 70vh;
+    overflow-y: auto;
+    visibility: visible;
+  }
+
+  .link {
+    padding: 0.9rem var(--gutter);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  }
+
+  .right {
+    padding: 1rem var(--gutter) 1.25rem;
+  }
+
+  .cta {
+    display: block;
+    text-align: center;
+    flex: 1;
+  }
+}
+
+.open .toggleBar:nth-child(1) {
+  transform: translateY(7px) rotate(45deg);
+}
+
+.open .toggleBar:nth-child(2) {
+  opacity: 0;
+}
+
+.open .toggleBar:nth-child(3) {
+  transform: translateY(-7px) rotate(-45deg);
+}

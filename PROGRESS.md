@@ -1,6 +1,6 @@
 # Daraja Jobs production-readiness progress
 
-Last updated: 10 August 2026
+Last updated: 11 August 2026
 
 ## Current objective
 
@@ -311,6 +311,23 @@ require accounts only for personalised or protected features.
   validation, shell syntax validation and the production build passed. The
   release-specific asset set selects the homepage route chunk rather than a
   shared vendor chunk.
+
+## Current batch: exact production release observability
+
+- A public, read-only release-health endpoint reports only the full Git commit
+  recorded inside the installed Next.js bundle.
+- Missing, shortened or malformed markers fail closed with HTTP 503 and never
+  expose filesystem paths, environment values, credentials or database state.
+- Responses are dynamic and explicitly non-cacheable so hosting and CDN caches
+  cannot make an older worker appear current.
+- The cPanel deployer requires the reported commit to exactly equal the signed
+  release marker before recording deployment success, in addition to the
+  existing frontend-asset, jobs-page and structured jobs-API checks.
+- Public job browsing remains open. This schema-free batch runs no migration or
+  database push and changes no feature flag, access control or subscriber data.
+- Validation completed on 11 August 2026: all 118 tests, ESLint, Prisma schema
+  validation, shell syntax validation and the production build passed; the
+  runtime dependency audit reports zero vulnerabilities.
 
 ## Definition-of-done evidence
 

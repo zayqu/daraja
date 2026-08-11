@@ -290,6 +290,28 @@ require accounts only for personalised or protected features.
   replacement check also selected and validated a live same-origin Next.js
   asset with the `application/javascript` MIME type.
 
+## Current batch: bounded stale-worker deployment recovery
+
+- The deployed release is verified against a JavaScript asset referenced by the
+  installed homepage artifact, so an older but otherwise healthy frontend can
+  no longer satisfy the release gate.
+- Matching commit markers are revalidated against production instead of
+  bypassing health checks on later deployment runs.
+- A mismatched frontend first receives an application-scoped CloudLinux
+  stop/start cycle and the documented Passenger restart signal.
+- LiteSpeed `lsnode` cleanup is attempted only when exactly one Node application
+  is registered for the cPanel account; multiple or unknown applications fail
+  closed instead of receiving an account-wide process signal.
+- The public homepage, jobs page and structured jobs API were independently
+  verified after the 11 August 2026 manual stale-worker recovery. The new search
+  navigation is live and disabled employer entry points remain hidden.
+- This batch is schema-free, runs no Prisma migration or database push and
+  preserves the existing atomic frontend rollback.
+- Validation completed on 11 August 2026: all 115 tests, ESLint, Prisma schema
+  validation, shell syntax validation and the production build passed. The
+  release-specific asset set selects the homepage route chunk rather than a
+  shared vendor chunk.
+
 ## Definition-of-done evidence
 
 Every batch must record:

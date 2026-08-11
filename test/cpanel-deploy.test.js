@@ -13,7 +13,7 @@ const releaseWorkflow = await readFile(
 
 test("cPanel deployment handles CloudLinux activation and restart safely", () => {
   assert.match(deployScript, /set \+u\nsource "\$VENV"\nset -u/);
-  assert.match(deployScript, /cloudlinux-selector restart/);
+  assert.match(deployScript, /restart_application restart/);
   assert.match(deployScript, /--app-root "\$CLOUDLINUX_APP_ROOT"/);
 });
 
@@ -29,9 +29,13 @@ test("cPanel deployment normalizes CloudLinux node_modules without deleting it",
 
 test("cPanel deployment verifies the exact public build before recording success", () => {
   assert.match(deployScript, /\.next\/\.daraja-commit/);
+  assert.match(deployScript, /\.next\/server\/app\/index\.html/);
   assert.match(deployScript, /for attempt in 1 2 3 4 5/);
   assert.match(deployScript, /curl -fsSL --connect-timeout 10 --max-time 30/);
-  assert.match(deployScript, /frontend_asset_healthcheck \|\| HEALTHCHECK_FAILED=1/);
+  assert.match(deployScript, /asset_urls" == "\$expected_asset_urls/);
+  assert.match(deployScript, /chunks\/app\/page-/);
+  assert.match(deployScript, /Cache-Control: no-cache/);
+  assert.match(deployScript, /recover_stale_litespeed_worker \|\| HEALTHCHECK_FAILED=1/);
   assert.match(deployScript, /candidate\.origin === origin\.origin/);
   assert.match(deployScript, /application\/javascript/);
   assert.doesNotMatch(deployScript, /_buildManifest\.js/);
@@ -43,6 +47,20 @@ test("cPanel deployment verifies the exact public build before recording success
     deployScript.indexOf("HEALTHCHECK_FAILED") <
       deployScript.indexOf('> "$STATE_DIR/deployed.commit"'),
   );
+});
+
+test("cPanel deployment recovers a stale LiteSpeed worker with bounded scope", () => {
+  assert.match(deployScript, /restart_application stop/);
+  assert.match(deployScript, /restart_application start/);
+  assert.match(deployScript, /registered_node_app_count/);
+  assert.match(deployScript, /registered_apps" != "1/);
+  assert.match(deployScript, /pkill -u "\$app_uid" -f '\[l\]snode'/);
+  assert.match(deployScript, /touch "\$APP_DIR\/tmp\/restart\.txt"/);
+  assert.match(
+    deployScript,
+    /REMOTE_COMMIT" == "\$CURRENT_COMMIT"[\s\S]+frontend_asset_healthcheck/,
+  );
+  assert.doesNotMatch(deployScript, /pkill (?:node|-f ['"]?lsnode)/);
 });
 
 test("cPanel deployment automatically restores the previous frontend on failure", () => {

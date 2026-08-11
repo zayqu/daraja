@@ -10,6 +10,7 @@ VENV_NODE_MODULES="${VENV_NODE_MODULES:-$VENV_ROOT/lib/node_modules}"
 APP_USER="${APP_USER:-$(id -un)}"
 CLOUDLINUX_APP_ROOT="${CLOUDLINUX_APP_ROOT:-${APP_DIR#/home/$APP_USER/}}"
 HEALTHCHECK_ORIGIN="${HEALTHCHECK_ORIGIN:-https://www.ajira.daraja.co.tz}"
+STALE_WORKER_WAIT_SECONDS="${STALE_WORKER_WAIT_SECONDS:-5}"
 
 healthcheck() {
   local url="$1"
@@ -27,36 +28,63 @@ healthcheck() {
   return 1
 }
 
+extract_frontend_asset_urls() {
+  local html_file="$1"
+
+  node -e '
+    const html = require("node:fs").readFileSync(process.argv[1], "utf8");
+    const origin = new URL(process.argv[2]);
+    const matches = html.matchAll(/<script[^>]+src=["\x27]([^"\x27]+)["\x27]/gi);
+    const assets = new Set();
+    for (const match of matches) {
+      const candidate = new URL(match[1].replaceAll("&amp;", "&"), origin);
+      if (candidate.origin === origin.origin && /^\/_next\/static\/.*\.js$/.test(candidate.pathname)) {
+        assets.add(candidate.href);
+      }
+    }
+    if (assets.size === 0) process.exit(1);
+    process.stdout.write([...assets].sort().join("\n"));
+  ' "$html_file" "$HEALTHCHECK_ORIGIN" 2>/dev/null
+}
+
 frontend_asset_healthcheck() {
   local page_file="$WORK_DIR/frontend-health.html"
   local asset_file="$WORK_DIR/frontend-health.js"
   local headers_file="$WORK_DIR/frontend-health.headers"
-  local asset_url
+  local expected_page_file="$APP_DIR/.next/server/app/index.html"
+  local asset_urls
+  local expected_asset_urls
+  local expected_asset_url
   local content_type
   local attempt
 
+  if [[ ! -s "$expected_page_file" ]]; then
+    printf 'Installed homepage artifact was not found: %s\n' "$expected_page_file" >&2
+    return 1
+  fi
+
+  expected_asset_urls="$(extract_frontend_asset_urls "$expected_page_file" || true)"
+  if [[ -z "$expected_asset_urls" ]]; then
+    printf 'Installed homepage does not reference a same-origin Next.js asset.\n' >&2
+    return 1
+  fi
+  expected_asset_url="$(printf '%s\n' "$expected_asset_urls" | grep -E '/_next/static/chunks/app/page-[^/]+\.js$' | head -n 1 || true)"
+  if [[ -z "$expected_asset_url" ]]; then
+    expected_asset_url="$(printf '%s\n' "$expected_asset_urls" | head -n 1)"
+  fi
+
   for attempt in 1 2 3 4 5; do
     if curl -fsSL --connect-timeout 10 --max-time 30 \
-      "$HEALTHCHECK_ORIGIN/" \
+      -H "Cache-Control: no-cache" \
+      -H "Pragma: no-cache" \
+      "$HEALTHCHECK_ORIGIN/?daraja_release=$REMOTE_COMMIT&attempt=$attempt" \
       -o "$page_file"; then
-      asset_url="$(node -e '
-        const html = require("node:fs").readFileSync(process.argv[1], "utf8");
-        const origin = new URL(process.argv[2]);
-        const matches = html.matchAll(/<script[^>]+src=["\x27]([^"\x27]+)["\x27]/gi);
-        for (const match of matches) {
-          const candidate = new URL(match[1].replaceAll("&amp;", "&"), origin);
-          if (candidate.origin === origin.origin && /^\/_next\/static\/.*\.js$/.test(candidate.pathname)) {
-            process.stdout.write(candidate.href);
-            process.exit(0);
-          }
-        }
-        process.exit(1);
-      ' "$page_file" "$HEALTHCHECK_ORIGIN" 2>/dev/null || true)"
+      asset_urls="$(extract_frontend_asset_urls "$page_file" || true)"
 
-      if [[ -n "$asset_url" ]] && \
+      if [[ "$asset_urls" == "$expected_asset_urls" ]] && \
         curl -fsSL --connect-timeout 10 --max-time 30 \
           -D "$headers_file" \
-          "$asset_url" \
+          "$expected_asset_url" \
           -o "$asset_file" && \
         [[ -s "$asset_file" ]]; then
         content_type="$(awk 'BEGIN { IGNORECASE=1 } /^content-type:/ { value=$0 } END { sub(/^[^:]+:[[:space:]]*/, "", value); sub(/\r$/, "", value); print tolower(value) }' "$headers_file")"
@@ -72,6 +100,74 @@ frontend_asset_healthcheck() {
   done
 
   return 1
+}
+
+restart_application() {
+  local action="$1"
+
+  mkdir -p "$APP_DIR/tmp"
+  touch "$APP_DIR/tmp/restart.txt"
+  cloudlinux-selector "$action" \
+    --json \
+    --interpreter nodejs \
+    --user "$APP_USER" \
+    --app-root "$CLOUDLINUX_APP_ROOT"
+}
+
+registered_node_app_count() {
+  cloudlinux-selector get \
+    --json \
+    --interpreter nodejs \
+    --user "$APP_USER" | node -e '
+      let input = "";
+      process.stdin.on("data", (chunk) => { input += chunk; });
+      process.stdin.on("end", () => {
+        const payload = JSON.parse(input);
+        const applications = new Set();
+        for (const version of Object.values(payload.available_versions || {})) {
+          const user = version?.users?.[process.argv[1]];
+          for (const appRoot of Object.keys(user?.applications || {})) {
+            applications.add(appRoot);
+          }
+        }
+        process.stdout.write(String(applications.size));
+      });
+    ' "$APP_USER"
+}
+
+recover_stale_litespeed_worker() {
+  local registered_apps
+  local app_uid
+
+  printf 'Public frontend does not match the installed release; forcing an application-scoped restart.\n' >&2
+  restart_application stop
+  sleep "$STALE_WORKER_WAIT_SECONDS"
+  restart_application start
+  sleep "$STALE_WORKER_WAIT_SECONDS"
+
+  if frontend_asset_healthcheck; then
+    return 0
+  fi
+
+  registered_apps="$(registered_node_app_count 2>/dev/null || true)"
+  if [[ "$registered_apps" != "1" ]]; then
+    printf 'Refusing account-wide lsnode cleanup because %s Node applications are registered.\n' \
+      "${registered_apps:-an unknown number of}" >&2
+    return 1
+  fi
+
+  if ! command -v pkill >/dev/null 2>&1; then
+    printf 'pkill is required to clear a stale LiteSpeed lsnode worker.\n' >&2
+    return 1
+  fi
+
+  app_uid="$(id -u "$APP_USER")"
+  printf 'Clearing stale lsnode workers for the single registered Node application.\n' >&2
+  pkill -u "$app_uid" -f '[l]snode' || true
+  sleep "$STALE_WORKER_WAIT_SECONDS"
+  restart_application start
+  sleep "$STALE_WORKER_WAIT_SECONDS"
+  frontend_asset_healthcheck
 }
 
 jobs_api_healthcheck() {
@@ -140,7 +236,26 @@ CURRENT_COMMIT="$(cat "$STATE_DIR/deployed.commit" 2>/dev/null || true)"
 INSTALLED_COMMIT="$(cat "$APP_DIR/.next/.daraja-commit" 2>/dev/null || true)"
 
 if [[ -n "$REMOTE_COMMIT" && "$REMOTE_COMMIT" == "$CURRENT_COMMIT" && "$REMOTE_COMMIT" == "$INSTALLED_COMMIT" ]]; then
-  exit 0
+  if [[ -f "$VENV" ]] && command -v cloudlinux-selector >/dev/null 2>&1; then
+    set +u
+    source "$VENV"
+    set -u
+    cd "$APP_DIR"
+
+    if frontend_asset_healthcheck && \
+      healthcheck "$HEALTHCHECK_ORIGIN/jobs" && \
+      jobs_api_healthcheck; then
+      exit 0
+    fi
+
+    if recover_stale_litespeed_worker && \
+      healthcheck "$HEALTHCHECK_ORIGIN/jobs" && \
+      jobs_api_healthcheck; then
+      exit 0
+    fi
+  fi
+
+  printf 'Installed release markers match, but public health does not; reinstalling the verified release.\n' >&2
 fi
 
 curl -fsSL --retry 3 --retry-delay 3   "$RELEASE_URL/daraja-cpanel-build.tar.gz"   -o "$WORK_DIR/daraja-cpanel-build.tar.gz"
@@ -203,14 +318,12 @@ cp "$WORK_DIR/extracted/server.js" server.js
 printf '%s\n' "$REMOTE_COMMIT" > .next/.daraja-commit
 
 mkdir -p tmp
-cloudlinux-selector restart \
-  --json \
-  --interpreter nodejs \
-  --user "$APP_USER" \
-  --app-root "$CLOUDLINUX_APP_ROOT"
+restart_application restart
 
 HEALTHCHECK_FAILED=0
-frontend_asset_healthcheck || HEALTHCHECK_FAILED=1
+if ! frontend_asset_healthcheck; then
+  recover_stale_litespeed_worker || HEALTHCHECK_FAILED=1
+fi
 healthcheck "$HEALTHCHECK_ORIGIN/jobs" || HEALTHCHECK_FAILED=1
 jobs_api_healthcheck || HEALTHCHECK_FAILED=1
 
@@ -227,11 +340,7 @@ if [[ "$HEALTHCHECK_FAILED" -ne 0 ]]; then
   if [[ -f server.js.previous ]]; then
     mv server.js.previous server.js
   fi
-  cloudlinux-selector restart \
-    --json \
-    --interpreter nodejs \
-    --user "$APP_USER" \
-    --app-root "$CLOUDLINUX_APP_ROOT"
+  restart_application restart
   printf 'Release health check failed; previous build restored. Failed build kept at %s/%s.\n' "$APP_DIR" "$FAILED_DIR" >&2
   exit 1
 fi

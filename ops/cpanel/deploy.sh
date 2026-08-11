@@ -102,6 +102,36 @@ frontend_asset_healthcheck() {
   return 1
 }
 
+release_marker_healthcheck() {
+  local url="$HEALTHCHECK_ORIGIN/api/health/release"
+  local response_file="$WORK_DIR/release-health.json"
+  local attempt
+
+  for attempt in 1 2 3 4 5; do
+    if curl -fsSL --connect-timeout 10 --max-time 30 \
+      -H "Accept: application/json" \
+      -H "Cache-Control: no-cache" \
+      -H "Pragma: no-cache" \
+      "$url?daraja_release=$REMOTE_COMMIT&attempt=$attempt" \
+      -o "$response_file" && \
+      node -e '
+        const payload = JSON.parse(require("node:fs").readFileSync(process.argv[1], "utf8"));
+        if (payload.status !== "ok" || payload.release !== process.argv[2]) process.exit(1);
+      ' "$response_file" "$REMOTE_COMMIT"; then
+      return 0
+    fi
+    if [[ "$attempt" -lt 5 ]]; then
+      sleep 3
+    fi
+  done
+
+  return 1
+}
+
+public_release_healthcheck() {
+  frontend_asset_healthcheck && release_marker_healthcheck
+}
+
 restart_application() {
   local action="$1"
 
@@ -145,7 +175,7 @@ recover_stale_litespeed_worker() {
   restart_application start
   sleep "$STALE_WORKER_WAIT_SECONDS"
 
-  if frontend_asset_healthcheck; then
+  if public_release_healthcheck; then
     return 0
   fi
 
@@ -167,7 +197,7 @@ recover_stale_litespeed_worker() {
   sleep "$STALE_WORKER_WAIT_SECONDS"
   restart_application start
   sleep "$STALE_WORKER_WAIT_SECONDS"
-  frontend_asset_healthcheck
+  public_release_healthcheck
 }
 
 jobs_api_healthcheck() {
@@ -242,7 +272,7 @@ if [[ -n "$REMOTE_COMMIT" && "$REMOTE_COMMIT" == "$CURRENT_COMMIT" && "$REMOTE_C
     set -u
     cd "$APP_DIR"
 
-    if frontend_asset_healthcheck && \
+    if public_release_healthcheck && \
       healthcheck "$HEALTHCHECK_ORIGIN/jobs" && \
       jobs_api_healthcheck; then
       exit 0
@@ -321,7 +351,7 @@ mkdir -p tmp
 restart_application restart
 
 HEALTHCHECK_FAILED=0
-if ! frontend_asset_healthcheck; then
+if ! public_release_healthcheck; then
   recover_stale_litespeed_worker || HEALTHCHECK_FAILED=1
 fi
 healthcheck "$HEALTHCHECK_ORIGIN/jobs" || HEALTHCHECK_FAILED=1

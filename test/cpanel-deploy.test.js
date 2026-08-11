@@ -35,6 +35,10 @@ test("cPanel deployment verifies the exact public build before recording success
   assert.match(deployScript, /asset_urls" == "\$expected_asset_urls/);
   assert.match(deployScript, /chunks\/app\/page-/);
   assert.match(deployScript, /Cache-Control: no-cache/);
+  assert.match(deployScript, /release_marker_healthcheck/);
+  assert.match(deployScript, /\/api\/health\/release/);
+  assert.match(deployScript, /payload\.release !== process\.argv\[2\]/);
+  assert.match(deployScript, /public_release_healthcheck/);
   assert.match(deployScript, /recover_stale_litespeed_worker \|\| HEALTHCHECK_FAILED=1/);
   assert.match(deployScript, /candidate\.origin === origin\.origin/);
   assert.match(deployScript, /application\/javascript/);
@@ -58,7 +62,7 @@ test("cPanel deployment recovers a stale LiteSpeed worker with bounded scope", (
   assert.match(deployScript, /touch "\$APP_DIR\/tmp\/restart\.txt"/);
   assert.match(
     deployScript,
-    /REMOTE_COMMIT" == "\$CURRENT_COMMIT"[\s\S]+frontend_asset_healthcheck/,
+    /REMOTE_COMMIT" == "\$CURRENT_COMMIT"[\s\S]+public_release_healthcheck/,
   );
   assert.doesNotMatch(deployScript, /pkill (?:node|-f ['"]?lsnode)/);
 });

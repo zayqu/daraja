@@ -2,6 +2,13 @@ const { PrismaClient } = require("@prisma/client");
 const { PrismaPg } = require("@prisma/adapter-pg");
 const { createJobWithPositionSlug } = require("../../lib/job-slug");
 
+const AUTHORITATIVE_SNAPSHOT_SOURCES = new Set([
+  "ajira",
+  "ajiraweb",
+  "nmb-bank-careers",
+  "standardbank-tanzania",
+]);
+
 function createPrismaClient() {
   if (!process.env.DATABASE_URL) {
     throw new Error("DATABASE_URL is required unless --dry-run is used.");
@@ -60,6 +67,28 @@ async function archiveExpiredJobs(prisma, now = new Date()) {
     where: {
       active: true,
       deadline: { lt: now },
+    },
+    data: { active: false },
+  });
+  return result.count;
+}
+
+async function archiveMissingSourceJobs(prisma, jobs, source) {
+  if (!AUTHORITATIVE_SNAPSHOT_SOURCES.has(source)) return 0;
+  if (!Array.isArray(jobs) || jobs.length === 0) return 0;
+
+  const currentSourceIds = [...new Set(
+    jobs
+      .map((job) => String(job?.sourceId || "").trim())
+      .filter(Boolean)
+  )];
+  if (!currentSourceIds.length) return 0;
+
+  const result = await prisma.job.updateMany({
+    where: {
+      source,
+      active: true,
+      sourceId: { notIn: currentSourceIds },
     },
     data: { active: false },
   });
@@ -139,19 +168,11 @@ async function saveJobs(prisma, jobs, source) {
     },
     data: { active: false },
   });
-
-  let retiredUnverified = { count: 0 };
-  if (source === "ajiraweb") {
-    retiredUnverified = await prisma.job.updateMany({
-      where: {
-        source,
-        active: true,
-        sourceId: { notIn: jobs.map((job) => job.sourceId) },
-      },
-      data: { active: false },
-    });
-  }
-
+  const missingFromSourceArchived = await archiveMissingSourceJobs(
+    prisma,
+    jobs,
+    source
+  );
   const invalidTitlesArchived = await archiveGenericJobTitles(prisma);
 
   return {
@@ -159,7 +180,9 @@ async function saveJobs(prisma, jobs, source) {
     found: jobs.length,
     created,
     updated,
-    archived: expired.count + retiredUnverified.count + invalidTitlesArchived,
+    archived:
+      expired.count + missingFromSourceArchived + invalidTitlesArchived,
+    missingFromSourceArchived,
     invalidTitlesArchived,
   };
 }
@@ -167,6 +190,7 @@ async function saveJobs(prisma, jobs, source) {
 module.exports = {
   archiveExpiredJobs,
   archiveGenericJobTitles,
+  archiveMissingSourceJobs,
   createPrismaClient,
   findExistingJob,
   getCandidateSources,

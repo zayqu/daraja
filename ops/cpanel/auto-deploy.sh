@@ -23,11 +23,11 @@ fi
 work_dir="$(mktemp -d "$STATE_DIR/bootstrap.XXXXXX")"
 trap 'rm -rf "$work_dir"' EXIT
 
-curl -fsSL --retry 3 --retry-all-errors \
+curl -fsSL --retry 3 \
   --connect-timeout 10 --max-time 60 \
   "$RELEASE_URL/daraja-cpanel-deploy.sh" \
   -o "$work_dir/daraja-cpanel-deploy.sh"
-curl -fsSL --retry 3 --retry-all-errors \
+curl -fsSL --retry 3 \
   --connect-timeout 10 --max-time 60 \
   "$RELEASE_URL/daraja-cpanel-deploy.sha256" \
   -o "$work_dir/daraja-cpanel-deploy.sha256"

@@ -8,9 +8,87 @@ and verified organisations through one trusted work marketplace.
 The initial market is Tanzania. The regional design target is Tanzania, Kenya,
 Uganda and Rwanda, followed by wider East Africa.
 
+Daraja is not only a job board. It is a work marketplace SaaS with candidate
+career tools, employer hiring software, freelance services/projects, payments
+readiness and AI assistance. Security, privacy and trust are platform features
+that every product area depends on.
+
+## Product priorities
+
+The product order is deliberate:
+
+1. Security, privacy, trust and production protection.
+2. Candidate career identity, CV Builder and AI CV Builder.
+3. Reliable public jobs, applications and personalised discovery.
+4. Employer hiring SaaS and ATS.
+5. Freelance services/projects and messaging.
+6. Provider-backed payments and marketplace transactions.
+7. Wider AI work engine capabilities.
+8. Native iOS/Android applications and regional expansion after the web/API
+   workflows are stable.
+
 ## Product pillars
 
-### 1. Jobs
+### 1. Security, privacy and trust
+
+Daraja handles employment history, CVs, contact details, applications, employer
+data and eventually messages, project files and payments. Protection is not a
+later hardening task.
+
+The platform must provide:
+
+- secure authentication and session handling;
+- server-side ownership and permission checks;
+- private-by-default candidate data and files;
+- safe uploads and authenticated document access;
+- secret management and credential rotation;
+- rate limits and abuse/fraud controls;
+- audit evidence for privileged changes;
+- safe provider/webhook boundaries;
+- backups, rollback and incident recovery;
+- privacy-preserving analytics and AI data minimisation.
+
+`SECURITY.md` is the detailed baseline.
+
+### 2. Candidate career workspace, CV Builder and AI CV Builder
+
+Authenticated candidates maintain a reusable career identity with profile,
+skills, location, work preferences, saved jobs, applications, alerts and
+private documents.
+
+The CV Builder is a first-class product, not only a file-upload feature.
+Candidates should be able to create and maintain structured career information:
+
+- contact/profile details;
+- professional summary/objective;
+- work experience;
+- education;
+- skills;
+- projects;
+- certifications;
+- languages;
+- portfolio/links;
+- optional references;
+- layout/template choices;
+- multiple saved CV versions;
+- ATS-friendly PDF export.
+
+A candidate may keep a Master CV and create tailored versions for different
+industries, roles or individual vacancies.
+
+The AI CV Builder may help rewrite candidate-provided content, strengthen bullet
+wording, suggest summaries, identify likely ATS gaps, suggest skills supported by
+existing facts, tailor a CV to a specific vacancy and generate cover-letter
+drafts.
+
+AI must never invent employers, dates, qualifications, certificates,
+achievements or skills. Every AI change must be previewable and explicitly
+approved by the candidate before it becomes part of a saved CV version.
+
+Candidate documents and generated CVs are private by default. Employer access
+must follow explicit application/talent-discovery permissions.
+
+### 3. Jobs
 
 Public discovery of verified government, NGO, corporate, finance, healthcare,
 education, technology, engineering, graduate, internship, contract and remote
@@ -21,17 +99,11 @@ Closed vacancies belong in Expired, not Open. External applications must lead
 to the final official application/login destination, not an intermediate
 institution description page when a safe final CTA can be resolved.
 
-### 2. Candidate career workspace
+Jobs should feed the candidate career system: save, alert, compare fit, tailor a
+CV and apply. Public discovery must remain useful even when the user has no
+account.
 
-Authenticated candidates can maintain a reusable career identity with profile,
-CV/document references, skills, location, work preferences, saved jobs,
-application tracking and personalised alerts.
-
-Future AI assistance may explain vacancy fit, identify missing requirements,
-help improve a CV/profile and support natural-language job discovery. AI must
-not silently change candidate data or make final hiring decisions.
-
-### 3. Employer hiring SaaS
+### 4. Employer hiring SaaS
 
 Verified employers can maintain company profiles, publish vacancies, manage
 applications, shortlist candidates, collaborate with team members, search a
@@ -40,7 +112,11 @@ consented talent pool and view hiring analytics.
 Employer verification and job moderation remain trust controls. Imported public
 vacancies and employer-owned vacancies must have clear provenance.
 
-### 4. Freelance marketplace
+Employers must never receive unrestricted access to private candidate CVs or
+contact details merely because they have an account. Access follows candidate
+consent/application rules and employer permissions.
+
+### 5. Freelance marketplace
 
 Daraja will support both marketplace patterns:
 
@@ -56,7 +132,10 @@ a candidate may also freelance and buy services. The current single `User.role`
 is therefore a transitional implementation constraint, not the desired final
 identity model.
 
-### 5. Payments and monetisation
+Private messages, proposals, deliverables and project files follow the same
+security/privacy baseline as candidate documents unless explicitly published.
+
+### 6. Payments and monetisation
 
 Daraja may monetise employer subscriptions, promoted listings, premium career
 features, freelancer marketplace fees and other clearly disclosed services.
@@ -66,14 +145,18 @@ mobile money/card methods, and use auditable state transitions. Daraja must not
 claim or simulate regulated escrow unless a licensed structure/provider is in
 place.
 
-### 6. AI work engine
+Daraja should minimise payment-card scope and never store raw card numbers/CVV.
+
+### 7. AI work engine
 
 AI is a shared platform capability, not a separate chatbot feature.
 
 Candidate uses:
+- AI CV Builder and CV tailoring;
+- cover-letter drafting from candidate-approved facts;
 - natural-language job search;
 - explainable job matching;
-- CV/profile improvement suggestions;
+- profile improvement suggestions;
 - career guidance and interview preparation.
 
 Employer uses:
@@ -97,7 +180,8 @@ Trust uses:
 
 AI output must be bounded, reviewable and explainable where it affects work
 opportunities. Human control is required for rejection, suspension, payment,
-dispute and other consequential decisions.
+dispute and other consequential decisions. Core workflows must continue to
+work when AI is unavailable.
 
 ## East Africa product requirements
 
@@ -112,22 +196,37 @@ dispute and other consequential decisions.
 - support for public-sector, NGO and graduate employment patterns;
 - remote/global opportunities without losing regional relevance.
 
+## Mobile application direction
+
+The future iOS and Android applications must be clients of the same protected
+Daraja backend/API and database rather than separate products.
+
+A saved job, CV version, application, message or marketplace contract must be
+the same record whether accessed from web, iOS or Android.
+
+Do not embed private provider credentials or business-authorisation logic in the
+mobile apps. Mobile should come after core web/API workflows are stable.
+
 ## Trust principles
 
 - show source provenance for imported opportunities;
 - never fabricate jobs, employers, application destinations or deadlines;
 - preserve expired history rather than deleting records routinely;
-- protect candidate contact/profile information by default;
+- protect candidate contact/profile/CV information by default;
 - separate paid promotion from organic relevance;
 - make AI assistance distinguishable from verified employer/source facts;
-- give users clear controls for alerts, consent, subscriptions and deletion
-  requests.
+- never allow AI to fabricate candidate career facts;
+- give users clear controls for alerts, consent, subscriptions, data export and
+  deletion requests;
+- verification badges must represent completed verification checks.
 
 ## North-star journeys
 
-Candidate: Discover -> understand fit -> save/alert -> apply -> track -> grow.
+Candidate: Discover -> create career profile/CV -> understand fit -> tailor ->
+save/alert -> apply -> track -> grow.
 
-Employer: Verify -> publish/source -> review -> shortlist -> hire -> measure.
+Employer: Verify -> publish/source -> review permitted candidate data ->
+shortlist -> hire -> measure.
 
 Freelancer: Build profile -> publish services/find projects -> propose ->
 contract -> deliver -> get reviewed/paid.

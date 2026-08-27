@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
+import { buildPublicJobWhere } from "@/lib/job-query";
 
 export async function GET(request) {
   try {
@@ -22,22 +23,7 @@ export async function GET(request) {
 
     const skip = (page - 1) * limit;
     const now = new Date();
-    const where = { moderationStatus: "PUBLISHED" };
-
-    if (status === "expired") {
-      where.OR = [
-        { active: false },
-        { deadline: { lt: now } },
-      ];
-    } else if (status === "all") {
-      // All published vacancies, including closed records.
-    } else {
-      where.active = true;
-      where.OR = [
-        { deadline: null },
-        { deadline: { gte: now } },
-      ];
-    }
+    const where = buildPublicJobWhere(status, now);
 
     if (category) where.category = category;
     if (source) where.source = source;

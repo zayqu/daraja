@@ -360,6 +360,30 @@ require accounts only for personalised or protected features.
   validation, shell syntax validation and the production build passed; the
   runtime dependency audit reports zero vulnerabilities.
 
+## In review: closed-vacancy lifecycle and guarded Apply destinations
+
+- Open job queries now require vacancies to be active, published and not past
+  their deadline; Expired and All views remain restricted to published records.
+- Successful non-empty snapshots from Ajira, AjiraWeb, NMB and Standard Bank
+  archive source records that disappeared by setting `active=false`. Empty or
+  malformed snapshots fail safe and never mass-archive existing vacancies.
+- Job-detail responses preserve direct email applications and route external
+  HTTP applications through a dedicated no-store redirect endpoint.
+- Server-side application-page resolution is restricted to exact source-owned
+  HTTPS hosts, validates every redirect before following it, rejects credential
+  URLs and IP literals, and caps HTML responses at one megabyte. Other verified
+  destinations open in the candidate browser without turning Daraja into an
+  unrestricted proxy.
+- Known ATS recognition uses exact hostname boundaries so lookalike domains
+  cannot inherit trusted direct-application handling.
+- This batch is schema-free, deletes no records, changes no credentials and
+  sends no message or payment. Public job browsing remains open.
+- Validation completed on 27 August 2026: all 139 tests, ESLint, Prisma schema
+  validation and the production build passed; the runtime dependency audit
+  reports zero vulnerabilities.
+- Pull request #75 is the focused release. Its protected preview and cPanel
+  release evidence must pass again after the resolver hardening before merge.
+
 ## Definition-of-done evidence
 
 Every batch must record:

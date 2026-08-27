@@ -104,6 +104,9 @@ require accounts only for personalised or protected features.
   `deepmerge-ts` and `nanoid` transitive releases.
 - This batch has no schema migration. Its transport remains a sandbox-only
   library with no public route, scheduled job or subscriber-delivery caller.
+- Pull request #73 passed Vercel and cPanel release workflow #33040764228. The
+  protected Vercel preview deployed successfully and correctly redirected an
+  unauthenticated smoke request to Vercel SSO.
 
 ## Current professional experience release
 
@@ -293,7 +296,7 @@ require accounts only for personalised or protected features.
   `active=false`; records are never deleted.
 - Retired financial-institution crawler rows are archived only when the stored
   title exactly matches the stored employer. Legitimate role titles ending in
-  words such as “Bank” are explicitly preserved.
+  words such as âBankâ are explicitly preserved.
 - The live jobs API returns valid job JSON, resolving the original production
   gate. Activating this cleanup still depends on the verified cPanel release.
 - This batch contains no schema migration or record deletion.

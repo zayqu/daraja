@@ -116,6 +116,57 @@ mobile-money compatibility and multiple regional currencies.
 **Status:** accepted
 
 Important project context must live in repository Markdown, PRs and tests rather
-than only in chat history. `AGENTS.md`, `PRODUCT.md`, `ARCHITECTURE.md`,
-`ROADMAP.md`, `WORKSTREAMS.md`, `DECISIONS.md` and `PROGRESS.md` are the shared
-coordination set.
+than only in chat history. `AGENTS.md`, `SECURITY.md`, `PRODUCT.md`,
+`ARCHITECTURE.md`, `ROADMAP.md`, `WORKSTREAMS.md`, `DECISIONS.md` and
+`PROGRESS.md` are the shared coordination set.
+
+## D-013 - Security and privacy precede marketplace expansion
+
+**Status:** accepted
+
+Daraja handles sensitive career and identity data. Security, privacy, trust,
+backup/recovery, secret management, file protection and authorisation are
+platform prerequisites, not a final polish phase.
+
+No freelance, messaging, payment or broad AI feature may bypass the boundaries
+in `SECURITY.md` merely to ship faster.
+
+## D-014 - CV Builder is a first-class candidate product
+
+**Status:** accepted
+
+Daraja must provide a structured CV Builder, not only a CV upload field.
+Candidate-approved structured career facts are the source of truth. The product
+should support multiple CV versions and ATS-friendly export.
+
+CVs and supporting candidate documents are private by default. Storage/access
+must evolve toward private object storage with authenticated or short-lived
+signed access rather than permanent public URLs.
+
+The current `CandidateDocument.url` field is transitional and does not grant
+permission to expose candidate documents publicly.
+
+## D-015 - AI CV Builder may improve wording but not invent facts
+
+**Status:** accepted
+
+The AI CV Builder may rewrite candidate-provided text, suggest summaries,
+identify likely ATS gaps, tailor a CV to a vacancy and draft cover letters from
+approved facts.
+
+It must not invent employers, dates, qualifications, certificates,
+achievements or skills. Generated changes are suggestions until the candidate
+previews and explicitly approves them.
+
+AI output must remain distinguishable from verified/candidate-supplied facts.
+
+## D-016 - Web and future mobile apps share one backend source of truth
+
+**Status:** accepted
+
+Future iOS and Android applications are clients of the same protected Daraja
+backend/API and database. They must not create parallel user/job/CV/payment
+systems or embed private server/provider credentials.
+
+A saved job, CV version, application, message or contract should represent the
+same backend record regardless of web or mobile client.

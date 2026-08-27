@@ -21,15 +21,21 @@ export async function GET(request) {
     const status = searchParams.get("status") || "active";
 
     const skip = (page - 1) * limit;
-
-    const where = { active: true };
+    const now = new Date();
+    const where = { moderationStatus: "PUBLISHED" };
 
     if (status === "expired") {
-      where.deadline = { lt: new Date() };
-    } else if (status !== "all") {
+      where.OR = [
+        { active: false },
+        { deadline: { lt: now } },
+      ];
+    } else if (status === "all") {
+      // All published vacancies, including closed records.
+    } else {
+      where.active = true;
       where.OR = [
         { deadline: null },
-        { deadline: { gte: new Date() } },
+        { deadline: { gte: now } },
       ];
     }
 

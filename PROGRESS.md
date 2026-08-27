@@ -77,7 +77,7 @@ require accounts only for personalised or protected features.
   integration is configured and tested. No unverified channel is shown as an
   active alert option.
 
-## In review: WhatsApp Business sandbox guardrails
+## Completed foundation: WhatsApp Business sandbox guardrails
 
 - A template-only Meta WhatsApp Business Cloud API transport is implemented but
   remains disconnected from subscriber delivery and disabled by default.
@@ -107,6 +107,9 @@ require accounts only for personalised or protected features.
 - Pull request #73 passed Vercel and cPanel release workflow #33040764228. The
   protected Vercel preview deployed successfully and correctly redirected an
   unauthenticated smoke request to Vercel SSO.
+- Pull request #73 merged into `master` as commit
+  `5e530e0671f76fdb4f7a40916ed10aa33670d65c`. Its verified cPanel release was
+  published without enabling delivery or changing production flags.
 
 ## Current professional experience release
 
@@ -360,7 +363,7 @@ require accounts only for personalised or protected features.
   validation, shell syntax validation and the production build passed; the
   runtime dependency audit reports zero vulnerabilities.
 
-## In review: closed-vacancy lifecycle and guarded Apply destinations
+## Completed: closed-vacancy lifecycle and guarded Apply destinations
 
 - Open job queries now require vacancies to be active, published and not past
   their deadline; Expired and All views remain restricted to published records.
@@ -383,8 +386,37 @@ require accounts only for personalised or protected features.
   reports zero vulnerabilities.
 - Pull request #75 merged the source lifecycle release into `master` as commit
   `55fbfe2f19a2c97f66cae12aa81614f9d854f557`.
-- Pull request #76 is the focused resolver-hardening follow-up. Its protected
-  preview and cPanel release evidence must pass before merge.
+- Pull request #76 merged the focused resolver hardening as commit
+  `98e43c7620f8ae868cc53daeae513f1301c36ad9` after its protected preview and
+  validation workflow passed.
+- Pull request #77 connected the visible job-detail Apply action to the guarded
+  final-destination resolver and merged as commit
+  `5956dcb322654adb21ce51000dc46d41af294765`.
+- Pull request #78 separated malformed location labels from embedded deadline
+  metadata and merged as commit `5c4c9909c3c6c1e8ea449ce77494fc230bd2eba4`.
+
+## Current batch: canonical public search and shared categories
+
+- The global navigation and jobs results page now share one canonical
+  `search` query parameter, so a submitted title or employer reaches the API
+  filter instead of silently showing every vacancy.
+- Existing links that used the former `q` parameter remain compatible and are
+  normalized to the canonical URL without losing the search term.
+- Search terms, page numbers, statuses and categories are normalized and
+  bounded before becoming browser history state.
+- The public category filter uses the same controlled catalogue as candidate
+  preferences and employer vacancy forms, including Creative, Construction and
+  Security roles added by the classification release.
+- This batch is schema-free, preserves anonymous job browsing and changes no
+  feature flag, payment, message delivery or subscriber record.
+- Validation completed on 27 August 2026: all 146 tests, ESLint, Prisma schema
+  validation and the production build passed; the runtime dependency audit
+  reports zero vulnerabilities.
+- Pull request #79 passed Vercel and cPanel release workflow #33064566841. The
+  protected `/jobs?search=data` preview returned the expected HTTP 302 Vercel
+  SSO redirect with private, noindex response headers.
+- Production activation remains a cPanel hosting-operation gate. This release
+  does not require or authorize a database migration.
 
 ## Definition-of-done evidence
 

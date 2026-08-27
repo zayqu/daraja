@@ -1,6 +1,6 @@
 # Daraja Jobs production-readiness progress
 
-Last updated: 11 August 2026
+Last updated: 27 August 2026
 
 ## Current objective
 
@@ -76,6 +76,34 @@ require accounts only for personalised or protected features.
 - WhatsApp delivery remains unavailable until an official WhatsApp Business API
   integration is configured and tested. No unverified channel is shown as an
   active alert option.
+
+## In review: WhatsApp Business sandbox guardrails
+
+- A template-only Meta WhatsApp Business Cloud API transport is implemented but
+  remains disconnected from subscriber delivery and disabled by default.
+- The transport requires the official access token, phone-number ID, explicit
+  Graph API version, approved template and exact allowlisted test recipient.
+- No request can be made until separate bounded send and delivery-status webhook
+  evidence IDs plus a verification timestamp from the last 30 days record an
+  end-to-end sandbox result.
+- Arbitrary recipients, free-form message bodies, malformed template values and
+  unsanitized provider failures are rejected deterministically.
+- Tests use only a mock HTTP client, fake credentials and a reserved test number;
+  no real subscriber contact or WhatsApp recipient is used.
+- Official credentials, a verified Meta test recipient and retained end-to-end
+  sandbox plus webhook-status evidence remain external gates. No WhatsApp
+  publishing or alert delivery is claimed live.
+- This batch is schema-free, changes no production flag and leaves public job
+  browsing unchanged.
+- The August 2 draft has been rebuilt from current `master`; subscriber delivery
+  remains deliberately disconnected while official credentials and current
+  end-to-end sandbox evidence are absent.
+- Validation completed on 27 August 2026: all 127 tests, ESLint, Prisma schema
+  validation and the production build passed. The runtime dependency audit
+  reports zero vulnerabilities after overriding the newly disclosed vulnerable
+  `deepmerge-ts` and `nanoid` transitive releases.
+- This batch has no schema migration. Its transport remains a sandbox-only
+  library with no public route, scheduled job or subscriber-delivery caller.
 
 ## Current professional experience release
 

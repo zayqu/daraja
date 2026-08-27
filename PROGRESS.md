@@ -418,6 +418,28 @@ require accounts only for personalised or protected features.
 - Production activation remains a cPanel hosting-operation gate. This release
   does not require or authorize a database migration.
 
+## Current batch: verified outbound cPanel release handoff
+
+- The cPanel workflow contract now tests the outbound pull deployment path
+  instead of requiring the retired inbound SSH action and hosting secrets.
+- Every published release contains checksummed deployment and auto-deployment
+  runners, and CI validates both scripts before publishing any artifact.
+- The cPanel pull runner uses an exclusive lock, bounded downloads and a private
+  temporary directory, then verifies the deploy-runner checksum and shell syntax
+  before installing or executing it.
+- Compatibility with the hosting account's older curl is protected by a test;
+  unsupported `--retry-all-errors` flags cannot silently return to this path.
+- The release workflow never receives cPanel SSH credentials. The production
+  account only makes an outbound HTTPS request to the public verified release.
+- This batch is schema-free, runs no Prisma migration or database push, and does
+  not change payments, messages, access controls or public job browsing.
+- Validation completed on 27 August 2026: all 147 tests, ESLint, Prisma schema
+  validation, shell syntax validation and the production build passed; the
+  runtime dependency audit reports zero vulnerabilities.
+- Production release health reported commit
+  `f2c9ded54fc94412cf7f3dbd2759cdc944ef19fa` before this CI repair. The batch
+  is not considered live until the exact merged release is reported publicly.
+
 ## Definition-of-done evidence
 
 Every batch must record:

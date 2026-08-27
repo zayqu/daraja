@@ -218,6 +218,11 @@ require accounts only for personalised or protected features.
 - Draft pull request #74 remains unmerged. Billing and its internal sandbox
   checkout remain disabled; no provider request, real payment or price choice
   was made.
+- Pull request #74 content commit `4cf737137c356e420245e88ca4b8e955fe4aac87`
+  passed cPanel release workflow #33060284412. Vercel deployed the protected
+  preview; an unauthenticated `/account/billing` smoke request returned the
+  expected HTTP 302 SSO redirect with `Cache-Control: no-store` and
+  `X-Robots-Tag: noindex`.
 
 ## Completed: controlled classification quality
 

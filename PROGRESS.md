@@ -412,6 +412,11 @@ require accounts only for personalised or protected features.
 - Validation completed on 27 August 2026: all 146 tests, ESLint, Prisma schema
   validation and the production build passed; the runtime dependency audit
   reports zero vulnerabilities.
+- Pull request #79 passed Vercel and cPanel release workflow #33064566841. The
+  protected `/jobs?search=data` preview returned the expected HTTP 302 Vercel
+  SSO redirect with private, noindex response headers.
+- Production activation remains a cPanel hosting-operation gate. This release
+  does not require or authorize a database migration.
 
 ## Definition-of-done evidence
 

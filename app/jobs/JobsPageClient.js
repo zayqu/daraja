@@ -7,15 +7,11 @@ import JobAlerts from "@/components/JobAlerts";
 import SiteNav from "@/components/SiteNav";
 import SiteFooter from "@/components/SiteFooter";
 import { trackEvent } from "@/lib/analytics";
-
-const CATEGORIES = [
-  "Government", "NGO & Development", "Banking & Finance", "Technology",
-  "Health", "Education", "Engineering", "Sales & Marketing",
-  "Accounting & Audit", "HR & Administration", "Legal",
-  "Logistics & Transport", "Hospitality & Tourism", "Agriculture",
-  "Mining, Energy, Oil & Gas", "Manufacturing",
-  "Internships & Graduate Programs", "General",
-];
+import { JOB_CATEGORIES } from "@/lib/job-categories";
+import {
+  buildJobsUrl,
+  normalizeJobsSearchParams,
+} from "@/lib/job-search";
 
 export default function JobsPageClient({ showEmployerCta }) {
   const [jobs, setJobs] = useState([]);
@@ -31,17 +27,13 @@ export default function JobsPageClient({ showEmployerCta }) {
 
   useEffect(() => {
     queueMicrotask(() => {
-      const params = new URLSearchParams(window.location.search);
-      const initialSearch = params.get("search") || "";
-      const initialCategory = params.get("category") || "";
-      const initialStatus = params.get("status") || "active";
-      const initialPage = Number.parseInt(params.get("page") || "1", 10);
+      const initial = normalizeJobsSearchParams(window.location.search);
 
-      setSearch(initialSearch);
-      setSubmittedSearch(initialSearch);
-      setCategory(CATEGORIES.includes(initialCategory) ? initialCategory : "");
-      setStatus(["active", "expired", "all"].includes(initialStatus) ? initialStatus : "active");
-      setPage(Number.isFinite(initialPage) && initialPage > 0 ? initialPage : 1);
+      setSearch(initial.search);
+      setSubmittedSearch(initial.search);
+      setCategory(initial.category);
+      setStatus(initial.status);
+      setPage(initial.page);
       setInitialized(true);
     });
   }, []);
@@ -76,13 +68,11 @@ export default function JobsPageClient({ showEmployerCta }) {
 
     queueMicrotask(fetchJobs);
 
-    const params = new URLSearchParams();
-    if (submittedSearch) params.set("search", submittedSearch);
-    if (category) params.set("category", category);
-    if (status !== "active") params.set("status", status);
-    if (page > 1) params.set("page", String(page));
-    const query = params.toString();
-    window.history.replaceState(null, "", query ? `/jobs?${query}` : "/jobs");
+    window.history.replaceState(
+      null,
+      "",
+      buildJobsUrl({ search: submittedSearch, category, status, page })
+    );
   }, [initialized, page, category, status, submittedSearch, fetchJobs]);
 
   function handleSearch(e) {
@@ -254,7 +244,7 @@ export default function JobsPageClient({ showEmployerCta }) {
                 }}
               >
                 <option value="">All categories</option>
-                {CATEGORIES.map((cat) => <option key={cat} value={cat}>{cat}</option>)}
+                {JOB_CATEGORIES.map((cat) => <option key={cat} value={cat}>{cat}</option>)}
               </select>
             </div>
             <div className="filter-group">

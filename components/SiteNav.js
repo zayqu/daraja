@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { buildJobsUrl } from "@/lib/job-search";
 import styles from "./SiteNav.module.css";
 
 const DEFAULT_LINKS = [
@@ -21,7 +22,8 @@ const DEFAULT_LINKS = [
  * from a parent Server Component.
  *
  * `showSearch` docks a compact search field in the bar itself (submitting
- * takes the visitor straight to /jobs?q=...), instead of requiring a
+ * takes the visitor straight to the canonical /jobs?search=... URL), instead
+ * of requiring a
  * separate search header further down the page.
  *
  * `showEmployerCta` keeps disabled employer entry points out of public
@@ -40,8 +42,7 @@ export default function SiteNav({
   function handleSearch(event) {
     event.preventDefault();
     setOpen(false);
-    const trimmed = query.trim();
-    router.push(trimmed ? `/jobs?q=${encodeURIComponent(trimmed)}` : "/jobs");
+    router.push(buildJobsUrl({ search: query }));
   }
 
   return (

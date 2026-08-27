@@ -44,8 +44,14 @@ function parseNmbCareers(html) {
     const description = details.join("\n\n");
     const location = description.match(/Job Location\s*:\s*([^\n]+)/i)?.[1]?.trim() || "Tanzania";
     const closing = description.match(/Job closing date\s*:\s*(\d{1,2}-[A-Za-z]{3}-\d{4})/i)?.[1];
-    const link = $(heading).find("a[href]").attr("href") ||
-      $(heading).nextUntil("h1, h2, h3, h4, h5, h6").find("a[href]").filter((__, anchor) => /apply|vacancy|job/i.test(cleanText($(anchor).text()))).first().attr("href") ||
+    const sectionLinks = $(heading)
+      .nextUntil("h1, h2, h3, h4, h5, h6")
+      .find("a[href]")
+      .filter((__, anchor) =>
+        /apply|application|login|sign in|vacancy|job/i.test(cleanText($(anchor).text()))
+      );
+    const link = sectionLinks.last().attr("href") ||
+      $(heading).find("a[href]").last().attr("href") ||
       NMB_CAREERS_URL;
 
     jobs.push({

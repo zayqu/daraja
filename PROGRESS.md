@@ -77,7 +77,7 @@ require accounts only for personalised or protected features.
   integration is configured and tested. No unverified channel is shown as an
   active alert option.
 
-## In review: WhatsApp Business sandbox guardrails
+## Completed foundation: WhatsApp Business sandbox guardrails
 
 - A template-only Meta WhatsApp Business Cloud API transport is implemented but
   remains disconnected from subscriber delivery and disabled by default.
@@ -107,6 +107,10 @@ require accounts only for personalised or protected features.
 - Pull request #73 passed Vercel and cPanel release workflow #33040764228. The
   protected Vercel preview deployed successfully and correctly redirected an
   unauthenticated smoke request to Vercel SSO.
+- Pull request #73 merged into `master` as commit
+  `5e530e0671f76fdb4f7a40916ed10aa33670d65c`. Its verified cPanel release is
+  published, while production activation remains blocked by refused external
+  SSH access to the hosting account.
 
 ## Current professional experience release
 
@@ -185,6 +189,35 @@ require accounts only for personalised or protected features.
   protected workspace.
 - The production snapshot from 29 July 2026 at 06:11:39 UTC is the recorded
   rollback point for this additive migration.
+
+## In review: entitlements and sandbox billing foundation
+
+- The previous billing draft was rebuilt from current `master` with
+  role-specific free limits and fail-closed fallbacks for unknown or
+  role-incompatible plans.
+- Authenticated users can inspect only their own effective plan and invoices;
+  all billing responses are dynamic, private and non-cacheable.
+- Sandbox checkout is disabled unless billing, sandbox mode and the internal
+  test provider are explicitly enabled. It requires same-origin JSON requests,
+  hashes idempotency keys, scopes replay lookup to the authenticated user and
+  bounds new test checkouts per account.
+- The database model has no live-payment environment. Sandbox amounts remain
+  test fixtures and no external payment provider is called.
+- The additive migration preserves historical payments as `LEGACY`, rejects
+  orphan ownership and adds constraints for positive invoice values,
+  nonnegative usage and valid usage periods.
+- The draft was refreshed onto current `master` commit
+  `5c4c9909c3c6c1e8ea449ce77494fc230bd2eba4`, preserving the merged source,
+  Apply-destination and vacancy-metadata fixes.
+- Validation completed on 27 August 2026: all 150 tests, ESLint, Prisma schema
+  validation and the production build passed; the runtime dependency audit
+  reports zero vulnerabilities.
+- No migration was applied. A newly confirmed Neon restore point recorded for
+  this exact migration remains mandatory before review, merge or production
+  schema deployment.
+- Draft pull request #74 remains unmerged. Billing and its internal sandbox
+  checkout remain disabled; no provider request, real payment or price choice
+  was made.
 
 ## Completed: controlled classification quality
 
@@ -360,7 +393,7 @@ require accounts only for personalised or protected features.
   validation, shell syntax validation and the production build passed; the
   runtime dependency audit reports zero vulnerabilities.
 
-## In review: closed-vacancy lifecycle and guarded Apply destinations
+## Completed: closed-vacancy lifecycle and guarded Apply destinations
 
 - Open job queries now require vacancies to be active, published and not past
   their deadline; Expired and All views remain restricted to published records.
@@ -383,8 +416,20 @@ require accounts only for personalised or protected features.
   reports zero vulnerabilities.
 - Pull request #75 merged the source lifecycle release into `master` as commit
   `55fbfe2f19a2c97f66cae12aa81614f9d854f557`.
-- Pull request #76 is the focused resolver-hardening follow-up. Its protected
-  preview and cPanel release evidence must pass before merge.
+- Pull request #76 merged the focused resolver hardening as commit
+  `98e43c7620f8ae868cc53daeae513f1301c36ad9` after its protected preview and
+  validation workflow passed.
+- Pull request #77 wired the visible job-detail Apply action to the guarded
+  final-destination resolver and merged as commit
+  `5956dcb322654adb21ce51000dc46d41af294765`.
+- Pull request #78 separated malformed location labels from embedded deadline
+  metadata and merged as commit `5c4c9909c3c6c1e8ea449ce77494fc230bd2eba4`.
+- The current master release passed tests, ESLint, Prisma validation, production
+  build and packaging, and was published by workflow #33058616287. Automatic
+  cPanel activation still failed at the external SSH connection boundary.
+- Scraper workflow #33058616282 preserved 37 Ajira, three AjiraWeb and a healthy
+  empty Standard Bank result while reporting one NMB connection timeout as a
+  degraded run; it did not discard the successful source updates.
 
 ## Definition-of-done evidence
 

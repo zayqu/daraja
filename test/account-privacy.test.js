@@ -58,6 +58,7 @@ test("account erasure removes active identity and private career state", () => {
   assert.match(source, /tx\.account\.deleteMany/);
   assert.match(source, /tx\.verificationToken\.deleteMany/);
   assert.match(source, /tx\.jobAlertSubscriber\.deleteMany/);
+  assert.match(source, /OR: \[\{ userId \}, \{ email: account\.email \}\]/);
   assert.match(source, /tx\.savedJob\.deleteMany/);
   assert.match(source, /tx\.application\.deleteMany/);
   assert.match(source, /tx\.candidateDocument\.deleteMany/);
@@ -73,7 +74,8 @@ test("account erasure removes active identity and private career state", () => {
 test("account erasure de-identifies retained business and financial evidence", () => {
   const source = read("lib/account-deletion.js");
   assert.match(source, /deleted-account:\$\{randomUUID\(\)\}/);
-  assert.match(source, /where: \{ employerId: account\.employer\.id \}[\s\S]*data: \{ employerId: null \}/);
+  assert.match(source, /where: \{ employerId: account\.employer\.id \}[\s\S]*employerId: null/);
+  assert.match(source, /redactedAfterAccountDeletion: true/);
   assert.match(source, /where: \{ submittedById: userId \}[\s\S]*submittedById: null/);
   assert.match(source, /where: \{ moderatedById: userId \}[\s\S]*moderatedById: null/);
   assert.match(source, /tx\.payment\.updateMany[\s\S]*data: \{ userId: deletionReference \}/);

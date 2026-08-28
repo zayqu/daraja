@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { canManageEmployer, employerPortalEnabled, getActor, safeAuditMetadata } from "@/lib/employer-access";
+import { readProtectedJson } from "@/lib/request-security";
 
 const EDITABLE = new Set(["DRAFT", "PENDING_REVIEW", "REJECTED"]);
 const clean = (value, max) => typeof value === "string" ? value.trim().slice(0, max) : "";
@@ -21,7 +22,12 @@ export async function PATCH(request, { params }) {
   if (actor.role !== "ADMIN" && !EDITABLE.has(existing.moderationStatus)) {
     return NextResponse.json({ error: "Published vacancies require administrator review" }, { status: 409 });
   }
-  const body = await request.json();
+  const { body, error } = await readProtectedJson(request, {
+    scope: "employer-job-update",
+    limit: 30,
+    maxBytes: 16_384,
+  });
+  if (error) return error;
   const title = clean(body.title, 160);
   const location = clean(body.location, 160);
   const description = clean(body.description, 10000);

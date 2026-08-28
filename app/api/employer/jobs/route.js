@@ -4,6 +4,7 @@ import { randomUUID } from "node:crypto";
 import slugUtils from "@/lib/job-slug";
 import { employerPortalEnabled, getActor, safeAuditMetadata } from "@/lib/employer-access";
 import { JOB_CATEGORIES } from "@/lib/job-categories";
+import { readProtectedJson } from "@/lib/request-security";
 
 const { createJobWithPositionSlug } = slugUtils;
 const clean = (value, max) => typeof value === "string" ? value.trim().slice(0, max) : "";
@@ -41,7 +42,12 @@ export async function POST(request) {
   const actor = await getActor();
   if (!actor) return NextResponse.json({ error: "Sign in required" }, { status: 401 });
   if (!actor.employer) return NextResponse.json({ error: "Employer profile required" }, { status: 403 });
-  const body = await request.json();
+  const { body, error } = await readProtectedJson(request, {
+    scope: "employer-job-submit",
+    limit: 20,
+    maxBytes: 16_384,
+  });
+  if (error) return error;
   const data = {
     title: clean(body.title, 160),
     company: actor.employer.companyName,

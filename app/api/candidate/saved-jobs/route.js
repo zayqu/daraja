@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { candidateCareerEnabled, getCandidateUser } from "@/lib/candidate-access";
+import { readProtectedJson } from "@/lib/request-security";
 
 async function actor() {
   if (!candidateCareerEnabled()) return { error: NextResponse.json({ error: "Not found" }, { status: 404 }) };
@@ -22,7 +23,13 @@ export async function GET() {
 export async function POST(request) {
   const { user, error } = await actor();
   if (error) return error;
-  const { jobId } = await request.json();
+  const parsed = await readProtectedJson(request, {
+    scope: "candidate-saved-job",
+    limit: 60,
+    maxBytes: 1_024,
+  });
+  if (parsed.error) return parsed.error;
+  const { jobId } = parsed.body;
   const job = await prisma.job.findFirst({ where: { id: jobId, active: true }, select: { id: true } });
   if (!job) return NextResponse.json({ error: "Active vacancy not found" }, { status: 404 });
   const savedJob = await prisma.savedJob.upsert({
@@ -36,7 +43,13 @@ export async function POST(request) {
 export async function DELETE(request) {
   const { user, error } = await actor();
   if (error) return error;
-  const { jobId } = await request.json();
+  const parsed = await readProtectedJson(request, {
+    scope: "candidate-saved-job",
+    limit: 60,
+    maxBytes: 1_024,
+  });
+  if (parsed.error) return parsed.error;
+  const { jobId } = parsed.body;
   await prisma.savedJob.deleteMany({ where: { userId: user.id, jobId } });
   return NextResponse.json({ saved: false });
 }

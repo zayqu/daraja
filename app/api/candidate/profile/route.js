@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { candidateCareerEnabled, getCandidateUser, validHttpsUrl } from "@/lib/candidate-access";
+import { readProtectedJson } from "@/lib/request-security";
 
 const clean = (value, max = 160) =>
   typeof value === "string" ? value.replace(/\s+/g, " ").trim().slice(0, max) : "";
@@ -20,7 +21,12 @@ export async function PUT(request) {
   if (!candidateCareerEnabled()) return NextResponse.json({ error: "Not found" }, { status: 404 });
   const user = await getCandidateUser();
   if (!user) return NextResponse.json({ error: "Sign in required" }, { status: 401 });
-  const body = await request.json();
+  const { body, error } = await readProtectedJson(request, {
+    scope: "candidate-profile",
+    limit: 30,
+    maxBytes: 8_192,
+  });
+  if (error) return error;
   const fullName = clean(body.fullName);
   if (!fullName) return NextResponse.json({ error: "Full name is required" }, { status: 400 });
   const cvUrl = body.cvUrl ? validHttpsUrl(body.cvUrl) : null;

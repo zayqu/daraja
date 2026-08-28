@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { auth } from "@/auth";
 import PublicSiteNav from "@/components/PublicSiteNav";
+import AccountDeletionForm from "./AccountDeletionForm";
 import styles from "./privacy.module.css";
 
 export const metadata = { title: "Privacy & Data | Daraja" };
@@ -21,8 +22,8 @@ export default async function PrivacyPage() {
           <h1>Your Daraja data should stay under your control</h1>
           <span>
             Download the account information Daraja currently associates with
-            your signed-in account. Private files and security credentials are
-            not exposed inside the JSON export.
+            your signed-in account, or permanently delete your account when you
+            no longer want to use Daraja.
           </span>
         </header>
 
@@ -47,16 +48,21 @@ export default async function PrivacyPage() {
             </p>
           </article>
 
-          <article className={styles.card}>
-            <h2>Delete my account</h2>
+          <article className={`${styles.card} ${styles.dangerCard}`}>
+            <h2>Delete my account permanently</h2>
             <p>
-              Permanent self-service deletion is being implemented as a separate
-              protected workflow. Daraja will not label simple deactivation as
-              deletion. The final flow must remove eligible personal data and
-              private files while retaining only records that have a documented
-              legal, payment, fraud or audit requirement.
+              Deletion removes your Daraja sign-in, sessions, profiles, alerts,
+              saved jobs, Daraja-managed applications and eligible private
+              documents. Public employer vacancy records may remain as business
+              records but are detached from the deleted account. Minimal payment,
+              subscription and audit evidence is retained without your active
+              account identity.
             </p>
-            <span className={styles.status}>Deletion is not enabled yet</span>
+            <p>
+              Download your account data first if you want to keep a copy. This
+              action cannot be undone.
+            </p>
+            <AccountDeletionForm />
           </article>
         </section>
       </main>

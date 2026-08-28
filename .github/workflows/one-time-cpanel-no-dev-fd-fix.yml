@@ -1,0 +1,103 @@
+name: One-time cPanel no-dev-fd fix
+
+on:
+  push:
+    branches:
+      - fix/cpanel-no-dev-fd
+
+permissions:
+  contents: write
+
+jobs:
+  update:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Check out branch
+        uses: actions/checkout@v4
+        with:
+          ref: fix/cpanel-no-dev-fd
+
+      - name: Edit existing deploy owner and test
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+
+          deploy_path = Path('ops/cpanel/deploy.sh')
+          text = deploy_path.read_text()
+          old = '''app_scoped_lsnode_pids() {
+            local app_realpath
+            local app_uid
+            local pid
+            local worker_cwd
+
+            app_realpath="$(readlink -f "$APP_DIR")"
+            app_uid="$(id -u "$APP_USER")"
+
+            if ! command -v pgrep >/dev/null 2>&1; then
+              return 1
+            fi
+
+            while IFS= read -r pid; do
+              [[ -n "$pid" ]] || continue
+              worker_cwd="$(readlink -f "/proc/$pid/cwd" 2>/dev/null || true)"
+              if [[ "$worker_cwd" == "$app_realpath" ]]; then
+                printf '%s\\n' "$pid"
+              fi
+            done < <(pgrep -u "$app_uid" -f '[l]snode' 2>/dev/null || true)
+          }
+'''
+          old = '\n'.join(line[10:] if line.startswith('          ') else line for line in old.splitlines()) + '\n'
+          new = '''app_scoped_lsnode_pids() {
+            local app_realpath
+            local app_uid
+            local candidate_pids
+            local pid
+            local worker_cwd
+
+            app_realpath="$(readlink -f "$APP_DIR")"
+            app_uid="$(id -u "$APP_USER")"
+
+            if ! command -v pgrep >/dev/null 2>&1; then
+              return 1
+            fi
+
+            candidate_pids="$(pgrep -u "$app_uid" -f '[l]snode' 2>/dev/null || true)"
+            if [[ -z "$candidate_pids" ]]; then
+              return 1
+            fi
+
+            while IFS= read -r pid; do
+              [[ -n "$pid" ]] || continue
+              worker_cwd="$(readlink -f "/proc/$pid/cwd" 2>/dev/null || true)"
+              if [[ "$worker_cwd" == "$app_realpath" ]]; then
+                printf '%s\\n' "$pid"
+              fi
+            done <<< "$candidate_pids"
+          }
+'''
+          new = '\n'.join(line[10:] if line.startswith('          ') else line for line in new.splitlines()) + '\n'
+          if old not in text:
+            raise SystemExit('expected app_scoped_lsnode_pids block not found')
+          deploy_path.write_text(text.replace(old, new, 1))
+
+          test_path = Path('test/cpanel-deploy.test.js')
+          tests = test_path.read_text()
+          needle = "  assert.match(deployScript, /pgrep -u \\\"\\$app_uid\\\" -f '\\\\[l\\\\]snode'/);\n"
+          replacement = needle + "  assert.match(deployScript, /candidate_pids=\\\"\\$\\(pgrep/);\n  assert.match(deployScript, /done <<< \\\"\\$candidate_pids\\\"/);\n  assert.doesNotMatch(deployScript, /done < <\\(pgrep/);\n"
+          if needle not in tests:
+            raise SystemExit('expected pgrep assertion not found')
+          test_path.write_text(tests.replace(needle, replacement, 1))
+          PY
+
+      - name: Validate shell and focused test
+        run: |
+          bash -n ops/cpanel/deploy.sh
+          node --test test/cpanel-deploy.test.js
+
+      - name: Commit fix
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add ops/cpanel/deploy.sh test/cpanel-deploy.test.js
+          git commit -m "Avoid dev-fd process substitution in cPanel deployer"
+          git push origin HEAD:fix/cpanel-no-dev-fd

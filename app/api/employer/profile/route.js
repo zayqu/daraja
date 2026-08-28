@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { employerPortalEnabled, getActor, safeAuditMetadata } from "@/lib/employer-access";
+import { readProtectedJson } from "@/lib/request-security";
 
 const clean = (value, max = 160) =>
   typeof value === "string" ? value.trim().slice(0, max) : "";
@@ -20,7 +21,12 @@ export async function POST(request) {
   if (actor.role !== "JOB_SEEKER" && actor.role !== "EMPLOYER") {
     return NextResponse.json({ error: "Account is not eligible" }, { status: 403 });
   }
-  const body = await request.json();
+  const { body, error } = await readProtectedJson(request, {
+    scope: "employer-profile",
+    limit: 15,
+    maxBytes: 8_192,
+  });
+  if (error) return error;
   const companyName = clean(body.companyName);
   const website = clean(body.website, 500);
   const industry = clean(body.industry);

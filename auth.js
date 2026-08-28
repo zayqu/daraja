@@ -5,6 +5,8 @@ import { PrismaAdapter } from "@auth/prisma-adapter";
 import prisma from "@/lib/prisma";
 
 const providers = [];
+const SESSION_MAX_AGE_SECONDS = 7 * 24 * 60 * 60;
+const SESSION_UPDATE_AGE_SECONDS = 24 * 60 * 60;
 
 if (process.env.AUTH_GOOGLE_ID && process.env.AUTH_GOOGLE_SECRET) {
   providers.push(Google({
@@ -25,7 +27,11 @@ export const authProviders = providers.map((provider) => provider.id);
 export const { handlers, auth, signIn, signOut } = NextAuth({
   adapter: PrismaAdapter(prisma),
   providers,
-  session: { strategy: "database" },
+  session: {
+    strategy: "database",
+    maxAge: SESSION_MAX_AGE_SECONDS,
+    updateAge: SESSION_UPDATE_AGE_SECONDS,
+  },
   pages: {
     signIn: "/auth/signin",
     verifyRequest: "/auth/verify-request",

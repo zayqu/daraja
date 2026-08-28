@@ -34,6 +34,42 @@ test("candidate profile does not accept or expose legacy CV storage URLs", () =>
   assert.doesNotMatch(route, /\bcvUrl,\s*$/m);
 });
 
+test("candidate document upload is private, bounded and scanner-gated", () => {
+  const route = read("app/api/candidate/documents/route.js");
+  const storage = read("lib/candidate-document-storage.js");
+
+  assert.match(route, /candidateDocumentUploadsEnabled\(\)/);
+  assert.match(route, /protectMutation\(request/);
+  assert.match(route, /multipart\/form-data/);
+  assert.match(route, /MAX_CANDIDATE_UPLOAD_REQUEST_BYTES/);
+  assert.match(route, /validateCandidatePdf/);
+  assert.match(route, /storeCandidatePdf/);
+  assert.match(route, /url: locator/);
+  assert.doesNotMatch(route, /public\//);
+
+  assert.match(storage, /MAX_CANDIDATE_DOCUMENT_BYTES = 4 \* 1024 \* 1024/);
+  assert.match(storage, /Buffer\.from\("%PDF-"/);
+  assert.match(storage, /CANDIDATE_DOCUMENT_MALWARE_SCANNER !== "clamav"/);
+  assert.match(storage, /execFileAsync\(executable/);
+  assert.match(storage, /mode: 0o600/);
+  assert.match(storage, /private-document:/);
+  assert.match(storage, /\.daraja", "private-documents"/);
+});
+
+test("candidate document download and delete remain owner-scoped", () => {
+  const route = read("app/api/candidate/documents/[id]/route.js");
+
+  assert.match(route, /jobSeekerId: user\.jobSeeker\.id/);
+  assert.match(route, /isPrivateCandidateDocumentLocator\(document\.url\)/);
+  assert.match(route, /readCandidateDocument\(document\.url\)/);
+  assert.match(route, /Content-Disposition/);
+  assert.match(route, /"Cache-Control": "private, no-store, max-age=0"/);
+  assert.match(route, /protectMutation\(request/);
+  assert.match(route, /deleteCandidateDocument\(document\.url\)/);
+  assert.match(route, /candidateDocument\.deleteMany/);
+  assert.doesNotMatch(route, /redirect\(document\.url/);
+});
+
 test("saved jobs are scoped to the signed-in candidate", () => {
   const route = read("app/api/candidate/saved-jobs/route.js");
   assert.match(route, /where: \{ userId: user\.id \}/);

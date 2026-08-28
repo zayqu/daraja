@@ -1,0 +1,48 @@
+name: One-time security release progress handoff
+
+on:
+  push:
+    branches:
+      - security/next-august-2026
+
+permissions:
+  contents: write
+
+jobs:
+  update-progress:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Check out branch
+        uses: actions/checkout@v4
+        with:
+          ref: security/next-august-2026
+
+      - name: Record security release progress
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+
+          path = Path('PROGRESS.md')
+          text = path.read_text()
+          marker = '## Current batch: Phase 0 framework security and release gate'
+          if marker in text:
+              raise SystemExit(0)
+
+          anchor = 'hardening before expanding candidate CV, employer, freelance, payment or AI\nworkflows.\n'
+          section = '''\n## Current batch: Phase 0 framework security and release gate\n\n- Next.js is upgraded from `16.2.12` to the patched `16.3.3` release and\n  `eslint-config-next` is kept on the same version. This responds to the\n  25 August 2026 Next.js security release covering critical advisories\n  `GHSA-2xp9-vwfh-vxw4` and `GHSA-p293-qw3h-jr36`.\n- The refreshed production dependency graph reports zero runtime\n  vulnerabilities with `npm audit --omit=dev`; the two high-severity findings\n  shown by the full development install are development-only dependencies.\n- The cPanel release workflow now runs `npm audit --omit=dev --audit-level=high`\n  before tests/build, so a future high or critical production dependency blocks\n  release publication.\n- This batch changes no database schema, production data, provider credential,\n  DNS setting or feature flag.\n- Production activation remains pending until the merged safe release is\n  published and `/api/health/release` reports its exact commit.\n'''
+          if anchor not in text:
+              raise SystemExit('Progress anchor not found')
+          path.write_text(text.replace(anchor, anchor + section, 1))
+          PY
+
+      - name: Commit progress handoff
+        run: |
+          if git diff --quiet -- PROGRESS.md; then
+            echo "Progress already recorded."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add PROGRESS.md
+          git commit -m "Record framework security release progress"
+          git push origin HEAD:security/next-august-2026

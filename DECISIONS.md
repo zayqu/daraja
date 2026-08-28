@@ -225,3 +225,37 @@ AI may assist anomaly detection and classification but cannot convert an
 unverified source into a verified vacancy by itself.
 
 `docs/JOB-SOURCE-POLICY.md` is the operational policy for these decisions.
+
+## D-021 - Every implementation task starts from repository context
+
+**Status:** accepted
+
+Models and contributors must not begin implementation from prompt/chat memory
+alone. Every task starts at `docs/START-HERE.md`, then reads the relevant project,
+security, architecture, decision, progress and domain documentation before
+inspecting the code that currently owns the behavior.
+
+The mandatory work loop is:
+
+**Read -> Understand -> Plan -> Edit existing implementation -> Test -> Clean up -> Update docs/progress -> Hand off.**
+
+Handoff state must be durable enough that another model can continue without the
+previous conversation.
+
+## D-022 - Daraja uses modify-first, clean-replacement engineering
+
+**Status:** accepted
+
+The normal solution to an implementation problem is to correct or cleanly
+refactor the code that already owns that responsibility. Do not accumulate
+`V2`, `New*`, parallel routes, duplicate helpers/services, wrapper patches,
+commented-out replacements or permanent fallback paths merely to avoid editing
+existing code.
+
+New files are appropriate only for genuinely new responsibilities or deliberate
+module refactors. When an implementation is moved or replaced, obsolete code is
+removed in the same change when safe so there remains one clear source of truth.
+
+Temporary compatibility code is permitted only for a documented staged
+migration or bounded production emergency and must have an explicit removal
+condition.

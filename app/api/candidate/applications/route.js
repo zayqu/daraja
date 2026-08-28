@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { candidateCareerEnabled, ensureJobSeeker, getCandidateUser } from "@/lib/candidate-access";
+import { readProtectedJson } from "@/lib/request-security";
 
 export async function GET() {
   if (!candidateCareerEnabled()) return NextResponse.json({ error: "Not found" }, { status: 404 });
@@ -19,7 +20,12 @@ export async function POST(request) {
   if (!candidateCareerEnabled()) return NextResponse.json({ error: "Not found" }, { status: 404 });
   const user = await getCandidateUser();
   if (!user) return NextResponse.json({ error: "Sign in required" }, { status: 401 });
-  const body = await request.json();
+  const { body, error } = await readProtectedJson(request, {
+    scope: "candidate-application",
+    limit: 20,
+    maxBytes: 16_384,
+  });
+  if (error) return error;
   const coverLetter = typeof body.coverLetter === "string" ? body.coverLetter.trim().slice(0, 10000) : "";
   const job = await prisma.job.findFirst({
     where: {

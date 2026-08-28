@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { redirect } from "next/navigation";
 import { auth } from "@/auth";
 import PublicSiteNav from "@/components/PublicSiteNav";
@@ -46,7 +45,6 @@ export default async function PrivacyPage() {
               authentication secrets and session tokens are never placed in the
               account export.
             </p>
-            <Link href="/account/career">Open career workspace</Link>
           </article>
 
           <article className={styles.card}>

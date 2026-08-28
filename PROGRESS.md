@@ -9,6 +9,23 @@ tested vertical releases. The current priority is Phase 0 security and privacy
 hardening before expanding candidate CV, employer, freelance, payment or AI
 workflows.
 
+## Current batch: Phase 0 framework security and release gate
+
+- Next.js is upgraded from `16.2.12` to the patched `16.3.3` release and
+  `eslint-config-next` is kept on the same version. This responds to the
+  25 August 2026 Next.js security release covering critical advisories
+  `GHSA-2xp9-vwfh-vxw4` and `GHSA-p293-qw3h-jr36`.
+- The refreshed production dependency graph reports zero runtime
+  vulnerabilities with `npm audit --omit=dev`; the two high-severity findings
+  shown by the full development install are development-only dependencies.
+- The cPanel release workflow now runs `npm audit --omit=dev --audit-level=high`
+  before tests/build, so a future high or critical production dependency blocks
+  release publication.
+- This batch changes no database schema, production data, provider credential,
+  DNS setting or feature flag.
+- Production activation remains pending until the merged safe release is
+  published and `/api/health/release` reports its exact commit.
+
 ## Current batch: Phase 0 protected write boundary
 
 - Existing candidate, alert, employer and administrator write routes keep their

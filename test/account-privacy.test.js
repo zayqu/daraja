@@ -40,11 +40,59 @@ test("account export excludes authentication secrets and private storage locator
   assert.match(source, /privateDocumentStorageLocatorsExcluded: true/);
 });
 
-test("privacy center does not pretend deactivation is account deletion", () => {
+test("account deletion derives identity from the session and uses the protected mutation boundary", () => {
+  const route = read("app/api/account/delete/route.js");
+  assert.match(route, /const session = await auth\(\)/);
+  assert.match(route, /const userId = session\?\.user\?\.id/);
+  assert.match(route, /readProtectedJson\(request/);
+  assert.match(route, /scope: "account-deletion"/);
+  assert.match(route, /limit: 5/);
+  assert.match(route, /maxBytes: 2_048/);
+  assert.doesNotMatch(route, /body\.userId|searchParams|get\("userId"\)/);
+});
+
+test("account erasure removes active identity and private career state", () => {
+  const source = read("lib/account-deletion.js");
+  assert.match(source, /DELETE MY ACCOUNT/);
+  assert.match(source, /tx\.session\.deleteMany/);
+  assert.match(source, /tx\.account\.deleteMany/);
+  assert.match(source, /tx\.verificationToken\.deleteMany/);
+  assert.match(source, /tx\.jobAlertSubscriber\.deleteMany/);
+  assert.match(source, /tx\.savedJob\.deleteMany/);
+  assert.match(source, /tx\.application\.deleteMany/);
+  assert.match(source, /tx\.candidateDocument\.deleteMany/);
+  assert.match(source, /tx\.jobSeeker\.delete/);
+  assert.match(source, /tx\.freelancer\.delete/);
+  assert.match(source, /tx\.employer\.delete/);
+  assert.match(source, /tx\.user\.delete/);
+  assert.match(source, /stageCandidateDocumentDeletion/);
+  assert.match(source, /restoreStagedCandidateDocument/);
+  assert.match(source, /finalizeStagedCandidateDocumentDeletion/);
+});
+
+test("account erasure de-identifies retained business and financial evidence", () => {
+  const source = read("lib/account-deletion.js");
+  assert.match(source, /deleted-account:\$\{randomUUID\(\)\}/);
+  assert.match(source, /where: \{ employerId: account\.employer\.id \}[\s\S]*data: \{ employerId: null \}/);
+  assert.match(source, /where: \{ submittedById: userId \}[\s\S]*submittedById: null/);
+  assert.match(source, /where: \{ moderatedById: userId \}[\s\S]*moderatedById: null/);
+  assert.match(source, /tx\.payment\.updateMany[\s\S]*data: \{ userId: deletionReference \}/);
+  assert.match(source, /tx\.subscription\.updateMany[\s\S]*data: \{ userId: deletionReference \}/);
+  assert.match(source, /ACCOUNT_DELETED/);
+  assert.match(source, /adminCount <= 1/);
+  assert.match(source, /LAST_ADMIN/);
+});
+
+test("privacy center presents export before irreversible deletion", () => {
   const page = read("app/account/privacy/page.js");
+  const form = read("app/account/privacy/AccountDeletionForm.js");
   assert.match(page, /Download my account data/);
-  assert.match(page, /Delete my account/);
-  assert.match(page, /Daraja will not label simple deactivation as[\s\S]*deletion/);
-  assert.match(page, /Deletion is not enabled yet/);
+  assert.match(page, /Delete my account permanently/);
+  assert.match(page, /Download your account data first/);
+  assert.match(page, /Public employer vacancy records may remain[\s\S]*detached/);
+  assert.match(form, /DELETE MY ACCOUNT/);
+  assert.match(form, /acknowledgeDataLoss/);
+  assert.match(form, /cannot be undone/);
   assert.match(page, /callbackUrl=\/account\/privacy/);
+  assert.doesNotMatch(page, /Deletion is not enabled yet/);
 });

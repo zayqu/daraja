@@ -65,6 +65,9 @@ test("cPanel deployment recovers a stale LiteSpeed worker with bounded scope", (
   assert.match(deployScript, /worker_cwd" == "\$app_realpath/);
   assert.match(deployScript, /pgrep -u "\$app_uid" -f '\[l\]snode'/);
   assert.match(deployScript, /terminate_app_scoped_lsnode_workers/);
+  assert.match(deployScript, /candidate_pids/);
+  assert.match(deployScript, /done <<< \"\$candidate_pids\"/);
+  assert.doesNotMatch(deployScript, /done < <\(pgrep/);
   assert.match(deployScript, /kill "\$pid"/);
   assert.match(deployScript, /registered_node_app_count/);
   assert.match(deployScript, /registered_apps" != "1/);

@@ -11,7 +11,10 @@ test("protected write boundary rejects cross-site requests and bounds JSON paylo
 
   assert.match(security, /sec-fetch-site/);
   assert.match(security, /fetchSite === "cross-site"/);
-  assert.match(security, /new URL\(origin\)\.origin !== expectedOrigin\(request\)/);
+  assert.match(security, /allowedOrigins\(request\)/);
+  assert.match(security, /process\.env\.AUTH_URL/);
+  assert.match(security, /process\.env\.NEXTAUTH_URL/);
+  assert.doesNotMatch(security, /x-forwarded-host/);
   assert.match(security, /Content-Type must be application\/json/);
   assert.match(security, /new TextEncoder\(\)\.encode\(raw\)\.byteLength > maxBytes/);
   assert.match(security, /status,.*headers/s);
@@ -42,6 +45,15 @@ test("protected account, employer and admin writes use the shared boundary", () 
   assert.match(alerts, /readProtectedJson/);
   assert.match(alerts, /protectMutation/);
   assert.doesNotMatch(alerts, /await request\.json\(\)/);
+});
+
+test("authentication POST requests use the shared mutation boundary", () => {
+  const route = read("app/api/auth/[...nextauth]/route.js");
+  assert.match(route, /export const GET = handlers\.GET/);
+  assert.match(route, /export async function POST\(request\)/);
+  assert.match(route, /protectMutation\(request/);
+  assert.match(route, /scope: "authentication"/);
+  assert.match(route, /return handlers\.POST\(request\)/);
 });
 
 test("existing browser clients send JSON for protected employer writes", () => {

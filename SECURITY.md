@@ -58,6 +58,30 @@ Every protected write must verify both identity and ownership/capability. Exampl
 
 High-impact actions require durable audit records.
 
+## Account export and erasure
+
+A user must be able to download account-linked data and permanently leave Daraja without support intervention. Deletion is not deactivation.
+
+Account export and deletion must:
+
+- derive identity from the authenticated server session, never a caller-supplied user ID;
+- use the protected same-origin mutation boundary for destructive requests;
+- require explicit, irreversible confirmation before deletion;
+- revoke database sessions and remove OAuth/provider account material;
+- stop and remove linked alerts, saved jobs and private profile state;
+- delete Daraja-managed candidate applications and eligible private candidate files;
+- remove candidate, freelancer and employer account profiles;
+- detach surviving public employer vacancies from the deleted account rather than deleting public business records solely to remove the account;
+- remove user/moderator/submission ownership pointers from surviving records;
+- replace account identifiers on retained legacy payment/subscription evidence with an opaque deletion reference rather than an email, name or active user ID;
+- de-identify retained audit actor/account references while preserving the minimum security event evidence;
+- prevent deletion of the last administrator until another administrator exists;
+- fail safely when private-file erasure cannot be prepared, and restore staged files when the database transaction fails;
+- keep exports, deletion responses and errors private and non-cacheable;
+- never include passwords, session tokens, OAuth tokens, private storage paths or document locators in export/download responses.
+
+Every new model containing account-owned or private data must be added to the canonical account-erasure owner before that model is production-ready. A blind `User.delete`, an `active=false` flag, or orphaned private files do not satisfy account deletion.
+
 ## CV and document protection
 
 CVs and candidate documents are sensitive personal data.

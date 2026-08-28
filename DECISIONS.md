@@ -259,3 +259,26 @@ removed in the same change when safe so there remains one clear source of truth.
 Temporary compatibility code is permitted only for a documented staged
 migration or bounded production emergency and must have an explicit removal
 condition.
+
+## D-023 - Account deletion means erasure, not deactivation
+
+**Status:** accepted
+
+A signed-in user may permanently delete their Daraja account without contacting
+support. The canonical erasure workflow removes authentication/session material,
+private account profiles, alerts, saved jobs, Daraja-managed candidate
+applications and eligible private candidate files. It must never be implemented
+as an `active=false` flag while retaining the same personal account data.
+
+Public employer vacancy records may remain because they are public business
+records, but account ownership and moderator/submission pointers must be removed.
+Legacy payment/subscription history and security/audit evidence may remain only
+as the minimum operational record with the active Daraja account identifier
+replaced by an opaque deletion reference. Name, email, authentication material
+and an active account lookup must not be retained for that purpose.
+
+A sole administrator must first establish another administrator before deleting
+the last admin account. Future schema additions containing user-owned or private
+data are incomplete until the account-erasure owner explicitly handles them.
+Private-file erasure must participate in failure/rollback handling rather than
+silently leaving an accessible document behind.

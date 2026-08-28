@@ -1,12 +1,37 @@
 # Daraja Jobs production-readiness progress
 
-Last updated: 27 August 2026
+Last updated: 28 August 2026
 
 ## Current objective
 
-Build Daraja Jobs into a reliable Tanzania-first SaaS platform through small,
-tested vertical releases. Preserve public job discovery without registration and
-require accounts only for personalised or protected features.
+Build Daraja into a secure Tanzania-first work marketplace through small,
+tested vertical releases. The current priority is Phase 0 security and privacy
+hardening before expanding candidate CV, employer, freelance, payment or AI
+workflows.
+
+## Current batch: Phase 0 protected write boundary
+
+- Existing candidate, alert, employer and administrator write routes keep their
+  current server-side authentication, ownership and role checks; no parallel or
+  replacement API was created.
+- A single `lib/request-security.js` owner now rejects browser cross-site
+  mutations using Fetch Metadata and Origin checks, requires JSON for protected
+  JSON writes, validates actual UTF-8 payload size and returns non-cacheable
+  security errors.
+- Protected mutations have bounded per-client in-process throttling with
+  `Retry-After`. This is defense in depth for the current single cPanel runtime,
+  not a replacement for a future edge/distributed rate limiter.
+- Candidate profile, saved-job, Daraja application, job-alert preference,
+  employer profile/vacancy and administrator moderation writes now use that
+  shared request boundary.
+- The standards-compliant token-based one-click alert unsubscribe POST remains
+  intentionally public and separate from authenticated JSON preference writes.
+- This batch is schema-free and changes no production data, DNS, provider,
+  payment, feature flag or credential.
+- Pull request #84 passed cPanel PR workflow #33161209301 on 28 August 2026:
+  tests, ESLint, Prisma schema validation, shell validation and the production
+  build all completed successfully. Publishing/deployment steps were correctly
+  skipped for the pull request.
 
 ## Completed and verified
 

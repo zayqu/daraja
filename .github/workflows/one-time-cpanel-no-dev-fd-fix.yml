@@ -22,71 +22,35 @@ jobs:
           python3 - <<'PY'
           from pathlib import Path
 
-          deploy_path = Path('ops/cpanel/deploy.sh')
+          deploy_path = Path("ops/cpanel/deploy.sh")
           text = deploy_path.read_text()
-          old = '''app_scoped_lsnode_pids() {
-            local app_realpath
-            local app_uid
-            local pid
-            local worker_cwd
 
-            app_realpath="$(readlink -f "$APP_DIR")"
-            app_uid="$(id -u "$APP_USER")"
+          text = text.replace(
+              "  local app_uid\n  local pid\n  local worker_cwd\n",
+              "  local app_uid\n  local candidate_pids\n  local pid\n  local worker_cwd\n",
+              1,
+          )
 
-            if ! command -v pgrep >/dev/null 2>&1; then
-              return 1
-            fi
+          marker = "  if ! command -v pgrep >/dev/null 2>&1; then\n    return 1\n  fi\n\n"
+          replacement = marker + "  candidate_pids=\"$(pgrep -u \"$app_uid\" -f '[l]snode' 2>/dev/null || true)\"\n  if [[ -z \"$candidate_pids\" ]]; then\n    return 1\n  fi\n\n"
+          if marker not in text:
+              raise SystemExit("expected pgrep guard not found")
+          text = text.replace(marker, replacement, 1)
 
-            while IFS= read -r pid; do
-              [[ -n "$pid" ]] || continue
-              worker_cwd="$(readlink -f "/proc/$pid/cwd" 2>/dev/null || true)"
-              if [[ "$worker_cwd" == "$app_realpath" ]]; then
-                printf '%s\\n' "$pid"
-              fi
-            done < <(pgrep -u "$app_uid" -f '[l]snode' 2>/dev/null || true)
-          }
-'''
-          old = '\n'.join(line[10:] if line.startswith('          ') else line for line in old.splitlines()) + '\n'
-          new = '''app_scoped_lsnode_pids() {
-            local app_realpath
-            local app_uid
-            local candidate_pids
-            local pid
-            local worker_cwd
+          old_loop_end = "  done < <(pgrep -u \"$app_uid\" -f '[l]snode' 2>/dev/null || true)\n"
+          new_loop_end = "  done <<< \"$candidate_pids\"\n"
+          if old_loop_end not in text:
+              raise SystemExit("expected process-substitution loop not found")
+          text = text.replace(old_loop_end, new_loop_end, 1)
+          deploy_path.write_text(text)
 
-            app_realpath="$(readlink -f "$APP_DIR")"
-            app_uid="$(id -u "$APP_USER")"
-
-            if ! command -v pgrep >/dev/null 2>&1; then
-              return 1
-            fi
-
-            candidate_pids="$(pgrep -u "$app_uid" -f '[l]snode' 2>/dev/null || true)"
-            if [[ -z "$candidate_pids" ]]; then
-              return 1
-            fi
-
-            while IFS= read -r pid; do
-              [[ -n "$pid" ]] || continue
-              worker_cwd="$(readlink -f "/proc/$pid/cwd" 2>/dev/null || true)"
-              if [[ "$worker_cwd" == "$app_realpath" ]]; then
-                printf '%s\\n' "$pid"
-              fi
-            done <<< "$candidate_pids"
-          }
-'''
-          new = '\n'.join(line[10:] if line.startswith('          ') else line for line in new.splitlines()) + '\n'
-          if old not in text:
-            raise SystemExit('expected app_scoped_lsnode_pids block not found')
-          deploy_path.write_text(text.replace(old, new, 1))
-
-          test_path = Path('test/cpanel-deploy.test.js')
+          test_path = Path("test/cpanel-deploy.test.js")
           tests = test_path.read_text()
-          needle = "  assert.match(deployScript, /pgrep -u \\\"\\$app_uid\\\" -f '\\\\[l\\\\]snode'/);\n"
-          replacement = needle + "  assert.match(deployScript, /candidate_pids=\\\"\\$\\(pgrep/);\n  assert.match(deployScript, /done <<< \\\"\\$candidate_pids\\\"/);\n  assert.doesNotMatch(deployScript, /done < <\\(pgrep/);\n"
-          if needle not in tests:
-            raise SystemExit('expected pgrep assertion not found')
-          test_path.write_text(tests.replace(needle, replacement, 1))
+          anchor = "  assert.match(deployScript, /terminate_app_scoped_lsnode_workers/);\n"
+          addition = anchor + "  assert.match(deployScript, /candidate_pids/);\n  assert.match(deployScript, /done <<< \\\"\\$candidate_pids\\\"/);\n  assert.doesNotMatch(deployScript, /done < <\\(pgrep/);\n"
+          if anchor not in tests:
+              raise SystemExit("expected scoped worker assertion not found")
+          test_path.write_text(tests.replace(anchor, addition, 1))
           PY
 
       - name: Validate shell and focused test

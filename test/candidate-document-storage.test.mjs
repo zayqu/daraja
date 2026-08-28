@@ -5,6 +5,7 @@ import { join } from "node:path";
 import test from "node:test";
 import {
   CandidateDocumentStorageError,
+  candidateDocumentScannerCandidates,
   deleteCandidateDocument,
   isPrivateCandidateDocumentLocator,
   readCandidateDocument,
@@ -35,8 +36,8 @@ function withEnv(values, fn) {
     });
 }
 
-async function makeScanner(root, exitCode = 0) {
-  const scanner = join(root, `scanner-${exitCode}.sh`);
+async function makeScanner(root, exitCode = 0, name = `scanner-${exitCode}.sh`) {
+  const scanner = join(root, name);
   await writeFile(scanner, `#!/usr/bin/env sh\nexit ${exitCode}\n`, "utf8");
   await chmod(scanner, 0o755);
   return scanner;
@@ -63,6 +64,40 @@ test("candidate PDF validation checks the actual file signature", () => {
       error instanceof CandidateDocumentStorageError &&
       error.code === "INVALID_FILE_SIGNATURE",
   );
+});
+
+test("scanner discovery prefers an explicit override and otherwise checks cPanel first", async () => {
+  await withEnv({ CLAMSCAN_PATH: "/custom/clamscan" }, async () => {
+    assert.deepEqual(candidateDocumentScannerCandidates(), ["/custom/clamscan"]);
+  });
+
+  await withEnv({ CLAMSCAN_PATH: undefined }, async () => {
+    assert.deepEqual(candidateDocumentScannerCandidates(), [
+      "/usr/local/cpanel/3rdparty/bin/clamscan",
+      "clamscan",
+    ]);
+  });
+});
+
+test("candidate storage can fall back from missing cPanel binary to PATH clamscan", async () => {
+  const root = await mkdtemp(join(tmpdir(), "daraja-private-docs-"));
+  await makeScanner(root, 0, "clamscan");
+
+  await withEnv(
+    {
+      CANDIDATE_DOCUMENT_STORAGE_ROOT: join(root, "documents"),
+      CANDIDATE_DOCUMENT_MALWARE_SCANNER: "clamav",
+      CLAMSCAN_PATH: undefined,
+      PATH: `${root}:${process.env.PATH || ""}`,
+    },
+    async () => {
+      const locator = await storeCandidatePdf(cleanPdf);
+      assert.equal(isPrivateCandidateDocumentLocator(locator), true);
+      await deleteCandidateDocument(locator);
+    },
+  );
+
+  await rm(root, { recursive: true, force: true });
 });
 
 test("private candidate storage uses an opaque locator and owner-only file path", async () => {

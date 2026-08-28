@@ -7,6 +7,10 @@ review.
 Every workstream must comply with `SECURITY.md`. Security/privacy boundaries
 cannot be waived by an individual feature stream.
 
+Every workstream also follows `docs/START-HERE.md`: inspect the current owner,
+edit/refactor it cleanly, test, remove obsolete code, update progress, and leave
+a durable handoff.
+
 ## Workstream A - Public jobs and ingestion
 
 Primary areas:
@@ -167,6 +171,21 @@ Responsibilities:
 - human review for consequential decisions;
 - plan stronger admin authentication/MFA before marketplace/payment scale.
 
+## Implementation ownership rule
+
+Before changing a behavior, the workstream owner must identify the file/module
+that currently owns it. Prefer editing or cleanly refactoring that owner over
+adding a parallel path.
+
+Do not leave two implementations of the same business rule after a normal PR.
+If a staged migration temporarily requires both, the PR must identify which is
+canonical, why compatibility is required and the exact removal condition for the
+old path.
+
+A handoff that says only "new version added" is incomplete. It must explain what
+old behavior was replaced, what was removed, and where the new single owner now
+lives.
+
 ## Collision rules
 
 High-collision files include:
@@ -183,17 +202,20 @@ time unless the contributors explicitly coordinate.
 Before opening a PR, state:
 - workstream;
 - user outcome;
+- existing behavior owner inspected;
 - files/modules owned;
 - schema impact (`none`, `additive`, or `high-risk`);
 - security/privacy impact;
 - production/provider dependencies;
-- tests and verification plan.
+- tests and verification plan;
+- whether any temporary compatibility path exists and its removal condition.
 
 ## Handoff format
 
 When a model stops mid-work, leave a concise PR/issue note:
 
-- **Done:** concrete completed behavior.
+- **Done:** concrete completed behavior and the canonical owner now responsible.
+- **Removed/Replaced:** obsolete implementation removed or intentionally retained with reason.
 - **Pending:** next implementation step.
 - **Evidence:** tests/build/preview/runtime results.
 - **Risks:** schema, provider, security or production concerns.

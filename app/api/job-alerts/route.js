@@ -6,6 +6,7 @@ import {
   JOB_CATEGORIES,
   WORK_ARRANGEMENTS,
 } from "@/lib/job-categories";
+import { protectMutation, readProtectedJson } from "@/lib/request-security";
 
 const MAX_VALUES = 10;
 const MAX_VALUE_LENGTH = 80;
@@ -85,13 +86,15 @@ export async function POST(request) {
   if (!user) {
     return NextResponse.json({ error: "Sign in to save job alerts." }, { status: 401 });
   }
-  const contentLength = Number(request.headers.get("content-length") || 0);
-  if (contentLength > 8192) {
-    return NextResponse.json({ error: "Request is too large." }, { status: 413 });
-  }
+
+  const { body, error: requestError } = await readProtectedJson(request, {
+    scope: "job-alert-preferences",
+    limit: 20,
+    maxBytes: 8_192,
+  });
+  if (requestError) return requestError;
 
   try {
-    const body = await request.json();
     const categories = normalizeList(body.categories, JOB_CATEGORIES);
     if (!categories.length) {
       return NextResponse.json(
@@ -142,11 +145,16 @@ export async function POST(request) {
   }
 }
 
-export async function DELETE() {
+export async function DELETE(request) {
   const user = await getSessionUser();
   if (!user) {
     return NextResponse.json({ error: "Sign in to manage job alerts." }, { status: 401 });
   }
+  const requestError = protectMutation(request, {
+    scope: "job-alert-preferences",
+    limit: 20,
+  });
+  if (requestError) return requestError;
   await prisma.jobAlertSubscriber.updateMany({
     where: { userId: user.id },
     data: { active: false },

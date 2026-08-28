@@ -24,6 +24,25 @@ This local private filesystem is an interim production implementation behind a
 storage boundary. A future managed private object store can replace it without
 changing candidate-facing URLs or exposing permanent public file URLs.
 
+## Malware scanner discovery
+
+When `CANDIDATE_DOCUMENT_MALWARE_SCANNER=clamav` is enabled, Daraja discovers
+`clamscan` in this order:
+
+1. `CLAMSCAN_PATH`, when an explicit override is configured.
+2. cPanel's standard ClamAV binary location:
+   `/usr/local/cpanel/3rdparty/bin/clamscan`.
+3. `clamscan` from the Node runtime `PATH`.
+
+An explicit `CLAMSCAN_PATH` is authoritative. If that configured executable is
+missing or fails, Daraja fails closed rather than silently falling back to a
+different scanner. Without an explicit override, only a missing cPanel binary
+causes the runtime to try the normal `PATH` command.
+
+Do not infer that ClamAV is absent only because `command -v clamscan` returns no
+result. cPanel commonly installs its ClamAV binaries outside a normal account
+user's `PATH`.
+
 ## Activation requirements
 
 Do not enable uploads until all of these are true:
@@ -31,7 +50,8 @@ Do not enable uploads until all of these are true:
 1. `CANDIDATE_CAREER_ENABLED=true` is intentionally enabled.
 2. A ClamAV-compatible `clamscan` executable is available to the Node runtime.
 3. `CANDIDATE_DOCUMENT_MALWARE_SCANNER=clamav` is configured.
-4. `CLAMSCAN_PATH` is set when `clamscan` is not available on the runtime PATH.
+4. If a non-standard scanner path is required, set `CLAMSCAN_PATH` explicitly.
+   The normal cPanel path does not require an override.
 5. `CANDIDATE_DOCUMENT_STORAGE_ROOT` points to private storage outside the app
    tree, preferably `/home/darajaco/.daraja/private-documents`.
 6. The storage directory is owned by `darajaco`, is not web-served, and is

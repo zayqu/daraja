@@ -14,16 +14,17 @@ security as a final hardening task after feature work.
 Every model or contributor must read, in order:
 
 1. `SECURITY.md` - security, privacy, CV/document and AI protection baseline.
-2. `PRODUCT.md` - product scope and user journeys.
-3. `ARCHITECTURE.md` - technical boundaries and deployment model.
-4. `ROADMAP.md` - delivery sequence and milestone gates.
-5. `WORKSTREAMS.md` - ownership boundaries for parallel work.
-6. `DECISIONS.md` - durable architectural/product decisions.
-7. `PROGRESS.md` - chronological implementation and validation evidence.
+2. `docs/JOB-SOURCE-POLICY.md` - authenticity, provenance, ingestion and lifecycle rules for jobs.
+3. `PRODUCT.md` - product scope and user journeys.
+4. `ARCHITECTURE.md` - technical boundaries and deployment model.
+5. `ROADMAP.md` - delivery sequence and milestone gates.
+6. `WORKSTREAMS.md` - ownership boundaries for parallel work.
+7. `DECISIONS.md` - durable architectural/product decisions.
+8. `PROGRESS.md` - chronological implementation and validation evidence.
 
 When these documents disagree, use this precedence:
-`DECISIONS.md` -> `SECURITY.md` -> `ARCHITECTURE.md` -> `PRODUCT.md` ->
-`ROADMAP.md` -> `PROGRESS.md`.
+`DECISIONS.md` -> `SECURITY.md` -> `docs/JOB-SOURCE-POLICY.md` ->
+`ARCHITECTURE.md` -> `PRODUCT.md` -> `ROADMAP.md` -> `PROGRESS.md`.
 
 Update the conflicting document in the same pull request when appropriate.
 
@@ -32,6 +33,8 @@ Update the conflicting document in the same pull request when appropriate.
 - Work through focused branches and pull requests. One vertical outcome per PR.
 - Do not invent product behavior when an existing flow or decision already exists.
 - Preserve public job discovery without registration.
+- External job ingestion must follow `docs/JOB-SOURCE-POLICY.md`; volume never
+  overrides authenticity, provenance, source terms or current-open evidence.
 - Require authentication for saved jobs, applications managed by Daraja,
   personalised alerts, candidate CV/documents, employer tools,
   freelancer/client tools, messaging and payments.
@@ -79,6 +82,7 @@ A change is not done because code exists. It is done only when:
 - security/privacy implications are reviewed against `SECURITY.md`;
 - ownership/authorisation checks are covered for protected data;
 - logging/analytics do not leak sensitive data;
+- job ingestion/source changes are checked against `docs/JOB-SOURCE-POLICY.md`;
 - production deployment is verified for user-facing releases;
 - `PROGRESS.md` is updated with meaningful completed evidence;
 - a durable architectural decision is added to `DECISIONS.md` if the change

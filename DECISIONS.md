@@ -170,3 +170,58 @@ systems or embed private server/provider credentials.
 
 A saved job, CV version, application, message or contract should represent the
 same backend record regardless of web or mobile client.
+
+## D-017 - Job coverage optimises for genuine and current, not raw volume
+
+**Status:** accepted
+
+Daraja's target is near-complete coverage of publicly advertised, verifiable
+Tanzania vacancies. It must not claim literal coverage of every job that exists,
+because some roles are private, closed-group, offline, behind restricted systems
+or otherwise unavailable for lawful automated collection.
+
+A smaller set of genuine current vacancies is preferable to a larger catalogue
+containing stale, fake, duplicated or unverifiable records.
+
+## D-018 - Job acquisition is source-registry driven and API/feed first
+
+**Status:** accepted
+
+The scraper should evolve into a source acquisition platform driven by a source
+registry. Prefer official APIs, public ATS feeds, RSS/XML, job sitemaps and
+`JobPosting` structured data before HTML/PDF scraping. Headless browser collection
+is a fallback.
+
+Authoritative employer universes should be seeded from official sources such as
+PSRS/Ajira, Bank of Tanzania licensed institutions, TCRA licensed providers, TCU
+recognised universities and the Tanzania NGO information system where useful.
+
+No production schema migration is authorised by this decision alone.
+
+## D-019 - Aggregators are discovery sensors unless explicitly approved
+
+**Status:** accepted
+
+Secondary job boards may reveal missing employers and vacancies, but they do not
+become the canonical source by default. Daraja should resolve a discovered
+vacancy to the employer, public body, ATS or verified recruitment agency whenever
+possible.
+
+Do not copy a third-party description wholesale merely because it is publicly
+visible. Source terms, crawl restrictions, licensing/copyright and attribution
+must be reviewed per source. A disclaimer is not permission to republish.
+
+## D-020 - 99% automation includes an exception review queue
+
+**Status:** accepted
+
+Daraja should automate polling, extraction, validation, normalisation,
+deduplication, category mapping, lifecycle, source health, indexing and candidate
+alerts. Human review remains mandatory for the exceptional cases where publisher
+identity, fraud, legal/terms status, unsafe application destinations, ambiguous
+duplicates, takedowns or material parser changes cannot be resolved safely.
+
+AI may assist anomaly detection and classification but cannot convert an
+unverified source into a verified vacancy by itself.
+
+`docs/JOB-SOURCE-POLICY.md` is the operational policy for these decisions.

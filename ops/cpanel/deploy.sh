@@ -168,6 +168,7 @@ registered_node_app_count() {
 app_scoped_lsnode_pids() {
   local app_realpath
   local app_uid
+  local candidate_pids
   local pid
   local worker_cwd
 
@@ -178,13 +179,18 @@ app_scoped_lsnode_pids() {
     return 1
   fi
 
+  candidate_pids="$(pgrep -u "$app_uid" -f '[l]snode' 2>/dev/null || true)"
+  if [[ -z "$candidate_pids" ]]; then
+    return 1
+  fi
+
   while IFS= read -r pid; do
     [[ -n "$pid" ]] || continue
     worker_cwd="$(readlink -f "/proc/$pid/cwd" 2>/dev/null || true)"
     if [[ "$worker_cwd" == "$app_realpath" ]]; then
       printf '%s\n' "$pid"
     fi
-  done < <(pgrep -u "$app_uid" -f '[l]snode' 2>/dev/null || true)
+  done <<< "$candidate_pids"
 }
 
 terminate_app_scoped_lsnode_workers() {

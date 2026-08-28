@@ -165,6 +165,44 @@ registered_node_app_count() {
     ' "$APP_USER"
 }
 
+app_scoped_lsnode_pids() {
+  local app_realpath
+  local app_uid
+  local pid
+  local worker_cwd
+
+  app_realpath="$(readlink -f "$APP_DIR")"
+  app_uid="$(id -u "$APP_USER")"
+
+  if ! command -v pgrep >/dev/null 2>&1; then
+    return 1
+  fi
+
+  while IFS= read -r pid; do
+    [[ -n "$pid" ]] || continue
+    worker_cwd="$(readlink -f "/proc/$pid/cwd" 2>/dev/null || true)"
+    if [[ "$worker_cwd" == "$app_realpath" ]]; then
+      printf '%s\n' "$pid"
+    fi
+  done < <(pgrep -u "$app_uid" -f '[l]snode' 2>/dev/null || true)
+}
+
+terminate_app_scoped_lsnode_workers() {
+  local pids
+  local pid
+
+  pids="$(app_scoped_lsnode_pids || true)"
+  if [[ -z "$pids" ]]; then
+    return 1
+  fi
+
+  printf 'Clearing stale lsnode worker(s) scoped to %s.\n' "$APP_DIR" >&2
+  while IFS= read -r pid; do
+    [[ -n "$pid" ]] || continue
+    kill "$pid" 2>/dev/null || true
+  done <<< "$pids"
+}
+
 recover_stale_litespeed_worker() {
   local registered_apps
   local app_uid
@@ -179,9 +217,18 @@ recover_stale_litespeed_worker() {
     return 0
   fi
 
+  if terminate_app_scoped_lsnode_workers; then
+    sleep "$STALE_WORKER_WAIT_SECONDS"
+    restart_application start
+    sleep "$STALE_WORKER_WAIT_SECONDS"
+    if public_release_healthcheck; then
+      return 0
+    fi
+  fi
+
   registered_apps="$(registered_node_app_count 2>/dev/null || true)"
   if [[ "$registered_apps" != "1" ]]; then
-    printf 'Refusing account-wide lsnode cleanup because %s Node applications are registered.\n' \
+    printf 'No Daraja-scoped stale lsnode worker could be safely identified; refusing account-wide cleanup because %s Node applications are registered.\n' \
       "${registered_apps:-an unknown number of}" >&2
     return 1
   fi
@@ -199,7 +246,6 @@ recover_stale_litespeed_worker() {
   sleep "$STALE_WORKER_WAIT_SECONDS"
   public_release_healthcheck
 }
-
 jobs_api_healthcheck() {
   local url="$HEALTHCHECK_ORIGIN/api/jobs?page=1&limit=1&status=active"
   local response_file="$WORK_DIR/jobs-api-health.json"

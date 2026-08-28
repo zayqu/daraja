@@ -60,6 +60,12 @@ test("cPanel deployment verifies the exact public build before recording success
 test("cPanel deployment recovers a stale LiteSpeed worker with bounded scope", () => {
   assert.match(deployScript, /restart_application stop/);
   assert.match(deployScript, /restart_application start/);
+  assert.match(deployScript, /app_scoped_lsnode_pids/);
+  assert.match(deployScript, /readlink -f "\/proc\/\$pid\/cwd"/);
+  assert.match(deployScript, /worker_cwd" == "\$app_realpath/);
+  assert.match(deployScript, /pgrep -u "\$app_uid" -f '\[l\]snode'/);
+  assert.match(deployScript, /terminate_app_scoped_lsnode_workers/);
+  assert.match(deployScript, /kill "\$pid"/);
   assert.match(deployScript, /registered_node_app_count/);
   assert.match(deployScript, /registered_apps" != "1/);
   assert.match(deployScript, /pkill -u "\$app_uid" -f '\[l\]snode'/);
@@ -70,7 +76,6 @@ test("cPanel deployment recovers a stale LiteSpeed worker with bounded scope", (
   );
   assert.doesNotMatch(deployScript, /pkill (?:node|-f ['"]?lsnode)/);
 });
-
 test("cPanel deployment automatically restores the previous frontend on failure", () => {
   assert.match(deployScript, /mv \.next \/?"?\$FAILED_DIR"?/);
   assert.match(deployScript, /mv \.next\.previous \.next/);

@@ -7,8 +7,11 @@ import {
   CandidateDocumentStorageError,
   candidateDocumentScannerCandidates,
   deleteCandidateDocument,
+  finalizeStagedCandidateDocumentDeletion,
   isPrivateCandidateDocumentLocator,
   readCandidateDocument,
+  restoreStagedCandidateDocument,
+  stageCandidateDocumentDeletion,
   storeCandidatePdf,
   validateCandidatePdf,
 } from "../lib/candidate-document-storage.js";
@@ -119,6 +122,33 @@ test("private candidate storage uses an opaque locator and owner-only file path"
       assert.deepEqual(stored, cleanPdf);
 
       await deleteCandidateDocument(locator);
+      await assert.rejects(readCandidateDocument(locator), /ENOENT/);
+    },
+  );
+
+  await rm(root, { recursive: true, force: true });
+});
+
+test("private candidate deletion can roll back before final erasure", async () => {
+  const root = await mkdtemp(join(tmpdir(), "daraja-private-docs-"));
+  const scanner = await makeScanner(root, 0);
+
+  await withEnv(
+    {
+      CANDIDATE_DOCUMENT_STORAGE_ROOT: join(root, "documents"),
+      CANDIDATE_DOCUMENT_MALWARE_SCANNER: "clamav",
+      CLAMSCAN_PATH: scanner,
+    },
+    async () => {
+      const locator = await storeCandidatePdf(cleanPdf);
+      const firstStage = await stageCandidateDocumentDeletion(locator);
+      await assert.rejects(readCandidateDocument(locator), /ENOENT/);
+
+      await restoreStagedCandidateDocument(firstStage);
+      assert.deepEqual(await readCandidateDocument(locator), cleanPdf);
+
+      const finalStage = await stageCandidateDocumentDeletion(locator);
+      await finalizeStagedCandidateDocumentDeletion(finalStage);
       await assert.rejects(readCandidateDocument(locator), /ENOENT/);
     },
   );

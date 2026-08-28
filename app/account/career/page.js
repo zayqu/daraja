@@ -54,7 +54,7 @@ export default async function CareerPage() {
           <article className={styles.card}>
             <h2>Privacy & data</h2>
             <p>
-              Download your account data and review Daraja's private-data
+              Download your account data and review Daraja&apos;s private-data
               controls from one place.
             </p>
             <Link href="/account/privacy">Open privacy controls</Link>

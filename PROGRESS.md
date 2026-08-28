@@ -33,6 +33,24 @@ workflows.
   build all completed successfully. Publishing/deployment steps were correctly
   skipped for the pull request.
 
+## Current batch: Phase 0 authentication and session boundary
+
+- Auth.js with the Prisma adapter remains the single authentication owner; no
+  parallel authentication stack or replacement route was introduced.
+- Database sessions now have an explicit seven-day maximum lifetime and a
+  one-day update cadence instead of relying on implicit defaults.
+- Auth.js POST operations pass through the shared protected-mutation boundary,
+  while OAuth and passwordless-email GET callbacks remain handled by Auth.js.
+- Mutation Origin validation no longer trusts forwarded-host headers. Accepted
+  origins are derived from the actual request URL plus configured canonical
+  `AUTH_URL`/`NEXTAUTH_URL` origins when present.
+- This batch is schema-free and changes no provider credentials, production
+  data, DNS, payment configuration or feature flag.
+- Pull request #85 passed cPanel PR workflow #33161733478 on 28 August 2026:
+  tests, ESLint, Prisma schema validation, shell validation, the production
+  build, packaging and artifact upload all completed successfully. Release
+  publication and cPanel handoff were correctly skipped for the pull request.
+
 ## Completed and verified
 
 - Active, expired and all-job filtering with URL-preserved search state.

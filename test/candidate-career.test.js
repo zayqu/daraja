@@ -17,12 +17,21 @@ test("candidate identity always comes from the authenticated session", () => {
   assert.doesNotMatch(read("app/api/candidate/profile/route.js"), /body\.userId/);
 });
 
-test("profile document references require HTTPS and never accept raw uploads", () => {
-  const access = read("lib/candidate-access.js");
+test("candidate profile does not accept or expose legacy CV storage URLs", () => {
   const route = read("app/api/candidate/profile/route.js");
-  assert.match(access, /url\.protocol === "https:"/);
-  assert.match(route, /Document and portfolio links must use HTTPS/);
-  assert.doesNotMatch(route, /FormData|arrayBuffer|Buffer\.from/);
+  const documentsStart = route.indexOf("documents: {");
+  const documentsEnd = route.indexOf("      },\n    },\n  });", documentsStart);
+  const documentsSelection = route.slice(documentsStart, documentsEnd);
+
+  assert.match(route, /Object\.prototype\.hasOwnProperty\.call\(body, "cvUrl"\)/);
+  assert.match(route, /CV links are no longer accepted/);
+  assert.match(route, /Candidate documents must use Daraja private storage/);
+  assert.match(route, /Portfolio links must use HTTPS/);
+  assert.match(route, /"Cache-Control": "private, no-store, max-age=0"/);
+  assert.ok(documentsStart >= 0 && documentsEnd > documentsStart);
+  assert.doesNotMatch(documentsSelection, /\burl:\s*true/);
+  assert.doesNotMatch(route, /\bcvUrl:\s*true/);
+  assert.doesNotMatch(route, /\bcvUrl,\s*$/m);
 });
 
 test("saved jobs are scoped to the signed-in candidate", () => {

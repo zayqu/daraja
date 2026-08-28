@@ -9,4 +9,14 @@
 .card a { display: inline-flex; min-height: 44px; align-items: center; margin-top: .8rem; color: #087f6b; font-weight: 700; }
 .primaryAction { padding: .75rem 1rem; border: 1px solid #087f6b; border-radius: 10px; text-decoration: none; }
 .status { display: inline-flex; margin-top: .8rem; min-height: 36px; align-items: center; padding: .45rem .7rem; border-radius: 999px; background: #f3f5f7; color: #526071; font-size: .9rem; font-weight: 700; }
-@media (max-width: 760px) { .shell { padding-top: 2rem; } }
+.dangerCard { border-color: #e4c6c6; }
+.deleteForm { display: grid; gap: 1rem; margin-top: 1.25rem; max-width: 620px; }
+.field { display: grid; gap: .45rem; font-weight: 700; color: #273548; }
+.field input { min-height: 44px; width: 100%; border: 1px solid #cbd3dc; border-radius: 8px; padding: .7rem .8rem; background: #fff; color: #1b2a3f; font: inherit; }
+.field input:focus-visible, .checkRow input:focus-visible, .deleteButton:focus-visible { outline: 3px solid #9fcfc5; outline-offset: 2px; }
+.checkRow { display: grid; grid-template-columns: 22px 1fr; align-items: start; gap: .65rem; color: #526071; line-height: 1.55; }
+.checkRow input { width: 20px; height: 20px; margin-top: .15rem; }
+.deleteButton { min-height: 44px; justify-self: start; border: 0; border-radius: 8px; padding: .75rem 1rem; background: #8a2424; color: #fff; font: inherit; font-weight: 800; cursor: pointer; }
+.deleteButton:disabled { opacity: .5; cursor: not-allowed; }
+.formStatus { min-height: 1.5rem; margin: 0; font-weight: 700; }
+@media (max-width: 760px) { .shell { padding-top: 2rem; } .deleteButton { width: 100%; } }

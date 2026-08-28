@@ -79,6 +79,8 @@ Update `PROGRESS.md` with meaningful completed evidence. Update `DECISIONS.md`, 
 
 Leave enough evidence that another model can continue without chat history: what changed, what remains, tests run, production status, risks and blockers.
 
+For every cPanel production deployment handoff, include the canonical single copy/paste command from `ops/cpanel/README-auto-deploy.md`. Do not split deployment and release verification into multiple operator commands when that canonical command applies.
+
 ## No patch-on-patch rule
 
 Daraja must not accumulate layers of temporary fixes as its normal development style.

@@ -11,8 +11,9 @@ export async function PATCH(request, { params }) {
   if (!isAdmin(actor)) return NextResponse.json({ error: "Admin access required" }, { status: actor ? 403 : 401 });
   const { body, error } = await readProtectedJson(request, {
     scope: "admin-employer-moderation",
-    limit: 60,
+    limit: 20,
     maxBytes: 4_096,
+    requireOrigin: true,
   });
   if (error) return error;
   const { id } = await params;

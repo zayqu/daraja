@@ -22,6 +22,24 @@ test("protected write boundary rejects cross-site requests and bounds JSON paylo
   assert.match(security, /Retry-After/);
 });
 
+test("privileged mutations can require an explicit canonical origin", () => {
+  const security = read("lib/request-security.js");
+
+  assert.match(security, /requireOrigin = false/);
+  assert.match(security, /if \(!origin && requireOrigin\)/);
+  assert.match(security, /Request origin required\./);
+  assert.match(security, /allowedOrigins\(request\)\.has\(new URL\(origin\)\.origin\)/);
+});
+
+test("protected writes can use a server-derived rate identity", () => {
+  const security = read("lib/request-security.js");
+
+  assert.match(security, /rateIdentity = null/);
+  assert.match(security, /typeof rateIdentity === "string" && rateIdentity/);
+  assert.match(security, /actor:\$\{rateIdentity\.slice\(0, 128\)\}/);
+  assert.match(security, /checkRateLimit\(request, \{ scope, limit, windowMs, rateIdentity \}\)/);
+});
+
 test("protected account, employer and admin writes use the shared boundary", () => {
   const jsonWriteRoutes = [
     "app/api/candidate/profile/route.js",
@@ -45,6 +63,23 @@ test("protected account, employer and admin writes use the shared boundary", () 
   assert.match(alerts, /readProtectedJson/);
   assert.match(alerts, /protectMutation/);
   assert.doesNotMatch(alerts, /await request\.json\(\)/);
+});
+
+test("admin moderation writes require explicit origin and actor-bound throttling", () => {
+  const adminRoutes = [
+    "app/api/admin/employers/[id]/route.js",
+    "app/api/admin/jobs/[id]/moderate/route.js",
+  ];
+
+  for (const file of adminRoutes) {
+    const source = read(file);
+    assert.match(source, /isAdmin\(actor\)/);
+    assert.match(source, /requireOrigin: true/);
+    assert.match(source, /rateIdentity: actor\.id/);
+    assert.match(source, /limit: 20/);
+    assert.match(source, /maxBytes: 4_096/);
+    assert.match(source, /auditEvent\.create/);
+  }
 });
 
 test("authentication POST requests use the shared mutation boundary", () => {

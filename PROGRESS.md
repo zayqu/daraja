@@ -1,6 +1,6 @@
 # Daraja Jobs production-readiness progress
 
-Last updated: 28 August 2026
+Last updated: 29 August 2026
 
 ## Current objective
 
@@ -499,6 +499,26 @@ workflows.
 - Production release health reported commit
   `f2c9ded54fc94412cf7f3dbd2759cdc944ef19fa` before this CI repair. The batch
   is not considered live until the exact merged release is reported publicly.
+
+## Current batch: privileged admin mutation boundary
+
+- The two current consequential administrator write routes retain their
+  database-backed `ADMIN` role checks and transactional audit events.
+- Employer verification and vacancy moderation now require an explicit browser
+  `Origin` matching Daraja's request or configured canonical Auth.js origin;
+  missing or cross-site origins fail closed.
+- Privileged moderation writes use a 20-per-minute in-process abuse budget keyed
+  to the server-derived authenticated administrator ID, so protection does not
+  depend on proxy IP headers being present. Ordinary protected routes keep the
+  existing client-IP defense-in-depth behavior.
+- Admin mutation payloads remain JSON-only and capped at 4 KB.
+- This batch is schema-free and changes no production data automatically,
+  provider configuration, credentials, DNS, payment behavior or feature flag.
+- Validation completed on 29 August 2026: all 171 tests, the production
+  dependency audit, ESLint, Prisma validation, cPanel shell validation,
+  production build, packaging and Vercel passed on pull request #96.
+- Production activation remains pending until the merged release is published
+  and `/api/health/release` reports the exact merge commit.
 
 ## Definition-of-done evidence
 

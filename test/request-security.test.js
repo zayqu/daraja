@@ -31,6 +31,15 @@ test("privileged mutations can require an explicit canonical origin", () => {
   assert.match(security, /allowedOrigins\(request\)\.has\(new URL\(origin\)\.origin\)/);
 });
 
+test("protected writes can use a server-derived rate identity", () => {
+  const security = read("lib/request-security.js");
+
+  assert.match(security, /rateIdentity = null/);
+  assert.match(security, /typeof rateIdentity === "string" && rateIdentity/);
+  assert.match(security, /actor:\$\{rateIdentity\.slice\(0, 128\)\}/);
+  assert.match(security, /checkRateLimit\(request, \{ scope, limit, windowMs, rateIdentity \}\)/);
+});
+
 test("protected account, employer and admin writes use the shared boundary", () => {
   const jsonWriteRoutes = [
     "app/api/candidate/profile/route.js",
@@ -56,7 +65,7 @@ test("protected account, employer and admin writes use the shared boundary", () 
   assert.doesNotMatch(alerts, /await request\.json\(\)/);
 });
 
-test("admin moderation writes require explicit origin and a tighter abuse budget", () => {
+test("admin moderation writes require explicit origin and actor-bound throttling", () => {
   const adminRoutes = [
     "app/api/admin/employers/[id]/route.js",
     "app/api/admin/jobs/[id]/moderate/route.js",
@@ -66,6 +75,7 @@ test("admin moderation writes require explicit origin and a tighter abuse budget
     const source = read(file);
     assert.match(source, /isAdmin\(actor\)/);
     assert.match(source, /requireOrigin: true/);
+    assert.match(source, /rateIdentity: actor\.id/);
     assert.match(source, /limit: 20/);
     assert.match(source, /maxBytes: 4_096/);
     assert.match(source, /auditEvent\.create/);

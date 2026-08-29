@@ -14,6 +14,7 @@ export async function PATCH(request, { params }) {
     limit: 20,
     maxBytes: 4_096,
     requireOrigin: true,
+    rateIdentity: actor.id,
   });
   if (error) return error;
   const { id } = await params;

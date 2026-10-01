@@ -49,3 +49,25 @@ test("public release endpoint is dynamic, no-store and database-free", async () 
   assert.doesNotMatch(source, /prisma|DATABASE_URL|process\.env/);
 });
 
+
+
+test("release marker falls back to the cPanel runtime directory", async () => {
+  const root = await mkdtemp(join(tmpdir(), "daraja-release-root-"));
+  await mkdir(join(root, "runtime", ".next"), { recursive: true });
+  await writeFile(
+    join(root, "runtime", ".next", ".daraja-commit"),
+    "69B4D83C52D09F19D2A4911444C6536E01D83AA7\n",
+    "utf8",
+  );
+
+  const originalCwd = process.cwd();
+  try {
+    process.chdir(root);
+    assert.equal(
+      await readReleaseMarker(),
+      "69b4d83c52d09f19d2a4911444c6536e01d83aa7",
+    );
+  } finally {
+    process.chdir(originalCwd);
+  }
+});

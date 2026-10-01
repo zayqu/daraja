@@ -282,3 +282,27 @@ the last admin account. Future schema additions containing user-owned or private
 data are incomplete until the account-erasure owner explicitly handles them.
 Private-file erasure must participate in failure/rollback handling rather than
 silently leaving an accessible document behind.
+
+
+## D-024 - External templates inform flow, not Daraja's brand or product ownership
+
+**Status:** accepted
+
+Third-party templates such as Jobtex, Jobi, Jobko and similar licensed references
+may inform page flow, information hierarchy, component composition and interaction
+patterns. They do not become a second frontend, a replacement backend or an
+independent source of business logic.
+
+Daraja's existing brand remains canonical. Template fonts, colour palettes,
+logos and decorative identity must not replace Daraja's established typography,
+colour tokens or product branding merely to imitate a reference design.
+
+When a template pattern is adopted, improve the Daraja component or page that
+already owns the behaviour. Preserve Daraja's Next.js architecture, protected
+APIs, authentication, authorisation, analytics and data model. Do not import
+another framework or broad template dependency solely to reproduce a layout.
+
+Jobtex is the primary public visual/flow reference for the current UI evolution;
+deeper candidate, employer, ATS and mobile workflow references may come from
+other reviewed templates, but all resulting screens must still present one
+coherent Daraja design system.

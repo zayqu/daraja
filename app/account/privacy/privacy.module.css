@@ -1,22 +1,217 @@
-.shell { width: min(900px, calc(100% - 2rem)); margin: 0 auto; padding: 3rem 0 5rem; color: #1b2a3f; }
-.header { max-width: 720px; margin-bottom: 2rem; }
-.header p { color: #087f6b; font-size: .78rem; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; }
-.header h1 { font-size: clamp(2rem, 5vw, 3.1rem); line-height: 1.08; margin: .45rem 0 1rem; }
-.header span, .card p { color: #526071; line-height: 1.65; }
-.stack { display: grid; gap: 1rem; }
-.card { background: #fff; border: 1px solid #dfe5eb; border-radius: 12px; padding: 1.5rem; }
-.card h2 { font-size: 1.1rem; margin-bottom: .7rem; }
-.card a { display: inline-flex; min-height: 44px; align-items: center; margin-top: .8rem; color: #087f6b; font-weight: 700; }
-.primaryAction { padding: .75rem 1rem; border: 1px solid #087f6b; border-radius: 10px; text-decoration: none; }
-.status { display: inline-flex; margin-top: .8rem; min-height: 36px; align-items: center; padding: .45rem .7rem; border-radius: 999px; background: #f3f5f7; color: #526071; font-size: .9rem; font-weight: 700; }
-.dangerCard { border-color: #e4c6c6; }
-.deleteForm { display: grid; gap: 1rem; margin-top: 1.25rem; max-width: 620px; }
-.field { display: grid; gap: .45rem; font-weight: 700; color: #273548; }
-.field input { min-height: 44px; width: 100%; border: 1px solid #cbd3dc; border-radius: 8px; padding: .7rem .8rem; background: #fff; color: #1b2a3f; font: inherit; }
-.field input:focus-visible, .checkRow input:focus-visible, .deleteButton:focus-visible { outline: 3px solid #9fcfc5; outline-offset: 2px; }
-.checkRow { display: grid; grid-template-columns: 22px 1fr; align-items: start; gap: .65rem; color: #526071; line-height: 1.55; }
-.checkRow input { width: 20px; height: 20px; margin-top: .15rem; }
-.deleteButton { min-height: 44px; justify-self: start; border: 0; border-radius: 8px; padding: .75rem 1rem; background: #8a2424; color: #fff; font: inherit; font-weight: 800; cursor: pointer; }
-.deleteButton:disabled { opacity: .5; cursor: not-allowed; }
-.formStatus { min-height: 1.5rem; margin: 0; font-weight: 700; }
-@media (max-width: 760px) { .shell { padding-top: 2rem; } .deleteButton { width: 100%; } }
+.page {
+  min-height: 100vh;
+  background: #f7f8fa;
+  color: #1b2a3f;
+}
+
+.hero {
+  padding: 3.25rem var(--gutter);
+  background: #1b2a3f;
+}
+
+.heroInner {
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.eyebrow {
+  margin: 0;
+  color: #00c9a7;
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.hero h1 {
+  max-width: 760px;
+  margin: 0.5rem 0 0.85rem;
+  color: #fff;
+  font-size: clamp(2rem, 5vw, 3.1rem);
+  line-height: 1.06;
+  letter-spacing: -0.04em;
+}
+
+.hero p:last-child {
+  max-width: 650px;
+  margin: 0;
+  color: rgba(255, 255, 255, 0.58);
+  font-size: 0.9rem;
+  line-height: 1.7;
+}
+
+.shell {
+  width: min(900px, calc(100% - 2rem));
+  margin: 0 auto;
+  padding: 1.5rem 0 4.5rem;
+}
+
+.stack {
+  display: grid;
+  gap: 1rem;
+}
+
+.card {
+  padding: 1.5rem;
+  border: 1px solid #e3e8ee;
+  border-radius: 16px;
+  background: #fff;
+}
+
+.cardLabel,
+.dangerLabel {
+  display: block;
+  margin-bottom: 0.45rem;
+  color: #087f6c;
+  font-size: 0.64rem;
+  font-weight: 800;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+}
+
+.dangerLabel {
+  color: #b42318;
+}
+
+.card h2 {
+  margin: 0 0 0.7rem;
+  font-size: 1rem;
+}
+
+.card p {
+  margin: 0 0 0.7rem;
+  color: #667085;
+  font-size: 0.78rem;
+  line-height: 1.65;
+}
+
+.card p:last-of-type {
+  margin-bottom: 0;
+}
+
+.primaryAction {
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  margin-top: 1rem;
+  padding: 0.7rem 0.9rem;
+  border: 1px solid #087f6c;
+  border-radius: 10px;
+  color: #087f6c;
+  font-size: 0.76rem;
+  font-weight: 800;
+  text-decoration: none;
+}
+
+.primaryAction:hover,
+.primaryAction:focus-visible {
+  background: #f1fffb;
+}
+
+.status {
+  min-height: 36px;
+  display: inline-flex;
+  align-items: center;
+  margin-top: 0.8rem;
+  padding: 0.45rem 0.7rem;
+  border-radius: 999px;
+  background: #f3f5f7;
+  color: #526071;
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+.dangerCard {
+  border-color: #e5c5c5;
+  background: #fffdfd;
+}
+
+.deleteForm {
+  max-width: 620px;
+  display: grid;
+  gap: 1rem;
+  margin-top: 1.25rem;
+}
+
+.field {
+  display: grid;
+  gap: 0.45rem;
+  color: #273548;
+  font-weight: 700;
+}
+
+.field input {
+  width: 100%;
+  min-height: 44px;
+  padding: 0.7rem 0.8rem;
+  border: 1px solid #cbd3dc;
+  border-radius: 8px;
+  background: #fff;
+  color: #1b2a3f;
+  font: inherit;
+}
+
+.field input:focus-visible,
+.checkRow input:focus-visible,
+.deleteButton:focus-visible {
+  outline: 3px solid #9fcfc5;
+  outline-offset: 2px;
+}
+
+.checkRow {
+  display: grid;
+  grid-template-columns: 22px 1fr;
+  align-items: start;
+  gap: 0.65rem;
+  color: #526071;
+  line-height: 1.55;
+}
+
+.checkRow input {
+  width: 20px;
+  height: 20px;
+  margin-top: 0.15rem;
+}
+
+.deleteButton {
+  min-height: 44px;
+  justify-self: start;
+  padding: 0.75rem 1rem;
+  border: 0;
+  border-radius: 8px;
+  background: #8a2424;
+  color: #fff;
+  font: inherit;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.deleteButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.formStatus {
+  min-height: 1.5rem;
+  margin: 0;
+  font-weight: 700;
+}
+
+@media (max-width: 640px) {
+  .hero {
+    padding-top: 2.5rem;
+    padding-bottom: 2.65rem;
+  }
+
+  .shell {
+    padding-top: 1.2rem;
+  }
+
+  .card {
+    padding: 1.15rem;
+  }
+
+  .deleteButton {
+    width: 100%;
+  }
+}

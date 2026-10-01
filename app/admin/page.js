@@ -1,5 +1,10 @@
 import { notFound, redirect } from "next/navigation";
-import { employerPortalEnabled, getActor, isAdmin } from "@/lib/employer-access";
+import {
+  employerPortalEnabled,
+  getActor,
+  isAdmin,
+} from "@/lib/employer-access";
+import EmployerPortalTabs from "@/components/EmployerPortalTabs";
 import SiteNav from "@/components/SiteNav";
 import styles from "../portal.module.css";
 
@@ -8,27 +13,84 @@ export const dynamic = "force-dynamic";
 
 export default async function AdminPage() {
   if (!employerPortalEnabled()) notFound();
+
   const actor = await getActor();
   if (!actor) redirect("/auth/signin?callbackUrl=/admin");
   if (!isAdmin(actor)) notFound();
+
   return (
-    <>
+    <div className={styles.page}>
       <SiteNav />
-      <main className={styles.shell} id="main-content">
-        <header className={styles.header}>
-          <p className={styles.eyebrow}>Protected administration</p>
-          <h1>Verification and vacancy moderation</h1>
-          <p>Review employer evidence, publish suitable vacancies and retain a complete audit history.</p>
-        </header>
-        <section className={styles.card}>
-          <h2>Moderation safeguards</h2>
-          <ul>
-            <li>Employer identity is verified before publication.</li>
-            <li>Rejections require a reason.</li>
-            <li>Every decision records the authenticated administrator.</li>
-          </ul>
+
+      <main id="main-content">
+        <section className={styles.hero}>
+          <div className={styles.heroInner}>
+            <p className={styles.eyebrow}>Protected administration</p>
+            <h1>Verification and vacancy moderation.</h1>
+            <p>
+              Review employer trust, make publication decisions and preserve an
+              auditable moderation trail.
+            </p>
+          </div>
         </section>
+
+        <div className={styles.shell}>
+          <EmployerPortalTabs showAdmin />
+
+          <section className={styles.summaryStrip}>
+            <div>
+              <span>Administrator</span>
+              <strong>{actor.email}</strong>
+            </div>
+            <div>
+              <span>Access level</span>
+              <strong className={styles.statusVerified}>admin</strong>
+            </div>
+          </section>
+
+          <section className={styles.grid} aria-label="Administration safeguards">
+            <article className={styles.card}>
+              <span className={styles.cardLabel}>Employer trust</span>
+              <h2>Verification decisions</h2>
+              <p>
+                Employer identity is reviewed before publication access is
+                granted. Verification changes remain server-authorised and
+                auditable.
+              </p>
+            </article>
+
+            <article className={styles.card}>
+              <span className={styles.cardLabel}>Vacancy trust</span>
+              <h2>Moderation decisions</h2>
+              <p>
+                Publish, reject or archive reviewable vacancies. Rejections
+                require a reason and every decision records the authenticated
+                administrator.
+              </p>
+            </article>
+
+            <article className={styles.card}>
+              <span className={styles.cardLabel}>Security boundary</span>
+              <h2>Protected writes</h2>
+              <ul>
+                <li>Database-backed ADMIN role checks remain mandatory.</li>
+                <li>Same-origin mutation protection remains active.</li>
+                <li>Privileged changes retain durable audit evidence.</li>
+              </ul>
+            </article>
+
+            <article className={styles.card}>
+              <span className={styles.cardLabel}>Human control</span>
+              <h2>Consequential decisions</h2>
+              <p>
+                Employer verification and vacancy moderation remain explicit
+                human administrative actions. Automated assistance cannot grant
+                privileged access by itself.
+              </p>
+            </article>
+          </section>
+        </div>
       </main>
-    </>
+    </div>
   );
 }

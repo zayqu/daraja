@@ -1,0 +1,118 @@
+.page {
+  min-height: 100vh;
+  background: #f7f8fa;
+  color: #1b2a3f;
+}
+
+.signOut button {
+  min-height: 40px;
+  padding: 0.55rem 0.9rem;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  border-radius: 10px;
+  background: transparent;
+  color: #fff;
+  font: inherit;
+  font-size: 0.74rem;
+  font-weight: 750;
+  cursor: pointer;
+}
+
+.signOut button:hover,
+.signOut button:focus-visible {
+  border-color: #00c9a7;
+  color: #00c9a7;
+}
+
+.hero {
+  padding: 3.25rem var(--gutter);
+  background: #1b2a3f;
+}
+
+.heroInner {
+  max-width: 1080px;
+  margin: 0 auto;
+}
+
+.eyebrow {
+  margin: 0;
+  color: #00c9a7;
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.hero h1 {
+  max-width: 760px;
+  margin: 0.5rem 0 0.85rem;
+  color: #fff;
+  font-size: clamp(2rem, 5vw, 3.2rem);
+  line-height: 1.06;
+  letter-spacing: -0.04em;
+}
+
+.hero p:last-child {
+  max-width: 650px;
+  margin: 0;
+  color: rgba(255, 255, 255, 0.58);
+  font-size: 0.9rem;
+  line-height: 1.7;
+}
+
+.shell {
+  width: min(900px, calc(100% - 2rem));
+  margin: 0 auto;
+  padding: 1.5rem 0 4.5rem;
+}
+
+.accountCard {
+  padding: 1.5rem;
+  border: 1px solid #e3e8ee;
+  border-radius: 16px;
+  background: #fff;
+}
+
+.accountStatus {
+  padding-bottom: 1.3rem;
+  border-bottom: 1px solid #eef1f4;
+}
+
+.accountStatus span {
+  display: block;
+  margin-bottom: 0.2rem;
+  color: #98a1ad;
+  font-size: 0.64rem;
+  font-weight: 750;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.accountStatus strong {
+  display: block;
+  overflow-wrap: anywhere;
+  color: #344054;
+  font-size: 0.88rem;
+}
+
+.accountStatus p {
+  max-width: 620px;
+  margin: 0.45rem 0 0;
+  color: #667085;
+  font-size: 0.76rem;
+  line-height: 1.6;
+}
+
+@media (max-width: 640px) {
+  .hero {
+    padding-top: 2.5rem;
+    padding-bottom: 2.65rem;
+  }
+
+  .shell {
+    padding-top: 1.2rem;
+  }
+
+  .accountCard {
+    padding: 1rem;
+  }
+}

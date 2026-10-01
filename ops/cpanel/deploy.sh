@@ -2,11 +2,9 @@
 set -Eeuo pipefail
 
 APP_DIR="${APP_DIR:-/home/darajaco/repositories/daraja}"
+RUNTIME_DIR="${RUNTIME_DIR:-$APP_DIR/runtime}"
 STATE_DIR="${STATE_DIR:-/home/darajaco/.daraja-deploy}"
 RELEASE_URL="${RELEASE_URL:-https://github.com/zayqu/daraja/releases/download/cpanel-production}"
-VENV="${VENV:-/home/darajaco/nodevenv/repositories/daraja/22/bin/activate}"
-VENV_ROOT="${VENV%/bin/activate}"
-VENV_NODE_MODULES="${VENV_NODE_MODULES:-$VENV_ROOT/lib/node_modules}"
 APP_USER="${APP_USER:-$(id -un)}"
 CLOUDLINUX_APP_ROOT="${CLOUDLINUX_APP_ROOT:-${APP_DIR#/home/$APP_USER/}}"
 HEALTHCHECK_ORIGIN="${HEALTHCHECK_ORIGIN:-https://www.ajira.daraja.co.tz}"
@@ -51,7 +49,7 @@ frontend_asset_healthcheck() {
   local page_file="$WORK_DIR/frontend-health.html"
   local asset_file="$WORK_DIR/frontend-health.js"
   local headers_file="$WORK_DIR/frontend-health.headers"
-  local expected_page_file="$APP_DIR/.next/server/app/index.html"
+  local expected_page_file="$RUNTIME_DIR/.next/server/app/index.html"
   local asset_urls
   local expected_asset_urls
   local expected_asset_url
@@ -277,36 +275,6 @@ jobs_api_healthcheck() {
   return 1
 }
 
-ensure_cloudlinux_node_modules() {
-  local app_node_modules="$APP_DIR/node_modules"
-  local expected_target
-  local current_target
-  local backup_path
-
-  if [[ ! -d "$VENV_NODE_MODULES" ]]; then
-    printf 'CloudLinux Node.js modules directory was not found: %s\n' "$VENV_NODE_MODULES" >&2
-    return 1
-  fi
-
-  expected_target="$(readlink -f "$VENV_NODE_MODULES")"
-  current_target=""
-  if [[ -L "$app_node_modules" ]]; then
-    current_target="$(readlink -f "$app_node_modules" 2>/dev/null || true)"
-  fi
-
-  if [[ "$current_target" == "$expected_target" ]]; then
-    return 0
-  fi
-
-  if [[ -e "$app_node_modules" || -L "$app_node_modules" ]]; then
-    backup_path="$APP_DIR/node_modules.before-cloudlinux.$(date -u +%Y%m%dT%H%M%SZ)"
-    mv "$app_node_modules" "$backup_path"
-    printf 'Preserved incompatible node_modules at %s.\n' "$backup_path"
-  fi
-
-  ln -s "$VENV_NODE_MODULES" "$app_node_modules"
-}
-
 mkdir -p "$STATE_DIR"
 WORK_DIR="$(mktemp -d "$STATE_DIR/work.XXXXXX")"
 trap 'rm -rf "$WORK_DIR"' EXIT
@@ -315,13 +283,10 @@ curl -fsSL --retry 3 --retry-delay 3   "$RELEASE_URL/daraja-cpanel-build.commit"
 
 REMOTE_COMMIT="$(tr -d '\r\n' < "$WORK_DIR/daraja-cpanel-build.commit")"
 CURRENT_COMMIT="$(cat "$STATE_DIR/deployed.commit" 2>/dev/null || true)"
-INSTALLED_COMMIT="$(cat "$APP_DIR/.next/.daraja-commit" 2>/dev/null || true)"
+INSTALLED_COMMIT="$(cat "$RUNTIME_DIR/.next/.daraja-commit" 2>/dev/null || true)"
 
 if [[ -n "$REMOTE_COMMIT" && "$REMOTE_COMMIT" == "$CURRENT_COMMIT" && "$REMOTE_COMMIT" == "$INSTALLED_COMMIT" ]]; then
-  if [[ -f "$VENV" ]] && command -v cloudlinux-selector >/dev/null 2>&1; then
-    set +u
-    source "$VENV"
-    set -u
+  if command -v cloudlinux-selector >/dev/null 2>&1; then
     cd "$APP_DIR"
 
     if public_release_healthcheck && \
@@ -351,53 +316,40 @@ curl -fsSL --retry 3 --retry-delay 3   "$RELEASE_URL/daraja-cpanel-build.sha256"
   tar -xzf daraja-cpanel-build.tar.gz -C extracted
 )
 
-# cPanel stores runtime packages in its Node virtual environment.
-# Generate Prisma locally, but never run an unattended database migration.
-if [[ ! -f "$VENV" ]]; then
-  printf 'Node virtual environment was not found: %s\n' "$VENV" >&2
-  exit 1
-fi
-
+# cPanel is a thin runtime only. The verified release already contains the
+# production server, generated Prisma client and runtime dependencies.
 if ! command -v cloudlinux-selector >/dev/null 2>&1; then
   printf 'CloudLinux Node.js selector is required for a reliable restart.\n' >&2
   exit 1
 fi
 
-ensure_cloudlinux_node_modules
-
-# CloudLinux's activation script reads optional shell variables directly, so
-# temporarily disable nounset while sourcing that trusted cPanel-owned file.
-set +u
-source "$VENV"
-set -u
-cd "$APP_DIR"
-
-cp "$WORK_DIR/extracted/package.json" package.json
-cp "$WORK_DIR/extracted/package-lock.json" package-lock.json
-rm -rf prisma
-cp -a "$WORK_DIR/extracted/prisma" prisma
-cp "$WORK_DIR/extracted/prisma.config.ts" prisma.config.ts
-cp "$WORK_DIR/extracted/next.config.mjs" next.config.mjs
-# Prisma CLI is a development dependency, so it must remain available here.
-# cPanel cannot compile the app, but generation itself is lightweight and safe.
-npm install --include=dev --no-audit --no-fund
-npx prisma generate
-
-rm -rf .next.previous public.previous
-if [[ -d .next ]]; then
-  mv .next .next.previous
+if [[ ! -d "$WORK_DIR/extracted/runtime" || ! -f "$WORK_DIR/extracted/runtime/server.js" ]]; then
+  printf 'Verified release does not contain the expected standalone runtime.\n' >&2
+  exit 1
 fi
-if [[ -d public ]]; then
-  mv public public.previous
+
+if [[ ! -f "$WORK_DIR/extracted/runtime/.next/.daraja-commit" ]]; then
+  printf 'Verified release does not contain a release marker.\n' >&2
+  exit 1
+fi
+
+BUNDLED_COMMIT="$(tr -d '\r\n' < "$WORK_DIR/extracted/runtime/.next/.daraja-commit")"
+if [[ "$BUNDLED_COMMIT" != "$REMOTE_COMMIT" ]]; then
+  printf 'Release marker mismatch: metadata=%s bundle=%s\n' "$REMOTE_COMMIT" "$BUNDLED_COMMIT" >&2
+  exit 1
+fi
+
+cd "$APP_DIR"
+rm -rf runtime.previous
+if [[ -d runtime ]]; then
+  mv runtime runtime.previous
 fi
 if [[ -f server.js ]]; then
   cp server.js server.js.previous
 fi
 
-mv "$WORK_DIR/extracted/.next" .next
-mv "$WORK_DIR/extracted/public" public
+mv "$WORK_DIR/extracted/runtime" runtime
 cp "$WORK_DIR/extracted/server.js" server.js
-printf '%s\n' "$REMOTE_COMMIT" > .next/.daraja-commit
 
 mkdir -p tmp
 restart_application restart
@@ -410,20 +362,16 @@ healthcheck "$HEALTHCHECK_ORIGIN/jobs" || HEALTHCHECK_FAILED=1
 jobs_api_healthcheck || HEALTHCHECK_FAILED=1
 
 if [[ "$HEALTHCHECK_FAILED" -ne 0 ]]; then
-  FAILED_DIR=".next.failed.$(date -u +%Y%m%dT%H%M%SZ)"
-  mv .next "$FAILED_DIR"
-  if [[ -d .next.previous ]]; then
-    mv .next.previous .next
-  fi
-  rm -rf public
-  if [[ -d public.previous ]]; then
-    mv public.previous public
+  FAILED_DIR="runtime.failed.$(date -u +%Y%m%dT%H%M%SZ)"
+  mv runtime "$FAILED_DIR"
+  if [[ -d runtime.previous ]]; then
+    mv runtime.previous runtime
   fi
   if [[ -f server.js.previous ]]; then
     mv server.js.previous server.js
   fi
   restart_application restart
-  printf 'Release health check failed; previous build restored. Failed build kept at %s/%s.\n' "$APP_DIR" "$FAILED_DIR" >&2
+  printf 'Release health check failed; previous runtime restored. Failed runtime kept at %s/%s.\n' "$APP_DIR" "$FAILED_DIR" >&2
   exit 1
 fi
 

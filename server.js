@@ -1,20 +1,6 @@
-const { createServer } = require("http");
-const next = require("next");
+const path = require("node:path");
 
-const hostname = "0.0.0.0";
-const port = Number.parseInt(process.env.PORT || "3000", 10);
-const app = next({ dev: false, hostname, port });
-const handle = app.getRequestHandler();
+const runtimeDirectory = path.join(__dirname, "runtime");
 
-app.prepare()
-  .then(() => {
-    createServer((request, response) => {
-      handle(request, response);
-    }).listen(port, hostname, () => {
-      console.log(`Daraja is running on port ${port}`);
-    });
-  })
-  .catch((error) => {
-    console.error("Daraja failed to start:", error);
-    process.exit(1);
-  });
+process.chdir(runtimeDirectory);
+require(path.join(runtimeDirectory, "server.js"));

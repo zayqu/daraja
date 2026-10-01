@@ -79,7 +79,8 @@ test("navigation and results share canonical search helpers", async () => {
 
   assert.match(nav, /router\.push\(buildJobsUrl\(\{ search: query \}\)\)/);
   assert.doesNotMatch(nav, /\/jobs\?q=/);
-  assert.match(jobs, /normalizeJobsSearchParams\(window\.location\.search\)/);
+  assert.match(jobs, /initialFilters\.search/);
+  assert.doesNotMatch(jobs, /normalizeJobsSearchParams\(window\.location\.search\)/);
   assert.match(jobs, /JOB_CATEGORIES\.map/);
   assert.doesNotMatch(jobs, /const CATEGORIES =/);
 });
@@ -100,4 +101,28 @@ test("location and job type filters normalize into canonical job URLs", async ()
   );
 
   assert.equal(normalizeJobsSearchParams("type=INVALID").type, "");
+});
+
+
+test("server searchParams objects normalize through the same public search contract", async () => {
+  const { normalizeJobsSearchParams } = await import("../lib/job-search.js");
+
+  assert.deepEqual(
+    normalizeJobsSearchParams({
+      search: " analyst ",
+      category: "Banking & Finance",
+      location: " Dar es Salaam ",
+      type: "FULL_TIME",
+      status: "active",
+      page: "3",
+    }),
+    {
+      search: "analyst",
+      category: "Banking & Finance",
+      location: "Dar es Salaam",
+      type: "FULL_TIME",
+      status: "active",
+      page: 3,
+    }
+  );
 });

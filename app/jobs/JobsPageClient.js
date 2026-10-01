@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import Link from "next/link";
 import AdSenseSlot from "@/components/AdSenseSlot";
 import JobAlerts from "@/components/JobAlerts";
@@ -11,7 +11,6 @@ import { JOB_CATEGORIES } from "@/lib/job-categories";
 import {
   JOB_TYPES,
   buildJobsUrl,
-  normalizeJobsSearchParams,
 } from "@/lib/job-search";
 
 const JOB_TYPE_LABELS = {
@@ -22,35 +21,26 @@ const JOB_TYPE_LABELS = {
   FREELANCE: "Freelance",
 };
 
-export default function JobsPageClient({ showEmployerCta }) {
-  const [jobs, setJobs] = useState([]);
-  const [pagination, setPagination] = useState({});
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
+export default function JobsPageClient({
+  showEmployerCta,
+  initialJobs,
+  initialPagination,
+  initialFilters,
+  initialError = "",
+}) {
+  const [jobs, setJobs] = useState(initialJobs);
+  const [pagination, setPagination] = useState(initialPagination);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(initialError);
 
-  const [search, setSearch] = useState("");
-  const [submittedSearch, setSubmittedSearch] = useState("");
-  const [category, setCategory] = useState("");
-  const [location, setLocation] = useState("");
-  const [type, setType] = useState("");
-  const [status, setStatus] = useState("active");
-  const [page, setPage] = useState(1);
-  const [initialized, setInitialized] = useState(false);
-
-  useEffect(() => {
-    queueMicrotask(() => {
-      const initial = normalizeJobsSearchParams(window.location.search);
-
-      setSearch(initial.search);
-      setSubmittedSearch(initial.search);
-      setCategory(initial.category);
-      setLocation(initial.location);
-      setType(initial.type);
-      setStatus(initial.status);
-      setPage(initial.page);
-      setInitialized(true);
-    });
-  }, []);
+  const [search, setSearch] = useState(initialFilters.search);
+  const [submittedSearch, setSubmittedSearch] = useState(initialFilters.search);
+  const [category, setCategory] = useState(initialFilters.category);
+  const [location, setLocation] = useState(initialFilters.location);
+  const [type, setType] = useState(initialFilters.type);
+  const [status, setStatus] = useState(initialFilters.status);
+  const [page, setPage] = useState(initialFilters.page);
+  const skipInitialFetch = useRef(true);
 
   const fetchJobs = useCallback(async function fetchJobs() {
     setLoading(true);
@@ -83,24 +73,24 @@ export default function JobsPageClient({ showEmployerCta }) {
   }, [page, category, location, type, submittedSearch, status]);
 
   useEffect(() => {
-    if (!initialized) return;
+    const canonicalUrl = buildJobsUrl({
+      search: submittedSearch,
+      category,
+      location,
+      type,
+      status,
+      page,
+    });
+
+    if (skipInitialFetch.current) {
+      skipInitialFetch.current = false;
+      window.history.replaceState(null, "", canonicalUrl);
+      return;
+    }
 
     queueMicrotask(fetchJobs);
-
-    window.history.replaceState(
-      null,
-      "",
-      buildJobsUrl({
-        search: submittedSearch,
-        category,
-        location,
-        type,
-        status,
-        page,
-      })
-    );
+    window.history.replaceState(null, "", canonicalUrl);
   }, [
-    initialized,
     page,
     category,
     location,

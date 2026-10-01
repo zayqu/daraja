@@ -585,3 +585,25 @@ Every batch must record:
 - Production activation and exact live-release verification remain pending until
   the merged master release is published and
   `/api/health/release` reports the exact merged commit.
+
+
+## Current batch: server-rendered initial jobs
+
+- The public `/jobs` route now reads its first 20 vacancies directly in the
+  Server Component and sends those results in the initial HTML instead of
+  waiting for browser hydration and a second `/api/jobs` request.
+- One shared `lib/public-jobs.js` read model now owns the Prisma
+  `findMany` plus `count` query for both the Server Component and the public
+  jobs API, removing duplicate query construction.
+- The existing client listing hydrates from the server result, skips its first
+  API fetch and keeps the existing API for subsequent search, filter and
+  pagination interactions.
+- Canonical job-search URL normalisation remains intact, including legacy
+  `q` links, without forcing a duplicate initial database read.
+- This slice changes no schema, index, lifecycle rule, moderation boundary,
+  provider configuration or production data. Caching and index work remain
+  separately reviewable performance steps.
+- Pull request #109 passed Vercel and cPanel PR workflow #36899304601 on the
+  code head, including runtime audit, full tests, ESLint, Prisma validation,
+  production build, standalone-runtime smoke test and packaging. The final
+  docs-only head must retain the same checks before merge.

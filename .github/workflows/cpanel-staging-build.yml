@@ -62,19 +62,42 @@ jobs:
       - name: Build production bundle
         run: npx next build --webpack
 
+      - name: Prepare self-contained cPanel runtime
+        run: |
+          rm -rf cpanel-bundle
+          mkdir -p cpanel-bundle/runtime/.next
+          cp -a .next/standalone/. cpanel-bundle/runtime/
+          cp -a .next/static cpanel-bundle/runtime/.next/static
+          cp -a public cpanel-bundle/runtime/public
+          printf '%s\n' "$GITHUB_SHA" > cpanel-bundle/runtime/.next/.daraja-commit
+          cp server.js cpanel-bundle/server.js
+          test -f cpanel-bundle/runtime/server.js
+          test -d cpanel-bundle/runtime/node_modules
+          test -f cpanel-bundle/runtime/.next/.daraja-commit
+
+      - name: Smoke-test self-contained cPanel runtime
+        run: |
+          PORT=3100 HOSTNAME=127.0.0.1 node cpanel-bundle/server.js > /tmp/daraja-cpanel-runtime.log 2>&1 &
+          runtime_pid=$!
+          trap 'kill "$runtime_pid" 2>/dev/null || true' EXIT
+          ready=0
+          for attempt in 1 2 3 4 5 6 7 8 9 10; do
+            if curl -fsS --connect-timeout 2 --max-time 5 \
+              "http://127.0.0.1:3100/api/health/release" \
+              | grep -q "$GITHUB_SHA"; then
+              ready=1
+              break
+            fi
+            sleep 2
+          done
+          if [ "$ready" -ne 1 ]; then
+            cat /tmp/daraja-cpanel-runtime.log
+            exit 1
+          fi
+
       - name: Package cPanel bundle
         run: |
-          tar \
-            --exclude=".next/cache" \
-            -czf daraja-cpanel-build.tar.gz \
-            .next \
-            public \
-            server.js \
-            package.json \
-            package-lock.json \
-            prisma \
-            prisma.config.ts \
-            next.config.mjs
+          tar -C cpanel-bundle -czf daraja-cpanel-build.tar.gz runtime server.js
           sha256sum daraja-cpanel-build.tar.gz > daraja-cpanel-build.sha256
           printf '%s\n' "$GITHUB_SHA" > daraja-cpanel-build.commit
           cp ops/cpanel/deploy.sh daraja-cpanel-deploy.sh

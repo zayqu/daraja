@@ -9,6 +9,10 @@ APP_USER="${APP_USER:-$(id -un)}"
 CLOUDLINUX_APP_ROOT="${CLOUDLINUX_APP_ROOT:-${APP_DIR#/home/$APP_USER/}}"
 HEALTHCHECK_ORIGIN="${HEALTHCHECK_ORIGIN:-https://www.ajira.daraja.co.tz}"
 STALE_WORKER_WAIT_SECONDS="${STALE_WORKER_WAIT_SECONDS:-5}"
+CLOUDLINUX_SELECTOR="${CLOUDLINUX_SELECTOR:-$(command -v cloudlinux-selector 2>/dev/null || true)}"
+if [[ -z "$CLOUDLINUX_SELECTOR" && -x /usr/sbin/cloudlinux-selector ]]; then
+  CLOUDLINUX_SELECTOR="/usr/sbin/cloudlinux-selector"
+fi
 
 healthcheck() {
   local url="$1"
@@ -135,7 +139,7 @@ restart_application() {
 
   mkdir -p "$APP_DIR/tmp"
   touch "$APP_DIR/tmp/restart.txt"
-  cloudlinux-selector "$action" \
+  "$CLOUDLINUX_SELECTOR" "$action" \
     --json \
     --interpreter nodejs \
     --user "$APP_USER" \
@@ -143,7 +147,7 @@ restart_application() {
 }
 
 registered_node_app_count() {
-  cloudlinux-selector get \
+  "$CLOUDLINUX_SELECTOR" get \
     --json \
     --interpreter nodejs \
     --user "$APP_USER" | node -e '
@@ -286,7 +290,7 @@ CURRENT_COMMIT="$(cat "$STATE_DIR/deployed.commit" 2>/dev/null || true)"
 INSTALLED_COMMIT="$(cat "$RUNTIME_DIR/.next/.daraja-commit" 2>/dev/null || true)"
 
 if [[ -n "$REMOTE_COMMIT" && "$REMOTE_COMMIT" == "$CURRENT_COMMIT" && "$REMOTE_COMMIT" == "$INSTALLED_COMMIT" ]]; then
-  if command -v cloudlinux-selector >/dev/null 2>&1; then
+  if [[ -n "$CLOUDLINUX_SELECTOR" && -x "$CLOUDLINUX_SELECTOR" ]]; then
     cd "$APP_DIR"
 
     if public_release_healthcheck && \
@@ -318,7 +322,7 @@ curl -fsSL --retry 3 --retry-delay 3   "$RELEASE_URL/daraja-cpanel-build.sha256"
 
 # cPanel is a thin runtime only. The verified release already contains the
 # production server, generated Prisma client and runtime dependencies.
-if ! command -v cloudlinux-selector >/dev/null 2>&1; then
+if ! [[ -n "$CLOUDLINUX_SELECTOR" && -x "$CLOUDLINUX_SELECTOR" ]]; then
   printf 'CloudLinux Node.js selector is required for a reliable restart.\n' >&2
   exit 1
 fi

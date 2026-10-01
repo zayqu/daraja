@@ -7,6 +7,10 @@ STATE_DIR="${STATE_DIR:-/home/darajaco/.daraja-deploy}"
 RELEASE_URL="${RELEASE_URL:-https://github.com/zayqu/daraja/releases/download/cpanel-production}"
 APP_USER="${APP_USER:-$(id -un)}"
 CLOUDLINUX_APP_ROOT="${CLOUDLINUX_APP_ROOT:-${APP_DIR#/home/$APP_USER/}}"
+NODE_BIN="${NODE_BIN:-$(command -v node 2>/dev/null || true)}"
+if [[ -z "$NODE_BIN" ]]; then
+  NODE_BIN="/home/$APP_USER/nodevenv/$CLOUDLINUX_APP_ROOT/22/bin/node"
+fi
 HEALTHCHECK_ORIGIN="${HEALTHCHECK_ORIGIN:-https://www.ajira.daraja.co.tz}"
 STALE_WORKER_WAIT_SECONDS="${STALE_WORKER_WAIT_SECONDS:-5}"
 CLOUDLINUX_SELECTOR="${CLOUDLINUX_SELECTOR:-$(command -v cloudlinux-selector 2>/dev/null || true)}"
@@ -33,7 +37,7 @@ healthcheck() {
 extract_frontend_asset_urls() {
   local html_file="$1"
 
-  node -e '
+  "$NODE_BIN" -e '
     const html = require("node:fs").readFileSync(process.argv[1], "utf8");
     const origin = new URL(process.argv[2]);
     const matches = html.matchAll(/<script[^>]+src=["\x27]([^"\x27]+)["\x27]/gi);
@@ -116,7 +120,7 @@ release_marker_healthcheck() {
       -H "Pragma: no-cache" \
       "$url?daraja_release=$REMOTE_COMMIT&attempt=$attempt" \
       -o "$response_file" && \
-      node -e '
+      "$NODE_BIN" -e '
         const payload = JSON.parse(require("node:fs").readFileSync(process.argv[1], "utf8"));
         if (payload.status !== "ok" || payload.release !== process.argv[2]) process.exit(1);
       ' "$response_file" "$REMOTE_COMMIT"; then
@@ -150,7 +154,7 @@ registered_node_app_count() {
   "$CLOUDLINUX_SELECTOR" get \
     --json \
     --interpreter nodejs \
-    --user "$APP_USER" | node -e '
+    --user "$APP_USER" | "$NODE_BIN" -e '
       let input = "";
       process.stdin.on("data", (chunk) => { input += chunk; });
       process.stdin.on("end", () => {
@@ -264,7 +268,7 @@ jobs_api_healthcheck() {
       -H "Accept: application/json" \
       "$url" \
       -o "$response_file" && \
-      node -e '
+      "$NODE_BIN" -e '
         const payload = JSON.parse(require("node:fs").readFileSync(process.argv[1], "utf8"));
         if (!Array.isArray(payload.jobs)) process.exit(1);
         if (!payload.pagination || !Number.isFinite(payload.pagination.total)) process.exit(1);

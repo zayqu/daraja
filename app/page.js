@@ -2,195 +2,528 @@ import Link from "next/link";
 import JobAlerts from "@/components/JobAlerts";
 import PublicSiteNav from "@/components/PublicSiteNav";
 import { employerPortalEnabled } from "@/lib/features";
+import { JOB_CATEGORIES } from "@/lib/job-categories";
 import SiteFooter from "@/components/SiteFooter";
+
+const FEATURED_CATEGORIES = new Set([
+  "Government",
+  "NGO & Development",
+  "Banking & Finance",
+  "Technology",
+  "Health",
+  "Education",
+  "HR & Administration",
+  "Internships & Graduate Programs",
+]);
 
 export default function Home() {
   const employerEnabled = employerPortalEnabled();
+
   return (
     <>
       <style>{`
-        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        .home { background: #f7f8fa; min-height: 100vh; color: #1b2a3f; }
 
-        .home { font-family: inherit; background: #F7F8FA; min-height: 100vh; color: #1B2A3F; }
+        .hero {
+          background: #1b2a3f;
+          padding: 4.75rem var(--gutter) 5.25rem;
+          position: relative;
+          overflow: hidden;
+        }
 
-        .hero { background: #1B2A3F; padding: 5rem 3rem 4.5rem; text-align: center; position: relative; overflow: hidden; }
-        .hero::before { content: ''; position: absolute; top: -80px; left: 50%; transform: translateX(-50%); width: 600px; height: 600px; border-radius: 50%; border: 1px solid rgba(0,201,167,0.06); pointer-events: none; }
-        .hero::after { content: ''; position: absolute; top: -40px; left: 50%; transform: translateX(-50%); width: 380px; height: 380px; border-radius: 50%; border: 1px solid rgba(0,201,167,0.05); pointer-events: none; }
-        .hero-inner { max-width: 680px; margin: 0 auto; position: relative; }
-        .hero-eyebrow { font-size: 0.68rem; font-weight: 600; letter-spacing: var(--tracking-caption); text-transform: uppercase; color: #00C9A7; margin-bottom: 1.25rem; }
-        .hero-title { font-family: inherit; font-size: 3.1rem; font-weight: 700; color: #fff; line-height: var(--leading-display); letter-spacing: var(--tracking-display); margin-bottom: 1.25rem; }
-        .hero-title span { color: #00C9A7; }
-        .hero-sub { font-size: 0.92rem; font-weight: 300; color: rgba(255,255,255,0.5); line-height: 1.7; margin-bottom: 2.5rem; max-width: 480px; margin-left: auto; margin-right: auto; }
-        .hero-btns { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
-        .btn-primary { font-family: inherit; font-size: 0.82rem; font-weight: 600; background: #00C9A7; color: #1B2A3F; padding: 0.8rem 2rem; border-radius: var(--radius-button); text-decoration: none; letter-spacing: 0.04em; transition: opacity 0.2s; }
-        .btn-primary:hover { opacity: 0.88; }
-        .btn-outline { font-family: inherit; font-size: 0.82rem; font-weight: 500; background: transparent; color: rgba(255,255,255,0.7); padding: 0.8rem 2rem; border-radius: var(--radius-button); text-decoration: none; letter-spacing: 0.04em; border: 1.5px solid rgba(255,255,255,0.15); transition: all 0.2s; }
-        .btn-outline:hover { border-color: #00C9A7; color: #00C9A7; }
+        .hero::before,
+        .hero::after {
+          content: "";
+          position: absolute;
+          border: 1px solid rgba(0, 201, 167, 0.09);
+          border-radius: 999px;
+          pointer-events: none;
+        }
 
-        .stats { background: #fff; border-bottom: 1px solid #E8ECF0; }
-        .stats-inner { max-width: 860px; margin: 0 auto; padding: 2.5rem 3rem; display: grid; grid-template-columns: repeat(4, 1fr); }
-        .stat { text-align: center; padding: 0 1rem; border-right: 1px solid #E8ECF0; }
-        .stat:last-child { border-right: none; }
-        .stat-num { font-family: inherit; font-size: 1.8rem; font-weight: 700; color: #00C9A7; letter-spacing: -0.02em; }
-        .stat-label { font-size: 0.75rem; color: #8B95A1; margin-top: 0.25rem; font-weight: 400; }
+        .hero::before {
+          width: 560px;
+          height: 560px;
+          right: -180px;
+          top: -240px;
+        }
 
-        .section { max-width: 860px; margin: 0 auto; padding: 3.5rem 3rem; }
-        .section-label { font-size: 0.68rem; font-weight: 600; letter-spacing: 0.25em; text-transform: uppercase; color: #00C9A7; margin-bottom: 0.75rem; }
-        .section-title { font-family: inherit; font-size: var(--text-heading); font-weight: 700; color: #1B2A3F; margin-bottom: 2rem; letter-spacing: var(--tracking-heading); }
+        .hero::after {
+          width: 320px;
+          height: 320px;
+          right: 40px;
+          top: -120px;
+        }
 
-        .cat-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.75rem; }
-        .cat-card { background: #fff; border: 1.5px solid #E8ECF0; border-radius: var(--radius-card); padding: 1.5rem 1.25rem; text-decoration: none; transition: all 0.15s; display: block; }
-        .cat-card:hover { border-color: #00C9A7; box-shadow: var(--shadow-soft); }
-        .cat-name { font-family: inherit; font-size: 0.85rem; font-weight: 600; color: #1B2A3F; margin-bottom: 0.25rem; }
-        .cat-card:hover .cat-name { color: #00C9A7; }
-        .cat-desc { font-size: 0.72rem; color: #8B95A1; line-height: 1.5; }
+        .hero-inner {
+          max-width: 1080px;
+          margin: 0 auto;
+          position: relative;
+          z-index: 1;
+        }
 
-        .why { background: #1B2A3F; }
-        .why-inner { max-width: 860px; margin: 0 auto; padding: 3.5rem 3rem; }
-        .why-label { font-size: 0.68rem; font-weight: 600; letter-spacing: 0.25em; text-transform: uppercase; color: #00C9A7; margin-bottom: 0.75rem; }
-        .why-title { font-family: inherit; font-size: var(--text-heading); font-weight: 700; color: #fff; margin-bottom: 2rem; letter-spacing: var(--tracking-heading); }
-        .why-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; }
-        .why-card { border: 1px solid rgba(255,255,255,0.07); border-radius: var(--radius-card); padding: 1.5rem; }
-        .why-icon { font-size: 1.2rem; margin-bottom: 0.85rem; color: #00C9A7; font-weight: 700; }
-        .why-heading { font-family: inherit; font-size: 0.88rem; font-weight: 600; color: #fff; margin-bottom: 0.4rem; }
-        .why-text { font-size: 0.78rem; color: rgba(255,255,255,0.4); line-height: 1.65; font-weight: 300; }
+        .hero-copy {
+          max-width: 760px;
+          margin-bottom: 2rem;
+        }
 
-        .cta-strip { background: #00C9A7; padding: 3rem; text-align: center; }
-        .cta-strip h2 { font-family: inherit; font-size: 1.4rem; font-weight: 700; color: #1B2A3F; margin-bottom: 0.5rem; }
-        .cta-strip p { font-size: 0.85rem; color: rgba(27,42,63,0.7); margin-bottom: 1.5rem; }
-        .btn-dark { font-family: inherit; font-size: 0.82rem; font-weight: 600; background: #1B2A3F; color: #fff; padding: 0.8rem 2rem; border-radius: var(--radius-button); text-decoration: none; letter-spacing: 0.04em; transition: opacity 0.2s; display: inline-block; }
-        .btn-dark:hover { opacity: 0.88; }
+        .hero-eyebrow,
+        .section-kicker {
+          color: #00c9a7;
+          font-size: .7rem;
+          font-weight: 700;
+          letter-spacing: .16em;
+          text-transform: uppercase;
+        }
 
-        @media (max-width: 1024px) and (min-width: 641px) {
-          .cat-grid { grid-template-columns: repeat(3, 1fr); }
+        .hero h1 {
+          max-width: 760px;
+          margin: .8rem 0 1rem;
+          color: #fff;
+          font-size: clamp(2.4rem, 6vw, 4.5rem);
+          line-height: .98;
+          letter-spacing: -.045em;
+        }
+
+        .hero h1 span { color: #00c9a7; }
+
+        .hero-lead {
+          max-width: 620px;
+          color: rgba(255,255,255,.62);
+          font-size: 1rem;
+          line-height: 1.7;
+        }
+
+        .hero-search {
+          display: grid;
+          grid-template-columns: minmax(0, 1.7fr) minmax(220px, .8fr) auto;
+          gap: .65rem;
+          max-width: 940px;
+          padding: .7rem;
+          border-radius: 18px;
+          background: #fff;
+          box-shadow: 0 18px 45px rgba(8, 18, 31, .18);
+        }
+
+        .hero-field {
+          min-height: 54px;
+          width: 100%;
+          border: 1px solid #e5e9ef;
+          border-radius: 12px;
+          background: #fff;
+          color: #1b2a3f;
+          padding: 0 1rem;
+          outline: none;
+        }
+
+        .hero-field:focus {
+          border-color: #00c9a7;
+          box-shadow: 0 0 0 3px rgba(0,201,167,.08);
+        }
+
+        .hero-submit {
+          min-height: 54px;
+          padding: 0 1.6rem;
+          border: 0;
+          border-radius: 12px;
+          background: #00c9a7;
+          color: #1b2a3f;
+          font-weight: 800;
+          cursor: pointer;
+        }
+
+        .quick-links {
+          display: flex;
+          flex-wrap: wrap;
+          gap: .55rem 1rem;
+          margin-top: 1rem;
+          color: rgba(255,255,255,.45);
+          font-size: .75rem;
+        }
+
+        .quick-links a {
+          color: rgba(255,255,255,.72);
+          text-decoration: none;
+        }
+
+        .quick-links a:hover { color: #00c9a7; }
+
+        .trust {
+          background: #fff;
+          border-bottom: 1px solid #e8ecf0;
+        }
+
+        .trust-inner {
+          max-width: 1080px;
+          margin: 0 auto;
+          padding: 1.35rem var(--gutter);
+          display: grid;
+          grid-template-columns: repeat(4, 1fr);
+          gap: 1rem;
+        }
+
+        .trust-item {
+          padding-right: 1rem;
+          border-right: 1px solid #eef1f4;
+        }
+
+        .trust-item:last-child { border-right: 0; }
+
+        .trust-item strong {
+          display: block;
+          margin-bottom: .15rem;
+          color: #1b2a3f;
+          font-size: .84rem;
+        }
+
+        .trust-item span {
+          color: #8b95a1;
+          font-size: .72rem;
+        }
+
+        .section {
+          max-width: 1080px;
+          margin: 0 auto;
+          padding: 4.25rem var(--gutter);
+        }
+
+        .section-head {
+          display: flex;
+          align-items: end;
+          justify-content: space-between;
+          gap: 1.5rem;
+          margin-bottom: 1.8rem;
+        }
+
+        .section-title {
+          margin-top: .45rem;
+          color: #1b2a3f;
+          font-size: clamp(1.65rem, 3vw, 2.15rem);
+          line-height: 1.15;
+          letter-spacing: -.03em;
+        }
+
+        .section-head p {
+          max-width: 470px;
+          color: #7a8492;
+          font-size: .84rem;
+          line-height: 1.65;
+        }
+
+        .category-grid {
+          display: grid;
+          grid-template-columns: repeat(4, minmax(0, 1fr));
+          gap: .85rem;
+        }
+
+        .category-card {
+          min-height: 138px;
+          display: flex;
+          flex-direction: column;
+          justify-content: space-between;
+          padding: 1.25rem;
+          border: 1px solid #e3e8ee;
+          border-radius: 16px;
+          background: #fff;
+          text-decoration: none;
+          transition: transform .15s ease, border-color .15s ease, box-shadow .15s ease;
+        }
+
+        .category-card:hover {
+          transform: translateY(-2px);
+          border-color: #00c9a7;
+          box-shadow: var(--shadow-card);
+        }
+
+        .category-card.featured {
+          border-color: rgba(0,201,167,.38);
+          background: #f4fffc;
+        }
+
+        .category-card strong {
+          color: #1b2a3f;
+          font-size: .9rem;
+          line-height: 1.35;
+        }
+
+        .category-card span {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: .75rem;
+          color: #8b95a1;
+          font-size: .7rem;
+        }
+
+        .category-card span b {
+          color: #087f6c;
+          font-size: 1rem;
+          font-weight: 500;
+        }
+
+        .how {
+          background: #fff;
+          border-top: 1px solid #e8ecf0;
+          border-bottom: 1px solid #e8ecf0;
+        }
+
+        .how-grid {
+          margin-top: 2rem;
+          display: grid;
+          grid-template-columns: repeat(3, 1fr);
+          gap: 1rem;
+        }
+
+        .how-card {
+          padding: 1.6rem;
+          border: 1px solid #e8ecf0;
+          border-radius: 16px;
+          background: #f9fafb;
+        }
+
+        .how-num {
+          width: 34px;
+          height: 34px;
+          display: grid;
+          place-items: center;
+          margin-bottom: 1rem;
+          border-radius: 50%;
+          background: #1b2a3f;
+          color: #00c9a7;
+          font-size: .75rem;
+          font-weight: 800;
+        }
+
+        .how-card h3 {
+          margin-bottom: .45rem;
+          font-size: 1rem;
+        }
+
+        .how-card p {
+          color: #7a8492;
+          font-size: .8rem;
+          line-height: 1.65;
+        }
+
+        .employer-strip {
+          max-width: 1080px;
+          margin: 0 auto 4.25rem;
+          padding: 0 var(--gutter);
+        }
+
+        .employer-card {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 2rem;
+          padding: 2rem;
+          border-radius: 18px;
+          background: #1b2a3f;
+        }
+
+        .employer-card h2 {
+          color: #fff;
+          font-size: 1.35rem;
+          margin-bottom: .35rem;
+        }
+
+        .employer-card p {
+          color: rgba(255,255,255,.55);
+          font-size: .82rem;
+        }
+
+        .employer-card a {
+          flex-shrink: 0;
+          padding: .8rem 1.25rem;
+          border-radius: 12px;
+          background: #00c9a7;
+          color: #1b2a3f;
+          font-size: .8rem;
+          font-weight: 800;
+          text-decoration: none;
+        }
+
+        @media (max-width: 900px) {
+          .hero-search { grid-template-columns: 1fr 1fr; }
+          .hero-submit { grid-column: 1 / -1; }
+          .category-grid { grid-template-columns: repeat(3, 1fr); }
         }
 
         @media (max-width: 640px) {
-          .hero { padding: 3.5rem 1.25rem 3rem; }
-          .hero-title { font-size: 2rem; }
-          .stats-inner { grid-template-columns: repeat(2, 1fr); gap: 1.5rem; padding: 2rem 1.25rem; }
-          .stat { border-right: none; }
-          .section { padding: 2.5rem 1.25rem; }
-          .cat-grid { grid-template-columns: repeat(2, 1fr); }
-          .why-inner { padding: 2.5rem 1.25rem; }
-          .why-grid { grid-template-columns: 1fr; gap: 1rem; }
-          .cta-strip { padding: 2.5rem 1.25rem; }
+          .hero { padding: 3.1rem var(--gutter) 3.5rem; }
+          .hero-copy { margin-bottom: 1.5rem; }
+          .hero h1 { font-size: 2.55rem; }
+          .hero-lead { font-size: .9rem; }
+
+          .hero-search {
+            grid-template-columns: 1fr;
+            padding: .6rem;
+          }
+
+          .hero-submit { grid-column: auto; }
+
+          .trust-inner {
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem 0;
+          }
+
+          .trust-item:nth-child(2) { border-right: 0; }
+
+          .section {
+            padding-top: 3rem;
+            padding-bottom: 3rem;
+          }
+
+          .section-head {
+            align-items: flex-start;
+            flex-direction: column;
+            margin-bottom: 1.35rem;
+          }
+
+          .category-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+          .category-card { min-height: 118px; padding: 1rem; }
+          .how-grid { grid-template-columns: 1fr; }
+
+          .employer-card {
+            align-items: flex-start;
+            flex-direction: column;
+          }
+
+          .employer-card a { width: 100%; text-align: center; }
         }
       `}</style>
 
       <div className="home">
+        <PublicSiteNav />
 
-        <PublicSiteNav showSearch />
+        <main id="main-content">
+          <section className="hero">
+            <div className="hero-inner">
+              <div className="hero-copy">
+                <div className="hero-eyebrow">Kazi na fursa Tanzania</div>
+                <h1>
+                  Find work that <span>moves you forward.</span>
+                </h1>
+                <p className="hero-lead">
+                  Search current opportunities from government, NGOs, banks,
+                  companies and institutions across Tanzania.
+                </p>
+              </div>
 
-        <main className="hero" id="main-content">
-          <div className="hero-inner">
-          <div className="hero-eyebrow">Tanzania&apos;s Professional Job Platform</div>
-            <h1 className="hero-title">
-              Kazi Na Fursa<br />
-              <span>Tanzania</span>
-            </h1>
-            <p className="hero-sub">
-              Connecting job seekers, employers and freelancers across Tanzania.
-              Government, NGO, private sector and more — all in one place.
-            </p>
-            <div className="hero-btns">
-              <Link href="/jobs" className="btn-primary">Browse All Jobs</Link>
-              {employerEnabled && (
-                <Link href="/post-job" className="btn-outline">Post a Job</Link>
-              )}
+              <form action="/jobs" method="get" className="hero-search" role="search">
+                <label className="sr-only" htmlFor="home-search">Job title, company or keyword</label>
+                <input
+                  id="home-search"
+                  name="search"
+                  type="search"
+                  className="hero-field"
+                  placeholder="Job title, company or keyword"
+                />
+
+                <label className="sr-only" htmlFor="home-category">Category</label>
+                <select id="home-category" name="category" className="hero-field" defaultValue="">
+                  <option value="">All categories</option>
+                  {JOB_CATEGORIES.map((category) => (
+                    <option key={category} value={category}>{category}</option>
+                  ))}
+                </select>
+
+                <button className="hero-submit" type="submit">Find jobs</button>
+              </form>
+
+              <div className="quick-links">
+                <span>Popular:</span>
+                <Link href="/jobs?category=Government">Government</Link>
+                <Link href="/jobs?category=NGO%20%26%20Development">NGO</Link>
+                <Link href="/jobs?category=Banking%20%26%20Finance">Banking</Link>
+                <Link href="/jobs?category=Internships%20%26%20Graduate%20Programs">Internships</Link>
+              </div>
             </div>
-          </div>
+          </section>
+
+          <section className="trust" aria-label="Daraja service highlights">
+            <div className="trust-inner">
+              <div className="trust-item"><strong>Current opportunities</strong><span>Expired roles are separated clearly.</span></div>
+              <div className="trust-item"><strong>Free to browse</strong><span>No account needed to search vacancies.</span></div>
+              <div className="trust-item"><strong>Checked hourly</strong><span>Enabled job sources are refreshed regularly.</span></div>
+              <div className="trust-item"><strong>Source shown</strong><span>Every listing keeps its application destination.</span></div>
+            </div>
+          </section>
+
+          <section className="section" aria-labelledby="category-title">
+            <div className="section-head">
+              <div>
+                <div className="section-kicker">Explore opportunities</div>
+                <h2 className="section-title" id="category-title">Browse by category</h2>
+              </div>
+              <p>
+                Use the same controlled categories across Daraja so browsing,
+                filtering and alerts stay consistent.
+              </p>
+            </div>
+
+            <div className="category-grid">
+              {JOB_CATEGORIES.map((category) => (
+                <Link
+                  key={category}
+                  href={"/jobs?category=" + encodeURIComponent(category)}
+                  className={`category-card ${FEATURED_CATEGORIES.has(category) ? "featured" : ""}`}
+                >
+                  <strong>{category}</strong>
+                  <span>Explore jobs <b>→</b></span>
+                </Link>
+              ))}
+            </div>
+          </section>
+
+          <section className="how">
+            <div className="section">
+              <div className="section-head">
+                <div>
+                  <div className="section-kicker">Simple by design</div>
+                  <h2 className="section-title">From search to application</h2>
+                </div>
+                <p>
+                  Daraja keeps the path clear: discover a role, understand it,
+                  then continue to the correct application destination.
+                </p>
+              </div>
+
+              <div className="how-grid">
+                <div className="how-card">
+                  <div className="how-num">01</div>
+                  <h3>Search what matters</h3>
+                  <p>Start with a role, company or category and narrow the results without unnecessary steps.</p>
+                </div>
+                <div className="how-card">
+                  <div className="how-num">02</div>
+                  <h3>Review the opportunity</h3>
+                  <p>See the employer, location, type, deadline and original source before deciding to continue.</p>
+                </div>
+                <div className="how-card">
+                  <div className="how-num">03</div>
+                  <h3>Apply with confidence</h3>
+                  <p>Use the application route attached to the vacancy instead of searching for it again elsewhere.</p>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <JobAlerts />
+
+          {employerEnabled && (
+            <section className="employer-strip">
+              <div className="employer-card">
+                <div>
+                  <h2>Hiring in Tanzania?</h2>
+                  <p>Publish an opportunity through the Daraja employer workspace.</p>
+                </div>
+                <Link href="/post-job">Post a job</Link>
+              </div>
+            </section>
+          )}
         </main>
 
-        <div className="stats">
-          <div className="stats-inner">
-            <div className="stat">
-              <div className="stat-num">Current</div>
-              <div className="stat-label">Open Positions</div>
-            </div>
-            <div className="stat">
-              <div className="stat-num">Free</div>
-              <div className="stat-label">To Browse</div>
-            </div>
-            <div className="stat">
-              <div className="stat-num">Hourly</div>
-              <div className="stat-label">Source Checks</div>
-            </div>
-            <div className="stat">
-              <div className="stat-num">Clear</div>
-              <div className="stat-label">Source Details</div>
-            </div>
-          </div>
-        </div>
-
-        <div className="section">
-          <div className="section-label">Explore</div>
-          <div className="section-title">Browse by Category</div>
-          <div className="cat-grid">
-            {[
-              { name: "Government", desc: "Public sector & civil service roles" },
-              { name: "NGO & Development", desc: "UN, USAID, World Bank & nonprofits" },
-              { name: "Education", desc: "Universities, schools & training" },
-              { name: "Health", desc: "Hospitals, clinics & public health" },
-              { name: "Banking & Finance", desc: "Banking, insurance & accounting" },
-              { name: "Technology", desc: "Software, systems & tech roles" },
-              { name: "Engineering", desc: "Civil, mechanical & electrical" },
-              { name: "General", desc: "All other industries" },
-            ].map((cat) => (
-              <Link
-                key={cat.name}
-                href={"/jobs?category=" + encodeURIComponent(cat.name)}
-                className="cat-card"
-              >
-                <div className="cat-name">{cat.name}</div>
-                <div className="cat-desc">{cat.desc}</div>
-              </Link>
-            ))}
-          </div>
-        </div>
-
-        <div className="why">
-          <div className="why-inner">
-            <div className="why-label">Why Daraja</div>
-            <div className="why-title">Built for Tanzania</div>
-            <div className="why-grid">
-              <div className="why-card">
-                <div className="why-icon">✓</div>
-                <div className="why-heading">Trusted Sources</div>
-                <div className="why-text">
-                  Every listing clearly identifies its employer and original application source.
-                </div>
-              </div>
-              <div className="why-card">
-                <div className="why-icon">✓</div>
-                <div className="why-heading">Easy Job Search</div>
-                <div className="why-text">
-                  Search by role or company and filter opportunities by category and status.
-                </div>
-              </div>
-              <div className="why-card">
-                <div className="why-icon">✓</div>
-                <div className="why-heading">Swahili & English</div>
-                <div className="why-text">
-                  Full support for both languages. Daraja is built for all Tanzanians.
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <JobAlerts />
-
-        {employerEnabled && (
-          <div className="cta-strip">
-            <h2>Are you hiring?</h2>
-            <p>Post your job on Daraja and reach thousands of qualified candidates across Tanzania.</p>
-            <Link href="/post-job" className="btn-dark">Post a Job Today</Link>
-          </div>
-        )}
-
         <SiteFooter />
-
       </div>
     </>
   );

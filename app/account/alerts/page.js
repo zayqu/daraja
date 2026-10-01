@@ -1,8 +1,11 @@
 import { redirect } from "next/navigation";
 import { auth, signOut } from "@/auth";
 import AlertPreferencesForm from "@/components/AlertPreferencesForm";
+import CandidateAccountTabs from "@/components/CandidateAccountTabs";
 import PublicSiteNav from "@/components/PublicSiteNav";
+import { candidateCareerEnabled } from "@/lib/candidate-access";
 import prisma from "@/lib/prisma";
+import styles from "./alerts-account.module.css";
 
 export const metadata = {
   title: "My job alerts",
@@ -15,6 +18,7 @@ export default async function AlertAccountPage() {
   if (!session?.user?.id) {
     redirect("/auth/signin?callbackUrl=/account/alerts");
   }
+
   const subscriber = await prisma.jobAlertSubscriber.findUnique({
     where: { userId: session.user.id },
     select: {
@@ -30,7 +34,7 @@ export default async function AlertAccountPage() {
 
   const signOutForm = (
     <form
-      className="alerts-signout"
+      className={styles.signOut}
       action={async () => {
         "use server";
         await signOut({ redirectTo: "/jobs" });
@@ -41,27 +45,38 @@ export default async function AlertAccountPage() {
   );
 
   return (
-    <main id="main-content" className="account-page">
-      <PublicSiteNav links={[{ href: "/jobs", label: "Browse Jobs" }]} right={signOutForm} />
-      <section className="account-shell">
-        <p className="eyebrow">Candidate account</p>
-        <h1>My job alerts</h1>
-        <p className="intro">
-          Signed in as <strong>{session.user.email}</strong>. Choose the
-          opportunities most relevant to you; every selection can be changed later.
-        </p>
-        <AlertPreferencesForm initialPreferences={subscriber} />
-      </section>
-      <style>{`
-        .account-page { min-height: 80vh; padding-bottom: 4rem; background: #f7f8fa; color: #1b2a3f; }
-        .alerts-signout button { min-height: 40px; padding: .55rem .9rem; border: 1px solid rgba(255,255,255,.4); border-radius: 6px; background: transparent; color: white; font: inherit; cursor: pointer; }
-        .alerts-signout button:hover { border-color: #00c9a7; color: #00c9a7; }
-        .account-shell { max-width: 760px; margin: 2.5rem auto 0; padding: 2rem; background: #fff; border: 1px solid #e4e7ec; border-radius: 12px; }
-        .eyebrow { margin: 0; color: #087f6c; font-size: .72rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; }
-        h1 { margin: .4rem 0; }
-        .intro { color: #667085; line-height: 1.65; }
-        @media (max-width: 640px) { .account-shell { margin: 1.25rem; padding: 1.25rem; } }
-      `}</style>
-    </main>
+    <div className={styles.page}>
+      <PublicSiteNav right={signOutForm} />
+
+      <main id="main-content">
+        <section className={styles.hero}>
+          <div className={styles.heroInner}>
+            <p className={styles.eyebrow}>Candidate account</p>
+            <h1>Alerts built around the work you want.</h1>
+            <p>
+              Select your core job categories, add optional refinements and keep
+              full control over whether Daraja sends you email alerts.
+            </p>
+          </div>
+        </section>
+
+        <div className={styles.shell}>
+          <CandidateAccountTabs showCareer={candidateCareerEnabled()} />
+
+          <section className={styles.accountCard}>
+            <div className={styles.accountStatus}>
+              <span>Signed in as</span>
+              <strong>{session.user.email}</strong>
+              <p>
+                Alerts are private to this account and can be changed or paused
+                whenever you want.
+              </p>
+            </div>
+
+            <AlertPreferencesForm initialPreferences={subscriber} />
+          </section>
+        </div>
+      </main>
+    </div>
   );
 }

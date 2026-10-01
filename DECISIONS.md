@@ -282,3 +282,23 @@ the last admin account. Future schema additions containing user-owned or private
 data are incomplete until the account-erasure owner explicitly handles them.
 Private-file erasure must participate in failure/rollback handling rather than
 silently leaving an accessible document behind.
+
+
+## D-024 - Licensed templates inform flow, not Daraja ownership
+
+**Status:** accepted
+
+Licensed interface templates may be used as references for information
+hierarchy, interaction patterns, responsive composition and workflow depth.
+
+They do not replace Daraja's product or technical ownership. Daraja keeps its
+own brand, typography, colours, copy, routes, Next.js architecture, APIs,
+security/privacy boundaries and business logic.
+
+Do not import a template framework, routing stack, design system, demo data,
+stock imagery or branding wholesale merely to make Daraja look like the
+reference. Adapt the useful pattern into the existing implementation and remove
+obsolete Daraja UI in the same change when a clean replacement is made.
+
+The current Jobtex package is therefore a licensed layout/UX reference, not a
+second frontend or a new application stack.

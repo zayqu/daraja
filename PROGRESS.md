@@ -549,3 +549,39 @@ Every batch must record:
 - Production activation remains pending until the merged master release is
   published and cPanel reports its exact merge commit through
   `/api/health/release`.
+
+
+## Current batch: complete Jobtex-inspired UI rollup
+
+- The remaining public and protected web surfaces now use one Daraja-owned,
+  Jobtex-inspired visual language instead of a mix of legacy page treatments.
+- Public job detail now uses an opportunity summary, job overview, position
+  description, guarded application action and related-category navigation while
+  preserving the existing application resolver and current share behavior.
+- Candidate Career, Job Alerts and Privacy & Data pages now share a consistent
+  account workspace treatment. Candidate-document upload remains disabled until
+  malware scanning is verified under issue #93.
+- The shared JobAlerts section now uses an explicit CSS module rather than
+  component-local styled-jsx, closing the styling reliability concern raised
+  during UI QA.
+- Employer workspace, vacancy submission and protected admin moderation now use
+  a consistent portal layout while preserving all server-side verification,
+  ownership, ADMIN and audit boundaries.
+- Candidate sign-in and one-time email verification now share the public Daraja
+  navigation and the same authentication visual system without changing Auth.js
+  provider or safe-callback behavior.
+- Decision D-024 records that licensed templates inform flow and interaction
+  patterns but never replace Daraja brand, architecture, security or business
+  logic.
+- This rollup is schema-free and changes no production data, provider
+  configuration, credentials, billing, payment or message-delivery state.
+- Pull request #108 passed Vercel and cPanel PR workflow #36898051093,
+  including the production dependency audit, full tests, ESLint, Prisma
+  validation, production build, standalone-runtime smoke test and package
+  creation. Publication and cPanel handoff were correctly skipped on the PR.
+- Performance work remains intentionally separate: initial jobs SSR/cache,
+  Neon query/index review, host-level recaptcha behavior and production
+  resource verification remain Gate B in issue #103.
+- Production activation and exact live-release verification remain pending until
+  the merged master release is published and
+  `/api/health/release` reports the exact merged commit.

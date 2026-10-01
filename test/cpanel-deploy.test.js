@@ -22,6 +22,11 @@ const nextConfig = await readFile(
 test("cPanel deployment uses CloudLinux only to manage the production runtime", () => {
   assert.match(deployScript, /restart_application restart/);
   assert.match(deployScript, /--app-root "\$CLOUDLINUX_APP_ROOT"/);
+  assert.match(deployScript, /CLOUDLINUX_SELECTOR=/);
+  assert.match(deployScript, /\/usr\/sbin\/cloudlinux-selector/);
+  assert.match(deployScript, /"\$CLOUDLINUX_SELECTOR" "\$action"/);
+  assert.match(deployScript, /"\$CLOUDLINUX_SELECTOR" get/);
+  assert.match(deployScript, /-n "\$CLOUDLINUX_SELECTOR"/);
   assert.doesNotMatch(deployScript, /source "\$VENV"/);
   assert.doesNotMatch(deployScript, /npm (?:ci|install)/);
   assert.doesNotMatch(deployScript, /npx prisma generate/);

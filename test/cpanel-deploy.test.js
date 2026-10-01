@@ -14,6 +14,10 @@ const autoDeployScript = await readFile(
   new URL("../ops/cpanel/auto-deploy.sh", import.meta.url),
   "utf8",
 );
+const nextConfig = await readFile(
+  new URL("../next.config.mjs", import.meta.url),
+  "utf8",
+);
 
 test("cPanel deployment uses CloudLinux only to manage the production runtime", () => {
   assert.match(deployScript, /restart_application restart/);
@@ -92,7 +96,7 @@ test("cPanel deployment automatically restores the previous runtime on failure",
 });
 
 test("cPanel release packages and smoke-tests a standalone runtime", () => {
-  assert.match(releaseWorkflow, /output: "standalone"/);
+  assert.match(nextConfig, /output: "standalone"/);
   assert.match(releaseWorkflow, /\.next\/standalone/);
   assert.match(releaseWorkflow, /cpanel-bundle\/runtime\/\.next\/static/);
   assert.match(releaseWorkflow, /cpanel-bundle\/runtime\/public/);

@@ -12,6 +12,7 @@ import {
   buildJobsUrl,
   normalizeJobsSearchParams,
 } from "@/lib/job-search";
+import styles from "./JobsPageClient.module.css";
 
 export default function JobsPageClient({ showEmployerCta }) {
   const [jobs, setJobs] = useState([]);
@@ -87,14 +88,26 @@ export default function JobsPageClient({ showEmployerCta }) {
     });
   }
 
+  function clearFilters() {
+    setSearch("");
+    setSubmittedSearch("");
+    setCategory("");
+    setStatus("active");
+    setPage(1);
+  }
+
   function formatDate(d) {
     if (!d) return null;
     return new Date(d).toLocaleDateString("en-GB", {
-      day: "numeric", month: "short", year: "numeric",
+      day: "numeric",
+      month: "short",
+      year: "numeric",
     });
   }
 
-  function isExpired(d) { return d && new Date(d) < new Date(); }
+  function isExpired(d) {
+    return d && new Date(d) < new Date();
+  }
 
   function isExpiringSoon(d) {
     if (!d) return false;
@@ -110,128 +123,68 @@ export default function JobsPageClient({ showEmployerCta }) {
     return formatDate(d);
   }
 
+  const totalJobs = pagination.total || 0;
+  const hasFilters = Boolean(
+    submittedSearch || category || status !== "active"
+  );
+
   return (
-    <>
-      <style>{`
-        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    <div className={styles.page}>
+      <SiteNav showEmployerCta={showEmployerCta} />
 
-        .dr { font-family: inherit; background: #F7F8FA; min-height: 100vh; color: #1B2A3F; }
+      <header className={styles.searchHeader}>
+        <div className={styles.searchHeaderInner}>
+          <p className={styles.eyebrow}>Verified opportunities</p>
+          <h1>Find jobs across Tanzania</h1>
+          <p className={styles.searchIntro}>
+            Search current vacancies by role, employer or keyword, then narrow
+            the results by category and status.
+          </p>
+          <form className={styles.searchForm} onSubmit={handleSearch} role="search">
+            <label htmlFor="job-search" className="sr-only">
+              Search by job title, company, or keyword
+            </label>
+            <input
+              id="job-search"
+              className={styles.searchInput}
+              type="search"
+              placeholder="Job title, company, or keyword"
+              value={search}
+              onChange={(event) => setSearch(event.target.value)}
+            />
+            <button className={styles.searchButton} type="submit">
+              Search jobs
+            </button>
+          </form>
+        </div>
+      </header>
 
-        /* SEARCH HEADER */
-        .header { background: #1B2A3F; padding: 3rem 3rem 2.5rem; }
-        .header-inner { max-width: 860px; margin: 0 auto; }
-        .header h1 { font-family: inherit; font-size: var(--text-display); font-weight: 700; color: #fff; margin-bottom: 1.5rem; letter-spacing: var(--tracking-display); line-height: var(--leading-display); }
-        .header h1 span { color: #00C9A7; }
+      <main className={styles.main} id="main-content">
+        <div className={styles.jobsLayout}>
+          <aside className={styles.filterPanel} aria-label="Job filters">
+            <div className={styles.filterPanelHeading}>
+              <div>
+                <p className={styles.panelEyebrow}>Refine results</p>
+                <h2>Filters</h2>
+              </div>
+              {hasFilters && (
+                <button
+                  className={styles.clearButton}
+                  type="button"
+                  onClick={clearFilters}
+                >
+                  Clear
+                </button>
+              )}
+            </div>
 
-        .search-row { display: flex; }
-        .search-input { flex: 1; padding: 0.85rem 1.2rem; background: #fff; border: none; font-family: inherit; font-size: 0.88rem; color: #1B2A3F; outline: none; border-radius: var(--radius-input) 0 0 var(--radius-input); }
-        .search-input::placeholder { color: #A0ACBB; }
-        .search-input:focus-visible, .search-btn:focus-visible, .f-btn:focus-visible, .pg-btn:focus-visible, .job-card:focus-visible { outline: 3px solid #F59E0B; outline-offset: 3px; }
-        .search-btn { padding: 0.85rem 1.75rem; background: #00C9A7; color: #1B2A3F; font-family: inherit; font-size: 0.82rem; font-weight: 600; border: none; cursor: pointer; border-radius: 0 var(--radius-input) var(--radius-input) 0; letter-spacing: 0.04em; transition: opacity 0.2s; }
-        .search-btn:hover { opacity: 0.88; }
-
-        /* BODY */
-        .body { max-width: 860px; margin: 0 auto; padding: 2rem 3rem 4rem; }
-
-        /* FILTERS */
-        .filters { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); gap: 0.75rem; margin-bottom: 1.5rem; }
-        .filter-group { margin: 0; }
-        .filter-label { display: block; font-size: 0.72rem; font-weight: 600; color: #5F6B7A; margin-bottom: 0.55rem; }
-        .filter-select { width: 100%; min-height: 46px; padding: 0.65rem 0.8rem; border: 1.5px solid #DDE1E8; border-radius: var(--radius-input); background: #fff; color: #1B2A3F; font: 500 0.82rem 'Poppins', sans-serif; }
-        .filter-select:focus-visible { outline: 3px solid #F59E0B; outline-offset: 2px; border-color: #1B2A3F; }
-
-        /* META */
-        .meta { font-size: 0.78rem; color: #8B95A1; margin-bottom: 1.25rem; letter-spacing: 0.02em; }
-
-        /* JOB LIST */
-        .job-list { display: flex; flex-direction: column; gap: 1px; }
-
-        .job-card { display: block; text-decoration: none; background: #fff; border: 1px solid #E8ECF0; border-radius: var(--radius-card); padding: 1.4rem 1.6rem; margin-bottom: 0.5rem; transition: border-color 0.15s, box-shadow 0.15s; }
-        .job-card:hover { border-color: #00C9A7; box-shadow: var(--shadow-soft); }
-
-        .jc-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 1.5rem; }
-        .jc-left { flex: 1; min-width: 0; }
-        .jc-right { text-align: right; flex-shrink: 0; }
-
-        .jc-title { font-family: inherit; font-size: 0.95rem; font-weight: 600; color: #1B2A3F; line-height: 1.4; margin-bottom: 0.25rem; }
-        .job-card:hover .jc-title { color: #00C9A7; }
-        .jc-company { font-size: 0.8rem; color: #6B7685; font-weight: 400; margin-bottom: 0.9rem; }
-
-        .jc-tags { display: flex; flex-wrap: wrap; gap: 0.35rem; }
-        .tag { font-size: 0.68rem; font-weight: 500; padding: 0.22rem 0.7rem; border-radius: var(--radius-pill); letter-spacing: 0.03em; }
-        .t-cat { background: #E8FAF6; color: #0A8C74; }
-        .t-loc { background: #F2F4F7; color: #6B7685; }
-        .t-type { background: #F2F4F7; color: #6B7685; }
-        .t-feat { background: #FEF6E4; color: #92660A; }
-
-        .jc-time { font-size: 0.72rem; color: #A0ACBB; margin-bottom: 0.3rem; }
-        .jc-deadline { font-size: 0.72rem; font-weight: 500; }
-        .dl-ok { color: #A0ACBB; }
-        .dl-soon { color: #D97706; }
-        .dl-exp { color: #DC2626; }
-
-        /* STATES */
-        .state-loading { text-align: center; padding: 5rem 0; font-size: 0.85rem; color: #8B95A1; }
-        .state-empty, .state-error { text-align: center; padding: 5rem 0; }
-        .state-empty p { font-size: 0.85rem; color: #8B95A1; margin-top: 0.5rem; }
-        .state-empty strong { font-family: inherit; font-size: 1.1rem; color: #1B2A3F; }
-        .state-error { color: #B42318; font-size: 0.85rem; }
-        .retry-btn { margin-top: 1rem; border: 0; border-radius: var(--radius-button); background: #1B2A3F; color: #fff; padding: 0.65rem 1rem; cursor: pointer; font: inherit; }
-
-        /* PAGINATION */
-        .pager { display: flex; justify-content: center; gap: 0.3rem; margin-top: 2.5rem; }
-        .pg-btn { min-width: 44px; min-height: 44px; display: flex; align-items: center; justify-content: center; font-size: 0.78rem; font-family: inherit; border: 1.5px solid #DDE1E8; border-radius: var(--radius-button); background: #fff; cursor: pointer; color: #6B7685; transition: all 0.15s; }
-        .pg-btn:hover:not(:disabled) { border-color: #1B2A3F; color: #1B2A3F; }
-        .pg-btn.active { background: #1B2A3F; color: #00C9A7; border-color: #1B2A3F; }
-        .pg-btn:disabled { opacity: 0.3; cursor: not-allowed; }
-        .pg-nav { width: auto; padding: 0 0.9rem; font-size: 0.75rem; font-weight: 500; }
-
-        @media (max-width: 1024px) and (min-width: 641px) {
-          .header { padding: 2.5rem 2rem 2rem; }
-          .body { padding: 1.75rem 2rem 3.5rem; }
-        }
-
-        @media (max-width: 640px) {
-          .header { padding: 2rem 1.25rem; }
-          .body { padding: 1.5rem 1.25rem 3rem; }
-          .header h1 { font-size: 1.4rem; }
-          .jc-top { flex-direction: column; gap: 0.75rem; }
-          .jc-right { text-align: left; }
-          .filters { grid-template-columns: 1fr; }
-        }
-      `}</style>
-
-      <div className="dr">
-        <SiteNav showEmployerCta={showEmployerCta} />
-
-        {/* Search header */}
-        <header className="header">
-          <div className="header-inner">
-            <h1>Browse <span>Jobs</span> in Tanzania</h1>
-            <form className="search-row" onSubmit={handleSearch}>
-              <label htmlFor="job-search" className="sr-only">Search by job title, company, or keyword</label>
-              <input
-                id="job-search"
-                className="search-input"
-                type="text"
-                placeholder="Job title, company, or keyword..."
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-              />
-              <button className="search-btn" type="submit">Search</button>
-            </form>
-          </div>
-        </header>
-
-        {/* Content */}
-        <main className="body" id="main-content">
-          {/* Filters */}
-          <div className="filters" aria-label="Job filters">
-            <div className="filter-group">
-              <label className="filter-label" htmlFor="category-filter">Category</label>
+            <div className={styles.filterGroup}>
+              <label className={styles.filterLabel} htmlFor="category-filter">
+                Category
+              </label>
               <select
                 id="category-filter"
-                className="filter-select"
+                className={styles.filterSelect}
                 value={category}
                 onChange={(event) => {
                   const value = event.target.value;
@@ -244,14 +197,21 @@ export default function JobsPageClient({ showEmployerCta }) {
                 }}
               >
                 <option value="">All categories</option>
-                {JOB_CATEGORIES.map((cat) => <option key={cat} value={cat}>{cat}</option>)}
+                {JOB_CATEGORIES.map((cat) => (
+                  <option key={cat} value={cat}>
+                    {cat}
+                  </option>
+                ))}
               </select>
             </div>
-            <div className="filter-group">
-              <label className="filter-label" htmlFor="status-filter">Status</label>
+
+            <div className={styles.filterGroup}>
+              <label className={styles.filterLabel} htmlFor="status-filter">
+                Status
+              </label>
               <select
                 id="status-filter"
-                className="filter-select"
+                className={styles.filterSelect}
                 value={status}
                 onChange={(event) => {
                   const value = event.target.value;
@@ -268,89 +228,160 @@ export default function JobsPageClient({ showEmployerCta }) {
                 <option value="all">All jobs</option>
               </select>
             </div>
-          </div>
 
-          {/* Meta */}
-          <div className="meta" aria-live="polite">
-            {loading
-              ? "Loading jobs..."
-              : `${pagination.total || 0} ${status === "active" ? "open" : status} job${pagination.total === 1 ? "" : "s"}`}
-          </div>
+            <p className={styles.filterHint}>
+              Results update when you change a filter. Public job browsing stays
+              available without an account.
+            </p>
+          </aside>
 
-          {/* Jobs */}
-          {loading ? (
-            <div className="state-loading" role="status">Loading jobs...</div>
-          ) : error ? (
-            <div className="state-error" role="alert">
-              <p>{error}</p>
-              <button className="retry-btn" type="button" onClick={fetchJobs}>Try again</button>
+          <section className={styles.results} aria-label="Job search results">
+            <div className={styles.resultsHeader}>
+              <div>
+                <p className={styles.panelEyebrow}>Search results</p>
+                <h2>
+                  {status === "active"
+                    ? "Open opportunities"
+                    : status === "expired"
+                      ? "Expired opportunities"
+                      : "All opportunities"}
+                </h2>
+              </div>
+              <div className={styles.resultCount} aria-live="polite">
+                {loading
+                  ? "Loading jobs..."
+                  : `${totalJobs} ${totalJobs === 1 ? "job" : "jobs"}`}
+              </div>
             </div>
-          ) : jobs.length === 0 ? (
-            <div className="state-empty">
-              <strong>No positions found</strong>
-              <p>Try a different search term or category</p>
-            </div>
-          ) : (
-            <section className="job-list" aria-label="Job search results">
-              {jobs.map((job) => (
-                <Link
-                  key={job.id}
-                  href={`/jobs/${job.slug || job.id}`}
-                  className="job-card"
-                  onClick={() => trackEvent("select_item", {
-                    item_list_name: "Job search results",
-                    items: [{
-                      item_id: job.id,
-                      item_name: job.title,
-                      item_brand: job.company,
-                      item_category: job.category,
-                    }],
-                  })}
+
+            {loading ? (
+              <div className={styles.stateLoading} role="status">
+                Loading jobs...
+              </div>
+            ) : error ? (
+              <div className={styles.stateError} role="alert">
+                <p>{error}</p>
+                <button
+                  className={styles.retryButton}
+                  type="button"
+                  onClick={fetchJobs}
                 >
-                  <div className="jc-top">
-                    <div className="jc-left">
-                      <div className="jc-title">{job.title}</div>
-                      <div className="jc-company">{job.company}</div>
-                      <div className="jc-tags">
-                        <span className="tag t-cat">{job.category}</span>
-                        <span className="tag t-loc">{job.location}</span>
-                        <span className="tag t-type">{job.type.replace("_", " ")}</span>
-                        {job.featured && <span className="tag t-feat">Featured</span>}
+                  Try again
+                </button>
+              </div>
+            ) : jobs.length === 0 ? (
+              <div className={styles.stateEmpty}>
+                <strong>No positions found</strong>
+                <p>Try a different search term or category.</p>
+              </div>
+            ) : (
+              <div className={styles.jobList}>
+                {jobs.map((job) => (
+                  <Link
+                    key={job.id}
+                    href={`/jobs/${job.slug || job.id}`}
+                    className={styles.jobCard}
+                    onClick={() =>
+                      trackEvent("select_item", {
+                        item_list_name: "Job search results",
+                        items: [
+                          {
+                            item_id: job.id,
+                            item_name: job.title,
+                            item_brand: job.company,
+                            item_category: job.category,
+                          },
+                        ],
+                      })
+                    }
+                  >
+                    <div className={styles.jobCardMain}>
+                      <div className={styles.jobCardBody}>
+                        <h3 className={styles.jobTitle}>{job.title}</h3>
+                        <p className={styles.jobCompany}>{job.company}</p>
+                        <div className={styles.jobTags}>
+                          {job.category && (
+                            <span className={styles.primaryTag}>{job.category}</span>
+                          )}
+                          {job.location && (
+                            <span className={styles.neutralTag}>{job.location}</span>
+                          )}
+                          {job.type && (
+                            <span className={styles.neutralTag}>
+                              {job.type.replace("_", " ")}
+                            </span>
+                          )}
+                          {job.featured && (
+                            <span className={styles.featuredTag}>Featured</span>
+                          )}
+                        </div>
+                      </div>
+
+                      <div className={styles.jobCardAside}>
+                        <span className={styles.postedAt}>
+                          {timeAgo(job.createdAt)}
+                        </span>
+                        {job.deadline && (
+                          <span
+                            className={
+                              isExpired(job.deadline)
+                                ? styles.deadlineExpired
+                                : isExpiringSoon(job.deadline)
+                                  ? styles.deadlineSoon
+                                  : styles.deadline
+                            }
+                          >
+                            {isExpired(job.deadline)
+                              ? "Expired"
+                              : `Closes ${formatDate(job.deadline)}`}
+                          </span>
+                        )}
+                        <span className={styles.viewJob}>View job →</span>
                       </div>
                     </div>
-                    <div className="jc-right">
-                      <div className="jc-time">{timeAgo(job.createdAt)}</div>
-                      {job.deadline && (
-                        <div className={`jc-deadline ${isExpired(job.deadline) ? "dl-exp" : isExpiringSoon(job.deadline) ? "dl-soon" : "dl-ok"}`}>
-                          {isExpired(job.deadline) ? "Expired" : `Closes ${formatDate(job.deadline)}`}
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                </Link>
-              ))}
-            </section>
-          )}
+                  </Link>
+                ))}
+              </div>
+            )}
+          </section>
+        </div>
 
-          <JobAlerts />
+        <JobAlerts />
 
-          {/* Pagination */}
-          <AdSenseSlot
-            slot={process.env.NEXT_PUBLIC_GOOGLE_ADSENSE_JOB_LIST_SLOT}
-            label="Sponsored job-listing advertisement"
-          />
+        <AdSenseSlot
+          slot={process.env.NEXT_PUBLIC_GOOGLE_ADSENSE_JOB_LIST_SLOT}
+          label="Sponsored job-listing advertisement"
+        />
 
-          {pagination.pages > 1 && (
-            <nav className="pager" aria-label="Job results pagination">
-              <button className="pg-btn pg-nav" onClick={() => setPage((p) => Math.max(1, p - 1))} disabled={page === 1}>← Prev</button>
-              <span className="pg-btn active" aria-current="page">{page} / {pagination.pages}</span>
-              <button className="pg-btn pg-nav" onClick={() => setPage((p) => Math.min(pagination.pages, p + 1))} disabled={page === pagination.pages}>Next →</button>
-            </nav>
-          )}
-        </main>
+        {pagination.pages > 1 && (
+          <nav className={styles.pager} aria-label="Job results pagination">
+            <button
+              className={styles.pageButton}
+              onClick={() => setPage((current) => Math.max(1, current - 1))}
+              disabled={page === 1}
+            >
+              ← Prev
+            </button>
+            <span
+              className={styles.pageCurrent}
+              aria-current="page"
+            >
+              {page} / {pagination.pages}
+            </span>
+            <button
+              className={styles.pageButton}
+              onClick={() =>
+                setPage((current) => Math.min(pagination.pages, current + 1))
+              }
+              disabled={page === pagination.pages}
+            >
+              Next →
+            </button>
+          </nav>
+        )}
+      </main>
 
-        <SiteFooter />
-      </div>
-    </>
+      <SiteFooter />
+    </div>
   );
 }

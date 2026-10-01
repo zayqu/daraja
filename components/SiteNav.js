@@ -7,9 +7,11 @@ import { buildJobsUrl } from "@/lib/job-search";
 import styles from "./SiteNav.module.css";
 
 const DEFAULT_LINKS = [
-  { href: "/jobs", label: "Browse Jobs" },
-  { href: "/jobs?category=Government", label: "Government" },
-  { href: "/jobs?category=NGO%20%26%20Development", label: "NGO" },
+  { href: "/", label: "Home" },
+  { href: "/jobs", label: "Jobs" },
+  { href: "/jobs?category=Internships%20%26%20Graduate%20Programs", label: "Internships" },
+  { href: "/about", label: "About" },
+  { href: "/contact", label: "Contact" },
 ];
 
 /**

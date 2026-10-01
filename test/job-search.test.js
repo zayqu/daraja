@@ -23,6 +23,8 @@ test("legacy q links remain searchable and normalize to canonical state", async 
   assert.deepEqual(state, {
     search: "driver",
     category: "",
+    location: "",
+    type: "",
     status: "active",
     page: 2,
   });
@@ -39,7 +41,7 @@ test("job search state rejects unsupported filters and invalid pages", async () 
     normalizeJobsSearchParams(
       "category=Unsupported&status=hidden&page=-5&search=%20engineer%20"
     ),
-    { search: "engineer", category: "", status: "active", page: 1 }
+    { search: "engineer", category: "", location: "", type: "", status: "active", page: 1 }
   );
   assert.equal(
     normalizeJobsSearchParams(`search=${"x".repeat(500)}`).search.length,
@@ -80,4 +82,22 @@ test("navigation and results share canonical search helpers", async () => {
   assert.match(jobs, /normalizeJobsSearchParams\(window\.location\.search\)/);
   assert.match(jobs, /JOB_CATEGORIES\.map/);
   assert.doesNotMatch(jobs, /const CATEGORIES =/);
+});
+
+
+test("location and job type filters normalize into canonical job URLs", async () => {
+  const { buildJobsUrl, normalizeJobsSearchParams } = await import("../lib/job-search.js");
+
+  const state = normalizeJobsSearchParams(
+    "location=%20Dar%20es%20Salaam%20&type=FULL_TIME&search=analyst"
+  );
+
+  assert.equal(state.location, "Dar es Salaam");
+  assert.equal(state.type, "FULL_TIME");
+  assert.equal(
+    buildJobsUrl(state),
+    "/jobs?search=analyst&location=Dar+es+Salaam&type=FULL_TIME"
+  );
+
+  assert.equal(normalizeJobsSearchParams("type=INVALID").type, "");
 });

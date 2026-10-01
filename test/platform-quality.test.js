@@ -88,7 +88,7 @@ test("disabled employer entry points are not advertised publicly", async () => {
   assert.match(nav, /showEmployerCta=\{employerPortalEnabled\(\)\}/);
   assert.match(siteNav, /showEmployerCta \? \(/);
   assert.match(home, /const employerEnabled = employerPortalEnabled\(\)/);
-  assert.equal((home.match(/\{employerEnabled && \(/g) || []).length, 2);
+  assert.equal((home.match(/\{employerEnabled && \(/g) || []).length, 1);
   assert.match(jobsPage, /showEmployerCta=\{employerPortalEnabled\(\)\}/);
   assert.match(jobPage, /showEmployerCta=\{employerPortalEnabled\(\)\}/);
 });

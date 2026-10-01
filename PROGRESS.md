@@ -549,3 +549,29 @@ Every batch must record:
 - Production activation remains pending until the merged master release is
   published and cPanel reports its exact merge commit through
   `/api/health/release`.
+
+
+## Current batch: Jobtex-inspired public job detail
+
+- The public job-detail page now follows the same Daraja-owned, Jobtex-inspired
+  opportunity hierarchy as the homepage and jobs listing: employer/title
+  summary, opportunity overview, position description, application action and
+  related-category navigation.
+- The licensed Jobtex template was used only as a layout/interaction reference;
+  Daraja keeps its existing font, navy/teal brand, Next.js routes, APIs,
+  analytics and application business rules.
+- The guarded `/api/jobs/<slug>/apply` destination remains the single
+  application owner, and the existing WhatsApp share behavior is unchanged
+  pending the separately tracked attribution work in issue #102.
+- The page styling moved out of the oversized client component into one
+  co-located CSS module, with the established mobile visual order preserved:
+  details, description, application, then similar opportunities.
+- A visible trust note states that Daraja never charges job seekers fees to view
+  or apply for jobs.
+- This batch is schema-free and changes no production data, feature flag,
+  provider, credential or private-data boundary.
+- Pull request #104 passed Vercel and cPanel release workflow #36896237666,
+  including the runtime audit, full tests, ESLint, Prisma validation,
+  production build, standalone-runtime smoke test and packaging.
+- Production activation remains separate from validation; the exact live
+  release must still be confirmed through `/api/health/release` after merge.

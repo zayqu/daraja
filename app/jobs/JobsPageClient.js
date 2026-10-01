@@ -73,25 +73,23 @@ export default function JobsPageClient({
   }, [page, category, location, type, submittedSearch, status]);
 
   useEffect(() => {
+    const canonicalUrl = buildJobsUrl({
+      search: submittedSearch,
+      category,
+      location,
+      type,
+      status,
+      page,
+    });
+
     if (skipInitialFetch.current) {
       skipInitialFetch.current = false;
+      window.history.replaceState(null, "", canonicalUrl);
       return;
     }
 
     queueMicrotask(fetchJobs);
-
-    window.history.replaceState(
-      null,
-      "",
-      buildJobsUrl({
-        search: submittedSearch,
-        category,
-        location,
-        type,
-        status,
-        page,
-      })
-    );
+    window.history.replaceState(null, "", canonicalUrl);
   }, [
     page,
     category,

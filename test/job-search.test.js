@@ -81,3 +81,25 @@ test("navigation and results share canonical search helpers", async () => {
   assert.match(jobs, /JOB_CATEGORIES\.map/);
   assert.doesNotMatch(jobs, /const CATEGORIES =/);
 });
+
+
+test("public jobs layout borrows template flow without replacing Daraja branding", async () => {
+  const jobs = await readFile(
+    path.join(__dirname, "..", "app", "jobs", "JobsPageClient.js"),
+    "utf8"
+  );
+  const styles = await readFile(
+    path.join(__dirname, "..", "app", "jobs", "JobsPageClient.module.css"),
+    "utf8"
+  );
+
+  assert.match(jobs, /aria-label="Job filters"/);
+  assert.match(jobs, /Search results/);
+  assert.match(jobs, /View job →/);
+  assert.match(styles, /grid-template-columns: 260px minmax\(0, 1fr\)/);
+  assert.match(styles, /font-family: inherit/);
+  assert.match(styles, /var\(--color-navy\)/);
+  assert.match(styles, /var\(--color-teal\)/);
+  assert.doesNotMatch(styles, /#14a077/i);
+  assert.doesNotMatch(styles, /Poppins|Bootstrap|Jobtex/i);
+});

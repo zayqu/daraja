@@ -27,6 +27,10 @@ test("cPanel deployment uses CloudLinux only to manage the production runtime", 
   assert.match(deployScript, /"\$CLOUDLINUX_SELECTOR" "\$action"/);
   assert.match(deployScript, /"\$CLOUDLINUX_SELECTOR" get/);
   assert.match(deployScript, /-n "\$CLOUDLINUX_SELECTOR"/);
+  assert.match(deployScript, /NODE_BIN=/);
+  assert.match(deployScript, /nodevenv\/\$CLOUDLINUX_APP_ROOT\/22\/bin\/node/);
+  assert.match(deployScript, /"\$NODE_BIN" -e/);
+  assert.doesNotMatch(deployScript, /(^|[^_$A-Z])node -e '/m);
   assert.doesNotMatch(deployScript, /source "\$VENV"/);
   assert.doesNotMatch(deployScript, /npm (?:ci|install)/);
   assert.doesNotMatch(deployScript, /npx prisma generate/);
@@ -46,7 +50,7 @@ test("cPanel deployment installs only the verified self-contained runtime", () =
 
 test("cPanel deployment verifies the exact public build before recording success", () => {
   assert.match(deployScript, /\.next\/\.daraja-commit/);
-  assert.match(deployScript, /\.next\/server\/app\/index\.html/);
+  assert.match(deployScript, /RUNTIME_DIR\/\.next\/server\/app\/index\.html/);
   assert.match(deployScript, /for attempt in 1 2 3 4 5/);
   assert.match(deployScript, /curl -fsSL --connect-timeout 10 --max-time 30/);
   assert.match(deployScript, /asset_urls" == "\$expected_asset_urls/);

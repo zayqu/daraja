@@ -1,6 +1,6 @@
 # Daraja Jobs production-readiness progress
 
-Last updated: 29 August 2026
+Last updated: 1 October 2026
 
 ## Current objective
 
@@ -529,3 +529,23 @@ Every batch must record:
 - Preview deployment URL and smoke-test result.
 - Commit and pull-request links.
 - Remaining external configuration or production blockers.
+
+## Current batch: October 2026 runtime security refresh
+
+- The existing cPanel runtime-audit release gate blocked pull request #97 before
+  UI validation after newly published September 2026 advisories entered the
+  installed production dependency graph. The audit gate was preserved and the
+  UI release was paused rather than bypassing the failure.
+- Next.js is updated from 16.3.3 to 16.3.6, which is the patched 16.3.x release
+  for the critical `next/og` ImageResponse advisory surfaced by the gate.
+- Axios resolves to 1.20.0, sharp to 0.35.4, fast-uri to 3.1.8, undici to
+  7.29.1, and mysql2 to 3.23.1. These versions clear the high/critical runtime
+  advisories present in the prior lockfile.
+- The dependency refresh changes no database schema, production data, provider
+  credentials, DNS, feature flags or application business logic.
+- Pull request #98 passed the runtime production dependency audit, full tests,
+  ESLint, Prisma validation, cPanel shell validation, production build,
+  packaging and Vercel preview on 1 October 2026.
+- Production activation remains pending until the merged master release is
+  published and cPanel reports its exact merge commit through
+  `/api/health/release`.

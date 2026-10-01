@@ -15,20 +15,24 @@ const autoDeployScript = await readFile(
   "utf8",
 );
 
-test("cPanel deployment handles CloudLinux activation and restart safely", () => {
-  assert.match(deployScript, /set \+u\nsource "\$VENV"\nset -u/);
+test("cPanel deployment uses CloudLinux only to manage the production runtime", () => {
   assert.match(deployScript, /restart_application restart/);
   assert.match(deployScript, /--app-root "\$CLOUDLINUX_APP_ROOT"/);
+  assert.doesNotMatch(deployScript, /source "\$VENV"/);
+  assert.doesNotMatch(deployScript, /npm (?:ci|install)/);
+  assert.doesNotMatch(deployScript, /npx prisma generate/);
+  assert.doesNotMatch(deployScript, /next build/);
 });
 
-test("cPanel deployment normalizes CloudLinux node_modules without deleting it", () => {
-  assert.match(deployScript, /VENV_NODE_MODULES=/);
-  assert.match(deployScript, /ensure_cloudlinux_node_modules/);
-  assert.match(deployScript, /readlink -f "\$app_node_modules"/);
-  assert.match(deployScript, /node_modules\.before-cloudlinux/);
-  assert.match(deployScript, /mv "\$app_node_modules" "\$backup_path"/);
-  assert.match(deployScript, /ln -s "\$VENV_NODE_MODULES" "\$app_node_modules"/);
-  assert.doesNotMatch(deployScript, /rm -rf (?:"?\$APP_DIR\/)?node_modules/);
+test("cPanel deployment installs only the verified self-contained runtime", () => {
+  assert.match(deployScript, /RUNTIME_DIR=/);
+  assert.match(deployScript, /extracted\/runtime\/server\.js/);
+  assert.match(deployScript, /runtime\/\.next\/\.daraja-commit/);
+  assert.match(deployScript, /BUNDLED_COMMIT/);
+  assert.match(deployScript, /BUNDLED_COMMIT" != "\$REMOTE_COMMIT/);
+  assert.match(deployScript, /mv "\$WORK_DIR\/extracted\/runtime" runtime/);
+  assert.doesNotMatch(deployScript, /VENV_NODE_MODULES=/);
+  assert.doesNotMatch(deployScript, /ensure_cloudlinux_node_modules/);
 });
 
 test("cPanel deployment verifies the exact public build before recording success", () => {
@@ -79,12 +83,22 @@ test("cPanel deployment recovers a stale LiteSpeed worker with bounded scope", (
   );
   assert.doesNotMatch(deployScript, /pkill (?:node|-f ['"]?lsnode)/);
 });
-test("cPanel deployment automatically restores the previous frontend on failure", () => {
-  assert.match(deployScript, /mv \.next \/?"?\$FAILED_DIR"?/);
-  assert.match(deployScript, /mv \.next\.previous \.next/);
-  assert.match(deployScript, /mv public\.previous public/);
+test("cPanel deployment automatically restores the previous runtime on failure", () => {
+  assert.match(deployScript, /FAILED_DIR="runtime\.failed/);
+  assert.match(deployScript, /mv runtime "\$FAILED_DIR"/);
+  assert.match(deployScript, /mv runtime\.previous runtime/);
   assert.match(deployScript, /mv server\.js\.previous server\.js/);
   assert.doesNotMatch(deployScript, /prisma (?:migrate|db push)/);
+});
+
+test("cPanel release packages and smoke-tests a standalone runtime", () => {
+  assert.match(releaseWorkflow, /output: "standalone"/);
+  assert.match(releaseWorkflow, /\.next\/standalone/);
+  assert.match(releaseWorkflow, /cpanel-bundle\/runtime\/\.next\/static/);
+  assert.match(releaseWorkflow, /cpanel-bundle\/runtime\/public/);
+  assert.match(releaseWorkflow, /node cpanel-bundle\/server\.js/);
+  assert.match(releaseWorkflow, /api\/health\/release/);
+  assert.match(releaseWorkflow, /daraja-cpanel-build\.tar\.gz/);
 });
 
 test("cPanel release publishes the verified outbound pull runners", () => {

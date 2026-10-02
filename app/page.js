@@ -1,4 +1,3 @@
-import Image from "next/image";
 import Link from "next/link";
 import JobAlerts from "@/components/JobAlerts";
 import PublicSiteNav from "@/components/PublicSiteNav";
@@ -26,33 +25,21 @@ export default function Home() {
         .home { background: #f7f8fa; min-height: 100vh; color: #1b2a3f; }
 
         .hero {
-          background: #1b2a3f;
-          padding: 4.75rem var(--gutter) 5.25rem;
           position: relative;
           overflow: hidden;
-        }
-
-        .hero::before,
-        .hero::after {
-          content: "";
-          position: absolute;
-          border: 1px solid rgba(0, 201, 167, 0.09);
-          border-radius: 999px;
-          pointer-events: none;
-        }
-
-        .hero::before {
-          width: 560px;
-          height: 560px;
-          right: -180px;
-          top: -240px;
-        }
-
-        .hero::after {
-          width: 320px;
-          height: 320px;
-          right: 40px;
-          top: -120px;
+          padding: 5.25rem var(--gutter) 5.5rem;
+          background-image:
+            linear-gradient(
+              90deg,
+              rgba(5, 10, 18, .82) 0%,
+              rgba(5, 10, 18, .66) 42%,
+              rgba(5, 10, 18, .34) 72%,
+              rgba(5, 10, 18, .22) 100%
+            ),
+            url("/images/daraja-career-hero.webp");
+          background-position: center 48%;
+          background-size: cover;
+          background-repeat: no-repeat;
         }
 
         .hero-inner {
@@ -63,30 +50,11 @@ export default function Home() {
         }
 
         .hero-layout {
-          display: grid;
-          grid-template-columns: minmax(0, 1.08fr) minmax(320px, .72fr);
-          align-items: center;
-          gap: 2.25rem;
           margin-bottom: 2rem;
         }
 
         .hero-copy {
-          max-width: 700px;
-        }
-
-        .hero-visual {
-          position: relative;
-          min-height: 300px;
-          overflow: hidden;
-          border: 1px solid rgba(255,255,255,.12);
-          border-radius: 20px;
-          background: #22344b;
-          box-shadow: 0 22px 50px rgba(5, 15, 28, .22);
-        }
-
-        .hero-visual img {
-          object-fit: cover;
-          object-position: center 52%;
+          max-width: 720px;
         }
 
         .hero-eyebrow,
@@ -366,13 +334,8 @@ export default function Home() {
         }
 
         @media (max-width: 900px) {
-          .hero-layout {
-            grid-template-columns: minmax(0, 1fr) minmax(260px, .72fr);
-            gap: 1.35rem;
-          }
-
-          .hero-visual {
-            min-height: 250px;
+          .hero {
+            background-position: 58% 50%;
           }
 
           .hero-search { grid-template-columns: 1fr 1fr; }
@@ -382,32 +345,24 @@ export default function Home() {
 
         @media (max-width: 640px) {
           .hero {
-            padding: 2rem var(--gutter) 2.25rem;
-          }
-
-          .hero::before,
-          .hero::after {
-            display: none;
+            padding: 2.5rem var(--gutter) 2.6rem;
+            background-image:
+              linear-gradient(
+                180deg,
+                rgba(5, 10, 18, .78) 0%,
+                rgba(5, 10, 18, .64) 52%,
+                rgba(5, 10, 18, .5) 100%
+              ),
+              url("/images/daraja-career-hero.webp");
+            background-position: 58% center;
           }
 
           .hero-layout {
-            grid-template-columns: 1fr;
-            gap: 1rem;
             margin-bottom: 1.15rem;
           }
 
           .hero-copy {
             max-width: none;
-          }
-
-          .hero-visual {
-            min-height: 188px;
-            border-radius: 14px;
-            box-shadow: none;
-          }
-
-          .hero-visual img {
-            object-position: center 58%;
           }
 
           .hero-eyebrow,
@@ -596,15 +551,6 @@ export default function Home() {
                   </p>
                 </div>
 
-                <div className="hero-visual">
-                  <Image
-                    src="/images/daraja-career-hero.webp"
-                    alt="Professionals climbing steps toward new career opportunities"
-                    fill
-                    priority
-                    sizes="(max-width: 640px) calc(100vw - 32px), (max-width: 900px) 36vw, 390px"
-                  />
-                </div>
               </div>
 
               <form action="/jobs" method="get" className="hero-search" role="search">

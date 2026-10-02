@@ -31,6 +31,8 @@ const detail = {
   customField: [
     { fieldLabel: "Company Code", valueLabel: "Stanbic Bank Tanzania" },
   ],
+  postingUrl:
+    "https://jobs.smartrecruiters.com/StandardBankGroup/744000139270099-finance-manager-group-functions",
   applyUrl:
     "https://jobs.smartrecruiters.com/StandardBankGroup/744000139270099-finance-manager-group-functions?oga=true",
   jobAd: {
@@ -72,7 +74,8 @@ test("imports Tanzania vacancies with the exact official application destination
   assert.equal(jobs[0].location, "Dar es Salaam");
   assert.equal(jobs[0].category, "Banking & Finance");
   assert.match(jobs[0].description, /Qualified accountant/);
-  assert.equal(jobs[0].sourceUrl, detail.applyUrl);
+  assert.equal(jobs[0].sourceUrl, detail.postingUrl);
+  assert.equal(jobs[0].applicationUrl, detail.applyUrl);
   assert.equal(jobs[0].sourceId, `standardbank-${summary.id}`);
   assert.equal(calls.length, 2);
 });

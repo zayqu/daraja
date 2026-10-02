@@ -2,8 +2,9 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { buildJobsUrl } from "@/lib/job-search";
+import { mobileDockEnabledPath } from "@/lib/mobile-navigation";
 import styles from "./SiteNav.module.css";
 
 const DEFAULT_LINKS = [
@@ -40,6 +41,8 @@ export default function SiteNav({
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
   const router = useRouter();
+  const pathname = usePathname();
+  const dockManaged = mobileDockEnabledPath(pathname);
 
   function handleSearch(event) {
     event.preventDefault();
@@ -48,7 +51,7 @@ export default function SiteNav({
   }
 
   return (
-    <nav className={styles.nav} aria-label="Primary">
+    <nav className={`${styles.nav} ${dockManaged ? styles.dockManaged : ""}`} aria-label="Primary">
       <div className={styles.bar}>
         <Link href="/" className={styles.logo} onClick={() => setOpen(false)}>
           DARAJA

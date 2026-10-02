@@ -171,21 +171,28 @@ registered_node_app_count() {
     ' "$APP_USER"
 }
 
-app_scoped_lsnode_pids() {
+app_scoped_node_worker_pids() {
   local app_realpath
+  local runtime_prefix
   local app_uid
   local candidate_pids
   local pid
   local worker_cwd
 
   app_realpath="$(readlink -f "$APP_DIR")"
+  runtime_prefix="$app_realpath/runtime"
   app_uid="$(id -u "$APP_USER")"
 
   if ! command -v pgrep >/dev/null 2>&1; then
     return 1
   fi
 
-  candidate_pids="$(pgrep -u "$app_uid" -f '[l]snode' 2>/dev/null || true)"
+  candidate_pids="$(
+    {
+      pgrep -u "$app_uid" -f '[l]snode' 2>/dev/null || true
+      pgrep -u "$app_uid" -f '[n]ext-server' 2>/dev/null || true
+    } | sort -u
+  )"
   if [[ -z "$candidate_pids" ]]; then
     return 1
   fi
@@ -193,22 +200,22 @@ app_scoped_lsnode_pids() {
   while IFS= read -r pid; do
     [[ -n "$pid" ]] || continue
     worker_cwd="$(readlink -f "/proc/$pid/cwd" 2>/dev/null || true)"
-    if [[ "$worker_cwd" == "$app_realpath" ]]; then
+    if [[ "$worker_cwd" == "$app_realpath" ||           "$worker_cwd" == "$runtime_prefix" ||           "$worker_cwd" == "$runtime_prefix".* ]]; then
       printf '%s\n' "$pid"
     fi
   done <<< "$candidate_pids"
 }
 
-terminate_app_scoped_lsnode_workers() {
+terminate_app_scoped_node_workers() {
   local pids
   local pid
 
-  pids="$(app_scoped_lsnode_pids || true)"
+  pids="$(app_scoped_node_worker_pids || true)"
   if [[ -z "$pids" ]]; then
     return 1
   fi
 
-  printf 'Clearing stale lsnode worker(s) scoped to %s.\n' "$APP_DIR" >&2
+  printf 'Clearing stale Node worker(s) scoped to %s.\n' "$APP_DIR" >&2
   while IFS= read -r pid; do
     [[ -n "$pid" ]] || continue
     kill "$pid" 2>/dev/null || true
@@ -229,7 +236,7 @@ recover_stale_litespeed_worker() {
     return 0
   fi
 
-  if terminate_app_scoped_lsnode_workers; then
+  if terminate_app_scoped_node_workers; then
     sleep "$STALE_WORKER_WAIT_SECONDS"
     restart_application start
     sleep "$STALE_WORKER_WAIT_SECONDS"
@@ -240,7 +247,7 @@ recover_stale_litespeed_worker() {
 
   registered_apps="$(registered_node_app_count 2>/dev/null || true)"
   if [[ "$registered_apps" != "1" ]]; then
-    printf 'No Daraja-scoped stale lsnode worker could be safely identified; refusing account-wide cleanup because %s Node applications are registered.\n' \
+    printf 'No Daraja-scoped stale Node worker could be safely identified; refusing account-wide cleanup because %s Node applications are registered.\n' \
       "${registered_apps:-an unknown number of}" >&2
     return 1
   fi

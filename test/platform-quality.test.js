@@ -243,7 +243,8 @@ test("homepage hero animation is decorative, server-rendered and respects reduce
   assert.doesNotMatch(bridge, /^"use client"/m);
   assert.match(bridge, /aria-hidden="true"/);
   assert.match(bridgeCss, /prefers-reduced-motion: reduce/);
-  assert.match(bridgeCss, /@media \(max-width: 900px\)[\s\S]*display: none/);
+  assert.match(bridgeCss, /@media \(max-width: 900px\)[\s\S]*width:\s*min\(320px, 92vw\)/);
+  assert.doesNotMatch(bridgeCss, /@media \(max-width: 900px\)[\s\S]*display:\s*none/);
 });
 
 
@@ -262,4 +263,23 @@ test("mobile homepage hero keeps search readable without browser focus zoom", as
   assert.match(home, /@media \(max-width: 640px\)[\s\S]*\.hero h1 \.hero-word[\s\S]*animation:\s*none !important/);
   assert.match(home, /@media \(max-width: 640px\)[\s\S]*\.hero-search[\s\S]*grid-template-columns:\s*1fr/);
   assert.match(home, /@media \(max-width: 640px\)[\s\S]*\.hero-field,[\s\S]*\.hero-submit[\s\S]*font-size:\s*1rem/);
+});
+
+
+test("privacy consent waits for stored choice before showing and stays compact", async () => {
+  const controls = await readFile(
+    path.join(__dirname, "..", "components", "PrivacyControls.js"),
+    "utf8"
+  );
+  const styles = await readFile(
+    path.join(__dirname, "..", "components", "PrivacyControls.css"),
+    "utf8"
+  );
+
+  assert.match(controls, /hasLoadedConsent/);
+  assert.match(controls, /localStorage\.setItem\(CONSENT_STORAGE_KEY/);
+  assert.match(controls, /Max-Age=31536000/);
+  assert.match(controls, /hasLoadedConsent && \(consent === null \|\| isOpen\)/);
+  assert.match(styles, /max-width:\s*44rem/);
+  assert.match(styles, /bottom:\s*calc\(74px \+ env\(safe-area-inset-bottom\)\)/);
 });

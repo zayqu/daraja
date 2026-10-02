@@ -1,6 +1,6 @@
 :root {
   /* Typography */
-  --font-daraja: var(--font-geist-sans), Arial, Helvetica, sans-serif;
+  --font-daraja: var(--font-poppins), Arial, Helvetica, sans-serif;
 
   /* Brand */
   --color-navy: #1b2a3f;

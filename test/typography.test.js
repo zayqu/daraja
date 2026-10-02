@@ -3,7 +3,7 @@ const assert = require("node:assert/strict");
 const { readFile } = require("node:fs/promises");
 const path = require("node:path");
 
-test("Daraja keeps its established typography stack across the app", async () => {
+test("Daraja uses the shared Poppins typography stack across the app", async () => {
   const globals = await readFile(
     path.join(__dirname, "..", "app", "globals.css"),
     "utf8",
@@ -19,7 +19,7 @@ test("Daraja keeps its established typography stack across the app", async () =>
 
   assert.match(
     tokens,
-    /--font-daraja:\s*var\(--font-geist-sans\), Arial, Helvetica, sans-serif;/,
+    /--font-daraja:\s*var\(--font-poppins\), Arial, Helvetica, sans-serif;/,
   );
   assert.match(globals, /body\s*\{[\s\S]*font-family:\s*var\(--font-daraja\)/);
   assert.match(
@@ -27,9 +27,9 @@ test("Daraja keeps its established typography stack across the app", async () =>
     /h1,[\s\S]*h6,[\s\S]*font-family:\s*var\(--font-daraja\)/,
   );
 
-  assert.match(layout, /import \{ Geist, Geist_Mono \} from "next\/font\/google"/);
-  assert.match(layout, /geistSans\.variable/);
-  assert.match(layout, /geistMono\.variable/);
+  assert.match(layout, /import \{ Poppins \} from "next\/font\/google"/);
+  assert.match(layout, /--font-poppins/);
+  assert.match(layout, /className=\{poppins\.variable\}/);
   const privacyPage = await readFile(
     path.join(__dirname, "..", "app", "privacy", "page.js"),
     "utf8",

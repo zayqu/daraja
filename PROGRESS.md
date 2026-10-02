@@ -9,6 +9,27 @@ tested vertical releases. The current priority is Phase 0 security and privacy
 hardening before expanding candidate CV, employer, freelance, payment or AI
 workflows.
 
+## Current batch: global Poppins, mobile bridge and compact consent
+
+- Poppins now owns the shared `--font-daraja` token in the root layout, so
+  public pages, protected workspaces, navigation, forms, buttons, filters and
+  shared components inherit one typography system rather than page-specific
+  font changes.
+- The Daraja bridge animation is responsive instead of desktop-only. Tablet and
+  mobile use a compact scaled composition with smaller category cards and labels
+  while keeping the same CSS-only bridge/traveller sequence and reduced-motion
+  behavior.
+- Privacy consent now reads the saved choice before rendering, eliminating the
+  reload/page-transition flash that made the prompt appear repeatedly.
+- Accepted or declined consent is stored in both local storage and a one-year
+  first-party cookie shared by `ajira.daraja.co.tz` and its `www` host.
+- The consent prompt is now a compact global toast above the mobile dock with
+  shorter copy and smaller Accept/Decline actions. It disappears after a choice
+  and only reopens through the existing privacy-settings event.
+- These changes are centralized in the root layout, design tokens and shared
+  components; no route, scraper, database, authentication or job lifecycle
+  behavior changes.
+
 ## Current batch: mobile hero and search responsiveness
 
 - Mobile hero spacing and headline sizing are now tuned independently from the
@@ -667,7 +688,7 @@ Every batch must record:
 ## Current batch: centralized Daraja UI system
 
 - Daraja now has one design-token source at `styles/tokens.css`, including
-  Geist typography, brand colours, spacing, radii, shared content widths and
+  Poppins typography, brand colours, spacing, radii, shared content widths and
   workspace sizing.
 - Repeated protected-area UI is centralized in `components/ui/` through
   `PageHero`, `WorkspaceShell`, `SurfaceCard` and `WorkspaceTabs`.
@@ -775,7 +796,7 @@ Every batch must record:
 - Mobile job cards, hero spacing and result controls are tightened to improve
   information hierarchy without changing job data, routes, lifecycle,
   authentication or application behaviour.
-- This redesign preserves Geist, Daraja colours, shared UI ownership and the
+- This redesign now inherits Poppins, Daraja colours, shared UI ownership and the
   existing Home / Jobs / Internships / More navigation model.
 - The batch is schema-free and changes no production data, provider credentials,
   permissions, authentication or job-source logic. Production activation remains

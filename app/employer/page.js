@@ -8,6 +8,9 @@ import {
 import EmployerProfileForm from "@/components/EmployerProfileForm";
 import EmployerPortalTabs from "@/components/EmployerPortalTabs";
 import SiteNav from "@/components/SiteNav";
+import PageHero from "@/components/ui/PageHero";
+import WorkspaceShell from "@/components/ui/WorkspaceShell";
+import SurfaceCard from "@/components/ui/SurfaceCard";
 import styles from "../portal.module.css";
 
 export const metadata = { title: "Employer workspace | Daraja" };
@@ -31,20 +34,13 @@ export default async function EmployerPage() {
       <SiteNav />
 
       <main id="main-content">
-        <section className={styles.hero}>
-          <div className={styles.heroInner}>
-            <p className={styles.eyebrow}>Employer workspace</p>
-            <h1>
-              {actor.employer?.companyName || "Create your employer profile"}
-            </h1>
-            <p>
-              Keep employer verification, vacancy submission and review status in
-              one protected workspace.
-            </p>
-          </div>
-        </section>
+        <PageHero
+          eyebrow="Employer workspace"
+          title={actor.employer?.companyName || "Create your employer profile"}
+          description="Keep employer verification, vacancy submission and review status in one protected workspace."
+        />
 
-        <div className={styles.shell}>
+        <WorkspaceShell className={styles.formScope}>
           <EmployerPortalTabs showAdmin={isAdmin(actor)} />
 
           <section className={styles.summaryStrip}>
@@ -61,7 +57,7 @@ export default async function EmployerPage() {
           </section>
 
           <section className={styles.grid} aria-label="Employer workspace">
-            <article className={styles.card}>
+            <SurfaceCard as="article" className={styles.portalCard}>
               <span className={styles.cardLabel}>Trust & verification</span>
               <h2>Employer verification</h2>
               <p>
@@ -70,9 +66,9 @@ export default async function EmployerPage() {
                 history.
               </p>
               {!actor.employer && <EmployerProfileForm />}
-            </article>
+            </SurfaceCard>
 
-            <article className={styles.card}>
+            <SurfaceCard as="article" className={styles.portalCard}>
               <span className={styles.cardLabel}>Vacancies</span>
               <h2>Publish a position</h2>
               {actor.employer ? (
@@ -91,9 +87,9 @@ export default async function EmployerPage() {
                   available after the profile exists.
                 </p>
               )}
-            </article>
+            </SurfaceCard>
 
-            <article className={styles.card}>
+            <SurfaceCard as="article" className={styles.portalCard}>
               <span className={styles.cardLabel}>Current access</span>
               <h2>What this workspace controls</h2>
               <ul>
@@ -101,9 +97,9 @@ export default async function EmployerPage() {
                 <li>Vacancies owned by this authenticated employer.</li>
                 <li>Moderation state and review feedback.</li>
               </ul>
-            </article>
+            </SurfaceCard>
 
-            <article className={styles.card}>
+            <SurfaceCard as="article" className={styles.portalCard}>
               <span className={styles.cardLabel}>Candidate privacy</span>
               <h2>Protected candidate access</h2>
               <p>
@@ -111,9 +107,9 @@ export default async function EmployerPage() {
                 candidate CVs or private career data. Access must come through
                 an authorised application or consented workflow.
               </p>
-            </article>
+            </SurfaceCard>
           </section>
-        </div>
+        </WorkspaceShell>
       </main>
     </div>
   );

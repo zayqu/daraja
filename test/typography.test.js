@@ -8,13 +8,17 @@ test("Daraja keeps its established typography stack across the app", async () =>
     path.join(__dirname, "..", "app", "globals.css"),
     "utf8",
   );
+  const tokens = await readFile(
+    path.join(__dirname, "..", "styles", "tokens.css"),
+    "utf8",
+  );
   const layout = await readFile(
     path.join(__dirname, "..", "app", "layout.js"),
     "utf8",
   );
 
   assert.match(
-    globals,
+    tokens,
     /--font-daraja:\s*var\(--font-geist-sans\), Arial, Helvetica, sans-serif;/,
   );
   assert.match(globals, /body\s*\{[\s\S]*font-family:\s*var\(--font-daraja\)/);

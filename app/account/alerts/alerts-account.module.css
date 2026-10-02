@@ -1,7 +1,7 @@
 .page {
   min-height: 100vh;
-  background: #f7f8fa;
-  color: #1b2a3f;
+  background: var(--color-bg);
+  color: var(--color-text);
 }
 
 .signOut button {
@@ -19,57 +19,15 @@
 
 .signOut button:hover,
 .signOut button:focus-visible {
-  border-color: #00c9a7;
-  color: #00c9a7;
-}
-
-.hero {
-  padding: 3.25rem var(--gutter);
-  background: #1b2a3f;
-}
-
-.heroInner {
-  max-width: 1080px;
-  margin: 0 auto;
-}
-
-.eyebrow {
-  margin: 0;
-  color: #00c9a7;
-  font-size: 0.7rem;
-  font-weight: 800;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-}
-
-.hero h1 {
-  max-width: 760px;
-  margin: 0.5rem 0 0.85rem;
-  color: #fff;
-  font-size: clamp(2rem, 5vw, 3.2rem);
-  line-height: 1.06;
-  letter-spacing: -0.04em;
-}
-
-.hero p:last-child {
-  max-width: 650px;
-  margin: 0;
-  color: rgba(255, 255, 255, 0.58);
-  font-size: 0.9rem;
-  line-height: 1.7;
-}
-
-.shell {
-  width: min(900px, calc(100% - 2rem));
-  margin: 0 auto;
-  padding: 1.5rem 0 4.5rem;
+  border-color: var(--color-teal);
+  color: var(--color-teal);
 }
 
 .accountCard {
-  padding: 1.5rem;
-  border: 1px solid #e3e8ee;
-  border-radius: 16px;
-  background: #fff;
+  padding: var(--workspace-card-padding);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-card);
+  background: var(--color-surface);
 }
 
 .accountStatus {
@@ -90,29 +48,14 @@
 .accountStatus strong {
   display: block;
   overflow-wrap: anywhere;
-  color: #344054;
+  color: var(--color-text-secondary);
   font-size: 0.88rem;
 }
 
 .accountStatus p {
   max-width: 620px;
   margin: 0.45rem 0 0;
-  color: #667085;
+  color: var(--color-text-muted);
   font-size: 0.76rem;
   line-height: 1.6;
-}
-
-@media (max-width: 640px) {
-  .hero {
-    padding-top: 2.5rem;
-    padding-bottom: 2.65rem;
-  }
-
-  .shell {
-    padding-top: 1.2rem;
-  }
-
-  .accountCard {
-    padding: 1rem;
-  }
 }

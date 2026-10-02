@@ -38,8 +38,8 @@ test("employer portal keeps candidate privacy messaging and responsive form styl
   const styles = await read("app/portal.module.css");
 
   assert.match(employer, /does not grant unrestricted access to[\s\S]*candidate CVs/);
-  assert.match(styles, /\.hero/);
+  assert.match(employer, /PageHero/);
   assert.match(styles, /\.summaryStrip/);
-  assert.match(styles, /:global\(\.portal-form\)/);
+  assert.match(styles, /\.formScope :global\(\.portal-form\)/);
   assert.match(styles, /@media \(max-width: 700px\)/);
 });

@@ -607,3 +607,24 @@ Every batch must record:
   code head, including runtime audit, full tests, ESLint, Prisma validation,
   production build, standalone-runtime smoke test and packaging. The final
   docs-only head must retain the same checks before merge.
+
+
+## Current batch: centralized Daraja UI system
+
+- Daraja now has one design-token source at `styles/tokens.css`, including
+  Geist typography, brand colours, spacing, radii, shared content widths and
+  workspace sizing.
+- Repeated protected-area UI is centralized in `components/ui/` through
+  `PageHero`, `WorkspaceShell`, `SurfaceCard` and `WorkspaceTabs`.
+- Candidate Career, Alerts and Privacy pages consume the same shared hero and
+  workspace shell.
+- Employer, vacancy submission and protected admin pages consume the same hero,
+  shell, card and tab primitives.
+- Candidate sign-in and email verification reuse the shared hero and surface
+  card while retaining their existing Auth.js provider and callback behaviour.
+- Candidate and employer tab wrappers now share one tab implementation instead
+  of two duplicated CSS modules.
+- Page-specific CSS was reduced to workflow-specific content styling; shared
+  brand/layout values now come from tokens.
+- This is a schema-free refactor. No route, API, provider, permission,
+  authentication, database or production-data behaviour changes.

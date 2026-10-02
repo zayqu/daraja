@@ -6,6 +6,8 @@ import {
 } from "@/lib/candidate-access";
 import PublicSiteNav from "@/components/PublicSiteNav";
 import CandidateAccountTabs from "@/components/CandidateAccountTabs";
+import PageHero from "@/components/ui/PageHero";
+import WorkspaceShell from "@/components/ui/WorkspaceShell";
 import styles from "./career.module.css";
 
 export const metadata = { title: "Career workspace | Daraja" };
@@ -21,18 +23,13 @@ export default async function CareerPage() {
     <>
       <PublicSiteNav />
       <main className={styles.page} id="main-content">
-        <section className={styles.hero}>
-          <div className={styles.heroInner}>
-            <p className={styles.eyebrow}>Candidate workspace</p>
-            <h1>Keep your career tools in one place.</h1>
-            <p>
-              Use Daraja to organise your search, manage alerts and keep control
-              of your account data as the career workspace grows.
-            </p>
-          </div>
-        </section>
+        <PageHero
+          eyebrow="Candidate workspace"
+          title="Keep your career tools in one place."
+          description="Use Daraja to organise your search, manage alerts and keep control of your account data as the career workspace grows."
+        />
 
-        <div className={styles.shell}>
+        <WorkspaceShell>
           <CandidateAccountTabs showCareer />
 
           <section className={styles.summaryCard}>
@@ -105,7 +102,7 @@ export default async function CareerPage() {
               </p>
             </article>
           </section>
-        </div>
+        </WorkspaceShell>
       </main>
     </>
   );

@@ -1,0 +1,49 @@
+.hero {
+  padding: var(--workspace-hero-padding-block) var(--gutter);
+  background: var(--color-navy);
+}
+
+.inner {
+  max-width: var(--content-max);
+  margin: 0 auto;
+}
+
+.narrow {
+  max-width: var(--content-narrow);
+}
+
+.eyebrow {
+  margin: 0;
+  color: var(--color-teal);
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.inner h1 {
+  max-width: 780px;
+  margin: 0.5rem 0 0.85rem;
+  color: #fff;
+  font-size: clamp(2rem, 5vw, 3.25rem);
+  line-height: 1.06;
+  letter-spacing: -0.04em;
+}
+
+.description {
+  max-width: 680px;
+  margin: 0;
+  color: var(--color-navy-soft);
+  font-size: 0.9rem;
+  line-height: 1.7;
+}
+
+.overlap {
+  padding-bottom: 8rem;
+}
+
+@media (max-width: 640px) {
+  .overlap {
+    padding-bottom: 6.5rem;
+  }
+}

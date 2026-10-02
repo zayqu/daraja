@@ -7,6 +7,9 @@ import {
   isAdmin,
 } from "@/lib/employer-access";
 import SiteNav from "@/components/SiteNav";
+import PageHero from "@/components/ui/PageHero";
+import WorkspaceShell from "@/components/ui/WorkspaceShell";
+import SurfaceCard from "@/components/ui/SurfaceCard";
 import styles from "../portal.module.css";
 
 export const metadata = {
@@ -29,21 +32,16 @@ export default async function PostJobPage() {
       <SiteNav />
 
       <main id="main-content">
-        <section className={styles.hero}>
-          <div className={styles.heroInner}>
-            <p className={styles.eyebrow}>Authenticated employer submission</p>
-            <h1>Create a vacancy for review.</h1>
-            <p>
-              Daraja applies your verified employer identity automatically and
-              keeps publication behind the moderation workflow.
-            </p>
-          </div>
-        </section>
+        <PageHero
+          eyebrow="Authenticated employer submission"
+          title="Create a vacancy for review."
+          description="Daraja applies your verified employer identity automatically and keeps publication behind the moderation workflow."
+        />
 
-        <div className={styles.shell}>
+        <WorkspaceShell className={styles.formScope}>
           <EmployerPortalTabs showAdmin={isAdmin(actor)} />
 
-          <section className={styles.formCard} aria-labelledby="vacancy-form-title">
+          <SurfaceCard className={styles.formCard} aria-labelledby="vacancy-form-title">
             <div className={styles.formIntro}>
               <span className={styles.cardLabel}>Position information</span>
               <h2 id="vacancy-form-title">Vacancy details</h2>
@@ -55,8 +53,8 @@ export default async function PostJobPage() {
             </div>
 
             <EmployerVacancyForm companyName={actor.employer.companyName} />
-          </section>
-        </div>
+          </SurfaceCard>
+        </WorkspaceShell>
       </main>
     </div>
   );

@@ -2,6 +2,8 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { auth, authProviders, signIn } from "@/auth";
 import PublicSiteNav from "@/components/PublicSiteNav";
+import PageHero from "@/components/ui/PageHero";
+import SurfaceCard from "@/components/ui/SurfaceCard";
 import styles from "../auth.module.css";
 
 function safeCallback(value) {
@@ -29,19 +31,16 @@ export default async function SignInPage({ searchParams }) {
       <PublicSiteNav />
 
       <main id="main-content">
-        <section className={styles.hero}>
-          <div className={styles.heroInner}>
-            <p className={styles.eyebrow}>Candidate account</p>
-            <h1>Sign in when you need personalised Daraja tools.</h1>
-            <p>
-              Browsing and applying for public jobs stays open without an
-              account. Sign in only for alerts and protected account features.
-            </p>
-          </div>
-        </section>
+        <PageHero
+          eyebrow="Candidate account"
+          title="Sign in when you need personalised Daraja tools."
+          description="Browsing and applying for public jobs stays open without an account. Sign in only for alerts and protected account features."
+          maxWidth="narrow"
+          variant="overlap"
+        />
 
         <div className={styles.cardWrap}>
-          <section className={styles.card} aria-labelledby="signin-title">
+          <SurfaceCard className={styles.card} aria-labelledby="signin-title">
             <div className={styles.cardHeader}>
               <Link href="/jobs" className={styles.brand}>DARAJA</Link>
               <h2 id="signin-title">Access your candidate account</h2>
@@ -106,7 +105,7 @@ export default async function SignInPage({ searchParams }) {
               <Link href="/terms">Terms</Link> and acknowledge the privacy
               information on our <Link href="/privacy">Privacy page</Link>.
             </p>
-          </section>
+          </SurfaceCard>
         </div>
       </main>
     </div>

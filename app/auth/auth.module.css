@@ -1,43 +1,7 @@
 .page {
   min-height: 100vh;
-  background: #f7f8fa;
-  color: #1b2a3f;
-}
-
-.hero {
-  padding: 3rem var(--gutter) 8rem;
-  background: #1b2a3f;
-}
-
-.heroInner {
-  max-width: 960px;
-  margin: 0 auto;
-}
-
-.eyebrow {
-  margin: 0;
-  color: #00c9a7;
-  font-size: 0.7rem;
-  font-weight: 800;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-}
-
-.hero h1 {
-  max-width: 680px;
-  margin: 0.5rem 0 0.8rem;
-  color: #fff;
-  font-size: clamp(2rem, 5vw, 3.1rem);
-  line-height: 1.06;
-  letter-spacing: -0.04em;
-}
-
-.hero p:last-child {
-  max-width: 620px;
-  margin: 0;
-  color: rgba(255,255,255,.58);
-  font-size: .88rem;
-  line-height: 1.7;
+  background: var(--color-bg);
+  color: var(--color-text);
 }
 
 .cardWrap {
@@ -52,58 +16,55 @@
   max-width: 520px;
   margin: 0 auto;
   padding: 1.65rem;
-  border: 1px solid #e3e8ee;
-  border-radius: 16px;
-  background: #fff;
-  box-shadow: 0 16px 38px rgba(27, 42, 63, .08);
+  box-shadow: var(--shadow-raised);
 }
 
 .cardHeader {
-  padding-bottom: 1rem;
+  padding-bottom: var(--space-4);
   border-bottom: 1px solid #eef1f4;
 }
 
 .brand {
-  color: #087f6c;
-  font-size: .95rem;
+  color: var(--color-teal-deep);
+  font-size: 0.95rem;
   font-weight: 850;
-  letter-spacing: .12em;
+  letter-spacing: 0.12em;
   text-decoration: none;
 }
 
 .cardHeader h2 {
-  margin: .8rem 0 .4rem;
+  margin: 0.8rem 0 0.4rem;
   font-size: 1.25rem;
   line-height: 1.3;
 }
 
 .cardHeader p {
   margin: 0;
-  color: #667085;
-  font-size: .78rem;
+  color: var(--color-text-muted);
+  font-size: 0.78rem;
   line-height: 1.65;
 }
 
 .form {
-  margin-top: 1rem;
+  margin-top: var(--space-4);
 }
 
 .form label {
   display: block;
-  margin-bottom: .4rem;
-  color: #344054;
-  font-size: .76rem;
+  margin-bottom: 0.4rem;
+  color: var(--color-text-secondary);
+  font-size: 0.76rem;
   font-weight: 750;
 }
 
 .form input {
   width: 100%;
   min-height: 48px;
-  padding: 0 .85rem;
+  padding: 0 0.85rem;
   border: 1px solid #cfd6df;
   border-radius: 10px;
   background: #fff;
-  color: #1b2a3f;
+  color: var(--color-text);
   font: inherit;
 }
 
@@ -114,34 +75,34 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  margin-top: .75rem;
-  padding: .75rem 1rem;
+  margin-top: 0.75rem;
+  padding: 0.75rem 1rem;
   border: 0;
   border-radius: 10px;
   font: inherit;
-  font-size: .78rem;
+  font-size: 0.78rem;
   font-weight: 800;
   cursor: pointer;
 }
 
 .primary {
-  background: #00c9a7;
-  color: #1b2a3f;
+  background: var(--color-teal);
+  color: var(--color-navy);
 }
 
 .google {
-  margin-top: 1rem;
-  background: #1b2a3f;
+  margin-top: var(--space-4);
+  background: var(--color-navy);
   color: #fff;
 }
 
 .divider {
   display: flex;
   align-items: center;
-  gap: .75rem;
+  gap: 0.75rem;
   margin: 1.15rem 0 0;
   color: #98a2b3;
-  font-size: .72rem;
+  font-size: 0.72rem;
 }
 
 .divider::before,
@@ -153,39 +114,48 @@
 }
 
 .notice {
-  margin: 1rem 0 0;
-  padding: .9rem;
+  margin: var(--space-4) 0 0;
+  padding: 0.9rem;
   border-radius: 10px;
   background: #fff7e6;
   color: #7a4b00;
-  font-size: .76rem;
+  font-size: 0.76rem;
   line-height: 1.55;
 }
 
 .terms {
   margin: 1.15rem 0 0;
-  color: #667085;
-  font-size: .69rem;
+  color: var(--color-text-muted);
+  font-size: 0.69rem;
   line-height: 1.55;
 }
 
 .terms a {
-  color: #087f6c;
+  color: var(--color-teal-deep);
 }
 
 .infoCard {
   text-align: center;
 }
 
+.eyebrow {
+  margin: 0;
+  color: var(--color-teal-deep);
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
 .infoCard h2 {
-  margin: .45rem 0;
+  margin: 0.45rem 0;
   font-size: 1.3rem;
 }
 
 .infoCard p {
   margin: 0;
-  color: #667085;
-  font-size: .8rem;
+  color: var(--color-text-muted);
+  font-size: 0.8rem;
   line-height: 1.65;
 }
 
@@ -194,32 +164,17 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  margin-top: 1rem;
-  padding: .7rem 1rem;
+  margin-top: var(--space-4);
+  padding: 0.7rem 1rem;
   border-radius: 10px;
-  background: #00c9a7;
-  color: #1b2a3f;
-  font-size: .76rem;
+  background: var(--color-teal);
+  color: var(--color-navy);
+  font-size: 0.76rem;
   font-weight: 800;
   text-decoration: none;
 }
 
-.form input:focus-visible,
-.primary:focus-visible,
-.google:focus-visible,
-.brand:focus-visible,
-.returnLink:focus-visible,
-.terms a:focus-visible {
-  outline: 3px solid #f59e0b;
-  outline-offset: 2px;
-}
-
 @media (max-width: 640px) {
-  .hero {
-    padding-top: 2.4rem;
-    padding-bottom: 6.5rem;
-  }
-
   .cardWrap {
     margin-top: -4.5rem;
   }

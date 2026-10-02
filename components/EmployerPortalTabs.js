@@ -1,5 +1,4 @@
-import Link from "next/link";
-import styles from "./EmployerPortalTabs.module.css";
+import WorkspaceTabs from "@/components/ui/WorkspaceTabs";
 
 export default function EmployerPortalTabs({ showAdmin = false }) {
   const links = [
@@ -8,13 +7,5 @@ export default function EmployerPortalTabs({ showAdmin = false }) {
     ...(showAdmin ? [{ href: "/admin", label: "Moderation" }] : []),
   ];
 
-  return (
-    <nav className={styles.tabs} aria-label="Employer workspace">
-      {links.map((link) => (
-        <Link key={link.href} href={link.href}>
-          {link.label}
-        </Link>
-      ))}
-    </nav>
-  );
+  return <WorkspaceTabs links={links} label="Employer workspace" />;
 }

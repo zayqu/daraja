@@ -10,9 +10,9 @@
   display: inline-flex;
   align-items: center;
   padding: 0.55rem 0.8rem;
-  border: 1px solid #e3e8ee;
-  border-radius: 999px;
-  background: #fff;
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-pill);
+  background: var(--color-surface);
   color: #5f6b7a;
   font-size: 0.72rem;
   font-weight: 750;
@@ -21,8 +21,8 @@
 
 .tabs a:hover,
 .tabs a:focus-visible {
-  border-color: #00c9a7;
-  color: #087f6c;
+  border-color: var(--color-teal);
+  color: var(--color-teal-deep);
 }
 
 @media (max-width: 520px) {

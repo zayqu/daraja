@@ -1,5 +1,7 @@
 import Link from "next/link";
 import PublicSiteNav from "@/components/PublicSiteNav";
+import PageHero from "@/components/ui/PageHero";
+import SurfaceCard from "@/components/ui/SurfaceCard";
 import styles from "../auth.module.css";
 
 export const metadata = { title: "Check your email" };
@@ -10,19 +12,16 @@ export default function VerifyRequestPage() {
       <PublicSiteNav />
 
       <main id="main-content">
-        <section className={styles.hero}>
-          <div className={styles.heroInner}>
-            <p className={styles.eyebrow}>Secure sign-in</p>
-            <h1>Check your email to continue.</h1>
-            <p>
-              Daraja sent a one-time sign-in link to the email address you
-              provided.
-            </p>
-          </div>
-        </section>
+        <PageHero
+          eyebrow="Secure sign-in"
+          title="Check your email to continue."
+          description="Daraja sent a one-time sign-in link to the email address you provided."
+          maxWidth="narrow"
+          variant="overlap"
+        />
 
         <div className={styles.cardWrap}>
-          <section className={`${styles.card} ${styles.infoCard}`}>
+          <SurfaceCard className={`${styles.card} ${styles.infoCard}`}>
             <p className={styles.eyebrow}>One-time link sent</p>
             <h2>Open the email in this browser</h2>
             <p>
@@ -33,7 +32,7 @@ export default function VerifyRequestPage() {
             <Link className={styles.returnLink} href="/jobs">
               Return to jobs
             </Link>
-          </section>
+          </SurfaceCard>
         </div>
       </main>
     </div>

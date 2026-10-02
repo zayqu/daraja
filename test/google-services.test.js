@@ -28,3 +28,17 @@ test("accepts numeric AdSense slot IDs only", () => {
   assert.equal(isValidAdSenseSlot("slot-123"), false);
   assert.equal(isValidAdSenseSlot("123"), false);
 });
+
+
+test("privacy consent does not leave a persistent floating control after a choice", async () => {
+  const { readFile } = await import("node:fs/promises");
+  const path = await import("node:path");
+  const source = await readFile(
+    path.join(process.cwd(), "components", "PrivacyControls.js"),
+    "utf8"
+  );
+
+  assert.match(source, /consent === null \|\| isOpen/);
+  assert.doesNotMatch(source, /className="privacy-settings"/);
+  assert.match(source, /PRIVACY_SETTINGS_EVENT/);
+});

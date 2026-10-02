@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { buildJobsUrl } from "@/lib/job-search";
 import { mobileDockEnabledPath } from "@/lib/mobile-navigation";
+import NavIcon from "@/components/ui/NavIcon";
 import styles from "./SiteNav.module.css";
 
 const DEFAULT_LINKS = [
@@ -37,6 +38,8 @@ export default function SiteNav({
   right,
   showSearch = false,
   showEmployerCta = true,
+  showCandidateProfile = false,
+  notificationCount = 0,
 }) {
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
@@ -72,6 +75,34 @@ export default function SiteNav({
               Search
             </button>
           </form>
+        )}
+
+        {dockManaged && (
+          <div className={styles.mobileAccountActions} aria-label="Candidate account">
+            <Link
+              href="/account/notifications"
+              className={styles.mobileIconButton}
+              aria-label="Notifications"
+              title="Notifications"
+            >
+              <NavIcon name="bell" />
+              {notificationCount > 0 ? (
+                <span className={styles.mobileBadge}>
+                  {notificationCount > 99 ? "99+" : notificationCount}
+                </span>
+              ) : null}
+            </Link>
+            {showCandidateProfile && (
+              <Link
+                href="/account/profile"
+                className={styles.mobileIconButton}
+                aria-label="Profile"
+                title="Profile"
+              >
+                <NavIcon name="user" />
+              </Link>
+            )}
+          </div>
         )}
 
         <button

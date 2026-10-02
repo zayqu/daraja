@@ -7,6 +7,7 @@ import { Suspense, useEffect, useState } from "react";
 import {
   CONSENT_EVENT,
   CONSENT_STORAGE_KEY,
+  PRIVACY_SETTINGS_EVENT,
   isValidAdSenseClient,
   isValidGoogleAnalyticsId,
 } from "@/lib/google-services";
@@ -42,7 +43,14 @@ export default function PrivacyControls({ analyticsId, adsenseClient }) {
 
   useEffect(() => {
     const timer = window.setTimeout(() => setConsent(readConsent()), 0);
-    return () => window.clearTimeout(timer);
+    function openPrivacySettings() {
+      setIsOpen(true);
+    }
+    window.addEventListener(PRIVACY_SETTINGS_EVENT, openPrivacySettings);
+    return () => {
+      window.clearTimeout(timer);
+      window.removeEventListener(PRIVACY_SETTINGS_EVENT, openPrivacySettings);
+    };
   }, []);
 
   function saveConsent(value) {
@@ -138,12 +146,6 @@ export default function PrivacyControls({ analyticsId, adsenseClient }) {
             </button>
           </div>
         </section>
-      )}
-
-      {consent !== null && !isOpen && (
-        <button type="button" className="privacy-settings" onClick={() => setIsOpen(true)}>
-          Privacy choices
-        </button>
       )}
     </>
   );

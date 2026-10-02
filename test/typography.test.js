@@ -30,5 +30,12 @@ test("Daraja keeps its established typography stack across the app", async () =>
   assert.match(layout, /import \{ Geist, Geist_Mono \} from "next\/font\/google"/);
   assert.match(layout, /geistSans\.variable/);
   assert.match(layout, /geistMono\.variable/);
+  const privacyPage = await readFile(
+    path.join(__dirname, "..", "app", "privacy", "page.js"),
+    "utf8",
+  );
+
   assert.doesNotMatch(globals, /@font-face/);
+  assert.doesNotMatch(privacyPage, /fontFamily:\s*"Arial/);
+  assert.match(privacyPage, /ContentPage/);
 });

@@ -40,6 +40,7 @@ export default function JobsPageClient({
   const [type, setType] = useState(initialFilters.type);
   const [status, setStatus] = useState(initialFilters.status);
   const [page, setPage] = useState(initialFilters.page);
+  const [filtersOpen, setFiltersOpen] = useState(false);
   const skipInitialFetch = useRef(true);
 
   const fetchJobs = useCallback(async function fetchJobs() {
@@ -260,6 +261,20 @@ export default function JobsPageClient({
           margin-bottom: 1.1rem;
         }
 
+        .filters-head-actions {
+          display: flex;
+          align-items: center;
+          gap: .5rem;
+        }
+
+        .filters-handle,
+        .filter-close,
+        .filter-results-btn,
+        .mobile-filter-btn,
+        .filters-backdrop {
+          display: none;
+        }
+
         .filters-head h2 {
           font-size: 1rem;
         }
@@ -320,6 +335,12 @@ export default function JobsPageClient({
 
         .results-count strong {
           color: #1b2a3f;
+        }
+
+        .results-actions {
+          display: flex;
+          align-items: center;
+          gap: .65rem;
         }
 
         .result-context {
@@ -557,20 +578,150 @@ export default function JobsPageClient({
 
         @media (max-width: 640px) {
           .jobs-hero {
-            padding-top: 2.4rem;
-            padding-bottom: 2.6rem;
+            padding: 1.65rem var(--gutter) 1.8rem;
+          }
+
+          .jobs-eyebrow {
+            font-size: .62rem;
+          }
+
+          .jobs-hero h1 {
+            margin: .4rem 0 1rem;
+            font-size: clamp(1.85rem, 9vw, 2.35rem);
           }
 
           .search-shell {
-            grid-template-columns: 1fr;
+            grid-template-columns: 1fr auto;
+            gap: .45rem;
+            padding: .45rem;
+            border-radius: 14px;
+          }
+
+          .search-input {
+            min-height: 46px;
+            padding: 0 .8rem;
+          }
+
+          .search-btn {
+            min-height: 46px;
+            padding: 0 1rem;
+            border-radius: 10px;
+          }
+
+          .jobs-main {
+            padding-top: 1.15rem;
+          }
+
+          .filters-backdrop {
+            position: fixed;
+            inset: 0;
+            z-index: 970;
+            display: block;
+            border: 0;
+            background: rgba(15, 23, 42, .34);
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
           }
 
           .filters {
+            position: fixed;
+            z-index: 980;
+            right: 10px;
+            bottom: calc(8px + env(safe-area-inset-bottom));
+            left: 10px;
+            display: grid;
+            max-height: min(78vh, 620px);
+            overflow-y: auto;
             grid-template-columns: 1fr;
+            gap: .8rem;
+            padding: .7rem 1rem 1rem;
+            border-radius: 24px;
+            box-shadow: 0 20px 60px rgba(15, 23, 42, .22);
+            transform: translateY(calc(100% + 30px));
+            visibility: hidden;
+            transition: transform .22s ease, visibility .22s ease;
+          }
+
+          .filters-open {
+            transform: translateY(0);
+            visibility: visible;
+          }
+
+          .filters-handle {
+            display: block;
+            width: 38px;
+            height: 4px;
+            margin: 0 auto .15rem;
+            border-radius: 999px;
+            background: #d7dde4;
+          }
+
+          .filter-close,
+          .mobile-filter-btn,
+          .filter-results-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border: 0;
+            font: inherit;
+            font-weight: 750;
+            cursor: pointer;
+          }
+
+          .filter-close {
+            min-height: 34px;
+            padding: 0 .7rem;
+            border-radius: 9px;
+            background: #eef2f5;
+            color: #344054;
+            font-size: .7rem;
+          }
+
+          .filter-results-btn {
+            min-height: 46px;
+            margin-top: .2rem;
+            border-radius: 12px;
+            background: var(--color-navy);
+            color: #fff;
+            font-size: .78rem;
+          }
+
+          .mobile-filter-btn {
+            min-height: 36px;
+            padding: 0 .85rem;
+            border: 1px solid var(--color-border-strong);
+            border-radius: 999px;
+            background: #fff;
+            color: var(--color-navy);
+            font-size: .72rem;
+          }
+
+          .job-card {
+            padding: 1rem;
+            border-radius: 14px;
           }
 
           .job-card-top {
             align-items: flex-start;
+            gap: .8rem;
+          }
+
+          .company-mark {
+            width: 42px;
+            height: 42px;
+            flex-basis: 42px;
+            border-radius: 11px;
+          }
+
+          .job-title {
+            font-size: .95rem;
+            line-height: 1.32;
+          }
+
+          .job-meta {
+            gap: .3rem .65rem;
+            margin-top: .55rem;
+            font-size: .68rem;
           }
 
           .job-card-side {
@@ -578,17 +729,44 @@ export default function JobsPageClient({
           }
 
           .job-card-bottom {
-            align-items: flex-start;
-            flex-direction: column;
+            align-items: center;
+            flex-direction: row;
+            gap: .7rem;
+            margin-top: .8rem;
+            padding-top: .8rem;
+          }
+
+          .tags {
+            gap: .3rem;
+          }
+
+          .tag {
+            padding: .24rem .52rem;
+            font-size: .61rem;
+          }
+
+          .view-link {
+            font-size: 0;
+          }
+
+          .view-link::after {
+            content: "View →";
+            font-size: .68rem;
           }
 
           .results-head {
-            align-items: flex-start;
-            flex-direction: column;
+            min-height: 40px;
+            align-items: center;
+            flex-direction: row;
+            margin-bottom: .75rem;
+          }
+
+          .results-actions {
+            margin-left: auto;
           }
 
           .result-context {
-            text-align: left;
+            display: none;
           }
         }
       `}</style>
@@ -620,12 +798,31 @@ export default function JobsPageClient({
 
         <main className="jobs-main" id="main-content">
           <div className="jobs-layout">
-            <aside className="filters" aria-label="Job filters">
+            {filtersOpen && (
+              <button
+                type="button"
+                className="filters-backdrop"
+                aria-label="Close filters"
+                onClick={() => setFiltersOpen(false)}
+              />
+            )}
+
+            <aside className={`filters ${filtersOpen ? "filters-open" : ""}`} aria-label="Job filters">
+              <div className="filters-handle" aria-hidden="true" />
               <div className="filters-head">
                 <h2>Filter jobs</h2>
-                <button type="button" className="clear-btn" onClick={clearFilters}>
-                  Clear all
-                </button>
+                <div className="filters-head-actions">
+                  <button type="button" className="clear-btn" onClick={clearFilters}>
+                    Clear all
+                  </button>
+                  <button
+                    type="button"
+                    className="filter-close"
+                    onClick={() => setFiltersOpen(false)}
+                  >
+                    Done
+                  </button>
+                </div>
               </div>
 
               <div className="filter-group">
@@ -695,6 +892,14 @@ export default function JobsPageClient({
                   <option value="all">All jobs</option>
                 </select>
               </div>
+
+              <button
+                type="button"
+                className="filter-results-btn"
+                onClick={() => setFiltersOpen(false)}
+              >
+                Show {pagination.total || 0} opportunities
+              </button>
             </aside>
 
             <section className="results" aria-label="Job search results">
@@ -706,8 +911,18 @@ export default function JobsPageClient({
                     <><strong>{pagination.total || 0}</strong> {status === "active" ? "open" : status} job{pagination.total === 1 ? "" : "s"}</>
                   )}
                 </div>
-                <div className="result-context">
-                  Page {pagination.page || page}{pagination.pages ? ` of ${pagination.pages}` : ""}
+                <div className="results-actions">
+                  <button
+                    type="button"
+                    className="mobile-filter-btn"
+                    onClick={() => setFiltersOpen(true)}
+                    aria-expanded={filtersOpen}
+                  >
+                    Filters
+                  </button>
+                  <div className="result-context">
+                    Page {pagination.page || page}{pagination.pages ? ` of ${pagination.pages}` : ""}
+                  </div>
                 </div>
               </div>
 

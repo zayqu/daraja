@@ -75,7 +75,7 @@
   /* Mobile dock */
   --mobile-dock-max: 420px;
   --mobile-dock-radius: 26px;
-  --mobile-dock-height: 70px;
+  --mobile-dock-height: 62px;
 }
 
 @media (max-width: 1024px) {

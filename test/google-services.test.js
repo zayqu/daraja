@@ -1,10 +1,15 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import {
+  PRIVACY_SETTINGS_EVENT,
   isValidAdSenseClient,
   isValidAdSenseSlot,
   isValidGoogleAnalyticsId,
 } from "../lib/google-services.js";
+
+test("exposes a stable explicit privacy settings event", () => {
+  assert.equal(PRIVACY_SETTINGS_EVENT, "daraja:privacy-settings-open");
+});
 
 test("accepts production-shaped Google Analytics measurement IDs", () => {
   assert.equal(isValidGoogleAnalyticsId("G-ABC1234"), true);
@@ -22,4 +27,18 @@ test("accepts numeric AdSense slot IDs only", () => {
   assert.equal(isValidAdSenseSlot("1234567890"), true);
   assert.equal(isValidAdSenseSlot("slot-123"), false);
   assert.equal(isValidAdSenseSlot("123"), false);
+});
+
+
+test("privacy consent does not leave a persistent floating control after a choice", async () => {
+  const { readFile } = await import("node:fs/promises");
+  const path = await import("node:path");
+  const source = await readFile(
+    path.join(process.cwd(), "components", "PrivacyControls.js"),
+    "utf8"
+  );
+
+  assert.match(source, /consent === null \|\| isOpen/);
+  assert.doesNotMatch(source, /className="privacy-settings"/);
+  assert.match(source, /PRIVACY_SETTINGS_EVENT/);
 });

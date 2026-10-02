@@ -21,6 +21,8 @@ test("root layout mounts the shared mobile dock with iPhone safe-area support", 
   assert.doesNotMatch(dock, /\/account\/profile/);
   assert.match(dock, /Internships/);
   assert.match(dock, /More/);
+  assert.match(dock, /PRIVACY_SETTINGS_EVENT/);
+  assert.match(dock, /Privacy choices/);
   assert.match(styles, /env\(safe-area-inset-bottom\)/);
   assert.match(styles, /backdrop-filter:/);
   assert.match(styles, /--dock-item-count/);

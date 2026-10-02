@@ -283,3 +283,22 @@ test("privacy consent waits for stored choice before showing and stays compact",
   assert.match(styles, /max-width:\s*44rem/);
   assert.match(styles, /bottom:\s*calc\(74px \+ env\(safe-area-inset-bottom\)\)/);
 });
+
+
+test("shared navigation is white sticky and aligned to the content grid", async () => {
+  const navCss = await readFile(
+    path.join(__dirname, "..", "components", "SiteNav.module.css"),
+    "utf8"
+  );
+  const home = await readFile(
+    path.join(__dirname, "..", "app", "page.js"),
+    "utf8"
+  );
+
+  assert.match(navCss, /\.nav\s*\{[\s\S]*position:\s*sticky/);
+  assert.match(navCss, /background:\s*rgba\(255, 255, 255, \.96\)/);
+  assert.match(navCss, /\.bar\s*\{[\s\S]*var\(--content-max\)/);
+  assert.match(navCss, /\.logo span\s*\{[\s\S]*margin-top:\s*5px/);
+  assert.match(home, /\.hero h1\s*\{[\s\S]*font-weight:\s*700/);
+  assert.match(home, /max-width:\s*var\(--content-max\)/);
+});

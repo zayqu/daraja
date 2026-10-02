@@ -319,3 +319,30 @@ All public, candidate, employer, admin and authentication surfaces inherit the
 Geist sans variable. Arial/Helvetica remain only as fallback fonts. Licensed
 templates may influence layout and interaction only; they must not replace
 Daraja typography.
+
+
+## D-026 - Daraja UI uses shared tokens and primitives
+
+**Status:** accepted
+
+Daraja's visual system is centralized before additional product surfaces are
+added.
+
+The single design-token source is `styles/tokens.css`. Typography, brand
+colours, spacing, radii, elevation, layout widths and shared workspace values
+must come from those tokens rather than being redefined page by page.
+
+Repeated interface structure belongs in `components/ui/`. The initial shared
+primitives are:
+
+- `PageHero`
+- `WorkspaceShell`
+- `SurfaceCard`
+- `WorkspaceTabs`
+
+Candidate, employer, admin and authentication surfaces compose these primitives
+instead of owning duplicate hero, shell, card and tab implementations.
+
+Page-specific CSS remains appropriate only for genuinely page-specific layout
+or workflow presentation. Refactors must preserve routes, permissions, forms,
+privacy/security boundaries and business logic.

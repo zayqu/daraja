@@ -77,11 +77,13 @@ test("cPanel deployment verifies the exact public build before recording success
 test("cPanel deployment recovers a stale LiteSpeed worker with bounded scope", () => {
   assert.match(deployScript, /restart_application stop/);
   assert.match(deployScript, /restart_application start/);
-  assert.match(deployScript, /app_scoped_lsnode_pids/);
+  assert.match(deployScript, /app_scoped_node_worker_pids/);
   assert.match(deployScript, /readlink -f "\/proc\/\$pid\/cwd"/);
   assert.match(deployScript, /worker_cwd" == "\$app_realpath/);
+  assert.match(deployScript, /runtime_prefix/);
   assert.match(deployScript, /pgrep -u "\$app_uid" -f '\[l\]snode'/);
-  assert.match(deployScript, /terminate_app_scoped_lsnode_workers/);
+  assert.match(deployScript, /pgrep -u "\$app_uid" -f '\[n\]ext-server'/);
+  assert.match(deployScript, /terminate_app_scoped_node_workers/);
   assert.match(deployScript, /candidate_pids/);
   assert.match(deployScript, /done <<< \"\$candidate_pids\"/);
   assert.doesNotMatch(deployScript, /done < <\(pgrep/);
@@ -95,6 +97,7 @@ test("cPanel deployment recovers a stale LiteSpeed worker with bounded scope", (
     /REMOTE_COMMIT" == "\$CURRENT_COMMIT"[\s\S]+public_release_healthcheck/,
   );
   assert.doesNotMatch(deployScript, /pkill (?:node|-f ['"]?lsnode)/);
+  assert.doesNotMatch(deployScript, /pkill[^\n]+\[n\]ext-server/);
 });
 test("cPanel deployment automatically restores the previous runtime on failure", () => {
   assert.match(deployScript, /FAILED_DIR="runtime\.failed/);

@@ -1,0 +1,97 @@
+.page {
+  min-height: 100vh;
+  background: var(--color-bg);
+  color: var(--color-text);
+}
+
+.stack {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.emptyState {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: var(--space-4);
+  align-items: start;
+}
+
+.bell {
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  border-radius: 14px;
+  background: #eefbf8;
+  color: var(--color-teal-deep);
+  font-size: 1.4rem;
+  font-weight: 800;
+}
+
+.emptyState span,
+.sectionHeading span,
+.statusGrid span {
+  display: block;
+  color: var(--color-teal-deep);
+  font-size: 0.64rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.emptyState h2,
+.sectionHeading h2 {
+  margin: 0.35rem 0 0.45rem;
+  font-size: 1rem;
+}
+
+.emptyState p {
+  max-width: 620px;
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: 0.78rem;
+  line-height: 1.65;
+}
+
+.sectionHeading {
+  margin-bottom: var(--space-4);
+  padding-bottom: var(--space-4);
+  border-bottom: 1px solid #eef1f4;
+}
+
+.statusGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-4);
+}
+
+.statusGrid div {
+  min-width: 0;
+  padding: 1rem;
+  border-radius: var(--radius-panel);
+  background: #f8fafc;
+}
+
+.statusGrid strong {
+  display: block;
+  margin: 0.35rem 0 0.6rem;
+  color: var(--color-text-secondary);
+  font-size: 0.85rem;
+}
+
+.statusGrid a {
+  color: var(--color-teal-deep);
+  font-size: 0.74rem;
+  font-weight: 800;
+  text-decoration: none;
+}
+
+@media (max-width: 640px) {
+  .emptyState {
+    grid-template-columns: 1fr;
+  }
+
+  .statusGrid {
+    grid-template-columns: 1fr;
+  }
+}

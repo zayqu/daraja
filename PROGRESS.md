@@ -647,3 +647,25 @@ Every batch must record:
   navigation until dedicated role-specific mobile navigation is approved.
 - This batch changes no route ownership, database state, permissions,
   authentication, provider configuration or business logic.
+
+
+## Current batch: candidate profile and notification readiness
+
+- A real authenticated `/account/profile` page now edits the existing private
+  candidate profile through `/api/candidate/profile`.
+- Candidate profile selection/form ownership is centralized in
+  `lib/candidate-profile.js`.
+- A dedicated authenticated `/account/notifications` route is ready as the
+  in-app notification centre.
+- The notification centre intentionally shows no fabricated unread state while
+  no persisted notification model exists. It surfaces current profile and job
+  alert readiness using real account data.
+- The mobile dock now has separate Home, Jobs, Updates (bell), Profile and More
+  destinations when candidate career tools are enabled.
+- The dock already accepts a future unread count and has badge styling ready,
+  but renders no badge until a real count is supplied.
+- Job Alerts moved into the More sheet so email alert preferences stay distinct
+  from in-app notifications.
+- Candidate account tabs now include Profile and Notifications alongside Career,
+  Job Alerts and Privacy.
+- No schema migration or production-data mutation is included in this batch.

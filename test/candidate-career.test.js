@@ -6,7 +6,8 @@ const root = path.join(__dirname, "..");
 const read = (file) => fs.readFileSync(path.join(root, file), "utf8");
 
 test("candidate career tools are disabled unless explicitly enabled", () => {
-  assert.match(read("lib/candidate-access.js"), /CANDIDATE_CAREER_ENABLED === "true"/);
+  assert.match(read("lib/features.js"), /CANDIDATE_CAREER_ENABLED === "true"/);
+  assert.match(read("lib/candidate-access.js"), /candidateCareerEnabled/);
   assert.match(read("app/api/candidate/profile/route.js"), /status: 404/);
 });
 

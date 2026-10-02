@@ -1,6 +1,7 @@
 const cheerio = require("cheerio");
 
 const { cleanText, deduplicateJobs } = require("../lib/jobs");
+const { extractSourceMedia } = require("../lib/source-page");
 
 const COMPANY = "StandardBankGroup";
 const API_ROOT = `https://api.smartrecruiters.com/v1/companies/${COMPANY}/postings`;
@@ -59,19 +60,39 @@ function getCompanyName(posting) {
   return cleanText(companyCode) || "Stanbic Bank Tanzania";
 }
 
-function getOfficialApplyUrl(posting) {
+function isOfficialSmartRecruitersUrl(value) {
   try {
-    const url = new URL(posting.applyUrl);
-    if (
-      url.protocol !== "https:" ||
-      url.hostname.toLowerCase() !== "jobs.smartrecruiters.com"
-    ) {
-      return null;
-    }
-    return url.toString();
+    const url = new URL(value);
+    const host = url.hostname.toLowerCase();
+    return (
+      url.protocol === "https:" &&
+      (
+        host === "jobs.smartrecruiters.com" ||
+        host === "www.smartrecruiters.com" ||
+        host === "smartrecruiters.com"
+      )
+    );
   } catch {
-    return null;
+    return false;
   }
+}
+
+function getOfficialApplyUrl(posting) {
+  return isOfficialSmartRecruitersUrl(posting?.applyUrl)
+    ? new URL(posting.applyUrl).toString()
+    : null;
+}
+
+function getOfficialPostingUrl(posting) {
+  if (isOfficialSmartRecruitersUrl(posting?.postingUrl)) {
+    return new URL(posting.postingUrl).toString();
+  }
+  if (isOfficialSmartRecruitersUrl(posting?.applyUrl)) {
+    const url = new URL(posting.applyUrl);
+    url.searchParams.delete("oga");
+    return url.toString();
+  }
+  return null;
 }
 
 function mapPosting(posting) {
@@ -82,8 +103,9 @@ function mapPosting(posting) {
     return null;
   }
 
-  const sourceUrl = getOfficialApplyUrl(posting);
-  if (!sourceUrl) return null;
+  const sourceUrl = getOfficialPostingUrl(posting);
+  const applicationUrl = getOfficialApplyUrl(posting);
+  if (!sourceUrl || !applicationUrl) return null;
 
   const sections = posting.jobAd?.sections || {};
   const description = [
@@ -94,6 +116,15 @@ function mapPosting(posting) {
     .map(htmlToText)
     .filter(Boolean)
     .join("\n\n");
+
+  const companyDescriptionHtml =
+    posting.jobAd?.sections?.companyDescription?.text || "";
+  const media = extractSourceMedia(companyDescriptionHtml, sourceUrl);
+  const companyLogo =
+    cleanText(posting.company?.logoUrl) ||
+    cleanText(posting.company?.logo) ||
+    media.companyLogo ||
+    null;
 
   return {
     sourceId: `standardbank-${posting.id}`,
@@ -106,6 +137,9 @@ function mapPosting(posting) {
     description,
     type: mapEmploymentType(posting.typeOfEmployment?.label),
     sourceUrl,
+    applicationUrl,
+    companyLogo,
+    representativeImage: media.representativeImage,
     language: posting.language?.code || "en",
   };
 }
@@ -158,6 +192,7 @@ module.exports = {
   API_ROOT,
   collectStandardBankJobs,
   getOfficialApplyUrl,
+  getOfficialPostingUrl,
   htmlToText,
   mapPosting,
 };

@@ -346,3 +346,24 @@ instead of owning duplicate hero, shell, card and tab implementations.
 Page-specific CSS remains appropriate only for genuinely page-specific layout
 or workflow presentation. Refactors must preserve routes, permissions, forms,
 privacy/security boundaries and business logic.
+
+
+## D-027 - Mobile navigation uses a Daraja-owned floating bottom dock
+
+**Status:** accepted
+
+On public and candidate mobile surfaces, Daraja uses one shared floating bottom
+navigation dock rather than duplicating the desktop hamburger menu.
+
+The dock is inspired by modern iOS navigation behaviour and the licensed Jobko
+mobile reference, but it is implemented entirely inside Daraja using Geist,
+Daraja brand tokens, existing routes and the shared UI system.
+
+The first navigation set is Home, Jobs, Alerts and More. The More sheet owns
+secondary public destinations such as Internships, About, Contact, WhatsApp and
+the feature-gated employer entry point.
+
+The dock is not shown on admin, employer, post-job or authentication routes
+until role-specific mobile navigation is deliberately designed. Template-only
+features such as messages or application tracking must not appear until Daraja
+owns the corresponding backend/product capability.

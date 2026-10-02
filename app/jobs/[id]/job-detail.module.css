@@ -156,8 +156,8 @@
 .detailsCard {
   grid-area: details;
   padding: 1.3rem;
-  position: sticky;
-  top: 1rem;
+  position: static;
+  align-self: start;
 }
 
 .detailsList {
@@ -191,6 +191,16 @@
   font-size: 0.8rem;
   font-weight: 600;
   line-height: 1.45;
+}
+
+.sourceLink {
+  color: #087f6c;
+  text-decoration: none;
+}
+
+.sourceLink:hover,
+.sourceLink:focus-visible {
+  text-decoration: underline;
 }
 
 .contentCard {

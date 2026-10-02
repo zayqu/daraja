@@ -97,14 +97,12 @@ function applicationScore(label, url) {
     score = 120;
   } else if (/\bapply\b|\bapplication\b/i.test(text)) {
     score = 90;
-  } else if (/\blog\s*in\b|\bsign\s*in\b|\bregister\b/i.test(text)) {
-    score = 55;
   } else if (/email\s+(?:your\s+)?(?:application|cv)|send\s+(?:your\s+)?cv/i.test(text)) {
     score = 100;
   }
 
-  if (url.startsWith("mailto:")) score += 35;
-  else if (looksLikeApplicationUrl(url)) score += 30;
+  if (score > 0 && url.startsWith("mailto:")) score += 35;
+  else if (score > 0 && looksLikeApplicationUrl(url)) score += 30;
 
   return score;
 }

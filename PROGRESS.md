@@ -669,3 +669,18 @@ Every batch must record:
 - Candidate account tabs now include Profile and Notifications alongside Career,
   Job Alerts and Privacy.
 - No schema migration or production-data mutation is included in this batch.
+
+
+## Current batch: top-right mobile account actions
+
+- Candidate Notifications and Profile no longer occupy bottom-dock slots.
+- The mobile header now owns two icon-only account actions at the top-right:
+  bell → `/account/notifications`, user → `/account/profile`.
+- The bottom dock returns to navigation-only ownership: Home, Jobs,
+  Internships and More.
+- Future unread-count support remains on the bell but no badge is rendered
+  unless a real count is supplied.
+- The user/profile icon remains feature-gated by the existing candidate career
+  flag.
+- No route, schema, permission, authentication or production-data change is
+  included.

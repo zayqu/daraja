@@ -1,22 +1,29 @@
 .nav {
-  position: relative;
-  background: var(--color-navy);
-  z-index: 40;
+  position: sticky;
+  top: 0;
+  z-index: 900;
+  background: rgba(255, 255, 255, .96);
+  border-bottom: 1px solid var(--color-border);
+  box-shadow: 0 1px 0 rgba(27, 42, 63, .02);
+  backdrop-filter: saturate(150%) blur(18px);
+  -webkit-backdrop-filter: saturate(150%) blur(18px);
 }
 
 .bar {
-  height: var(--nav-height);
-  padding: 0 var(--gutter);
+  width: min(100%, calc(var(--content-max) + (var(--gutter) * 2)));
+  min-height: var(--nav-height);
+  margin: 0 auto;
+  padding: .65rem var(--gutter);
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 1rem;
+  gap: 1.5rem;
 }
 
 .logo {
   font-size: 1.4rem;
   font-weight: 700;
-  color: var(--color-teal);
+  color: var(--color-teal-deep);
   letter-spacing: 0.1em;
   text-decoration: none;
   flex-shrink: 0;
@@ -26,10 +33,11 @@
   display: block;
   font-size: 0.55rem;
   font-weight: 400;
-  color: rgba(255, 255, 255, 0.35);
-  letter-spacing: 0.3em;
+  color: #8993a1;
+  letter-spacing: 0.24em;
   text-transform: uppercase;
-  margin-top: 1px;
+  margin-top: 5px;
+  line-height: 1.25;
 }
 
 .search {
@@ -45,22 +53,22 @@
   min-width: 0;
   height: 38px;
   padding: 0 0.9rem;
-  border: 1px solid rgba(255, 255, 255, 0.14);
+  border: 1px solid var(--color-border-strong);
   border-right: none;
   border-radius: var(--radius-input) 0 0 var(--radius-input);
-  background: rgba(255, 255, 255, 0.06);
-  color: #fff;
+  background: #f9fafb;
+  color: var(--color-navy);
   font-size: 0.82rem;
   outline: none;
 }
 
 .searchInput::placeholder {
-  color: rgba(255, 255, 255, 0.4);
+  color: #98a2b3;
 }
 
 .searchInput:focus {
   border-color: var(--color-teal);
-  background: rgba(255, 255, 255, 0.1);
+  background: var(--color-navy);
 }
 
 .searchBtn {
@@ -91,7 +99,7 @@
 .link {
   font-size: 0.8rem;
   font-weight: 500;
-  color: rgba(255, 255, 255, 0.6);
+  color: #667085;
   text-decoration: none;
   letter-spacing: 0.03em;
   transition: color 0.15s;
@@ -100,7 +108,7 @@
 
 .link:hover,
 .link:focus-visible {
-  color: #fff;
+  color: var(--color-navy);
 }
 
 .right {
@@ -136,18 +144,18 @@
   height: 40px;
   display: grid;
   place-items: center;
-  border: 1px solid rgba(255, 255, 255, 0.14);
+  border: 1px solid var(--color-border-strong);
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.06);
-  color: rgba(255, 255, 255, 0.88);
+  background: #fff;
+  color: #667085;
   text-decoration: none;
   -webkit-tap-highlight-color: transparent;
 }
 
 .mobileIconButton:hover,
 .mobileIconButton:focus-visible {
-  border-color: rgba(0, 201, 167, 0.65);
-  background: rgba(0, 201, 167, 0.1);
+  border-color: rgba(0, 201, 167, .42);
+  background: #f0fcf9;
   color: var(--color-teal);
 }
 
@@ -160,7 +168,7 @@
   display: grid;
   place-items: center;
   padding: 0 3px;
-  border: 2px solid var(--color-navy);
+  border: 2px solid #fff;
   border-radius: var(--radius-pill);
   background: #d92d20;
   color: #fff;
@@ -211,8 +219,8 @@
     position: sticky;
     top: 0;
     z-index: 900;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.12);
+    border-bottom: 1px solid var(--color-border);
+    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
   }
 
   .dockManaged .toggle,
@@ -246,8 +254,8 @@
   .dockManaged .mobileIconButton {
     width: 38px;
     height: 38px;
-    border-color: rgba(255, 255, 255, 0.12);
-    background: rgba(255, 255, 255, 0.045);
+    border-color: var(--color-border-strong);
+    background: #fff;
   }
 
   .bar {
@@ -270,8 +278,8 @@
     flex-direction: column;
     align-items: stretch;
     gap: 0;
-    background: var(--color-navy);
-    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    background: #fff;
+    border-top: 1px solid var(--color-border);
     box-shadow: 0 12px 24px rgba(0, 0, 0, 0.18);
     max-height: 0;
     overflow: hidden;
@@ -287,7 +295,7 @@
 
   .link {
     padding: 0.9rem var(--gutter);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    border-bottom: 1px solid var(--color-border);
   }
 
   .right {

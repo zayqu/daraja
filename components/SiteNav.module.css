@@ -163,6 +163,15 @@
 }
 
 @media (max-width: 768px) {
+  .dockManaged .toggle,
+  .dockManaged .links {
+    display: none;
+  }
+
+  .dockManaged .bar {
+    justify-content: flex-start;
+  }
+
   .bar {
     height: 60px;
   }

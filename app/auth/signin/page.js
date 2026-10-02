@@ -2,6 +2,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { auth, authProviders, signIn } from "@/auth";
 import PublicSiteNav from "@/components/PublicSiteNav";
+import PageHero from "@/components/ui/PageHero";
 import styles from "../auth.module.css";
 
 function safeCallback(value) {
@@ -29,16 +30,13 @@ export default async function SignInPage({ searchParams }) {
       <PublicSiteNav />
 
       <main id="main-content">
-        <section className={styles.hero}>
-          <div className={styles.heroInner}>
-            <p className={styles.eyebrow}>Candidate account</p>
-            <h1>Sign in when you need personalised Daraja tools.</h1>
-            <p>
-              Browsing and applying for public jobs stays open without an
-              account. Sign in only for alerts and protected account features.
-            </p>
-          </div>
-        </section>
+        <PageHero
+          eyebrow="Candidate account"
+          title="Sign in when you need personalised Daraja tools."
+          description="Browsing and applying for public jobs stays open without an account. Sign in only for alerts and protected account features."
+          maxWidth="narrow"
+          variant="overlap"
+        />
 
         <div className={styles.cardWrap}>
           <section className={styles.card} aria-labelledby="signin-title">

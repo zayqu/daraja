@@ -34,7 +34,7 @@ export default async function PrivacyPage() {
           <CandidateAccountTabs showCareer={candidateCareerEnabled()} />
 
           <section className={styles.stack} aria-label="Privacy controls">
-            <SurfaceCard as="article">
+            <SurfaceCard as="article" className={styles.privacyCard}>
               <span className={styles.cardLabel}>Export</span>
               <h2>Download my account data</h2>
               <p>
@@ -47,7 +47,7 @@ export default async function PrivacyPage() {
               </a>
             </SurfaceCard>
 
-            <SurfaceCard as="article">
+            <SurfaceCard as="article" className={styles.privacyCard}>
               <span className={styles.cardLabel}>Private by default</span>
               <h2>Candidate documents</h2>
               <p>
@@ -57,7 +57,7 @@ export default async function PrivacyPage() {
               </p>
             </SurfaceCard>
 
-            <SurfaceCard as="article" tone="danger">
+            <SurfaceCard as="article" className={styles.privacyCard} tone="danger">
               <span className={styles.dangerLabel}>Permanent action</span>
               <h2>Delete my account permanently</h2>
               <p>

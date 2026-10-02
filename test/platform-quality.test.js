@@ -220,16 +220,15 @@ test("public pages do not depend on runtime Google Fonts imports", async () => {
 
 
 
-test("homepage career image is the hero background, not a separate blue media card", async () => {
+test("homepage hero uses the light reference canvas rather than a photo background", async () => {
   const home = await readFile(
     path.join(__dirname, "..", "app", "page.js"),
     "utf8"
   );
 
-  assert.match(home, /url\("\/images\/daraja-career-hero\.webp"\)/);
-  assert.match(home, /background-size:\s*cover/);
+  assert.match(home, /background:\s*#fbfaf7/);
+  assert.doesNotMatch(home, /daraja-career-hero\.webp/);
   assert.doesNotMatch(home, /className="hero-visual"/);
-  assert.doesNotMatch(home, /background:\s*#22344b/);
 });
 
 

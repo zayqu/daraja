@@ -38,18 +38,8 @@ export default function Home() {
           position: relative;
           overflow: hidden;
           padding: 5.25rem var(--gutter) 5.5rem;
-          background-image:
-            linear-gradient(
-              90deg,
-              rgba(5, 10, 18, .82) 0%,
-              rgba(5, 10, 18, .66) 42%,
-              rgba(5, 10, 18, .34) 72%,
-              rgba(5, 10, 18, .22) 100%
-            ),
-            url("/images/daraja-career-hero.webp");
-          background-position: center 48%;
-          background-size: cover;
-          background-repeat: no-repeat;
+          background: #fbfaf7;
+          border-bottom: 1px solid #ebe8e1;
         }
 
         .hero-inner {
@@ -83,7 +73,7 @@ export default function Home() {
         .hero h1 {
           max-width: 760px;
           margin: .8rem 0 1rem;
-          color: #fff;
+          color: #1b1f23;
           font-size: clamp(2.4rem, 6vw, 4.5rem);
           line-height: .98;
           letter-spacing: -.045em;
@@ -160,7 +150,7 @@ export default function Home() {
 
         .hero-lead {
           max-width: 620px;
-          color: rgba(255,255,255,.62);
+          color: #667085;
           font-size: 1rem;
           line-height: 1.7;
         }
@@ -173,7 +163,8 @@ export default function Home() {
           padding: .7rem;
           border-radius: 18px;
           background: #fff;
-          box-shadow: 0 18px 45px rgba(8, 18, 31, .18);
+          border: 1px solid #e4e1da;
+          box-shadow: 0 18px 45px rgba(27, 31, 35, .08);
         }
 
         .hero-field {
@@ -208,12 +199,12 @@ export default function Home() {
           flex-wrap: wrap;
           gap: .55rem 1rem;
           margin-top: 1rem;
-          color: rgba(255,255,255,.45);
+          color: #98a2b3;
           font-size: .75rem;
         }
 
         .quick-links a {
-          color: rgba(255,255,255,.72);
+          color: #475467;
           text-decoration: none;
         }
 
@@ -415,10 +406,6 @@ export default function Home() {
         }
 
         @media (max-width: 900px) {
-          .hero {
-            background-position: 58% 50%;
-          }
-
           .hero-layout { display: block; }
           .hero-search { grid-template-columns: 1fr 1fr; }
           .hero-submit { grid-column: 1 / -1; }
@@ -428,15 +415,7 @@ export default function Home() {
         @media (max-width: 640px) {
           .hero {
             padding: 2.5rem var(--gutter) 2.6rem;
-            background-image:
-              linear-gradient(
-                180deg,
-                rgba(5, 10, 18, .78) 0%,
-                rgba(5, 10, 18, .64) 52%,
-                rgba(5, 10, 18, .5) 100%
-              ),
-              url("/images/daraja-career-hero.webp");
-            background-position: 58% center;
+            background: #fbfaf7;
           }
 
           .hero-layout {

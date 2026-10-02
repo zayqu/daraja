@@ -9,6 +9,25 @@ tested vertical releases. The current priority is Phase 0 security and privacy
 hardening before expanding candidate CV, employer, freelance, payment or AI
 workflows.
 
+## Current batch: Homepage hero animation
+
+- The existing homepage hero in `app/page.js` now plays a five-second,
+  CSS-only entrance: eyebrow, headline words, lead, search and popular links
+  stagger in, the "forward." underline draws and the Find jobs button gets one
+  highlight sweep.
+- `components/HomeHeroBridge.js` adds a decorative Daraja ("bridge") visual on
+  desktop: the bridge draws from Talent to Opportunity, travellers cross it and
+  three real category labels appear. It is server-rendered, `aria-hidden`,
+  hidden at 900px and below and has no client JavaScript.
+- The headline animates by transform only (no opacity) so it stays visible for
+  Largest Contentful Paint; all hero animation is disabled under
+  `prefers-reduced-motion: reduce`.
+- The search form, categories and links are unchanged. No schema, data,
+  provider, credential or feature-flag change.
+- Validation is completed by the protected PR workflow before merge; the
+  separate invalid `public/images/daraja-career-hero.webp` asset remains out
+  of scope for this animation PR.
+
 ## Current batch: Phase 0 framework security and release gate
 
 - Next.js is upgraded from `16.2.12` to the patched `16.3.3` release and

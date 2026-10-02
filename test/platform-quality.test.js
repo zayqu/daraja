@@ -231,3 +231,18 @@ test("homepage career image is the hero background, not a separate blue media ca
   assert.doesNotMatch(home, /className="hero-visual"/);
   assert.doesNotMatch(home, /background:\s*#22344b/);
 });
+
+
+test("homepage hero animation is decorative, server-rendered and respects reduced motion", async () => {
+  const home = await readFile(path.join(__dirname, "..", "app", "page.js"), "utf8");
+  const bridge = await readFile(path.join(__dirname, "..", "components", "HomeHeroBridge.js"), "utf8");
+  const bridgeCss = await readFile(path.join(__dirname, "..", "components", "HomeHeroBridge.module.css"), "utf8");
+
+  assert.match(home, /<HomeHeroBridge \/>/);
+  assert.match(home, /prefers-reduced-motion: reduce/);
+  assert.doesNotMatch(home, /hero-word-rise[^}]*opacity/, "headline must stay visible for LCP");
+  assert.doesNotMatch(bridge, /^"use client"/m);
+  assert.match(bridge, /aria-hidden="true"/);
+  assert.match(bridgeCss, /prefers-reduced-motion: reduce/);
+  assert.match(bridgeCss, /@media \(max-width: 900px\)[\s\S]*display: none/);
+});

@@ -1,0 +1,28 @@
+.media {
+  position: relative;
+  display: block;
+  overflow: hidden;
+  background: #e8faf6;
+  color: #087f6c;
+}
+
+.media img {
+  display: block;
+}
+
+.logo img {
+  object-fit: contain;
+  padding: 12%;
+  background: #ffffff;
+}
+
+.photo img {
+  object-fit: cover;
+}
+
+.placeholder {
+  display: grid;
+  place-items: center;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+}

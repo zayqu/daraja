@@ -29,6 +29,9 @@ export async function GET(request, context) {
         salary: true,
         deadline: true,
         sourceUrl: true,
+        applicationUrl: true,
+        companyLogo: true,
+        representativeImage: true,
         source: true,
         createdAt: true,
       },
@@ -45,6 +48,9 @@ export async function GET(request, context) {
         salary: true,
         deadline: true,
         sourceUrl: true,
+        applicationUrl: true,
+        companyLogo: true,
+        representativeImage: true,
         source: true,
         createdAt: true,
       });
@@ -54,16 +60,9 @@ export async function GET(request, context) {
       return NextResponse.json({ error: "Job not found" }, { status: 404 });
     }
 
-    const sourceUrl = job.sourceUrl?.startsWith("mailto:")
-      ? job.sourceUrl
-      : job.sourceUrl
-        ? `/api/jobs/${encodeURIComponent(job.slug || job.id)}/apply`
-        : null;
-
     return NextResponse.json({
       job: {
         ...job,
-        sourceUrl,
         featured: false,
       },
     });

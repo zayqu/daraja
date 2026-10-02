@@ -198,11 +198,12 @@ export default function JobsPageClient({
 
         .jobs-hero {
           padding: 3rem var(--gutter) 3.25rem;
-          background: #1b2a3f;
+          background: #fbfaf7;
+          border-bottom: 1px solid #ebe8e1;
         }
 
         .jobs-hero-inner {
-          max-width: 1080px;
+          max-width: var(--content-max);
           margin: 0 auto;
         }
 
@@ -216,8 +217,9 @@ export default function JobsPageClient({
 
         .jobs-hero h1 {
           margin: .55rem 0 1.45rem;
-          color: #fff;
+          color: var(--color-navy);
           font-size: clamp(2rem, 5vw, 3.25rem);
+          font-weight: 700;
           line-height: 1.05;
           letter-spacing: -.04em;
         }
@@ -259,9 +261,9 @@ export default function JobsPageClient({
         }
 
         .jobs-main {
-          max-width: 1080px;
+          max-width: var(--content-max);
           margin: 0 auto;
-          padding: 2rem var(--gutter) 4rem;
+          padding: 2.25rem var(--gutter) var(--section-padding-block);
         }
 
         .jobs-layout {
@@ -273,7 +275,7 @@ export default function JobsPageClient({
 
         .filters {
           position: sticky;
-          top: 1rem;
+          top: calc(var(--nav-height) + 1rem);
           padding: 1.25rem;
           border: 1px solid #e3e8ee;
           border-radius: 16px;

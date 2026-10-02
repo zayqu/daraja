@@ -5,23 +5,23 @@
 }
 
 .breadcrumb {
-  background: #1b2a3f;
-  padding: 0 var(--gutter) 1rem;
+  background: #fbfaf7;
+  padding: .85rem var(--gutter) .5rem;
 }
 
 .breadcrumbInner {
-  max-width: 1080px;
+  max-width: var(--content-max);
   margin: 0 auto;
   display: flex;
   align-items: center;
   gap: 0.5rem;
   min-width: 0;
-  color: rgba(255, 255, 255, 0.38);
+  color: var(--color-text-faint);
   font-size: 0.72rem;
 }
 
 .breadcrumbInner a {
-  color: rgba(255, 255, 255, 0.55);
+  color: var(--color-text-muted);
   text-decoration: none;
 }
 
@@ -37,12 +37,13 @@
 }
 
 .summary {
-  background: #1b2a3f;
-  padding: 1.35rem var(--gutter) 2.75rem;
+  background: #fbfaf7;
+  padding: 1rem var(--gutter) 2.75rem;
+  border-bottom: 1px solid #ebe8e1;
 }
 
 .summaryInner {
-  max-width: 1080px;
+  max-width: var(--content-max);
   margin: 0 auto;
   display: grid;
   grid-template-columns: auto minmax(0, 1fr) auto;
@@ -69,15 +70,16 @@
 
 .company {
   margin: 0 0 0.35rem;
-  color: rgba(255, 255, 255, 0.58);
+  color: var(--color-text-muted);
   font-size: 0.78rem;
 }
 
 .summaryMain h1 {
   max-width: 760px;
   margin: 0;
-  color: #fff;
+  color: var(--color-navy);
   font-size: clamp(1.8rem, 4vw, 2.75rem);
+  font-weight: 700;
   line-height: 1.08;
   letter-spacing: -0.035em;
 }
@@ -87,7 +89,7 @@
   flex-wrap: wrap;
   gap: 0.45rem 1rem;
   margin-top: 0.85rem;
-  color: rgba(255, 255, 255, 0.56);
+  color: var(--color-text-muted);
   font-size: 0.74rem;
 }
 
@@ -99,7 +101,7 @@
   content: "•";
   position: absolute;
   left: -0.62rem;
-  color: rgba(255, 255, 255, 0.22);
+  color: var(--color-border-strong);
 }
 
 .summaryActions {
@@ -117,9 +119,9 @@
 }
 
 .layout {
-  max-width: 1080px;
+  max-width: var(--content-max);
   margin: 0 auto;
-  padding: 2rem var(--gutter) 4.5rem;
+  padding: 2.25rem var(--gutter) var(--section-padding-block);
   display: grid;
   grid-template-columns: minmax(0, 1fr) 310px;
   grid-template-areas:
@@ -134,7 +136,7 @@
   border: 1px solid #e3e8ee;
   border-radius: 16px;
   background: #fff;
-  box-shadow: 0 1px 0 rgba(16, 24, 40, 0.02);
+  box-shadow: var(--shadow-card);
 }
 
 .cardEyebrow {
@@ -353,7 +355,7 @@
 }
 
 .state {
-  max-width: 1080px;
+  max-width: var(--content-max);
   min-height: 44vh;
   margin: 0 auto;
   padding: 5rem var(--gutter);

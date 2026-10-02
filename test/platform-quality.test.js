@@ -283,3 +283,32 @@ test("privacy consent waits for stored choice before showing and stays compact",
   assert.match(styles, /max-width:\s*44rem/);
   assert.match(styles, /bottom:\s*calc\(74px \+ env\(safe-area-inset-bottom\)\)/);
 });
+
+
+test("shared navigation and layout use the centralized light UI system", async () => {
+  const nav = await readFile(
+    path.join(__dirname, "..", "components", "SiteNav.module.css"),
+    "utf8"
+  );
+  const tokens = await readFile(
+    path.join(__dirname, "..", "styles", "tokens.css"),
+    "utf8"
+  );
+  const pageHero = await readFile(
+    path.join(__dirname, "..", "components", "ui", "PageHero.module.css"),
+    "utf8"
+  );
+  const home = await readFile(
+    path.join(__dirname, "..", "app", "page.js"),
+    "utf8"
+  );
+
+  assert.match(nav, /\.nav\s*\{[\s\S]*position:\s*sticky/);
+  assert.match(nav, /background:\s*rgba\(255, 255, 255, \.96\)/);
+  assert.match(nav, /\.logo span[\s\S]*margin-top:\s*\.38rem/);
+  assert.match(tokens, /--content-max:\s*1120px/);
+  assert.match(tokens, /--section-padding-block:/);
+  assert.match(pageHero, /background:\s*#fbfaf7/);
+  assert.match(home, /\.hero h1[\s\S]*font-weight:\s*700/);
+  assert.doesNotMatch(home, /max-width:\s*1080px/);
+});

@@ -1,7 +1,7 @@
 .alerts {
-  max-width: 1080px;
+  max-width: var(--content-max);
   margin: 0 auto;
-  padding: 3.5rem var(--gutter);
+  padding: var(--section-padding-block) var(--gutter);
 }
 
 .heading {

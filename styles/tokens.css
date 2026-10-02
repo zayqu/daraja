@@ -20,10 +20,11 @@
   --color-success: #087f6c;
 
   /* Layout */
-  --content-max: 1080px;
-  --content-narrow: 900px;
-  --nav-height: 64px;
-  --gutter: 3rem;
+  --content-max: 1120px;
+  --content-narrow: 880px;
+  --nav-height: 72px;
+  --gutter: 2.5rem;
+  --section-padding-block: 4.5rem;
 
   /* Spacing */
   --space-1: 0.25rem;
@@ -67,10 +68,10 @@
   --tracking-caption: 0.02em;
 
   /* Shared workspace UI */
-  --workspace-hero-padding-block: 3.25rem;
-  --workspace-shell-padding-top: 1.5rem;
+  --workspace-hero-padding-block: 3.75rem;
+  --workspace-shell-padding-top: 2rem;
   --workspace-shell-padding-bottom: 4.5rem;
-  --workspace-card-padding: 1.5rem;
+  --workspace-card-padding: 1.6rem;
 
   /* Mobile dock */
   --mobile-dock-max: 420px;
@@ -80,14 +81,15 @@
 
 @media (max-width: 1024px) {
   :root {
-    --gutter: 2rem;
+    --gutter: 1.75rem;
   }
 }
 
 @media (max-width: 640px) {
   :root {
-    --gutter: 1.25rem;
-    --workspace-hero-padding-block: 2.5rem;
+    --gutter: 1.1rem;
+    --section-padding-block: 2.75rem;
+    --workspace-hero-padding-block: 2.75rem;
     --workspace-shell-padding-top: 1.2rem;
     --workspace-card-padding: 1.15rem;
   }

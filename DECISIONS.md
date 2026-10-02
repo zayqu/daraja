@@ -304,21 +304,24 @@ The current Jobtex package is therefore a licensed layout/UX reference, not a
 second frontend or a new application stack.
 
 
-## D-025 - Daraja keeps its established typography
+## D-025 - Daraja uses one canonical application typeface
 
-**Status:** accepted
+**Status:** accepted, updated 2 October 2026
 
-Daraja UI work must preserve the project's established typography rather than
-introducing a template font or a new application-wide typeface during visual
-refactors.
+Daraja UI work must preserve one shared application-wide typeface rather than
+allowing individual pages or licensed references to introduce their own fonts.
 
-The canonical Daraja web typeface is **Geist**, loaded through `next/font/google`
-using `Geist` and `Geist_Mono`, as in the original application baseline.
+The canonical Daraja web typeface is **Poppins**, loaded once through
+`next/font/google` in the root layout and exposed through the shared
+`--font-daraja` design token.
 
-All public, candidate, employer, admin and authentication surfaces inherit the
-Geist sans variable. Arial/Helvetica remain only as fallback fonts. Licensed
-templates may influence layout and interaction only; they must not replace
-Daraja typography.
+All public, candidate, employer, admin and authentication surfaces inherit
+Poppins through that token. Arial/Helvetica remain fallback fonts only.
+Licensed templates may influence layout and interaction, but they must not
+replace or override Daraja typography page by page.
+
+This updates the earlier Geist baseline by explicit product-owner decision; the
+centralized typography rule itself remains unchanged.
 
 
 ## D-026 - Daraja UI uses shared tokens and primitives
@@ -356,7 +359,7 @@ On public and candidate mobile surfaces, Daraja uses one shared floating bottom
 navigation dock rather than duplicating the desktop hamburger menu.
 
 The dock is inspired by modern iOS navigation behaviour and the licensed Jobko
-mobile reference, but it is implemented entirely inside Daraja using Geist,
+mobile reference, but it is implemented entirely inside Daraja using Poppins,
 Daraja brand tokens, existing routes and the shared UI system.
 
 The mobile bottom dock owns primary destinations only: Home, Jobs, Internships

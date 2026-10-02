@@ -753,7 +753,7 @@ Every batch must record:
 - Fixture coverage includes direct application, external ATS, login-required
   application, email application, source-page application form, official logo,
   representative image and no-media fallback.
-- The requested homepage Magnific stock image is selected separately from the
-  application code. Magnific requires a registered download and license record;
-  the licensed asset must be supplied before the homepage hero-image change is
-  activated.
+- The supplied Magnific career image is now stored locally as
+  `public/images/daraja-career-hero.webp` and rendered through `next/image`.
+  The homepage keeps copy/search ownership separate from the image, with a
+  responsive two-column desktop composition and a bounded mobile image block.

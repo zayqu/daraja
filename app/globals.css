@@ -1,6 +1,9 @@
 @import "tailwindcss";
 
 :root {
+  /* Daraja keeps the established project typeface stack across all surfaces. */
+  --font-daraja: "Segoe UI", Arial, Helvetica, sans-serif;
+
   /* Brand tokens shared by marketing pages (home, jobs, job detail, portal shell) */
   --color-navy: #1b2a3f;
   --color-navy-soft: rgba(255, 255, 255, 0.6);
@@ -77,7 +80,7 @@ html {
 }
 
 body {
-  font-family: "Segoe UI", Arial, Helvetica, sans-serif;
+  font-family: var(--font-daraja);
   background-color: #f8fafc;
   color: #1e293b;
   min-width: 320px;
@@ -106,6 +109,19 @@ body {
 .site-footer-links a:hover {
   color: #087f6c;
   text-decoration: underline;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+button,
+input,
+select,
+textarea {
+  font-family: var(--font-daraja);
 }
 
 button,

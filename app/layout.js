@@ -3,6 +3,8 @@ import "./globals.css";
 import PrivacyControls from "@/components/PrivacyControls";
 import SiteFooterLinks from "@/components/SiteFooterLinks";
 import WebVitals from "@/components/WebVitals";
+import MobileDock from "@/components/ui/MobileDock";
+import { employerPortalEnabled } from "@/lib/features";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -45,6 +47,7 @@ export default function RootLayout({ children }) {
   const adsenseClient = process.env.NEXT_PUBLIC_GOOGLE_ADSENSE_CLIENT;
   const analyticsId =
     process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS_ID || "G-89Q157X930";
+  const showEmployerCta = employerPortalEnabled();
 
   return (
     <html lang="en">
@@ -54,6 +57,7 @@ export default function RootLayout({ children }) {
         </a>
         {children}
         <SiteFooterLinks />
+        <MobileDock showEmployerCta={showEmployerCta} />
         <WebVitals analyticsId={analyticsId} />
         <PrivacyControls analyticsId={analyticsId} adsenseClient={adsenseClient} />
       </body>

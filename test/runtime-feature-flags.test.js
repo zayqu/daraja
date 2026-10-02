@@ -11,6 +11,8 @@ test("protected feature-flag pages evaluate configuration at request time", () =
     "app/employer/page.js",
     "app/post-job/page.js",
     "app/account/career/page.js",
+    "app/account/profile/page.js",
+    "app/account/notifications/page.js",
   ]) {
     assert.match(read(path), /export const dynamic = "force-dynamic"/);
   }
@@ -21,12 +23,14 @@ test("runtime activation does not weaken account or role checks", () => {
   const employer = read("app/employer/page.js");
   const postJob = read("app/post-job/page.js");
   const career = read("app/account/career/page.js");
+  const profile = read("app/account/profile/page.js");
 
   assert.match(admin, /employerPortalEnabled\(\)/);
   assert.match(admin, /isAdmin\(actor\)/);
   assert.match(employer, /employerPortalEnabled\(\)/);
   assert.match(postJob, /if \(!actor\.employer\) redirect\("\/employer"\)/);
   assert.match(career, /candidateCareerEnabled\(\)/);
+  assert.match(profile, /candidateCareerEnabled\(\)/);
   assert.match(
     career,
     /redirect\("\/auth\/signin\?callbackUrl=\/account\/career"\)/

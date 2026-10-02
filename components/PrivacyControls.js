@@ -15,7 +15,16 @@ import "./PrivacyControls.css";
 
 function readConsent() {
   if (typeof window === "undefined") return null;
-  const value = window.localStorage.getItem(CONSENT_STORAGE_KEY);
+
+  try {
+    const value = window.localStorage.getItem(CONSENT_STORAGE_KEY);
+    if (value === "accepted" || value === "rejected") return value;
+  } catch {}
+
+  const cookie = document.cookie
+    .split("; ")
+    .find((entry) => entry.startsWith(`${CONSENT_STORAGE_KEY}=`));
+  const value = cookie?.split("=")[1];
   return value === "accepted" || value === "rejected" ? value : null;
 }
 
@@ -36,25 +45,32 @@ function AnalyticsPageViews({ measurementId }) {
 
 export default function PrivacyControls({ analyticsId, adsenseClient }) {
   const [consent, setConsent] = useState(null);
+  const [hasLoadedConsent, setHasLoadedConsent] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
   const analyticsEnabled = isValidGoogleAnalyticsId(analyticsId);
   const adsEnabled = isValidAdSenseClient(adsenseClient);
   const servicesEnabled = analyticsEnabled || adsEnabled;
 
   useEffect(() => {
-    const timer = window.setTimeout(() => setConsent(readConsent()), 0);
+    setConsent(readConsent());
+    setHasLoadedConsent(true);
+
     function openPrivacySettings() {
       setIsOpen(true);
     }
+
     window.addEventListener(PRIVACY_SETTINGS_EVENT, openPrivacySettings);
     return () => {
-      window.clearTimeout(timer);
       window.removeEventListener(PRIVACY_SETTINGS_EVENT, openPrivacySettings);
     };
   }, []);
 
   function saveConsent(value) {
-    window.localStorage.setItem(CONSENT_STORAGE_KEY, value);
+    try {
+      window.localStorage.setItem(CONSENT_STORAGE_KEY, value);
+    } catch {}
+
+    document.cookie = `${CONSENT_STORAGE_KEY}=${value}; Max-Age=31536000; Path=/; Domain=.ajira.daraja.co.tz; SameSite=Lax; Secure`;
     if (typeof window.gtag === "function") {
       const permission = value === "accepted" ? "granted" : "denied";
       window.gtag("consent", "update", {
@@ -126,23 +142,21 @@ export default function PrivacyControls({ analyticsId, adsenseClient }) {
         />
       )}
 
-      {(consent === null || isOpen) && (
+      {hasLoadedConsent && (consent === null || isOpen) && (
         <section className="privacy-banner" aria-labelledby="privacy-title">
-          <div>
-            <h2 id="privacy-title">Your privacy choices</h2>
+          <div className="privacy-copy">
+            <h2 id="privacy-title">Privacy choices</h2>
             <p>
-              Daraja uses optional analytics to improve job discovery and optional
-              advertising to support the service. You can accept or decline these
-              services. Core job search and applications work either way.{" "}
-              <Link href="/privacy">Read our privacy policy</Link>.
+              Optional analytics and ads help us improve Daraja. Job search and
+              applications work either way. <Link href="/privacy">Privacy policy</Link>.
             </p>
           </div>
           <div className="privacy-actions">
             <button type="button" className="privacy-secondary" onClick={() => saveConsent("rejected")}>
-              Decline optional services
+              Decline
             </button>
             <button type="button" className="privacy-primary" onClick={() => saveConsent("accepted")}>
-              Accept and continue
+              Accept
             </button>
           </div>
         </section>

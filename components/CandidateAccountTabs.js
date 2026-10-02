@@ -1,5 +1,4 @@
-import Link from "next/link";
-import styles from "./CandidateAccountTabs.module.css";
+import WorkspaceTabs from "@/components/ui/WorkspaceTabs";
 
 export default function CandidateAccountTabs({ showCareer = false }) {
   const links = [
@@ -8,13 +7,5 @@ export default function CandidateAccountTabs({ showCareer = false }) {
     { href: "/account/privacy", label: "Privacy & data" },
   ];
 
-  return (
-    <nav className={styles.tabs} aria-label="Candidate account">
-      {links.map((link) => (
-        <Link key={link.href} href={link.href}>
-          {link.label}
-        </Link>
-      ))}
-    </nav>
-  );
+  return <WorkspaceTabs links={links} label="Candidate account" />;
 }

@@ -12,13 +12,21 @@ test("candidate account pages share the Jobtex-inspired Daraja account navigatio
   const career = await read("app/account/career/page.js");
   const alerts = await read("app/account/alerts/page.js");
   const privacy = await read("app/account/privacy/page.js");
+  const profile = await read("app/account/profile/page.js");
+  const notifications = await read("app/account/notifications/page.js");
 
+  assert.match(tabs, /\/account\/profile/);
+  assert.match(tabs, /\/account\/notifications/);
   assert.match(tabs, /\/account\/alerts/);
   assert.match(tabs, /\/account\/privacy/);
   assert.match(tabs, /showCareer/);
   assert.match(career, /<CandidateAccountTabs showCareer \/>/);
   assert.match(alerts, /<CandidateAccountTabs showCareer=\{candidateCareerEnabled\(\)\} \/>/);
   assert.match(privacy, /<CandidateAccountTabs showCareer=\{candidateCareerEnabled\(\)\} \/>/);
+  assert.match(profile, /CandidateProfileForm/);
+  assert.match(profile, /candidateProfileSelect/);
+  assert.match(notifications, /You are all caught up/);
+  assert.match(notifications, /will not show fake unread/);
 });
 
 test("candidate career and privacy UI keep protected feature boundaries visible", async () => {

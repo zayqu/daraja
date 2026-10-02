@@ -1,6 +1,8 @@
+import { revalidateTag } from "next/cache";
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { employerPortalEnabled, getActor, isAdmin, safeAuditMetadata } from "@/lib/employer-access";
+import { PUBLIC_JOBS_CACHE_TAG } from "@/lib/public-jobs";
 import { readProtectedJson } from "@/lib/request-security";
 
 const ALLOWED = new Set(["PUBLISHED", "REJECTED", "ARCHIVED"]);
@@ -45,5 +47,6 @@ export async function PATCH(request, { params }) {
     });
     return updated;
   });
+  revalidateTag(PUBLIC_JOBS_CACHE_TAG, "seconds");
   return NextResponse.json({ job });
 }

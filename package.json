@@ -11,7 +11,9 @@
     "scrape": "node scraper/run.js",
     "scrape:dry": "node scraper/run.js --dry-run",
     "scrape:ajira": "node scraper/sources/ajira.js",
-    "scrape:ajira:dry": "node scraper/sources/ajira.js --dry-run"
+    "scrape:ajira:dry": "node scraper/sources/ajira.js --dry-run",
+    "db:migrate:status": "prisma migrate status",
+    "db:migrate:deploy": "prisma migrate deploy"
   },
   "dependencies": {
     "@auth/prisma-adapter": "^2.11.3",

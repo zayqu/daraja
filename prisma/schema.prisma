@@ -168,6 +168,9 @@ model Job {
   salary           String?
   deadline         DateTime?
   sourceUrl        String?
+  applicationUrl   String?
+  companyLogo      String?
+  representativeImage String?
   source           String              @default("daraja")
   language         String              @default("en")
   featured         Boolean             @default(false)

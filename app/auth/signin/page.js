@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { auth, authProviders, signIn } from "@/auth";
 import PublicSiteNav from "@/components/PublicSiteNav";
 import PageHero from "@/components/ui/PageHero";
+import SurfaceCard from "@/components/ui/SurfaceCard";
 import styles from "../auth.module.css";
 
 function safeCallback(value) {
@@ -39,7 +40,7 @@ export default async function SignInPage({ searchParams }) {
         />
 
         <div className={styles.cardWrap}>
-          <section className={styles.card} aria-labelledby="signin-title">
+          <SurfaceCard className={styles.card} aria-labelledby="signin-title">
             <div className={styles.cardHeader}>
               <Link href="/jobs" className={styles.brand}>DARAJA</Link>
               <h2 id="signin-title">Access your candidate account</h2>
@@ -104,7 +105,7 @@ export default async function SignInPage({ searchParams }) {
               <Link href="/terms">Terms</Link> and acknowledge the privacy
               information on our <Link href="/privacy">Privacy page</Link>.
             </p>
-          </section>
+          </SurfaceCard>
         </div>
       </main>
     </div>

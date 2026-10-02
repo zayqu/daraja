@@ -1,7 +1,10 @@
 const cheerio = require("cheerio");
 
-const { buildEmailApplicationUrl } = require("../lib/applications");
 const { cleanText, deduplicateJobs } = require("../lib/jobs");
+const {
+  extractSourceMedia,
+  extractSourcePageMetadata,
+} = require("../lib/source-page");
 
 const AJIRAWEB_FEED_URL = "https://ajiraweb.com/feed/";
 const REQUEST_TIMEOUT_MS = 60000;
@@ -160,6 +163,12 @@ function extractEmailApplicationJobs(articleTitle, articleUrl, html) {
     getLabeledValue($, "Application Deadline") ||
     extractDeadline(htmlToText(html));
   const jobs = [];
+  const media = extractSourceMedia(html, articleUrl);
+  const emailApplicationUrl =
+    `mailto:${email}` +
+    (employerSubject
+      ? `?subject=${encodeURIComponent(employerSubject)}`
+      : "");
 
   for (const heading of $("h3").toArray()) {
     const headingText = cleanText($(heading).text());
@@ -181,12 +190,10 @@ function extractEmailApplicationJobs(articleTitle, articleUrl, html) {
       location,
       description: instructions,
       deadline,
-      sourceUrl: buildEmailApplicationUrl({
-        email,
-        title,
-        company,
-        subject: employerSubject,
-      }),
+      sourceUrl: articleUrl,
+      applicationUrl: emailApplicationUrl,
+      companyLogo: media.companyLogo,
+      representativeImage: media.representativeImage,
     });
   }
 
@@ -207,12 +214,10 @@ function extractEmailApplicationJobs(articleTitle, articleUrl, html) {
         location,
         description: `Apply for the ${title} position at ${company}.`,
         deadline,
-        sourceUrl: buildEmailApplicationUrl({
-          email,
-          title,
-          company,
-          subject: employerSubject,
-        }),
+        sourceUrl: articleUrl,
+        applicationUrl: emailApplicationUrl,
+        companyLogo: media.companyLogo,
+        representativeImage: media.representativeImage,
       };
     })
     .get()
@@ -287,6 +292,12 @@ async function fetchStandardBankJob(sourceUrl, fetchFn) {
     .filter(Boolean)
     .join("\n\n");
 
+  const sourceJobUrl = posting.postingUrl || url.toString();
+  const media = extractSourceMedia(
+    sections.companyDescription?.text || "",
+    sourceJobUrl
+  );
+
   return {
     sourceId: `standardbank-${posting.id}`,
     title: posting.name,
@@ -294,7 +305,14 @@ async function fetchStandardBankJob(sourceUrl, fetchFn) {
     location: posting.location?.fullLocation || "Tanzania",
     description,
     type: mapEmploymentType(posting.typeOfEmployment?.label),
-    sourceUrl: posting.applyUrl || posting.postingUrl || url.toString(),
+    sourceUrl: sourceJobUrl,
+    applicationUrl: posting.applyUrl || null,
+    companyLogo:
+      cleanText(posting.company?.logoUrl) ||
+      cleanText(posting.company?.logo) ||
+      media.companyLogo ||
+      null,
+    representativeImage: media.representativeImage,
   };
 }
 
@@ -310,8 +328,10 @@ async function fetchStructuredJob(sourceUrl, fetchFn) {
     return null;
   }
 
-  const posting = getJobPostingJson(await response.text());
+  const html = await response.text();
+  const posting = getJobPostingJson(html);
   if (!posting?.title || !posting?.description) return null;
+  const sourceMetadata = extractSourcePageMetadata(html, sourceUrl);
 
   const country =
     posting.jobLocation?.address?.addressCountry ||
@@ -336,6 +356,9 @@ async function fetchStructuredJob(sourceUrl, fetchFn) {
     deadline: posting.validThrough || null,
     type: mapEmploymentType(posting.employmentType),
     sourceUrl,
+    applicationUrl: sourceMetadata.applicationUrl,
+    companyLogo: sourceMetadata.companyLogo,
+    representativeImage: sourceMetadata.representativeImage,
   };
 }
 

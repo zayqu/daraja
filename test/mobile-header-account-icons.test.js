@@ -21,6 +21,9 @@ test("mobile header owns notification and profile icon actions", async () => {
   assert.match(nav, /<NavIcon name="user" \/>/);
   assert.match(styles, /\.mobileAccountActions/);
   assert.match(styles, /\.mobileIconButton/);
+  assert.match(styles, /\.dockManaged\.nav\s*\{/);
+  assert.match(styles, /position:\s*sticky/);
+  assert.match(styles, /top:\s*0/);
 });
 
 test("mobile account actions are icon-only and keep future unread badge support", async () => {

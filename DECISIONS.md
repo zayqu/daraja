@@ -302,3 +302,20 @@ obsolete Daraja UI in the same change when a clean replacement is made.
 
 The current Jobtex package is therefore a licensed layout/UX reference, not a
 second frontend or a new application stack.
+
+
+## D-025 - Daraja keeps its established typography
+
+**Status:** accepted
+
+Daraja UI work must preserve the project's established typography rather than
+introducing a template font or a new application-wide typeface during visual
+refactors.
+
+The canonical web stack is:
+
+`"Segoe UI", Arial, Helvetica, sans-serif`
+
+All public, candidate, employer, admin and authentication surfaces inherit that
+same stack. Licensed templates may influence layout and interaction only; they
+must not replace Daraja typography.

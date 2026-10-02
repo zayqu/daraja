@@ -1,10 +1,15 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import {
+  PRIVACY_SETTINGS_EVENT,
   isValidAdSenseClient,
   isValidAdSenseSlot,
   isValidGoogleAnalyticsId,
 } from "../lib/google-services.js";
+
+test("exposes a stable explicit privacy settings event", () => {
+  assert.equal(PRIVACY_SETTINGS_EVENT, "daraja:privacy-settings-open");
+});
 
 test("accepts production-shaped Google Analytics measurement IDs", () => {
   assert.equal(isValidGoogleAnalyticsId("G-ABC1234"), true);

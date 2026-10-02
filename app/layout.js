@@ -5,6 +5,7 @@ import SiteFooterLinks from "@/components/SiteFooterLinks";
 import WebVitals from "@/components/WebVitals";
 import MobileDock from "@/components/ui/MobileDock";
 import { employerPortalEnabled } from "@/lib/features";
+import { candidateCareerEnabled } from "@/lib/candidate-access";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -54,6 +55,7 @@ export default function RootLayout({ children }) {
   const analyticsId =
     process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS_ID || "G-89Q157X930";
   const showEmployerCta = employerPortalEnabled();
+  const showCandidateProfile = candidateCareerEnabled();
 
   return (
     <html lang="en">
@@ -63,7 +65,7 @@ export default function RootLayout({ children }) {
         </a>
         {children}
         <SiteFooterLinks />
-        <MobileDock showEmployerCta={showEmployerCta} />
+        <MobileDock showEmployerCta={showEmployerCta} showCandidateProfile={showCandidateProfile} />
         <WebVitals analyticsId={analyticsId} />
         <PrivacyControls analyticsId={analyticsId} adsenseClient={adsenseClient} />
       </body>

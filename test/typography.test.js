@@ -30,6 +30,7 @@ test("Daraja uses the shared Poppins typography stack across the app", async () 
   assert.match(layout, /import \{ Poppins \} from "next\/font\/google"/);
   assert.match(layout, /--font-poppins/);
   assert.match(layout, /className=\{poppins\.variable\}/);
+  assert.match(layout, /weight:\s*\["400", "500", "600", "700", "800"\]/);
   const privacyPage = await readFile(
     path.join(__dirname, "..", "app", "privacy", "page.js"),
     "utf8",

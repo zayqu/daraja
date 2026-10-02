@@ -17,16 +17,13 @@ test("root layout mounts the shared mobile dock with iPhone safe-area support", 
   assert.match(dock, /aria-label="Mobile navigation"/);
   assert.match(dock, /Home/);
   assert.match(dock, /Jobs/);
-  assert.match(dock, /\/account\/notifications/);
-  assert.match(dock, /\/account\/profile/);
-  assert.match(dock, /notificationCount/);
-  assert.match(dock, /Updates/);
-  assert.match(dock, /Profile/);
+  assert.doesNotMatch(dock, /\/account\/notifications/);
+  assert.doesNotMatch(dock, /\/account\/profile/);
+  assert.match(dock, /Internships/);
   assert.match(dock, /More/);
   assert.match(styles, /env\(safe-area-inset-bottom\)/);
   assert.match(styles, /backdrop-filter:/);
   assert.match(styles, /--dock-item-count/);
-  assert.match(styles, /\.badge/);
   assert.doesNotMatch(styles, /linear-gradient|radial-gradient/);
 });
 

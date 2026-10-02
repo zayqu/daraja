@@ -30,7 +30,7 @@ Useful patterns observed:
 
 Daraja decision:
 - adopt a shared floating mobile bottom dock now
-- keep the dock Daraja-owned: Geist, Daraja navy/teal, no template branding
+- keep the dock Daraja-owned: Poppins, Daraja navy/teal, no template branding
 - use only routes Daraja actually owns today
 - do not expose messages, application tracking, uploads or other template
   features until the corresponding Daraja backend/product feature exists

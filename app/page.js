@@ -4,6 +4,16 @@ import PublicSiteNav from "@/components/PublicSiteNav";
 import { employerPortalEnabled } from "@/lib/features";
 import { JOB_CATEGORIES } from "@/lib/job-categories";
 import SiteFooter from "@/components/SiteFooter";
+import HomeHeroBridge from "@/components/HomeHeroBridge";
+
+const HERO_HEADLINE = [
+  { word: "Find" },
+  { word: "work" },
+  { word: "that" },
+  { word: "moves", accent: true },
+  { word: "you", accent: true },
+  { word: "forward.", accent: true, underline: true },
+];
 
 const FEATURED_CATEGORIES = new Set([
   "Government",
@@ -50,6 +60,10 @@ export default function Home() {
         }
 
         .hero-layout {
+          display: grid;
+          grid-template-columns: minmax(0, 720px) minmax(260px, 1fr);
+          align-items: center;
+          gap: 2rem;
           margin-bottom: 2rem;
         }
 
@@ -75,7 +89,74 @@ export default function Home() {
           letter-spacing: -.045em;
         }
 
-        .hero h1 span { color: #00c9a7; }
+        .hero h1 .hero-word {
+          display: inline-block;
+          animation: hero-word-rise .7s cubic-bezier(.22, 1, .36, 1) backwards;
+        }
+
+        .hero h1 .hero-accent { color: #00c9a7; }
+
+        .hero h1 .hero-underline {
+          position: relative;
+        }
+
+        .hero h1 .hero-underline::after {
+          content: "";
+          position: absolute;
+          left: 0;
+          right: .12em;
+          bottom: -.04em;
+          height: .07em;
+          border-radius: 999px;
+          background: #00c9a7;
+          opacity: .45;
+          transform-origin: left center;
+          animation: hero-underline-draw .5s cubic-bezier(.65, 0, .35, 1) 1.15s backwards;
+        }
+
+        .hero-eyebrow { animation: hero-fade-up .6s ease-out .05s backwards; }
+        .hero-lead { animation: hero-fade-up .6s ease-out .65s backwards; }
+        .hero-search { animation: hero-fade-up .6s ease-out .9s backwards; }
+        .quick-links { animation: hero-fade-up .5s ease-out 1.3s backwards; }
+
+        .hero-submit {
+          position: relative;
+          overflow: hidden;
+        }
+
+        .hero-submit::after {
+          content: "";
+          position: absolute;
+          inset: 0;
+          background: linear-gradient(100deg, transparent 30%, rgba(255,255,255,.55) 50%, transparent 70%);
+          transform: translateX(-120%);
+          animation: hero-shine .8s ease-in-out 3.9s 1;
+          pointer-events: none;
+        }
+
+        @keyframes hero-word-rise {
+          from { transform: translateY(.35em); }
+        }
+
+        @keyframes hero-underline-draw {
+          from { transform: scaleX(0); }
+        }
+
+        @keyframes hero-fade-up {
+          from { opacity: 0; transform: translateY(14px); }
+        }
+
+        @keyframes hero-shine {
+          to { transform: translateX(120%); }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+          .hero *,
+          .hero *::before,
+          .hero *::after {
+            animation: none !important;
+          }
+        }
 
         .hero-lead {
           max-width: 620px;
@@ -338,6 +419,7 @@ export default function Home() {
             background-position: 58% 50%;
           }
 
+          .hero-layout { display: block; }
           .hero-search { grid-template-columns: 1fr 1fr; }
           .hero-submit { grid-column: 1 / -1; }
           .category-grid { grid-template-columns: repeat(3, 1fr); }
@@ -543,7 +625,19 @@ export default function Home() {
                 <div className="hero-copy">
                   <div className="hero-eyebrow">Kazi na fursa Tanzania</div>
                   <h1>
-                    Find work that <span>moves you forward.</span>
+                    {HERO_HEADLINE.map(({ word, accent, underline }, index) => (
+                      <span
+                        key={word}
+                        className={[
+                          "hero-word",
+                          accent && "hero-accent",
+                          underline && "hero-underline",
+                        ].filter(Boolean).join(" ")}
+                        style={{ animationDelay: `${0.15 + index * 0.08}s` }}
+                      >
+                        {word}
+                      </span>
+                    )).reduce((line, word) => (line.length ? [...line, " ", word] : [word]), [])}
                   </h1>
                   <p className="hero-lead">
                     Search current opportunities from government, NGOs, banks,
@@ -551,6 +645,7 @@ export default function Home() {
                   </p>
                 </div>
 
+                <HomeHeroBridge />
               </div>
 
               <form action="/jobs" method="get" className="hero-search" role="search">

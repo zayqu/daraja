@@ -40,7 +40,7 @@ export default async function EmployerPage() {
           description="Keep employer verification, vacancy submission and review status in one protected workspace."
         />
 
-        <WorkspaceShell>
+        <WorkspaceShell className={styles.formScope}>
           <EmployerPortalTabs showAdmin={isAdmin(actor)} />
 
           <section className={styles.summaryStrip}>
@@ -57,7 +57,7 @@ export default async function EmployerPage() {
           </section>
 
           <section className={styles.grid} aria-label="Employer workspace">
-            <SurfaceCard as="article">
+            <SurfaceCard as="article" className={styles.portalCard}>
               <span className={styles.cardLabel}>Trust & verification</span>
               <h2>Employer verification</h2>
               <p>
@@ -68,7 +68,7 @@ export default async function EmployerPage() {
               {!actor.employer && <EmployerProfileForm />}
             </SurfaceCard>
 
-            <SurfaceCard as="article">
+            <SurfaceCard as="article" className={styles.portalCard}>
               <span className={styles.cardLabel}>Vacancies</span>
               <h2>Publish a position</h2>
               {actor.employer ? (
@@ -89,7 +89,7 @@ export default async function EmployerPage() {
               )}
             </SurfaceCard>
 
-            <SurfaceCard as="article">
+            <SurfaceCard as="article" className={styles.portalCard}>
               <span className={styles.cardLabel}>Current access</span>
               <h2>What this workspace controls</h2>
               <ul>
@@ -99,7 +99,7 @@ export default async function EmployerPage() {
               </ul>
             </SurfaceCard>
 
-            <SurfaceCard as="article">
+            <SurfaceCard as="article" className={styles.portalCard}>
               <span className={styles.cardLabel}>Candidate privacy</span>
               <h2>Protected candidate access</h2>
               <p>

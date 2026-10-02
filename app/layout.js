@@ -4,8 +4,7 @@ import PrivacyControls from "@/components/PrivacyControls";
 import SiteFooterLinks from "@/components/SiteFooterLinks";
 import WebVitals from "@/components/WebVitals";
 import MobileDock from "@/components/ui/MobileDock";
-import { employerPortalEnabled } from "@/lib/features";
-import { candidateCareerEnabled } from "@/lib/candidate-access";
+import { candidateCareerEnabled, employerPortalEnabled } from "@/lib/features";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",

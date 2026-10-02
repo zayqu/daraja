@@ -28,6 +28,17 @@ workflows.
   separate invalid `public/images/daraja-career-hero.webp` asset remains out
   of scope for this animation PR.
 
+## Current batch: original Daraja favicon
+
+- The browser favicon now uses the exact 48x48 PNG supplied by the project owner
+  at `app/icon.png`, using Next.js file-based metadata rather than an external
+  URL or starter favicon.
+- No third-party domain, generated replacement or unrelated brand asset is used.
+- The 1024x1024 standard/adaptive icon files supplied in the same handoff are
+  intentionally not wired yet because Daraja does not currently publish a PWA
+  manifest; they remain separate from this focused browser-favicon change.
+- This batch changes no route, schema, data, provider, credential or feature flag.
+
 ## Current batch: Phase 0 framework security and release gate
 
 - Next.js is upgraded from `16.2.12` to the patched `16.3.3` release and

@@ -22,8 +22,9 @@
   /* Layout */
   --content-max: 1080px;
   --content-narrow: 900px;
-  --nav-height: 64px;
+  --nav-height: 76px;
   --gutter: 3rem;
+  --section-space: 4.5rem;
 
   /* Spacing */
   --space-1: 0.25rem;
@@ -81,12 +82,14 @@
 @media (max-width: 1024px) {
   :root {
     --gutter: 2rem;
+    --section-space: 3.75rem;
   }
 }
 
 @media (max-width: 640px) {
   :root {
     --gutter: 1.25rem;
+    --section-space: 2.5rem;
     --workspace-hero-padding-block: 2.5rem;
     --workspace-shell-padding-top: 1.2rem;
     --workspace-card-padding: 1.15rem;

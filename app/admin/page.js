@@ -32,7 +32,7 @@ export default async function AdminPage() {
           description="Review employer trust, make publication decisions and preserve an auditable moderation trail."
         />
 
-        <WorkspaceShell>
+        <WorkspaceShell className={styles.formScope}>
           <EmployerPortalTabs showAdmin />
 
           <section className={styles.summaryStrip}>
@@ -47,7 +47,7 @@ export default async function AdminPage() {
           </section>
 
           <section className={styles.grid} aria-label="Administration safeguards">
-            <SurfaceCard as="article">
+            <SurfaceCard as="article" className={styles.portalCard}>
               <span className={styles.cardLabel}>Employer trust</span>
               <h2>Verification decisions</h2>
               <p>
@@ -57,7 +57,7 @@ export default async function AdminPage() {
               </p>
             </SurfaceCard>
 
-            <SurfaceCard as="article">
+            <SurfaceCard as="article" className={styles.portalCard}>
               <span className={styles.cardLabel}>Vacancy trust</span>
               <h2>Moderation decisions</h2>
               <p>
@@ -67,7 +67,7 @@ export default async function AdminPage() {
               </p>
             </SurfaceCard>
 
-            <SurfaceCard as="article">
+            <SurfaceCard as="article" className={styles.portalCard}>
               <span className={styles.cardLabel}>Security boundary</span>
               <h2>Protected writes</h2>
               <ul>
@@ -77,7 +77,7 @@ export default async function AdminPage() {
               </ul>
             </SurfaceCard>
 
-            <SurfaceCard as="article">
+            <SurfaceCard as="article" className={styles.portalCard}>
               <span className={styles.cardLabel}>Human control</span>
               <h2>Consequential decisions</h2>
               <p>

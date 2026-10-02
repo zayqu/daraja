@@ -40,3 +40,15 @@ test("public jobs API and server page share one database read owner", async () =
   assert.match(query, /featured: "desc"/);
   assert.match(query, /createdAt: "desc"/);
 });
+
+test("public job reads use a short shared cache without changing lifecycle ownership", async () => {
+  const query = await read("lib/public-jobs.js");
+  const moderation = await read("app/api/admin/jobs/[id]/moderate/route.js");
+
+  assert.match(query, /unstable_cache/);
+  assert.match(query, /PUBLIC_JOBS_CACHE_SECONDS = 30/);
+  assert.match(query, /revalidate: PUBLIC_JOBS_CACHE_SECONDS/);
+  assert.match(query, /tags: \[PUBLIC_JOBS_CACHE_TAG\]/);
+  assert.match(query, /buildPublicJobWhere/);
+  assert.match(moderation, /revalidateTag\(PUBLIC_JOBS_CACHE_TAG, "seconds"\)/);
+});

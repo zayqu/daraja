@@ -37,11 +37,20 @@ function Icon({ name }) {
     );
   }
 
-  if (name === "alerts") {
+  if (name === "notifications") {
     return (
       <svg {...common}>
         <path d="M18 9a6 6 0 1 0-12 0c0 7-3 7-3 8.5h18C21 16 18 16 18 9Z" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round" />
         <path d="M9.5 20.5h5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+      </svg>
+    );
+  }
+
+  if (name === "profile") {
+    return (
+      <svg {...common}>
+        <circle cx="12" cy="8" r="3.25" stroke="currentColor" strokeWidth="1.8" />
+        <path d="M5.5 20c.55-4.1 2.7-6.15 6.5-6.15S17.95 15.9 18.5 20" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
       </svg>
     );
   }
@@ -59,7 +68,7 @@ function Icon({ name }) {
   return null;
 }
 
-export default function MobileDock({ showEmployerCta = false }) {
+export default function MobileDock({ showEmployerCta = false, showCandidateProfile = false, notificationCount = 0 }) {
   const pathname = usePathname();
   const [moreOpen, setMoreOpen] = useState(false);
 
@@ -85,12 +94,25 @@ export default function MobileDock({ showEmployerCta = false }) {
       active: pathname.startsWith("/jobs"),
     },
     {
-      href: "/account/alerts",
-      label: "Alerts",
-      icon: "alerts",
-      active: pathname.startsWith("/account"),
+      href: "/account/notifications",
+      label: "Updates",
+      icon: "notifications",
+      active: pathname === "/account/notifications",
+      badge: notificationCount > 0 ? notificationCount : 0,
     },
+    ...(showCandidateProfile
+      ? [
+          {
+            href: "/account/profile",
+            label: "Profile",
+            icon: "profile",
+            active: pathname === "/account/profile",
+          },
+        ]
+      : []),
   ];
+
+  const dockItemCount = items.length + 1;
 
   return (
     <>
@@ -117,6 +139,17 @@ export default function MobileDock({ showEmployerCta = false }) {
             </div>
 
             <nav className={styles.sheetLinks}>
+              {showCandidateProfile && (
+                <Link href="/account/career" onClick={() => setMoreOpen(false)}>
+                  Career workspace
+                </Link>
+              )}
+              <Link href="/account/alerts" onClick={() => setMoreOpen(false)}>
+                Job alerts
+              </Link>
+              <Link href="/account/privacy" onClick={() => setMoreOpen(false)}>
+                Privacy & data
+              </Link>
               <Link href="/jobs?category=Internships%20%26%20Graduate%20Programs">
                 Internships
               </Link>
@@ -132,7 +165,7 @@ export default function MobileDock({ showEmployerCta = false }) {
       )}
 
       <nav className={styles.dockWrap} aria-label="Mobile navigation">
-        <div className={styles.dock}>
+        <div className={styles.dock} style={{ "--dock-item-count": dockItemCount }}>
           {items.map((item) => (
             <Link
               key={item.href}
@@ -143,6 +176,11 @@ export default function MobileDock({ showEmployerCta = false }) {
             >
               <span className={styles.iconWrap}>
                 <Icon name={item.icon} />
+                {item.badge ? (
+                  <span className={styles.badge} aria-label={`${item.badge} unread notifications`}>
+                    {item.badge > 99 ? "99+" : item.badge}
+                  </span>
+                ) : null}
               </span>
               <span className={styles.label}>{item.label}</span>
             </Link>

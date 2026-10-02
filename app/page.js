@@ -37,13 +37,13 @@ export default function Home() {
         .hero {
           position: relative;
           overflow: hidden;
-          padding: 5.25rem var(--gutter) 5.5rem;
+          padding: 4.75rem var(--gutter) 5rem;
           background: #fbfaf7;
           border-bottom: 1px solid #ebe8e1;
         }
 
         .hero-inner {
-          max-width: 1080px;
+          max-width: var(--content-max);
           margin: 0 auto;
           position: relative;
           z-index: 1;
@@ -53,8 +53,8 @@ export default function Home() {
           display: grid;
           grid-template-columns: minmax(0, 720px) minmax(260px, 1fr);
           align-items: center;
-          gap: 2rem;
-          margin-bottom: 2rem;
+          gap: 3.5rem;
+          margin-bottom: 2.25rem;
         }
 
         .hero-copy {
@@ -74,9 +74,10 @@ export default function Home() {
           max-width: 760px;
           margin: .8rem 0 1rem;
           color: #1b1f23;
-          font-size: clamp(2.4rem, 6vw, 4.5rem);
-          line-height: .98;
-          letter-spacing: -.045em;
+          font-size: clamp(2.45rem, 5.7vw, 4.35rem);
+          font-weight: 700;
+          line-height: 1.01;
+          letter-spacing: -.04em;
         }
 
         .hero h1 .hero-word {
@@ -153,17 +154,17 @@ export default function Home() {
         }
 
         .hero-lead {
-          max-width: 620px;
+          max-width: 600px;
           color: #667085;
-          font-size: 1rem;
-          line-height: 1.7;
+          font-size: .98rem;
+          line-height: 1.65;
         }
 
         .hero-search {
           display: grid;
           grid-template-columns: minmax(0, 1.7fr) minmax(220px, .8fr) auto;
           gap: .65rem;
-          max-width: 940px;
+          max-width: 920px;
           padding: .7rem;
           border-radius: 18px;
           background: #fff;
@@ -222,9 +223,9 @@ export default function Home() {
         }
 
         .trust-inner {
-          max-width: 1080px;
+          max-width: var(--content-max);
           margin: 0 auto;
-          padding: 1.35rem var(--gutter);
+          padding: 1.25rem var(--gutter);
           display: grid;
           grid-template-columns: repeat(4, 1fr);
           gap: 1rem;
@@ -250,9 +251,9 @@ export default function Home() {
         }
 
         .section {
-          max-width: 1080px;
+          max-width: var(--content-max);
           margin: 0 auto;
-          padding: 4.25rem var(--gutter);
+          padding: var(--section-space) var(--gutter);
         }
 
         .section-head {
@@ -260,7 +261,7 @@ export default function Home() {
           align-items: end;
           justify-content: space-between;
           gap: 1.5rem;
-          margin-bottom: 1.8rem;
+          margin-bottom: 2rem;
         }
 
         .section-title {
@@ -281,7 +282,7 @@ export default function Home() {
         .category-grid {
           display: grid;
           grid-template-columns: repeat(4, minmax(0, 1fr));
-          gap: .85rem;
+          gap: 1rem;
         }
 
         .category-card {
@@ -289,7 +290,7 @@ export default function Home() {
           display: flex;
           flex-direction: column;
           justify-content: space-between;
-          padding: 1.25rem;
+          padding: 1.35rem;
           border: 1px solid #e3e8ee;
           border-radius: 16px;
           background: #fff;
@@ -374,8 +375,8 @@ export default function Home() {
         }
 
         .employer-strip {
-          max-width: 1080px;
-          margin: 0 auto 4.25rem;
+          max-width: var(--content-max);
+          margin: 0 auto var(--section-space);
           padding: 0 var(--gutter);
         }
 

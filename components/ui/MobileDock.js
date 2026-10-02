@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { mobileDockEnabledPath } from "@/lib/mobile-navigation";
 import NavIcon from "@/components/ui/NavIcon";
+import { PRIVACY_SETTINGS_EVENT } from "@/lib/google-services";
 import styles from "./MobileDock.module.css";
 
 const WHATSAPP_CHANNEL =
@@ -84,6 +85,15 @@ export default function MobileDock({
               <Link href="/account/privacy" onClick={() => setMoreOpen(false)}>
                 Privacy & data
               </Link>
+              <button
+                type="button"
+                onClick={() => {
+                  setMoreOpen(false);
+                  window.dispatchEvent(new Event(PRIVACY_SETTINGS_EVENT));
+                }}
+              >
+                Privacy choices
+              </button>
               <Link href="/jobs?category=Internships%20%26%20Graduate%20Programs" onClick={() => setMoreOpen(false)}>
                 Internships
               </Link>

@@ -1,0 +1,9 @@
+.shell {
+  width: min(var(--content-max), calc(100% - 2rem));
+  margin: 0 auto;
+  padding: var(--workspace-shell-padding-top) 0 var(--workspace-shell-padding-bottom);
+}
+
+.narrow {
+  width: min(var(--content-narrow), calc(100% - 2rem));
+}

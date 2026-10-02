@@ -628,3 +628,22 @@ Every batch must record:
   brand/layout values now come from tokens.
 - This is a schema-free refactor. No route, API, provider, permission,
   authentication, database or production-data behaviour changes.
+
+
+## Current batch: mobile bottom navigation and template reference map
+
+- The Jobko mobile template and Jobi dashboard template were reviewed as
+  interaction references alongside Jobtex.
+- `docs/UI_REFERENCE_MAP.md` now records which patterns Daraja adopts,
+  defers or rejects.
+- A shared `components/ui/MobileDock` provides the public/candidate mobile
+  navigation using Home, Jobs, Alerts and More.
+- Secondary destinations live in the More sheet rather than crowding the dock.
+- The dock is rendered from the root layout, uses the centralized Daraja tokens,
+  respects iPhone safe-area insets and does not use gradients or template fonts.
+- Public/candidate mobile routes no longer need the duplicate hamburger
+  navigation while the dock is active.
+- Employer, admin, post-job and authentication routes keep their existing
+  navigation until dedicated role-specific mobile navigation is approved.
+- This batch changes no route ownership, database state, permissions,
+  authentication, provider configuration or business logic.

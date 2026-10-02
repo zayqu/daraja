@@ -71,6 +71,11 @@
   --workspace-shell-padding-top: 1.5rem;
   --workspace-shell-padding-bottom: 4.5rem;
   --workspace-card-padding: 1.5rem;
+
+  /* Mobile dock */
+  --mobile-dock-max: 420px;
+  --mobile-dock-radius: 26px;
+  --mobile-dock-height: 70px;
 }
 
 @media (max-width: 1024px) {

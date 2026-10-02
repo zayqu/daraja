@@ -63,4 +63,10 @@ test("mobile jobs discovery keeps filters out of the primary page flow", async (
   assert.match(client, /filters-open/);
   assert.match(client, /Show \{pagination\.total \|\| 0\} opportunities/);
   assert.match(client, /position: fixed;/);
+  assert.match(client, /top:\s*50%/);
+  assert.match(client, /left:\s*50%/);
+  assert.match(client, /translate\(-50%, -50%\)/);
+  assert.match(client, /document\.body/);
+  assert.match(client, /body\.style\.overflow = "hidden"/);
+  assert.match(client, /JobBrandMedia/);
 });

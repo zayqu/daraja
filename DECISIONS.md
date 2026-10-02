@@ -359,9 +359,14 @@ The dock is inspired by modern iOS navigation behaviour and the licensed Jobko
 mobile reference, but it is implemented entirely inside Daraja using Geist,
 Daraja brand tokens, existing routes and the shared UI system.
 
-The first navigation set is Home, Jobs, Alerts and More. The More sheet owns
-secondary public destinations such as Internships, About, Contact, WhatsApp and
-the feature-gated employer entry point.
+The mobile bottom dock owns primary destinations only: Home, Jobs, Internships
+and More. Candidate account controls do not live in the dock.
+
+Notifications and Profile are icon-only actions in the mobile header at the
+top-right: a bell icon for `/account/notifications` and a user icon for
+`/account/profile`. The More sheet owns secondary public destinations,
+candidate utilities such as Job Alerts/Privacy, WhatsApp and the feature-gated
+employer entry point.
 
 The dock is not shown on admin, employer, post-job or authentication routes
 until role-specific mobile navigation is deliberately designed. Template-only

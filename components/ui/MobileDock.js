@@ -4,74 +4,15 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { mobileDockEnabledPath } from "@/lib/mobile-navigation";
+import NavIcon from "@/components/ui/NavIcon";
 import styles from "./MobileDock.module.css";
 
 const WHATSAPP_CHANNEL =
   "https://whatsapp.com/channel/0029Vanw1OQ1CYoYdxl32g3V";
 
-function Icon({ name }) {
-  const common = {
-    width: 22,
-    height: 22,
-    viewBox: "0 0 24 24",
-    fill: "none",
-    "aria-hidden": true,
-  };
-
-  if (name === "home") {
-    return (
-      <svg {...common}>
-        <path d="M3.5 10.5 12 3l8.5 7.5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
-        <path d="M5.5 9.8V21h13V9.8" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round" />
-        <path d="M9.5 21v-6h5v6" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round" />
-      </svg>
-    );
-  }
-
-  if (name === "jobs") {
-    return (
-      <svg {...common}>
-        <rect x="3" y="6.5" width="18" height="13.5" rx="3" stroke="currentColor" strokeWidth="1.8" />
-        <path d="M8.5 6.5v-2h7v2M3 11.5h18M10 14h4" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
-      </svg>
-    );
-  }
-
-  if (name === "notifications") {
-    return (
-      <svg {...common}>
-        <path d="M18 9a6 6 0 1 0-12 0c0 7-3 7-3 8.5h18C21 16 18 16 18 9Z" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round" />
-        <path d="M9.5 20.5h5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
-      </svg>
-    );
-  }
-
-  if (name === "profile") {
-    return (
-      <svg {...common}>
-        <circle cx="12" cy="8" r="3.25" stroke="currentColor" strokeWidth="1.8" />
-        <path d="M5.5 20c.55-4.1 2.7-6.15 6.5-6.15S17.95 15.9 18.5 20" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
-      </svg>
-    );
-  }
-
-  if (name === "more") {
-    return (
-      <svg {...common}>
-        <circle cx="5" cy="12" r="1.4" fill="currentColor" />
-        <circle cx="12" cy="12" r="1.4" fill="currentColor" />
-        <circle cx="19" cy="12" r="1.4" fill="currentColor" />
-      </svg>
-    );
-  }
-
-  return null;
-}
-
 export default function MobileDock({
   showEmployerCta = false,
   showCandidateProfile = false,
-  notificationCount = 0,
 }) {
   const pathname = usePathname();
   const [moreOpen, setMoreOpen] = useState(false);
@@ -95,25 +36,14 @@ export default function MobileDock({
       href: "/jobs",
       label: "Jobs",
       icon: "jobs",
-      active: pathname.startsWith("/jobs"),
+      active: pathname.startsWith("/jobs") && !pathname.includes("category=Internships"),
     },
     {
-      href: "/account/notifications",
-      label: "Updates",
-      icon: "notifications",
-      active: pathname === "/account/notifications",
-      badge: notificationCount > 0 ? notificationCount : 0,
+      href: "/jobs?category=Internships%20%26%20Graduate%20Programs",
+      label: "Internships",
+      icon: "internships",
+      active: false,
     },
-    ...(showCandidateProfile
-      ? [
-          {
-            href: "/account/profile",
-            label: "Profile",
-            icon: "profile",
-            active: pathname === "/account/profile",
-          },
-        ]
-      : []),
   ];
 
   const dockItemCount = items.length + 1;
@@ -179,12 +109,7 @@ export default function MobileDock({
               onClick={() => setMoreOpen(false)}
             >
               <span className={styles.iconWrap}>
-                <Icon name={item.icon} />
-                {item.badge ? (
-                  <span className={styles.badge} aria-label={`${item.badge} unread notifications`}>
-                    {item.badge > 99 ? "99+" : item.badge}
-                  </span>
-                ) : null}
+                <NavIcon name={item.icon} />
               </span>
               <span className={styles.label}>{item.label}</span>
             </Link>
@@ -197,7 +122,7 @@ export default function MobileDock({
             onClick={() => setMoreOpen((value) => !value)}
           >
             <span className={styles.iconWrap}>
-              <Icon name="more" />
+              <NavIcon name="more" />
             </span>
             <span className={styles.label}>More</span>
           </button>

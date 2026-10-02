@@ -1,21 +1,28 @@
 .nav {
-  position: relative;
-  background: var(--color-navy);
-  z-index: 40;
+  position: sticky;
+  top: 0;
+  z-index: 900;
+  background: rgba(255, 255, 255, .96);
+  border-bottom: 1px solid var(--color-border);
+  box-shadow: 0 8px 28px rgba(27, 42, 63, .06);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
 }
 
 .bar {
+  width: min(var(--content-max), calc(100% - (var(--gutter) * 2)));
   height: var(--nav-height);
-  padding: 0 var(--gutter);
+  margin: 0 auto;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 1rem;
+  gap: 1.25rem;
 }
 
 .logo {
-  font-size: 1.4rem;
-  font-weight: 700;
+  font-size: 1.42rem;
+  font-weight: 800;
+  line-height: 1;
   color: var(--color-teal);
   letter-spacing: 0.1em;
   text-decoration: none;
@@ -24,12 +31,13 @@
 
 .logo span {
   display: block;
-  font-size: 0.55rem;
-  font-weight: 400;
-  color: rgba(255, 255, 255, 0.35);
-  letter-spacing: 0.3em;
+  margin-top: .38rem;
+  font-size: .54rem;
+  font-weight: 500;
+  color: #7d8795;
+  line-height: 1;
+  letter-spacing: .28em;
   text-transform: uppercase;
-  margin-top: 1px;
 }
 
 .search {
@@ -45,22 +53,22 @@
   min-width: 0;
   height: 38px;
   padding: 0 0.9rem;
-  border: 1px solid rgba(255, 255, 255, 0.14);
+  border: 1px solid var(--color-border-strong);
   border-right: none;
   border-radius: var(--radius-input) 0 0 var(--radius-input);
-  background: rgba(255, 255, 255, 0.06);
-  color: #fff;
+  background: #f8fafb;
+  color: var(--color-navy);
   font-size: 0.82rem;
   outline: none;
 }
 
 .searchInput::placeholder {
-  color: rgba(255, 255, 255, 0.4);
+  color: var(--color-text-faint);
 }
 
 .searchInput:focus {
   border-color: var(--color-teal);
-  background: rgba(255, 255, 255, 0.1);
+  background: #fff;
 }
 
 .searchBtn {
@@ -91,7 +99,7 @@
 .link {
   font-size: 0.8rem;
   font-weight: 500;
-  color: rgba(255, 255, 255, 0.6);
+  color: #667085;
   text-decoration: none;
   letter-spacing: 0.03em;
   transition: color 0.15s;
@@ -100,7 +108,7 @@
 
 .link:hover,
 .link:focus-visible {
-  color: #fff;
+  color: var(--color-navy);
 }
 
 .right {
@@ -136,10 +144,10 @@
   height: 40px;
   display: grid;
   place-items: center;
-  border: 1px solid rgba(255, 255, 255, 0.14);
+  border: 1px solid var(--color-border-strong);
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.06);
-  color: rgba(255, 255, 255, 0.88);
+  background: #fff;
+  color: #667085;
   text-decoration: none;
   -webkit-tap-highlight-color: transparent;
 }
@@ -160,7 +168,7 @@
   display: grid;
   place-items: center;
   padding: 0 3px;
-  border: 2px solid var(--color-navy);
+  border: 2px solid #fff;
   border-radius: var(--radius-pill);
   background: #d92d20;
   color: #fff;
@@ -188,7 +196,7 @@
   display: block;
   width: 20px;
   height: 2px;
-  background: #fff;
+  background: var(--color-navy);
   border-radius: 2px;
   transition: transform 0.2s, opacity 0.2s;
 }
@@ -211,8 +219,8 @@
     position: sticky;
     top: 0;
     z-index: 900;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.12);
+    border-bottom: 1px solid var(--color-border);
+    box-shadow: 0 8px 24px rgba(15, 23, 42, .08);
   }
 
   .dockManaged .toggle,
@@ -221,7 +229,7 @@
   }
 
   .dockManaged .bar {
-    height: 64px;
+    height: calc(64px + env(safe-area-inset-top));
     justify-content: space-between;
     padding-top: env(safe-area-inset-top);
   }
@@ -246,11 +254,12 @@
   .dockManaged .mobileIconButton {
     width: 38px;
     height: 38px;
-    border-color: rgba(255, 255, 255, 0.12);
-    background: rgba(255, 255, 255, 0.045);
+    border-color: var(--color-border-strong);
+    background: #fff;
   }
 
   .bar {
+    width: calc(100% - (var(--gutter) * 2));
     height: 60px;
   }
 
@@ -270,9 +279,9 @@
     flex-direction: column;
     align-items: stretch;
     gap: 0;
-    background: var(--color-navy);
-    border-top: 1px solid rgba(255, 255, 255, 0.08);
-    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.18);
+    background: #fff;
+    border-top: 1px solid var(--color-border);
+    box-shadow: 0 18px 36px rgba(27, 42, 63, .12);
     max-height: 0;
     overflow: hidden;
     visibility: hidden;
@@ -287,7 +296,7 @@
 
   .link {
     padding: 0.9rem var(--gutter);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    border-bottom: 1px solid var(--color-border);
   }
 
   .right {

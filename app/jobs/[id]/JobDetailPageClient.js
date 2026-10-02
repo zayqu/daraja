@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 import SiteNav from "@/components/SiteNav";
 import SiteFooter from "@/components/SiteFooter";
+import JobBrandMedia from "@/components/JobBrandMedia";
 import { trackEvent } from "@/lib/analytics";
 import styles from "./job-detail.module.css";
 
@@ -112,11 +113,11 @@ export default function JobDetailPageClient({ showEmployerCta }) {
   }
 
   function getApplicationEmail() {
-    if (!job?.sourceUrl?.startsWith("mailto:")) return "";
+    if (!job?.applicationUrl?.startsWith("mailto:")) return "";
 
     try {
       return decodeURIComponent(
-        job.sourceUrl.slice("mailto:".length).split("?")[0]
+        job.applicationUrl.slice("mailto:".length).split("?")[0]
       );
     } catch {
       return "";
@@ -125,23 +126,13 @@ export default function JobDetailPageClient({ showEmployerCta }) {
 
   const applicationEmail = getApplicationEmail();
   const applicationSubject = applicationEmail
-    ? new URL(job.sourceUrl).searchParams.get("subject") || ""
+    ? new URL(job.applicationUrl).searchParams.get("subject") || ""
     : "";
   const applicationHref = applicationEmail
-    ? job?.sourceUrl
+    ? job.applicationUrl
     : job
       ? `/api/jobs/${encodeURIComponent(job.slug || job.id)}/apply`
       : "#";
-
-  const companyInitials = job?.company
-    ? job.company
-        .split(/\s+/)
-        .filter(Boolean)
-        .slice(0, 2)
-        .map((part) => part[0])
-        .join("")
-        .toUpperCase()
-    : "D";
 
   return (
     <div className={styles.page}>
@@ -178,9 +169,13 @@ export default function JobDetailPageClient({ showEmployerCta }) {
         <>
           <section className={styles.summary}>
             <div className={styles.summaryInner}>
-              <div className={styles.companyMark} aria-hidden="true">
-                {companyInitials}
-              </div>
+              <JobBrandMedia
+                company={job.company}
+                companyLogo={job.companyLogo}
+                representativeImage={job.representativeImage}
+                className={styles.companyMark}
+                sizes="64px"
+              />
 
               <div className={styles.summaryMain}>
                 <p className={styles.company}>{job.company}</p>
@@ -268,7 +263,20 @@ export default function JobDetailPageClient({ showEmployerCta }) {
                 </div>
                 <div>
                   <dt>Source</dt>
-                  <dd>{formatSource(job.source)}</dd>
+                  <dd>
+                    {job.sourceUrl ? (
+                      <a
+                        href={job.sourceUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className={styles.sourceLink}
+                      >
+                        {formatSource(job.source)}
+                      </a>
+                    ) : (
+                      formatSource(job.source)
+                    )}
+                  </dd>
                 </div>
               </dl>
             </aside>
@@ -324,7 +332,7 @@ export default function JobDetailPageClient({ showEmployerCta }) {
 
               {applicationEmail && (
                 <p className={styles.helpText}>
-                  Email: <a href={job.sourceUrl}>{applicationEmail}</a>
+                  Email: <a href={job.applicationUrl}>{applicationEmail}</a>
                   {applicationSubject && (
                     <>
                       <br />

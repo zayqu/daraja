@@ -68,7 +68,11 @@ function Icon({ name }) {
   return null;
 }
 
-export default function MobileDock({ showEmployerCta = false, showCandidateProfile = false, notificationCount = 0 }) {
+export default function MobileDock({
+  showEmployerCta = false,
+  showCandidateProfile = false,
+  notificationCount = 0,
+}) {
   const pathname = usePathname();
   const [moreOpen, setMoreOpen] = useState(false);
 
@@ -150,12 +154,12 @@ export default function MobileDock({ showEmployerCta = false, showCandidateProfi
               <Link href="/account/privacy" onClick={() => setMoreOpen(false)}>
                 Privacy & data
               </Link>
-              <Link href="/jobs?category=Internships%20%26%20Graduate%20Programs">
+              <Link href="/jobs?category=Internships%20%26%20Graduate%20Programs" onClick={() => setMoreOpen(false)}>
                 Internships
               </Link>
               <Link href="/about" onClick={() => setMoreOpen(false)}>About Daraja</Link>
               <Link href="/contact" onClick={() => setMoreOpen(false)}>Contact</Link>
-              <a href={WHATSAPP_CHANNEL} target="_blank" rel="noopener noreferrer">
+              <a href={WHATSAPP_CHANNEL} target="_blank" rel="noopener noreferrer" onClick={() => setMoreOpen(false)}>
                 WhatsApp Channel
               </a>
               {showEmployerCta && <Link href="/post-job" onClick={() => setMoreOpen(false)}>Post a Job</Link>}

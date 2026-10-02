@@ -9,6 +9,20 @@ tested vertical releases. The current priority is Phase 0 security and privacy
 hardening before expanding candidate CV, employer, freelance, payment or AI
 workflows.
 
+## Current batch: mobile hero and search responsiveness
+
+- Mobile hero spacing and headline sizing are now tuned independently from the
+  desktop composition instead of relying on a scaled-down desktop layout.
+- At 640px and below, the headline no longer runs the desktop word-by-word rise
+  sequence; the copy enters as one subtle block so wrapped text remains stable.
+- Mobile search fields and the Find jobs button use explicit 16px typography,
+  preventing focus-zoom behavior in mobile browsers and keeping controls at a
+  consistent 48px height.
+- Search is a compact single-column card on small screens with full-width
+  controls and reduced shadow/spacing.
+- Desktop hero animation, bridge behavior, search semantics and reduced-motion
+  support are unchanged.
+
 ## Current batch: white hero reference canvas
 
 - The homepage hero now matches the supplied five-second reference video with a

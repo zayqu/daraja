@@ -1,0 +1,108 @@
+.form {
+  display: grid;
+  gap: var(--space-5);
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-4);
+}
+
+.field,
+.fieldWide {
+  min-width: 0;
+  display: grid;
+  gap: 0.45rem;
+}
+
+.fieldWide {
+  grid-column: 1 / -1;
+}
+
+.field span,
+.fieldWide span {
+  color: var(--color-text-secondary);
+  font-size: 0.76rem;
+  font-weight: 750;
+}
+
+.field input,
+.fieldWide input {
+  width: 100%;
+  min-height: 46px;
+  padding: 0.72rem 0.82rem;
+  border: 1px solid #cfd8e3;
+  border-radius: var(--radius-input);
+  background: #fff;
+  color: var(--color-text);
+  font: inherit;
+}
+
+.field input:focus,
+.fieldWide input:focus {
+  border-color: var(--color-teal);
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(0, 201, 167, 0.12);
+}
+
+.note {
+  margin: 0;
+  padding: 0.9rem 1rem;
+  border-radius: var(--radius-panel);
+  background: #f7f8fa;
+  color: var(--color-text-muted);
+  font-size: 0.75rem;
+  line-height: 1.6;
+}
+
+.message {
+  margin: 0;
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.success {
+  color: var(--color-success);
+}
+
+.error {
+  color: var(--color-danger);
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-start;
+}
+
+.actions button {
+  min-height: 46px;
+  padding: 0.75rem 1rem;
+  border: 0;
+  border-radius: var(--radius-button);
+  background: var(--color-teal);
+  color: var(--color-navy);
+  font: inherit;
+  font-size: 0.78rem;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.actions button:disabled {
+  opacity: 0.55;
+  cursor: wait;
+}
+
+@media (max-width: 640px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+
+  .fieldWide {
+    grid-column: auto;
+  }
+
+  .actions button {
+    width: 100%;
+  }
+}

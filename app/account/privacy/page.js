@@ -2,6 +2,9 @@ import { redirect } from "next/navigation";
 import { auth } from "@/auth";
 import CandidateAccountTabs from "@/components/CandidateAccountTabs";
 import PublicSiteNav from "@/components/PublicSiteNav";
+import PageHero from "@/components/ui/PageHero";
+import WorkspaceShell from "@/components/ui/WorkspaceShell";
+import SurfaceCard from "@/components/ui/SurfaceCard";
 import { candidateCareerEnabled } from "@/lib/candidate-access";
 import AccountDeletionForm from "./AccountDeletionForm";
 import styles from "./privacy.module.css";
@@ -20,22 +23,18 @@ export default async function PrivacyPage() {
       <PublicSiteNav />
 
       <main id="main-content">
-        <section className={styles.hero}>
-          <div className={styles.heroInner}>
-            <p className={styles.eyebrow}>Privacy & data</p>
-            <h1>Your Daraja data stays under your control.</h1>
-            <p>
-              Download the information tied to your account or permanently
-              delete your account when you no longer want to use Daraja.
-            </p>
-          </div>
-        </section>
+        <PageHero
+          eyebrow="Privacy & data"
+          title="Your Daraja data stays under your control."
+          description="Download the information tied to your account or permanently delete your account when you no longer want to use Daraja."
+          maxWidth="narrow"
+        />
 
-        <div className={styles.shell}>
+        <WorkspaceShell width="narrow">
           <CandidateAccountTabs showCareer={candidateCareerEnabled()} />
 
           <section className={styles.stack} aria-label="Privacy controls">
-            <article className={styles.card}>
+            <SurfaceCard as="article">
               <span className={styles.cardLabel}>Export</span>
               <h2>Download my account data</h2>
               <p>
@@ -46,9 +45,9 @@ export default async function PrivacyPage() {
               <a className={styles.primaryAction} href="/api/account/export">
                 Download account data
               </a>
-            </article>
+            </SurfaceCard>
 
-            <article className={styles.card}>
+            <SurfaceCard as="article">
               <span className={styles.cardLabel}>Private by default</span>
               <h2>Candidate documents</h2>
               <p>
@@ -56,9 +55,9 @@ export default async function PrivacyPage() {
                 authentication secrets and session tokens are never included in
                 the account export.
               </p>
-            </article>
+            </SurfaceCard>
 
-            <article className={`${styles.card} ${styles.dangerCard}`}>
+            <SurfaceCard as="article" tone="danger">
               <span className={styles.dangerLabel}>Permanent action</span>
               <h2>Delete my account permanently</h2>
               <p>
@@ -72,9 +71,9 @@ export default async function PrivacyPage() {
                 This action cannot be undone.
               </p>
               <AccountDeletionForm />
-            </article>
+            </SurfaceCard>
           </section>
-        </div>
+        </WorkspaceShell>
       </main>
     </div>
   );

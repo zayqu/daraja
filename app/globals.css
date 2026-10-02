@@ -1,8 +1,8 @@
 @import "tailwindcss";
 
 :root {
-  /* Daraja keeps the established project typeface stack across all surfaces. */
-  --font-daraja: "Segoe UI", Arial, Helvetica, sans-serif;
+  /* Daraja original application typeface. Loaded in app/layout.js. */
+  --font-daraja: var(--font-geist-sans), Arial, Helvetica, sans-serif;
 
   /* Brand tokens shared by marketing pages (home, jobs, job detail, portal shell) */
   --color-navy: #1b2a3f;

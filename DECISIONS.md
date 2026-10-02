@@ -312,10 +312,10 @@ Daraja UI work must preserve the project's established typography rather than
 introducing a template font or a new application-wide typeface during visual
 refactors.
 
-The canonical web stack is:
+The canonical Daraja web typeface is **Geist**, loaded through `next/font/google`
+using `Geist` and `Geist_Mono`, as in the original application baseline.
 
-`"Segoe UI", Arial, Helvetica, sans-serif`
-
-All public, candidate, employer, admin and authentication surfaces inherit that
-same stack. Licensed templates may influence layout and interaction only; they
-must not replace Daraja typography.
+All public, candidate, employer, admin and authentication surfaces inherit the
+Geist sans variable. Arial/Helvetica remain only as fallback fonts. Licensed
+templates may influence layout and interaction only; they must not replace
+Daraja typography.

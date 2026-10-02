@@ -31,10 +31,6 @@ export const metadata = {
   description:
     "Find current government, NGO, finance, health, education, IT and engineering jobs across Tanzania.",
   applicationName: "Daraja Jobs",
-  icons: {
-    icon: "https://www.getdaraja.com/favicon.ico",
-    shortcut: "https://www.getdaraja.com/favicon.ico",
-  },
   alternates: {
     canonical: "/",
   },

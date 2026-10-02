@@ -1,4 +1,4 @@
 ALTER TABLE "Job"
-ADD COLUMN "applicationUrl" TEXT,
-ADD COLUMN "companyLogo" TEXT,
-ADD COLUMN "representativeImage" TEXT;
+ADD COLUMN IF NOT EXISTS "applicationUrl" TEXT,
+ADD COLUMN IF NOT EXISTS "companyLogo" TEXT,
+ADD COLUMN IF NOT EXISTS "representativeImage" TEXT;

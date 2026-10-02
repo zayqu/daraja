@@ -68,7 +68,8 @@
 
 .searchInput:focus {
   border-color: var(--color-teal);
-  background: var(--color-navy);
+  background: #fff;
+  box-shadow: 0 0 0 3px rgba(0, 201, 167, .08);
 }
 
 .searchBtn {
@@ -196,7 +197,7 @@
   display: block;
   width: 20px;
   height: 2px;
-  background: #fff;
+  background: var(--color-navy);
   border-radius: 2px;
   transition: transform 0.2s, opacity 0.2s;
 }
@@ -229,7 +230,8 @@
   }
 
   .dockManaged .bar {
-    height: 64px;
+    min-height: 64px;
+    height: auto;
     justify-content: space-between;
     padding-top: env(safe-area-inset-top);
   }
@@ -239,7 +241,7 @@
   }
 
   .dockManaged .logo span {
-    margin-top: 2px;
+    margin-top: 4px;
     font-size: 0.5rem;
     letter-spacing: 0.26em;
   }
@@ -259,7 +261,8 @@
   }
 
   .bar {
-    height: 60px;
+    min-height: 60px;
+    height: auto;
   }
 
   .search {

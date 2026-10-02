@@ -1,5 +1,6 @@
 const cheerio = require("cheerio");
 
+const { normalizeEmployerSubject } = require("../lib/applications");
 const { cleanText, deduplicateJobs } = require("../lib/jobs");
 const {
   extractSourceMedia,
@@ -164,11 +165,10 @@ function extractEmailApplicationJobs(articleTitle, articleUrl, html) {
     extractDeadline(htmlToText(html));
   const jobs = [];
   const media = extractSourceMedia(html, articleUrl);
-  const emailApplicationUrl =
-    `mailto:${email}` +
-    (employerSubject
-      ? `?subject=${encodeURIComponent(employerSubject)}`
-      : "");
+  function emailApplicationUrlFor(title) {
+    const subject = normalizeEmployerSubject(employerSubject, title);
+    return `mailto:${email}?subject=${encodeURIComponent(subject)}`;
+  }
 
   for (const heading of $("h3").toArray()) {
     const headingText = cleanText($(heading).text());
@@ -191,7 +191,7 @@ function extractEmailApplicationJobs(articleTitle, articleUrl, html) {
       description: instructions,
       deadline,
       sourceUrl: articleUrl,
-      applicationUrl: emailApplicationUrl,
+      applicationUrl: emailApplicationUrlFor(title),
       companyLogo: media.companyLogo,
       representativeImage: media.representativeImage,
     });
@@ -215,7 +215,7 @@ function extractEmailApplicationJobs(articleTitle, articleUrl, html) {
         description: `Apply for the ${title} position at ${company}.`,
         deadline,
         sourceUrl: articleUrl,
-        applicationUrl: emailApplicationUrl,
+        applicationUrl: emailApplicationUrlFor(title),
         companyLogo: media.companyLogo,
         representativeImage: media.representativeImage,
       };

@@ -35,7 +35,6 @@ function AnalyticsPageViews({ measurementId }) {
 
 export default function PrivacyControls({ analyticsId, adsenseClient }) {
   const [consent, setConsent] = useState(null);
-  const [isOpen, setIsOpen] = useState(false);
   const analyticsEnabled = isValidGoogleAnalyticsId(analyticsId);
   const adsEnabled = isValidAdSenseClient(adsenseClient);
   const servicesEnabled = analyticsEnabled || adsEnabled;
@@ -57,7 +56,6 @@ export default function PrivacyControls({ analyticsId, adsenseClient }) {
       });
     }
     setConsent(value);
-    setIsOpen(false);
     window.dispatchEvent(new CustomEvent(CONSENT_EVENT, { detail: value }));
   }
 
@@ -118,7 +116,7 @@ export default function PrivacyControls({ analyticsId, adsenseClient }) {
         />
       )}
 
-      {(consent === null || isOpen) && (
+      {consent === null && (
         <section className="privacy-banner" aria-labelledby="privacy-title">
           <div>
             <h2 id="privacy-title">Your privacy choices</h2>
@@ -138,12 +136,6 @@ export default function PrivacyControls({ analyticsId, adsenseClient }) {
             </button>
           </div>
         </section>
-      )}
-
-      {consent !== null && !isOpen && (
-        <button type="button" className="privacy-settings" onClick={() => setIsOpen(true)}>
-          Privacy choices
-        </button>
       )}
     </>
   );

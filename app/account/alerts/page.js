@@ -3,6 +3,8 @@ import { auth, signOut } from "@/auth";
 import AlertPreferencesForm from "@/components/AlertPreferencesForm";
 import CandidateAccountTabs from "@/components/CandidateAccountTabs";
 import PublicSiteNav from "@/components/PublicSiteNav";
+import PageHero from "@/components/ui/PageHero";
+import WorkspaceShell from "@/components/ui/WorkspaceShell";
 import { candidateCareerEnabled } from "@/lib/candidate-access";
 import prisma from "@/lib/prisma";
 import styles from "./alerts-account.module.css";
@@ -49,18 +51,14 @@ export default async function AlertAccountPage() {
       <PublicSiteNav right={signOutForm} />
 
       <main id="main-content">
-        <section className={styles.hero}>
-          <div className={styles.heroInner}>
-            <p className={styles.eyebrow}>Candidate account</p>
-            <h1>Alerts built around the work you want.</h1>
-            <p>
-              Select your core job categories, add optional refinements and keep
-              full control over whether Daraja sends you email alerts.
-            </p>
-          </div>
-        </section>
+        <PageHero
+          eyebrow="Candidate account"
+          title="Alerts built around the work you want."
+          description="Select your core job categories, add optional refinements and keep full control over whether Daraja sends you email alerts."
+          maxWidth="narrow"
+        />
 
-        <div className={styles.shell}>
+        <WorkspaceShell width="narrow">
           <CandidateAccountTabs showCareer={candidateCareerEnabled()} />
 
           <section className={styles.accountCard}>
@@ -75,7 +73,7 @@ export default async function AlertAccountPage() {
 
             <AlertPreferencesForm initialPreferences={subscriber} />
           </section>
-        </div>
+        </WorkspaceShell>
       </main>
     </div>
   );

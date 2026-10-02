@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import JobAlerts from "@/components/JobAlerts";
 import PublicSiteNav from "@/components/PublicSiteNav";
@@ -61,9 +62,31 @@ export default function Home() {
           z-index: 1;
         }
 
-        .hero-copy {
-          max-width: 760px;
+        .hero-layout {
+          display: grid;
+          grid-template-columns: minmax(0, 1.08fr) minmax(320px, .72fr);
+          align-items: center;
+          gap: 2.25rem;
           margin-bottom: 2rem;
+        }
+
+        .hero-copy {
+          max-width: 700px;
+        }
+
+        .hero-visual {
+          position: relative;
+          min-height: 300px;
+          overflow: hidden;
+          border: 1px solid rgba(255,255,255,.12);
+          border-radius: 20px;
+          background: #22344b;
+          box-shadow: 0 22px 50px rgba(5, 15, 28, .22);
+        }
+
+        .hero-visual img {
+          object-fit: cover;
+          object-position: center 52%;
         }
 
         .hero-eyebrow,
@@ -343,6 +366,15 @@ export default function Home() {
         }
 
         @media (max-width: 900px) {
+          .hero-layout {
+            grid-template-columns: minmax(0, 1fr) minmax(260px, .72fr);
+            gap: 1.35rem;
+          }
+
+          .hero-visual {
+            min-height: 250px;
+          }
+
           .hero-search { grid-template-columns: 1fr 1fr; }
           .hero-submit { grid-column: 1 / -1; }
           .category-grid { grid-template-columns: repeat(3, 1fr); }
@@ -358,8 +390,24 @@ export default function Home() {
             display: none;
           }
 
-          .hero-copy {
+          .hero-layout {
+            grid-template-columns: 1fr;
+            gap: 1rem;
             margin-bottom: 1.15rem;
+          }
+
+          .hero-copy {
+            max-width: none;
+          }
+
+          .hero-visual {
+            min-height: 188px;
+            border-radius: 14px;
+            box-shadow: none;
+          }
+
+          .hero-visual img {
+            object-position: center 58%;
           }
 
           .hero-eyebrow,
@@ -536,15 +584,27 @@ export default function Home() {
         <main id="main-content">
           <section className="hero">
             <div className="hero-inner">
-              <div className="hero-copy">
-                <div className="hero-eyebrow">Kazi na fursa Tanzania</div>
-                <h1>
-                  Find work that <span>moves you forward.</span>
-                </h1>
-                <p className="hero-lead">
-                  Search current opportunities from government, NGOs, banks,
-                  companies and institutions across Tanzania.
-                </p>
+              <div className="hero-layout">
+                <div className="hero-copy">
+                  <div className="hero-eyebrow">Kazi na fursa Tanzania</div>
+                  <h1>
+                    Find work that <span>moves you forward.</span>
+                  </h1>
+                  <p className="hero-lead">
+                    Search current opportunities from government, NGOs, banks,
+                    companies and institutions across Tanzania.
+                  </p>
+                </div>
+
+                <div className="hero-visual">
+                  <Image
+                    src="/images/daraja-career-hero.webp"
+                    alt="Professionals climbing steps toward new career opportunities"
+                    fill
+                    priority
+                    sizes="(max-width: 640px) calc(100vw - 32px), (max-width: 900px) 36vw, 390px"
+                  />
+                </div>
               </div>
 
               <form action="/jobs" method="get" className="hero-search" role="search">

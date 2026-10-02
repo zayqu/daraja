@@ -24,11 +24,15 @@ export default async function NotificationsPage() {
     redirect("/auth/signin?callbackUrl=/account/notifications");
   }
 
+  const careerEnabled = candidateCareerEnabled();
+
   const [profile, alerts] = await Promise.all([
-    prisma.jobSeeker.findUnique({
-      where: { userId: session.user.id },
-      select: { id: true, fullName: true, headline: true, location: true },
-    }),
+    careerEnabled
+      ? prisma.jobSeeker.findUnique({
+          where: { userId: session.user.id },
+          select: { id: true, fullName: true, headline: true, location: true },
+        })
+      : Promise.resolve(null),
     prisma.jobAlertSubscriber.findUnique({
       where: { userId: session.user.id },
       select: { active: true },
@@ -51,7 +55,7 @@ export default async function NotificationsPage() {
         />
 
         <WorkspaceShell width="narrow">
-          <CandidateAccountTabs showCareer={candidateCareerEnabled()} />
+          <CandidateAccountTabs showCareer={careerEnabled} />
 
           <div className={styles.stack}>
             <SurfaceCard>
@@ -76,13 +80,15 @@ export default async function NotificationsPage() {
               </div>
 
               <div className={styles.statusGrid}>
-                <div>
-                  <span>Candidate profile</span>
-                  <strong>{profileComplete ? "Ready" : "Needs details"}</strong>
-                  <Link href="/account/profile">
-                    {profileComplete ? "Review profile" : "Complete profile"} →
-                  </Link>
-                </div>
+                {careerEnabled && (
+                  <div>
+                    <span>Candidate profile</span>
+                    <strong>{profileComplete ? "Ready" : "Needs details"}</strong>
+                    <Link href="/account/profile">
+                      {profileComplete ? "Review profile" : "Complete profile"} →
+                    </Link>
+                  </div>
+                )}
                 <div>
                   <span>Email job alerts</span>
                   <strong>{alerts?.active ? "Active" : "Paused or not set"}</strong>

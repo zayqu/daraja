@@ -699,3 +699,26 @@ Every batch must record:
 - Validation and production activation remain pending until the focused pull
   request passes the normal protected checks and the exact merged release is
   verified live.
+
+
+## Current batch: mobile web shell and jobs discovery redesign
+
+- The public/candidate mobile header is now sticky so Daraja branding and
+  account actions remain available while content scrolls.
+- The shared floating mobile dock is smaller and lighter, with page clearance
+  adjusted so it does not dominate or cover primary content.
+- Privacy consent no longer leaves a permanent floating control after the user
+  accepts or declines optional services. The choice stays stored and the prompt
+  remains hidden until the user deliberately opens Privacy choices from the
+  mobile More menu.
+- The public jobs page no longer renders its full filter form in the primary
+  mobile page flow. Filters open on demand in a dedicated bottom sheet while
+  search and job results remain immediately visible.
+- Mobile job cards, hero spacing and result controls are tightened to improve
+  information hierarchy without changing job data, routes, lifecycle,
+  authentication or application behaviour.
+- This redesign preserves Geist, Daraja colours, shared UI ownership and the
+  existing Home / Jobs / Internships / More navigation model.
+- The batch is schema-free and changes no production data, provider credentials,
+  permissions, authentication or job-source logic. Production activation remains
+  pending final responsive QA and the normal protected pull-request checks.

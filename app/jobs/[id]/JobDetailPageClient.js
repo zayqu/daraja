@@ -199,7 +199,7 @@ export default function JobDetailPageClient({ showEmployerCta }) {
                   </div>
                 )}
 
-                {job.sourceUrl && !isExpired(job.deadline) ? (
+                {(job.applicationUrl || job.sourceUrl) && !isExpired(job.deadline) ? (
                   <a
                     href={applicationHref}
                     target={applicationEmail ? undefined : "_blank"}
@@ -298,7 +298,7 @@ export default function JobDetailPageClient({ showEmployerCta }) {
               <div className={styles.cardEyebrow}>Next step</div>
               <h2>Apply for this role</h2>
 
-              {job.sourceUrl && !isExpired(job.deadline) ? (
+              {(job.applicationUrl || job.sourceUrl) && !isExpired(job.deadline) ? (
                 <a
                   href={applicationHref}
                   target={applicationEmail ? undefined : "_blank"}

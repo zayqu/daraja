@@ -6,6 +6,7 @@ import {
   validHttpsUrl,
 } from "@/lib/candidate-access";
 import { readProtectedJson } from "@/lib/request-security";
+import { candidateProfileSelect } from "@/lib/candidate-profile";
 
 const privateHeaders = {
   "Cache-Control": "private, no-store, max-age=0",
@@ -15,19 +16,6 @@ const clean = (value, max = 160) =>
   typeof value === "string"
     ? value.replace(/\s+/g, " ").trim().slice(0, max)
     : "";
-
-const candidateProfileSelect = {
-  id: true,
-  fullName: true,
-  phone: true,
-  headline: true,
-  location: true,
-  experienceLevel: true,
-  workArrangement: true,
-  portfolioUrl: true,
-  createdAt: true,
-  updatedAt: true,
-};
 
 function privateJson(payload, init = {}) {
   return NextResponse.json(payload, {

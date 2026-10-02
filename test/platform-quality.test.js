@@ -99,7 +99,6 @@ test("every public page provides a valid target for the global skip link", async
     "app/jobs/JobsPageClient.js",
     "app/jobs/[id]/JobDetailPageClient.js",
     "app/post-job/page.js",
-    "app/privacy/page.js",
     "app/alerts/unsubscribe/page.js",
     "app/alerts/unsubscribed/page.js",
     "components/ContentPage.js",
@@ -109,6 +108,12 @@ test("every public page provides a valid target for the global skip link", async
     const source = await readFile(path.join(__dirname, "..", page), "utf8");
     assert.match(source, /<main[\s\S]*?id="main-content"/, page);
   }
+
+  const privacyPage = await readFile(
+    path.join(__dirname, "..", "app", "privacy", "page.js"),
+    "utf8"
+  );
+  assert.match(privacyPage, /ContentPage/);
 });
 
 test("company information pages use the accessible shared content layout", async () => {

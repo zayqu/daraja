@@ -1,6 +1,6 @@
 # Daraja Jobs production-readiness progress
 
-Last updated: 1 October 2026
+Last updated: 2 October 2026
 
 ## Current objective
 
@@ -197,7 +197,6 @@ workflows.
 - GitHub Actions shows the same health information in the run summary and keeps
   the JSON evidence for 30 days, including failed runs.
 - This release is schema-free and does not change production access controls.
-
 ## Phase 4 release: verified employer sources
 
 - The official Standard Bank Group SmartRecruiters API is the source of record
@@ -397,8 +396,7 @@ workflows.
   is registered for the cPanel account; multiple or unknown applications fail
   closed instead of receiving an account-wide process signal.
 - The public homepage, jobs page and structured jobs API were independently
-  verified after the 11 August 2026 manual stale-worker recovery. The new search
-  navigation is live and disabled employer entry points remain hidden.
+  verified after the 11 August 2026 manual stale-worker recovery. The new search  navigation is live and disabled employer entry points remain hidden.
 - This batch is schema-free, runs no Prisma migration or database push and
   preserves the existing atomic frontend rollback.
 - Validation completed on 11 August 2026: all 115 tests, ESLint, Prisma schema
@@ -597,8 +595,7 @@ Every batch must record:
   jobs API, removing duplicate query construction.
 - The existing client listing hydrates from the server result, skips its first
   API fetch and keeps the existing API for subsequent search, filter and
-  pagination interactions.
-- Canonical job-search URL normalisation remains intact, including legacy
+  pagination interactions.- Canonical job-search URL normalisation remains intact, including legacy
   `q` links, without forcing a duplicate initial database read.
 - This slice changes no schema, index, lifecycle rule, moderation boundary,
   provider configuration or production data. Caching and index work remain
@@ -684,3 +681,21 @@ Every batch must record:
   flag.
 - No route, schema, permission, authentication or production-data change is
   included.
+
+## Current batch: short public jobs cache
+
+- The existing `lib/public-jobs.js` read model remains the single owner for
+  public jobs list reads used by both the server-rendered `/jobs` page and
+  `/api/jobs`.
+- Repeated public job reads now use a narrowly scoped 30-second Next.js data
+  cache instead of repeating the same Prisma `findMany` plus `count` work on
+  every request.
+- Existing published/active/deadline filtering remains authoritative inside the
+  cached read; no job lifecycle or moderation rule changes.
+- Administrator publish/reject/archive mutations revalidate the public-jobs
+  cache tag so moderation does not wait for the ordinary short cache window.
+- The change does not enable Cache Components globally, add a database index,
+  change schema, mutate production data or alter authentication/permissions.
+- Validation and production activation remain pending until the focused pull
+  request passes the normal protected checks and the exact merged release is
+  verified live.

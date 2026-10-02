@@ -11,6 +11,7 @@ const {
 const { createPrismaClient, saveJobs } = require("../lib/store");
 
 const AJIRA_DETAIL_URL = "https://portal.ajira.go.tz/view-advert";
+const AJIRA_APPLICATION_URL = "https://portal.ajira.go.tz/auth";
 const AJIRA_ENCRYPTION_KEY = "*n%^+-$#@$$^@1ERFWFW";
 const REQUEST_TIMEOUT_MS = 60000;
 const MAX_PAGES = 100;
@@ -107,6 +108,7 @@ function mapRenderedVacancy(row) {
     deadline: formatDeadline(row?.deadline),
     numberOfPosts: row?.numberOfPosts || "",
     sourceUrl,
+    applicationUrl: AJIRA_APPLICATION_URL,
   };
 }
 

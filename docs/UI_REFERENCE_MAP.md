@@ -35,13 +35,11 @@ Daraja decision:
 - do not expose messages, application tracking, uploads or other template
   features until the corresponding Daraja backend/product feature exists
 
-Current mobile dock:
-- Home
-- Jobs
-- Alerts
-- More
-- More sheet: Internships, About, Contact, WhatsApp Channel and conditional
-  Post a Job
+Current mobile navigation:
+- Bottom dock: Home, Jobs, Internships, More
+- Top-right header icons: Notifications (bell), Profile (user)
+- More sheet: Career workspace, Job Alerts, Privacy & Data, About, Contact,
+  WhatsApp Channel and conditional Post a Job
 - hidden from employer, admin, post-job and authentication surfaces until
   dedicated workspace navigation is designed for those roles
 - respects iPhone safe-area insets and viewport-fit=cover

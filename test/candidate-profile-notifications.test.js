@@ -25,13 +25,13 @@ test("candidate profile page reuses the protected profile API contract", async (
 
 test("notification centre is authenticated and does not fabricate unread state", async () => {
   const page = await read("app/account/notifications/page.js");
-  const dock = await read("components/ui/MobileDock.js");
+  const nav = await read("components/SiteNav.js");
 
   assert.match(page, /callbackUrl=\/account\/notifications/);
   assert.match(page, /You are all caught up/);
   assert.match(page, /will not show fake unread/);
-  assert.match(dock, /notificationCount = 0/);
-  assert.match(dock, /notificationCount > 0/);
-  assert.match(dock, /\/account\/notifications/);
-  assert.match(dock, /\/account\/profile/);
+  assert.match(nav, /notificationCount = 0/);
+  assert.match(nav, /notificationCount > 0/);
+  assert.match(nav, /\/account\/notifications/);
+  assert.match(nav, /\/account\/profile/);
 });

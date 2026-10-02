@@ -26,7 +26,9 @@ test("candidate authentication uses the shared Daraja UI without changing provid
   assert.match(verify, /import styles from "\.\.\/auth\.module\.css"/);
   assert.doesNotMatch(verify, /<style>/);
 
-  assert.match(styles, /\.hero/);
+  assert.match(signIn, /PageHero/);
+  assert.match(verify, /PageHero/);
   assert.match(styles, /\.cardWrap/);
-  assert.match(styles, /@media \(max-width: 640px\)/);
+  assert.match(signIn, /SurfaceCard/);
+  assert.match(verify, /SurfaceCard/);
 });

@@ -37,3 +37,13 @@
   font-size: 0.9rem;
   line-height: 1.7;
 }
+
+.overlap {
+  padding-bottom: 8rem;
+}
+
+@media (max-width: 640px) {
+  .overlap {
+    padding-bottom: 6.5rem;
+  }
+}

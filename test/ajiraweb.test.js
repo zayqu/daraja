@@ -128,12 +128,15 @@ test("email application articles are split into individual vacancies", () => {
   assert.doesNotMatch(jobs[0].description, /Application (?:method|deadline)/i);
   assert.doesNotMatch(jobs[0].description, /Organization:/i);
   assert.doesNotMatch(jobs[0].description, /Location:/i);
-  assert.match(jobs[0].sourceUrl, /^mailto:recruitment@acbbank\.co\.tz/);
-  const applicationUrl = new URL(jobs[0].sourceUrl);
+  assert.equal(
+    jobs[0].sourceUrl,
+    "https://ajiraweb.com/akiba-commercial-bank-plc-vacancies-2026/"
+  );
+  const applicationUrl = new URL(jobs[0].applicationUrl);
+  assert.equal(applicationUrl.protocol, "mailto:");
+  assert.equal(applicationUrl.pathname, "recruitment@acbbank.co.tz");
   assert.equal(applicationUrl.searchParams.get("subject"), "Application for Credit Analyst");
-  assert.match(applicationUrl.searchParams.get("body"), /Dear Hiring Team/);
-  assert.match(applicationUrl.searchParams.get("body"), /attach/i);
-  assert.match(applicationUrl.searchParams.get("body"), /full name/i);
+  assert.equal(applicationUrl.searchParams.get("body"), null);
 });
 
 test("Standard Bank vacancies use the direct SmartRecruiters application URL", async () => {
@@ -165,6 +168,10 @@ test("Standard Bank vacancies use the direct SmartRecruiters application URL", a
   assert.equal(job.title, "Finance Manager, Group Functions");
   assert.equal(
     job.sourceUrl,
+    "https://jobs.smartrecruiters.com/StandardBankGroup/744000075456789-finance-manager"
+  );
+  assert.equal(
+    job.applicationUrl,
     "https://jobs.smartrecruiters.com/StandardBankGroup/744000075456789-finance-manager?oga=true"
   );
 });
@@ -182,7 +189,7 @@ test("email vacancies preserve the employer's required subject format", () => {
   );
 
   assert.equal(
-    new URL(job.sourceUrl).searchParams.get("subject"),
+    new URL(job.applicationUrl).searchParams.get("subject"),
     "VACANCY APPLICATION - Treasury Dealer"
   );
 });

@@ -722,3 +722,38 @@ Every batch must record:
 - The batch is schema-free and changes no production data, provider credentials,
   permissions, authentication or job-source logic. Production activation remains
   pending final responsive QA and the normal protected pull-request checks.
+
+
+## Current batch: source/apply separation, source media and focused UI fixes
+
+- The Opportunity Overview card no longer uses sticky positioning; it remains in
+  normal layout flow on desktop and mobile.
+- The mobile jobs filter opens as a viewport-centered modal with bounded margins.
+  Body scroll is locked with scrollbar-width compensation so opening the filter
+  does not shift page content.
+- The Job model adds nullable `applicationUrl`, `companyLogo` and
+  `representativeImage` fields while preserving the existing `sourceUrl` as
+  the canonical source/detail page.
+- Ajira, NMB, Standard Bank/SmartRecruiters and AjiraWeb ingestion now keep source
+  and application destinations separate. Email applications preserve the source
+  recipient and required subject without inventing message text.
+- Source-page extraction can detect direct application forms, ATS destinations,
+  explicit login/register-to-apply flows and same-page application forms.
+- Source media extraction prefers structured/official organisation logos, then
+  relevant source/job imagery. Public job cards and job detail use logo, then
+  representative image, then initials as a neutral fallback.
+- The job detail API exposes source/application/media separately. The Apply route
+  prefers the stored application destination and keeps the existing bounded
+  resolver only as a compatibility path for legacy records.
+- Existing enabled-source jobs can be repaired safely by normal source refresh
+  because source identities remain stable. Disabled/unknown legacy records are
+  not assigned guessed application URLs or branding.
+- The migration is additive and nullable only. It must not run in production
+  until a fresh Neon restore point exists and deployment is explicitly approved.
+- Fixture coverage includes direct application, external ATS, login-required
+  application, email application, source-page application form, official logo,
+  representative image and no-media fallback.
+- The requested homepage Magnific stock image is selected separately from the
+  application code. Magnific requires a registered download and license record;
+  the licensed asset must be supplied before the homepage hero-image change is
+  activated.

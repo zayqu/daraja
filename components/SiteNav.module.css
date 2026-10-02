@@ -239,9 +239,10 @@
   }
 
   .dockManaged .logo span {
-    margin-top: 2px;
-    font-size: 0.5rem;
-    letter-spacing: 0.26em;
+    margin-top: .32rem;
+    font-size: .5rem;
+    line-height: 1;
+    letter-spacing: .24em;
   }
 
   .dockManaged .mobileAccountActions {

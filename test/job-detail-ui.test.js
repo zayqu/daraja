@@ -28,6 +28,9 @@ test("job detail uses the shared Jobtex-inspired Daraja layout without changing 
   assert.match(component, /https:\/\/wa\.me\/\?text=/);
   assert.match(component, /trackEvent\("view_item"/);
   assert.match(component, /trackEvent\("apply_job"/);
+  assert.match(component, /JobBrandMedia/);
+  assert.match(component, /job\.applicationUrl/);
+  assert.match(component, /href=\{job\.sourceUrl\}/);
 
   assert.match(
     styles,
@@ -36,4 +39,6 @@ test("job detail uses the shared Jobtex-inspired Daraja layout without changing 
   assert.match(styles, /@media \(max-width: 640px\)/);
   assert.match(styles, /background: #1b2a3f/);
   assert.match(styles, /background: #00c9a7/);
+  assert.match(styles, /\.detailsCard[\s\S]*position:\s*static/);
+  assert.doesNotMatch(styles, /\.detailsCard[\s\S]*position:\s*sticky/);
 });

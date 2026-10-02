@@ -64,10 +64,6 @@ export default function MobileDock({ showEmployerCta = false }) {
   const [moreOpen, setMoreOpen] = useState(false);
 
   useEffect(() => {
-    setMoreOpen(false);
-  }, [pathname]);
-
-  useEffect(() => {
     if (!moreOpen) return undefined;
 
     function onKeyDown(event) {
@@ -124,12 +120,12 @@ export default function MobileDock({ showEmployerCta = false }) {
               <Link href="/jobs?category=Internships%20%26%20Graduate%20Programs">
                 Internships
               </Link>
-              <Link href="/about">About Daraja</Link>
-              <Link href="/contact">Contact</Link>
+              <Link href="/about" onClick={() => setMoreOpen(false)}>About Daraja</Link>
+              <Link href="/contact" onClick={() => setMoreOpen(false)}>Contact</Link>
               <a href={WHATSAPP_CHANNEL} target="_blank" rel="noopener noreferrer">
                 WhatsApp Channel
               </a>
-              {showEmployerCta && <Link href="/post-job">Post a Job</Link>}
+              {showEmployerCta && <Link href="/post-job" onClick={() => setMoreOpen(false)}>Post a Job</Link>}
             </nav>
           </section>
         </div>
@@ -143,6 +139,7 @@ export default function MobileDock({ showEmployerCta = false }) {
               href={item.href}
               className={`${styles.item} ${item.active ? styles.active : ""}`}
               aria-current={item.active ? "page" : undefined}
+              onClick={() => setMoreOpen(false)}
             >
               <span className={styles.iconWrap}>
                 <Icon name={item.icon} />

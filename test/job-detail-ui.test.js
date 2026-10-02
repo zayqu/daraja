@@ -37,7 +37,7 @@ test("job detail uses the shared Jobtex-inspired Daraja layout without changing 
     /grid-template-areas:\s*"details"\s*"content"\s*"apply"\s*"browse"/
   );
   assert.match(styles, /@media \(max-width: 640px\)/);
-  assert.match(styles, /background: #1b2a3f/);
+  assert.match(styles, /background: #fbfaf7/);
   assert.match(styles, /background: #00c9a7/);
   assert.match(styles, /\.detailsCard[\s\S]*position:\s*static/);
   assert.doesNotMatch(styles, /\.detailsCard[\s\S]*position:\s*sticky/);

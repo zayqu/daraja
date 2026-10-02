@@ -216,3 +216,13 @@ test("public pages do not depend on runtime Google Fonts imports", async () => {
     assert.doesNotMatch(source, /fonts\.googleapis\.com/, page);
   }
 });
+
+
+test("Daraja uses the original brand favicon instead of the Next.js starter icon", async () => {
+  const layout = await readFile(
+    path.join(__dirname, "..", "app", "layout.js"),
+    "utf8"
+  );
+
+  assert.match(layout, /https:\/\/www\.getdaraja\.com\/favicon\.ico/);
+});

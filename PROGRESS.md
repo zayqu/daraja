@@ -9,6 +9,27 @@ tested vertical releases. The current priority is Phase 0 security and privacy
 hardening before expanding candidate CV, employer, freelance, payment or AI
 workflows.
 
+## Current batch: complete shared UI polish
+
+- The shared Daraja navigation is now a white, sticky header on desktop and
+  mobile so the header connects visually with the approved light hero system.
+- The DARAJA wordmark keeps the teal brand treatment while the
+  "Kazi Na Fursa Tanzania" line has more separation, stronger contrast and a
+  lower baseline for legibility.
+- The homepage hero title uses Poppins 700 with a stronger display hierarchy.
+- Public homepage, jobs discovery, job detail, shared workspace heroes, footer,
+  alerts, workspace shells and shared cards now inherit one content width,
+  gutter system, section rhythm, radius/elevation language and responsive
+  spacing from `styles/tokens.css`.
+- Custom dark public job heroes were aligned to the same light warm-white
+  surface used by the homepage and shared `PageHero`, while preserving Daraja
+  teal, job data, application actions and accessibility.
+- Shared navigation/search controls were retuned for the light header and the
+  desktop navigation now stays sticky just like the mobile header.
+- This batch changes visual structure only. Routes, permissions, scraper logic,
+  database state, authentication, application destinations and job lifecycle
+  rules are unchanged.
+
 ## Current batch: global Poppins, mobile bridge and compact consent
 
 - Poppins now owns the shared `--font-daraja` token in the root layout, so

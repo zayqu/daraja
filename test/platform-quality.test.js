@@ -253,3 +253,13 @@ test("original Daraja browser favicon is provided through Next.js file metadata"
 
   assert.ok(icon.subarray(0, 8).equals(pngSignature));
 });
+
+
+test("mobile homepage hero keeps search readable without browser focus zoom", async () => {
+  const home = await readFile(path.join(__dirname, "..", "app", "page.js"), "utf8");
+
+  assert.match(home, /font-size:\s*1rem/);
+  assert.match(home, /@media \(max-width: 640px\)[\s\S]*\.hero h1 \.hero-word[\s\S]*animation:\s*none !important/);
+  assert.match(home, /@media \(max-width: 640px\)[\s\S]*\.hero-search[\s\S]*grid-template-columns:\s*1fr/);
+  assert.match(home, /@media \(max-width: 640px\)[\s\S]*\.hero-field,[\s\S]*\.hero-submit[\s\S]*font-size:\s*1rem/);
+});

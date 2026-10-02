@@ -5,9 +5,11 @@ export default function SurfaceCard({
   children,
   className = "",
   tone = "default",
+  ...props
 }) {
   return (
     <Tag
+      {...props}
       className={[
         styles.card,
         tone === "danger" ? styles.danger : "",

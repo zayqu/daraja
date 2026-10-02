@@ -46,11 +46,14 @@ function parseNmbCareers(html) {
     const description = details.join("\n\n");
     const location = description.match(/Job Location\s*:\s*([^\n]+)/i)?.[1]?.trim() || "Tanzania";
     const closing = description.match(/Job closing date\s*:\s*(\d{1,2}-[A-Za-z]{3}-\d{4})/i)?.[1];
-    const sectionLinks = $(heading)
-      .nextUntil("h1, h2, h3, h4, h5, h6")
-      .find("a[href]")
+    const sectionNodes = $(heading).nextUntil("h1, h2, h3, h4, h5, h6");
+    const sectionLinks = sectionNodes
+      .filter("a[href]")
+      .add(sectionNodes.find("a[href]"))
       .filter((__, anchor) =>
-        /apply|application|login|sign in|vacancy|job/i.test(cleanText($(anchor).text()))
+        /apply|application|login|sign in|register|vacancy|job/i.test(
+          cleanText($(anchor).text())
+        )
       );
     const applicationHref =
       sectionLinks.last().attr("href") ||

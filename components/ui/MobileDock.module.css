@@ -179,7 +179,8 @@
     gap: 6px;
   }
 
-  .sheetLinks a {
+  .sheetLinks a,
+  .sheetLinks button {
     min-height: 46px;
     display: flex;
     align-items: center;
@@ -192,8 +193,18 @@
     text-decoration: none;
   }
 
+  .sheetLinks button {
+    width: 100%;
+    border: 0;
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+  }
+
   .sheetLinks a:hover,
-  .sheetLinks a:focus-visible {
+  .sheetLinks a:focus-visible,
+  .sheetLinks button:hover,
+  .sheetLinks button:focus-visible {
     background: #eefbf8;
     color: var(--color-teal-deep);
   }

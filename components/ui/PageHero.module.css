@@ -1,6 +1,7 @@
 .hero {
   padding: var(--workspace-hero-padding-block) var(--gutter);
-  background: var(--color-navy);
+  background: #fbfaf7;
+  border-bottom: 1px solid #ebe8e1;
 }
 
 .inner {
@@ -24,16 +25,17 @@
 .inner h1 {
   max-width: 780px;
   margin: 0.5rem 0 0.85rem;
-  color: #fff;
+  color: var(--color-navy);
   font-size: clamp(2rem, 5vw, 3.25rem);
   line-height: 1.06;
+  font-weight: 700;
   letter-spacing: -0.04em;
 }
 
 .description {
   max-width: 680px;
   margin: 0;
-  color: var(--color-navy-soft);
+  color: var(--color-text-muted);
   font-size: 0.9rem;
   line-height: 1.7;
 }

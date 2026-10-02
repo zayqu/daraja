@@ -221,3 +221,16 @@ Minimum operational evidence:
 
 Never log credentials, access tokens, full sensitive profiles, CV contents, raw
 private messages, identity evidence or raw provider secrets.
+
+
+## External vacancy routing and media
+
+External Job records preserve two separate outbound concepts. `sourceUrl` is
+provenance: the page/feed posting Daraja verified and can revisit. The nullable
+`applicationUrl` is action: the final verified destination candidates should
+use to begin/complete an application. UI and APIs must not collapse these fields.
+
+Optional `companyLogo` and `representativeImage` store source-derived media.
+Rendering uses logo first, representative image second and a Daraja-owned neutral
+fallback last. Scrapers may only store public HTTP(S) media tied to the official
+source; they do not invent employer branding.

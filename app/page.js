@@ -140,6 +140,10 @@ export default function Home() {
           to { transform: translateX(120%); }
         }
 
+        @keyframes hero-mobile-enter {
+          from { opacity: 0; transform: translateY(10px); }
+        }
+
         @media (prefers-reduced-motion: reduce) {
           .hero *,
           .hero *::before,
@@ -176,6 +180,8 @@ export default function Home() {
           color: #1b2a3f;
           padding: 0 1rem;
           outline: none;
+          font: inherit;
+          font-size: 1rem;
         }
 
         .hero-field:focus {
@@ -414,16 +420,22 @@ export default function Home() {
 
         @media (max-width: 640px) {
           .hero {
-            padding: 2.5rem var(--gutter) 2.6rem;
+            padding: 1.85rem var(--gutter) 2rem;
             background: #fbfaf7;
           }
 
+          .hero-inner {
+            width: 100%;
+            max-width: 100%;
+          }
+
           .hero-layout {
-            margin-bottom: 1.15rem;
+            margin-bottom: 1rem;
           }
 
           .hero-copy {
             max-width: none;
+            animation: hero-mobile-enter .5s ease-out both;
           }
 
           .hero-eyebrow,
@@ -432,34 +444,51 @@ export default function Home() {
           }
 
           .hero h1 {
-            max-width: 340px;
-            margin-top: .55rem;
-            font-size: 2.25rem;
-            line-height: 1.01;
+            max-width: 100%;
+            margin: .5rem 0 .8rem;
+            font-size: clamp(2rem, 9.2vw, 2.35rem);
+            line-height: 1.02;
+            letter-spacing: -.04em;
+          }
+
+          .hero h1 .hero-word {
+            animation: none !important;
+          }
+
+          .hero h1 .hero-underline::after {
+            animation-delay: .3s;
           }
 
           .hero-lead {
-            max-width: 360px;
-            font-size: .84rem;
-            line-height: 1.55;
+            max-width: 34rem;
+            font-size: .88rem;
+            line-height: 1.5;
           }
 
           .hero-search {
+            width: 100%;
             grid-template-columns: 1fr;
-            gap: .45rem;
-            padding: .45rem;
-            border-radius: 14px;
-            box-shadow: none;
+            gap: .5rem;
+            padding: .5rem;
+            border-radius: 16px;
+            box-shadow: 0 10px 28px rgba(27, 31, 35, .08);
           }
 
           .hero-field,
           .hero-submit {
-            min-height: 46px;
-            border-radius: 10px;
+            min-height: 48px;
+            border-radius: 11px;
+            font-size: 1rem;
+          }
+
+          .hero-field {
+            padding-inline: .9rem;
           }
 
           .hero-submit {
             grid-column: auto;
+            width: 100%;
+            padding-inline: 1rem;
           }
 
           .quick-links {

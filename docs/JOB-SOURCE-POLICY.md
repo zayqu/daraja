@@ -1,6 +1,6 @@
 # Daraja job source policy
 
-Status: proposed platform policy
+Status: active platform policy
 Last reviewed: 2026-08-28
 
 ## Purpose
@@ -216,3 +216,27 @@ mandatory for:
 The same policy applies when Daraja expands to Kenya, Uganda, Rwanda and other
 markets. Country-specific registries, recruitment law, terminology and publisher
 relationships must be added; Tanzania assumptions must not be silently reused.
+
+
+## Stored source, application and media contract
+
+For every imported external vacancy, Daraja keeps provenance and candidate action
+separate:
+
+- `sourceUrl` is the canonical job advertisement/detail page used for
+  verification, attribution and future refreshes.
+- `applicationUrl` is the final verified candidate destination when one can be
+  determined from the source: form, ATS, login/register flow, official portal or
+  `mailto:` application.
+- `companyLogo` is an official organisation logo when the source exposes one.
+- `representativeImage` is a relevant official/source image used only when a
+  reliable logo is unavailable.
+
+The source URL must never be overwritten with an application URL. The public
+Apply action prefers `applicationUrl`; legacy rows without that field continue
+through the bounded server-side resolver until the authoritative source refresh
+repairs them.
+
+Media collection follows this order: official organisation logo, official
+organisation/job image, representative source-page image, then Daraja's neutral
+placeholder. Do not substitute unrelated stock imagery for employer branding.

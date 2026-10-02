@@ -6,6 +6,9 @@ import {
 } from "@/lib/employer-access";
 import EmployerPortalTabs from "@/components/EmployerPortalTabs";
 import SiteNav from "@/components/SiteNav";
+import PageHero from "@/components/ui/PageHero";
+import WorkspaceShell from "@/components/ui/WorkspaceShell";
+import SurfaceCard from "@/components/ui/SurfaceCard";
 import styles from "../portal.module.css";
 
 export const metadata = { title: "Moderation | Daraja" };
@@ -23,18 +26,13 @@ export default async function AdminPage() {
       <SiteNav />
 
       <main id="main-content">
-        <section className={styles.hero}>
-          <div className={styles.heroInner}>
-            <p className={styles.eyebrow}>Protected administration</p>
-            <h1>Verification and vacancy moderation.</h1>
-            <p>
-              Review employer trust, make publication decisions and preserve an
-              auditable moderation trail.
-            </p>
-          </div>
-        </section>
+        <PageHero
+          eyebrow="Protected administration"
+          title="Verification and vacancy moderation."
+          description="Review employer trust, make publication decisions and preserve an auditable moderation trail."
+        />
 
-        <div className={styles.shell}>
+        <WorkspaceShell>
           <EmployerPortalTabs showAdmin />
 
           <section className={styles.summaryStrip}>
@@ -49,7 +47,7 @@ export default async function AdminPage() {
           </section>
 
           <section className={styles.grid} aria-label="Administration safeguards">
-            <article className={styles.card}>
+            <SurfaceCard as="article">
               <span className={styles.cardLabel}>Employer trust</span>
               <h2>Verification decisions</h2>
               <p>
@@ -57,9 +55,9 @@ export default async function AdminPage() {
                 granted. Verification changes remain server-authorised and
                 auditable.
               </p>
-            </article>
+            </SurfaceCard>
 
-            <article className={styles.card}>
+            <SurfaceCard as="article">
               <span className={styles.cardLabel}>Vacancy trust</span>
               <h2>Moderation decisions</h2>
               <p>
@@ -67,9 +65,9 @@ export default async function AdminPage() {
                 require a reason and every decision records the authenticated
                 administrator.
               </p>
-            </article>
+            </SurfaceCard>
 
-            <article className={styles.card}>
+            <SurfaceCard as="article">
               <span className={styles.cardLabel}>Security boundary</span>
               <h2>Protected writes</h2>
               <ul>
@@ -77,9 +75,9 @@ export default async function AdminPage() {
                 <li>Same-origin mutation protection remains active.</li>
                 <li>Privileged changes retain durable audit evidence.</li>
               </ul>
-            </article>
+            </SurfaceCard>
 
-            <article className={styles.card}>
+            <SurfaceCard as="article">
               <span className={styles.cardLabel}>Human control</span>
               <h2>Consequential decisions</h2>
               <p>
@@ -87,9 +85,9 @@ export default async function AdminPage() {
                 human administrative actions. Automated assistance cannot grant
                 privileged access by itself.
               </p>
-            </article>
+            </SurfaceCard>
           </section>
-        </div>
+        </WorkspaceShell>
       </main>
     </div>
   );

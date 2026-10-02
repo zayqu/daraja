@@ -13,7 +13,7 @@
 @media (max-width: 760px) {
   .spacer {
     display: block;
-    height: calc(82px + env(safe-area-inset-bottom));
+    height: calc(var(--mobile-dock-height) + 20px + env(safe-area-inset-bottom));
   }
 
   .dockWrap {
@@ -30,7 +30,7 @@
 
   .dock {
     width: min(var(--mobile-dock-max), calc(100vw - 24px));
-    min-height: 62px;
+    min-height: var(--mobile-dock-height);
     display: grid;
     grid-template-columns: repeat(var(--dock-item-count, 4), minmax(0, 1fr));
     align-items: center;
@@ -117,7 +117,7 @@
     position: absolute;
     left: 12px;
     right: 12px;
-    bottom: calc(82px + env(safe-area-inset-bottom));
+    bottom: calc(var(--mobile-dock-height) + 20px + env(safe-area-inset-bottom));
     max-width: var(--mobile-dock-max);
     margin: 0 auto;
     padding: 10px 14px 14px;

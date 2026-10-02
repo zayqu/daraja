@@ -1,68 +1,35 @@
 .page {
   min-height: 100vh;
-  background: #f7f8fa;
-  color: #1b2a3f;
-}
-
-.hero {
-  padding: 3.25rem var(--gutter);
-  background: #1b2a3f;
-}
-
-.heroInner {
-  max-width: 900px;
-  margin: 0 auto;
-}
-
-.eyebrow {
-  margin: 0;
-  color: #00c9a7;
-  font-size: 0.7rem;
-  font-weight: 800;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-}
-
-.hero h1 {
-  max-width: 760px;
-  margin: 0.5rem 0 0.85rem;
-  color: #fff;
-  font-size: clamp(2rem, 5vw, 3.1rem);
-  line-height: 1.06;
-  letter-spacing: -0.04em;
-}
-
-.hero p:last-child {
-  max-width: 650px;
-  margin: 0;
-  color: rgba(255, 255, 255, 0.58);
-  font-size: 0.9rem;
-  line-height: 1.7;
-}
-
-.shell {
-  width: min(900px, calc(100% - 2rem));
-  margin: 0 auto;
-  padding: 1.5rem 0 4.5rem;
+  background: var(--color-bg);
+  color: var(--color-text);
 }
 
 .stack {
   display: grid;
-  gap: 1rem;
+  gap: var(--space-4);
 }
 
-.card {
-  padding: 1.5rem;
-  border: 1px solid #e3e8ee;
-  border-radius: 16px;
-  background: #fff;
+.privacyCard h2 {
+  margin: 0 0 0.7rem;
+  font-size: 1rem;
+}
+
+.privacyCard p {
+  margin: 0 0 0.7rem;
+  color: var(--color-text-muted);
+  font-size: 0.78rem;
+  line-height: 1.65;
+}
+
+.privacyCard p:last-of-type {
+  margin-bottom: 0;
 }
 
 .cardLabel,
 .dangerLabel {
   display: block;
   margin-bottom: 0.45rem;
-  color: #087f6c;
+  color: var(--color-teal-deep);
   font-size: 0.64rem;
   font-weight: 800;
   letter-spacing: 0.11em;
@@ -70,34 +37,18 @@
 }
 
 .dangerLabel {
-  color: #b42318;
-}
-
-.card h2 {
-  margin: 0 0 0.7rem;
-  font-size: 1rem;
-}
-
-.card p {
-  margin: 0 0 0.7rem;
-  color: #667085;
-  font-size: 0.78rem;
-  line-height: 1.65;
-}
-
-.card p:last-of-type {
-  margin-bottom: 0;
+  color: var(--color-danger);
 }
 
 .primaryAction {
   min-height: 44px;
   display: inline-flex;
   align-items: center;
-  margin-top: 1rem;
+  margin-top: var(--space-4);
   padding: 0.7rem 0.9rem;
-  border: 1px solid #087f6c;
+  border: 1px solid var(--color-teal-deep);
   border-radius: 10px;
-  color: #087f6c;
+  color: var(--color-teal-deep);
   font-size: 0.76rem;
   font-weight: 800;
   text-decoration: none;
@@ -108,57 +59,45 @@
   background: #f1fffb;
 }
 
-.status {
+.privacyCard :global(.status) {
   min-height: 36px;
   display: inline-flex;
   align-items: center;
   margin-top: 0.8rem;
   padding: 0.45rem 0.7rem;
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   background: #f3f5f7;
   color: #526071;
   font-size: 0.9rem;
   font-weight: 700;
 }
 
-.dangerCard {
-  border-color: #e5c5c5;
-  background: #fffdfd;
-}
-
-.deleteForm {
+.privacyCard :global(.delete-form) {
   max-width: 620px;
   display: grid;
-  gap: 1rem;
+  gap: var(--space-4);
   margin-top: 1.25rem;
 }
 
-.field {
+.privacyCard :global(.field) {
   display: grid;
   gap: 0.45rem;
   color: #273548;
   font-weight: 700;
 }
 
-.field input {
+.privacyCard :global(.field input) {
   width: 100%;
   min-height: 44px;
   padding: 0.7rem 0.8rem;
   border: 1px solid #cbd3dc;
   border-radius: 8px;
   background: #fff;
-  color: #1b2a3f;
+  color: var(--color-text);
   font: inherit;
 }
 
-.field input:focus-visible,
-.checkRow input:focus-visible,
-.deleteButton:focus-visible {
-  outline: 3px solid #9fcfc5;
-  outline-offset: 2px;
-}
-
-.checkRow {
+.privacyCard :global(.check-row) {
   display: grid;
   grid-template-columns: 22px 1fr;
   align-items: start;
@@ -167,13 +106,13 @@
   line-height: 1.55;
 }
 
-.checkRow input {
+.privacyCard :global(.check-row input) {
   width: 20px;
   height: 20px;
   margin-top: 0.15rem;
 }
 
-.deleteButton {
+.privacyCard :global(.delete-button) {
   min-height: 44px;
   justify-self: start;
   padding: 0.75rem 1rem;
@@ -186,32 +125,13 @@
   cursor: pointer;
 }
 
-.deleteButton:disabled {
+.privacyCard :global(.delete-button:disabled) {
   opacity: 0.5;
   cursor: not-allowed;
 }
 
-.formStatus {
-  min-height: 1.5rem;
-  margin: 0;
-  font-weight: 700;
-}
-
 @media (max-width: 640px) {
-  .hero {
-    padding-top: 2.5rem;
-    padding-bottom: 2.65rem;
-  }
-
-  .shell {
-    padding-top: 1.2rem;
-  }
-
-  .card {
-    padding: 1.15rem;
-  }
-
-  .deleteButton {
+  .privacyCard :global(.delete-button) {
     width: 100%;
   }
 }

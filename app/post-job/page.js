@@ -38,7 +38,7 @@ export default async function PostJobPage() {
           description="Daraja applies your verified employer identity automatically and keeps publication behind the moderation workflow."
         />
 
-        <WorkspaceShell>
+        <WorkspaceShell className={styles.formScope}>
           <EmployerPortalTabs showAdmin={isAdmin(actor)} />
 
           <SurfaceCard className={styles.formCard} aria-labelledby="vacancy-form-title">

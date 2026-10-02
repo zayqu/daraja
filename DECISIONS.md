@@ -367,3 +367,26 @@ The dock is not shown on admin, employer, post-job or authentication routes
 until role-specific mobile navigation is deliberately designed. Template-only
 features such as messages or application tracking must not appear until Daraja
 owns the corresponding backend/product capability.
+
+
+## D-028 - Candidate profile and notification slots are real product surfaces
+
+**Status:** accepted
+
+The mobile dock reserves separate candidate destinations for Profile and
+Notifications.
+
+Profile uses the existing authenticated candidate profile API and private
+`JobSeeker` record. It is not a decorative placeholder.
+
+Notifications has its own authenticated account route and bell entry point, but
+Daraja does not fabricate unread badges or fake notification items before a
+persisted notification backend exists. The shared mobile dock accepts a future
+`notificationCount` value and only renders a badge when the count is greater
+than zero.
+
+Email job alerts remain a separate preference surface under Job Alerts. They
+must not be relabelled as in-app notifications.
+
+Candidate career and employer feature flags remain centralized and continue to
+control which product entry points are exposed.

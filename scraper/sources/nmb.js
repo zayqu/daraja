@@ -1,6 +1,7 @@
 const cheerio = require("cheerio");
 
 const { cleanText, deduplicateJobs } = require("../lib/jobs");
+const { extractSourceMedia } = require("../lib/source-page");
 
 const NMB_CAREERS_URL = "https://careers.nmbbank.co.tz/nmb_career/career.aspx";
 const REQUEST_TIMEOUT_MS = 60000;
@@ -27,6 +28,7 @@ function isVacancyHeading(value) {
 function parseNmbCareers(html) {
   const $ = cheerio.load(html || "");
   const jobs = [];
+  const media = extractSourceMedia(html, NMB_CAREERS_URL);
 
   $("h1, h2, h3, h4, h5, h6").each((_, heading) => {
     const headingText = cleanText($(heading).text());
@@ -44,15 +46,19 @@ function parseNmbCareers(html) {
     const description = details.join("\n\n");
     const location = description.match(/Job Location\s*:\s*([^\n]+)/i)?.[1]?.trim() || "Tanzania";
     const closing = description.match(/Job closing date\s*:\s*(\d{1,2}-[A-Za-z]{3}-\d{4})/i)?.[1];
-    const sectionLinks = $(heading)
-      .nextUntil("h1, h2, h3, h4, h5, h6")
-      .find("a[href]")
+    const sectionNodes = $(heading).nextUntil("h1, h2, h3, h4, h5, h6");
+    const sectionLinks = sectionNodes
+      .filter("a[href]")
+      .add(sectionNodes.find("a[href]"))
       .filter((__, anchor) =>
-        /apply|application|login|sign in|vacancy|job/i.test(cleanText($(anchor).text()))
+        /apply|application|login|sign in|register|vacancy|job/i.test(
+          cleanText($(anchor).text())
+        )
       );
-    const link = sectionLinks.last().attr("href") ||
+    const applicationHref =
+      sectionLinks.last().attr("href") ||
       $(heading).find("a[href]").last().attr("href") ||
-      NMB_CAREERS_URL;
+      "";
 
     jobs.push({
       sourceId: `nmb-${title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "")}`,
@@ -61,7 +67,12 @@ function parseNmbCareers(html) {
       location,
       description: description || `View the official NMB Bank vacancy for ${title}.`,
       deadline: parseDate(closing),
-      sourceUrl: new URL(link, NMB_CAREERS_URL).toString(),
+      sourceUrl: NMB_CAREERS_URL,
+      applicationUrl: applicationHref
+        ? new URL(applicationHref, NMB_CAREERS_URL).toString()
+        : null,
+      companyLogo: media.companyLogo,
+      representativeImage: media.representativeImage,
       type: "FULL_TIME",
     });
   });

@@ -52,6 +52,7 @@ test("Ajira rendered Advert Name becomes the published job title", () => {
   assert.equal(job.deadline, "31/08/2026");
   assert.equal(job.numberOfPosts, "2 Posts");
   assert.equal(job.sourceId, "13243");
+  assert.equal(job.applicationUrl, "https://portal.ajira.go.tz/auth");
 });
 
 test("NMB official careers page produces named vacancies", () => {
@@ -70,5 +71,12 @@ test("NMB official careers page produces named vacancies", () => {
   assert.equal(jobs[0].company, "NMB Bank Plc");
   assert.equal(jobs[0].source, "nmb-bank-careers");
   assert.equal(jobs[0].deadline.toISOString(), "2026-08-07T23:59:59.000Z");
-  assert.match(jobs[0].sourceUrl, /^https:\/\/careers\.nmbbank\.co\.tz\//);
+  assert.equal(
+    jobs[0].sourceUrl,
+    "https://careers.nmbbank.co.tz/nmb_career/career.aspx"
+  );
+  assert.equal(
+    jobs[0].applicationUrl,
+    "https://careers.nmbbank.co.tz/nmb_career/login.aspx"
+  );
 });

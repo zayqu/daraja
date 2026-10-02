@@ -56,26 +56,46 @@ function parseDeadline(value) {
   return Number.isNaN(parsed.getTime()) ? null : parsed;
 }
 
-function normalizeUrl(value, baseUrl = AJIRA_VACANCIES_URL) {
+function normalizeOptionalUrl(
+  value,
+  baseUrl = AJIRA_VACANCIES_URL,
+  { allowMailto = false } = {}
+) {
   const text = cleanText(value);
-  if (!text) return baseUrl;
+  if (!text) return null;
+
   try {
     const url = new URL(text, baseUrl);
     if (url.protocol === "mailto:") {
+      if (!allowMailto) return null;
       const email = decodeURIComponent(url.pathname).trim();
-      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return baseUrl;
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return null;
       const params = [];
       const subject = url.searchParams.get("subject");
       const body = url.searchParams.get("body");
-      if (subject && !/[\r\n]/.test(subject)) params.push(`subject=${encodeURIComponent(subject.trim())}`);
-      if (body) params.push(`body=${encodeURIComponent(body.replace(/\r\n?/g, "\n"))}`);
+      if (subject && !/[\r\n]/.test(subject)) {
+        params.push(`subject=${encodeURIComponent(subject.trim())}`);
+      }
+      if (body) {
+        params.push(`body=${encodeURIComponent(body.replace(/\r\n?/g, "\n"))}`);
+      }
       const query = params.join("&");
       return `mailto:${email}${query ? `?${query}` : ""}`;
     }
-    if (url.protocol !== "https:" && url.protocol !== "http:") return baseUrl;
+
+    if (url.protocol !== "https:" && url.protocol !== "http:") return null;
     url.hash = "";
     return url.toString();
-  } catch { return baseUrl; }
+  } catch {
+    return null;
+  }
+}
+
+function normalizeUrl(value, baseUrl = AJIRA_VACANCIES_URL) {
+  return (
+    normalizeOptionalUrl(value, baseUrl, { allowMailto: true }) ||
+    baseUrl
+  );
 }
 
 function getSourceId(job, baseUrl = AJIRA_VACANCIES_URL) {
@@ -94,7 +114,20 @@ function normalizeJob(rawJob, defaults = {}) {
   const deadline = parseDeadline(rawJob.deadline || embeddedDeadline);
   const numberOfPosts = cleanText(rawJob.numberOfPosts);
   const baseUrl = defaults.baseUrl || AJIRA_VACANCIES_URL;
-  const sourceUrl = normalizeUrl(rawJob.sourceUrl, baseUrl);
+  const sourceUrl = normalizeUrl(
+    rawJob.sourceJobUrl || rawJob.sourceUrl,
+    baseUrl
+  );
+  const applicationUrl = normalizeOptionalUrl(
+    rawJob.applicationUrl,
+    sourceUrl,
+    { allowMailto: true }
+  );
+  const companyLogo = normalizeOptionalUrl(rawJob.companyLogo, sourceUrl);
+  const representativeImage = normalizeOptionalUrl(
+    rawJob.representativeImage,
+    sourceUrl
+  );
   if (title.length < 3) return null;
   const job = {
     title,
@@ -104,6 +137,9 @@ function normalizeJob(rawJob, defaults = {}) {
     category: cleanText(rawJob.category) || cleanText(defaults.category) || categorizeJob({ ...rawJob, company, source: cleanText(defaults.source) }),
     type: rawJob.type || defaults.type || "FULL_TIME",
     sourceUrl,
+    applicationUrl,
+    companyLogo,
+    representativeImage,
     source: cleanText(defaults.source) || AJIRA_SOURCE,
     language: cleanText(rawJob.language) || cleanText(defaults.language) || "en",
     deadline,
@@ -122,4 +158,17 @@ function deduplicateJobs(rawJobs, defaults = {}) {
   return [...jobs.values()];
 }
 
-module.exports = { AJIRA_SOURCE, AJIRA_VACANCIES_URL, cleanDescription, cleanLocation, cleanText, deadlineFromLocation, deduplicateJobs, getSourceId, normalizeJob, normalizeUrl, parseDeadline };
+module.exports = {
+  AJIRA_SOURCE,
+  AJIRA_VACANCIES_URL,
+  cleanDescription,
+  cleanLocation,
+  cleanText,
+  deadlineFromLocation,
+  deduplicateJobs,
+  getSourceId,
+  normalizeJob,
+  normalizeOptionalUrl,
+  normalizeUrl,
+  parseDeadline,
+};

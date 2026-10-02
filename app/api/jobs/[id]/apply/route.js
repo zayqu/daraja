@@ -40,6 +40,7 @@ export async function GET(_request, context) {
         slug: true,
         source: true,
         sourceUrl: true,
+        applicationUrl: true,
         deadline: true,
       },
     });
@@ -50,6 +51,29 @@ export async function GET(_request, context) {
     if (job.deadline && job.deadline < new Date()) {
       return jsonError("Applications are closed", 410);
     }
+    if (job.applicationUrl) {
+      if (job.applicationUrl.startsWith("mailto:")) {
+        return new Response(null, {
+          status: 302,
+          headers: {
+            Location: job.applicationUrl,
+            "Cache-Control": "private, no-store",
+          },
+        });
+      }
+
+      if (!isSafePublicHttpUrl(job.applicationUrl)) {
+        return jsonError("The application link is not allowed", 400);
+      }
+
+      // New scraper records store the verified application destination
+      // separately from the source job page, so Apply can go there directly.
+      return redirectTo(job.applicationUrl);
+    }
+
+    // Compatibility path for records created before applicationUrl existed.
+    // Keep resolving the source page safely until the next source refresh
+    // repopulates the distinct destination.
     if (!job.sourceUrl) {
       return jsonError("No application link is available", 404);
     }
@@ -66,15 +90,12 @@ export async function GET(_request, context) {
       return jsonError("The application link is not allowed", 400);
     }
 
-    // Employer-posted jobs and known ATS links already point at the application target.
     if (job.source === "daraja" || isLikelyDirectApplicationUrl(job.sourceUrl)) {
       return redirectTo(job.sourceUrl);
     }
 
-    // Only fetch exact, source-owned hosts. Other verified destinations are
-    // opened in the candidate's browser without turning Daraja into a proxy.
     if (!isAllowedResolverUrl(job.source, job.sourceUrl)) {
-      return redirectTo(job.sourceUrl);
+      return jsonError("A direct application link could not be verified", 502);
     }
 
     const { response, url: resolvedUrl } = await fetchAllowedApplicationPage({
@@ -95,8 +116,6 @@ export async function GET(_request, context) {
       if (finalTarget) return redirectTo(finalTarget);
     }
 
-    // Ajira requires authentication before applying. Never send the user back to
-    // the vacancy description page when the unauthenticated page exposes no CTA.
     if (job.source === "ajira") {
       return redirectTo(AJIRA_LOGIN_URL);
     }

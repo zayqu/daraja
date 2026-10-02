@@ -6,6 +6,7 @@ import AdSenseSlot from "@/components/AdSenseSlot";
 import JobAlerts from "@/components/JobAlerts";
 import SiteNav from "@/components/SiteNav";
 import SiteFooter from "@/components/SiteFooter";
+import JobBrandMedia from "@/components/JobBrandMedia";
 import { trackEvent } from "@/lib/analytics";
 import { JOB_CATEGORIES } from "@/lib/job-categories";
 import {
@@ -72,6 +73,32 @@ export default function JobsPageClient({
       setLoading(false);
     }
   }, [page, category, location, type, submittedSearch, status]);
+
+  useEffect(() => {
+    if (!filtersOpen) return undefined;
+
+    const body = document.body;
+    const previousOverflow = body.style.overflow;
+    const previousPaddingRight = body.style.paddingRight;
+    const scrollbarWidth =
+      window.innerWidth - document.documentElement.clientWidth;
+
+    if (scrollbarWidth > 0) {
+      body.style.paddingRight = `${scrollbarWidth}px`;
+    }
+    body.style.overflow = "hidden";
+
+    function closeOnEscape(event) {
+      if (event.key === "Escape") setFiltersOpen(false);
+    }
+    window.addEventListener("keydown", closeOnEscape);
+
+    return () => {
+      body.style.overflow = previousOverflow;
+      body.style.paddingRight = previousPaddingRight;
+      window.removeEventListener("keydown", closeOnEscape);
+    };
+  }, [filtersOpen]);
 
   useEffect(() => {
     const canonicalUrl = buildJobsUrl({
@@ -626,34 +653,38 @@ export default function JobsPageClient({
           .filters {
             position: fixed;
             z-index: 980;
-            right: 10px;
-            bottom: calc(8px + env(safe-area-inset-bottom));
-            left: 10px;
+            top: 50%;
+            left: 50%;
+            right: auto;
+            bottom: auto;
+            width: min(520px, calc(100vw - 32px));
+            max-height: calc(100dvh - 32px);
             display: grid;
-            max-height: min(78vh, 620px);
             overflow-y: auto;
             grid-template-columns: 1fr;
             gap: .8rem;
-            padding: .7rem 1rem 1rem;
-            border-radius: 24px;
+            padding: 1rem;
+            border-radius: 20px;
             box-shadow: 0 20px 60px rgba(15, 23, 42, .22);
-            transform: translateY(calc(100% + 30px));
+            opacity: 0;
             visibility: hidden;
-            transition: transform .22s ease, visibility .22s ease;
+            pointer-events: none;
+            transform: translate(-50%, -48%) scale(.98);
+            transition:
+              opacity .18s ease,
+              transform .18s ease,
+              visibility .18s ease;
           }
 
           .filters-open {
-            transform: translateY(0);
+            opacity: 1;
             visibility: visible;
+            pointer-events: auto;
+            transform: translate(-50%, -50%) scale(1);
           }
 
           .filters-handle {
-            display: block;
-            width: 38px;
-            height: 4px;
-            margin: 0 auto .15rem;
-            border-radius: 999px;
-            background: #d7dde4;
+            display: none;
           }
 
           .filter-close,
@@ -965,9 +996,13 @@ export default function JobsPageClient({
                         })}
                       >
                         <div className="job-card-top">
-                          <div className="company-mark" aria-hidden="true">
-                            {(job.company || "D").trim().slice(0, 2).toUpperCase()}
-                          </div>
+                          <JobBrandMedia
+                            company={job.company}
+                            companyLogo={job.companyLogo}
+                            representativeImage={job.representativeImage}
+                            className="company-mark"
+                            sizes="48px"
+                          />
 
                           <div className="job-card-main">
                             <div className="job-company">{job.company}</div>

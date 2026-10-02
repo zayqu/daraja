@@ -72,19 +72,25 @@ test("getSourceId prefers the vacancy identifier in a detail URL", () => {
   );
 });
 
-test("normalizeJob cleans data and keeps official application link", () => {
+test("normalizeJob keeps source, application and media fields separate", () => {
   const job = normalizeJob({
     title: "  ICT   Officer ",
     company: " Ministry  of Example ",
     deadline: "31/12/2099",
     numberOfPosts: "2 Posts",
     sourceUrl: "/vacancies/42",
+    applicationUrl: "/auth/login",
+    companyLogo: "/assets/logo.png",
+    representativeImage: "/assets/team.jpg",
   });
 
   assert.equal(job.title, "ICT Officer");
   assert.equal(job.company, "Ministry of Example");
   assert.equal(job.deadline.toISOString(), "2099-12-31T23:59:59.000Z");
   assert.equal(job.sourceUrl, "https://portal.ajira.go.tz/vacancies/42");
+  assert.equal(job.applicationUrl, "https://portal.ajira.go.tz/auth/login");
+  assert.equal(job.companyLogo, "https://portal.ajira.go.tz/assets/logo.png");
+  assert.equal(job.representativeImage, "https://portal.ajira.go.tz/assets/team.jpg");
   assert.equal(job.active, true);
   assert.match(job.description, /2 Posts/);
 });

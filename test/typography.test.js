@@ -15,7 +15,7 @@ test("Daraja keeps its established typography stack across the app", async () =>
 
   assert.match(
     globals,
-    /--font-daraja:\s*"Segoe UI", Arial, Helvetica, sans-serif;/,
+    /--font-daraja:\s*var\(--font-geist-sans\), Arial, Helvetica, sans-serif;/,
   );
   assert.match(globals, /body\s*\{[\s\S]*font-family:\s*var\(--font-daraja\)/);
   assert.match(
@@ -23,6 +23,8 @@ test("Daraja keeps its established typography stack across the app", async () =>
     /h1,[\s\S]*h6,[\s\S]*font-family:\s*var\(--font-daraja\)/,
   );
 
-  assert.doesNotMatch(layout, /next\/font/);
+  assert.match(layout, /import \{ Geist, Geist_Mono \} from "next\/font\/google"/);
+  assert.match(layout, /geistSans\.variable/);
+  assert.match(layout, /geistMono\.variable/);
   assert.doesNotMatch(globals, /@font-face/);
 });

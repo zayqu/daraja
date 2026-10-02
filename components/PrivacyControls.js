@@ -52,8 +52,10 @@ export default function PrivacyControls({ analyticsId, adsenseClient }) {
   const servicesEnabled = analyticsEnabled || adsEnabled;
 
   useEffect(() => {
-    setConsent(readConsent());
-    setHasLoadedConsent(true);
+    const timer = window.setTimeout(() => {
+      setConsent(readConsent());
+      setHasLoadedConsent(true);
+    }, 0);
 
     function openPrivacySettings() {
       setIsOpen(true);
@@ -61,6 +63,7 @@ export default function PrivacyControls({ analyticsId, adsenseClient }) {
 
     window.addEventListener(PRIVACY_SETTINGS_EVENT, openPrivacySettings);
     return () => {
+      window.clearTimeout(timer);
       window.removeEventListener(PRIVACY_SETTINGS_EVENT, openPrivacySettings);
     };
   }, []);

@@ -9,6 +9,20 @@ tested vertical releases. The current priority is Phase 0 security and privacy
 hardening before expanding candidate CV, employer, freelance, payment or AI
 workflows.
 
+## Current batch: white hero reference canvas
+
+- The homepage hero now matches the supplied five-second reference video with a
+  clean warm-white canvas instead of the photo/grey background.
+- Headline and supporting copy use dark neutral text on the light canvas while
+  preserving the existing teal accent and animation timing.
+- The desktop bridge remains the same server-rendered decorative animation, but
+  its deck, hangers, labels and category cards are retuned for the light
+  reference background so contrast remains intentional.
+- Mobile keeps the same light hero canvas; the bridge remains hidden at 900px
+  and below as before.
+- The search form, categories, hero animation sequence, reduced-motion behavior,
+  favicon, scraper, schema and application flow are unchanged.
+
 ## Current batch: Homepage hero animation
 
 - The existing homepage hero in `app/page.js` now plays a five-second,

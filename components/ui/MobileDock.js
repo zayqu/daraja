@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { mobileDockEnabledPath } from "@/lib/mobile-navigation";
 import styles from "./MobileDock.module.css";
 
 const WHATSAPP_CHANNEL =
@@ -58,15 +59,6 @@ function Icon({ name }) {
   return null;
 }
 
-function isHiddenRoute(pathname) {
-  return (
-    pathname.startsWith("/admin") ||
-    pathname.startsWith("/employer") ||
-    pathname.startsWith("/post-job") ||
-    pathname.startsWith("/auth/")
-  );
-}
-
 export default function MobileDock({ showEmployerCta = false }) {
   const pathname = usePathname();
   const [moreOpen, setMoreOpen] = useState(false);
@@ -86,7 +78,7 @@ export default function MobileDock({ showEmployerCta = false }) {
     return () => window.removeEventListener("keydown", onKeyDown);
   }, [moreOpen]);
 
-  if (isHiddenRoute(pathname)) return null;
+  if (!mobileDockEnabledPath(pathname)) return null;
 
   const items = [
     { href: "/", label: "Home", icon: "home", active: pathname === "/" },

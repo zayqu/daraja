@@ -52,3 +52,15 @@ test("public job reads use a short shared cache without changing lifecycle owner
   assert.match(query, /buildPublicJobWhere/);
   assert.match(moderation, /revalidateTag\(PUBLIC_JOBS_CACHE_TAG, "seconds"\)/);
 });
+
+
+test("mobile jobs discovery keeps filters out of the primary page flow", async () => {
+  const client = await read("app/jobs/JobsPageClient.js");
+
+  assert.match(client, /filtersOpen/);
+  assert.match(client, /className="mobile-filter-btn"/);
+  assert.match(client, /className="filters-backdrop"/);
+  assert.match(client, /filters-open/);
+  assert.match(client, /Show \{pagination\.total \|\| 0\} opportunities/);
+  assert.match(client, /position: fixed;/);
+});

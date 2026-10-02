@@ -9,6 +9,24 @@ tested vertical releases. The current priority is Phase 0 security and privacy
 hardening before expanding candidate CV, employer, freelance, payment or AI
 workflows.
 
+## Current batch: global UI rhythm and white sticky navigation
+
+- The shared site navigation now uses a white, sticky treatment on desktop and
+  mobile so the header visually connects to the light homepage hero while
+  remaining available during scroll.
+- The Daraja descriptor under the wordmark has stronger contrast, more breathing
+  room below the logo and a tighter letter-spacing treatment so it remains
+  legible at desktop and mobile sizes.
+- Header content now aligns to the same shared content width and gutters used by
+  the rest of the site instead of stretching independently edge-to-edge.
+- The homepage hero headline uses Poppins 700 with a slightly calmer line-height
+  and tracking, while hero/search widths, section spacing, grid gaps and card
+  padding are aligned to the shared design tokens.
+- A shared `--section-space` token now controls vertical page rhythm across
+  responsive breakpoints so future sections can inherit the same spacing model.
+- These changes are visual/system-only and do not alter routes, data, scraper,
+  application flow, authentication or production records.
+
 ## Current batch: global Poppins, mobile bridge and compact consent
 
 - Poppins now owns the shared `--font-daraja` token in the root layout, so

@@ -106,11 +106,22 @@ async function runScrapers({ dryRun = false, requestedSources = new Set() } = {}
               source: source.id,
               found: jobs.length,
               sample: jobs.slice(0, 3).map(
-                ({ title, company, deadline, sourceUrl }) => ({
+                ({
                   title,
                   company,
                   deadline,
                   sourceUrl,
+                  applicationUrl,
+                  companyLogo,
+                  representativeImage,
+                }) => ({
+                  title,
+                  company,
+                  deadline,
+                  sourceUrl,
+                  applicationUrl,
+                  companyLogo,
+                  representativeImage,
                 })
               ),
             }

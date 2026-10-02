@@ -243,7 +243,8 @@ test("homepage hero animation is decorative, server-rendered and respects reduce
   assert.doesNotMatch(bridge, /^"use client"/m);
   assert.match(bridge, /aria-hidden="true"/);
   assert.match(bridgeCss, /prefers-reduced-motion: reduce/);
-  assert.match(bridgeCss, /@media \(max-width: 900px\)[\s\S]*width:\s*min\(320px, 92vw\)/);\n  assert.doesNotMatch(bridgeCss, /@media \(max-width: 900px\)[\s\S]*display:\s*none/);
+  assert.match(bridgeCss, /@media \(max-width: 900px\)[\s\S]*width:\s*min\(320px, 92vw\)/);
+  assert.doesNotMatch(bridgeCss, /@media \(max-width: 900px\)[\s\S]*display:\s*none/);
 });
 
 

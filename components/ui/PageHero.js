@@ -5,10 +5,11 @@ export default function PageHero({
   title,
   description,
   maxWidth = "wide",
+  variant = "default",
   children,
 }) {
   return (
-    <section className={styles.hero}>
+    <section className={[styles.hero, variant === "overlap" ? styles.overlap : ""].filter(Boolean).join(" ")}>
       <div
         className={[
           styles.inner,

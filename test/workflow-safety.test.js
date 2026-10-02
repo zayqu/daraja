@@ -21,6 +21,15 @@ const releaseWorkflowPath = join(
 );
 const releaseWorkflow = readFileSync(releaseWorkflowPath, "utf8");
 
+const deployScriptPath = join(
+  __dirname,
+  "..",
+  "ops",
+  "cpanel",
+  "deploy.sh"
+);
+const deployScript = readFileSync(deployScriptPath, "utf8");
+
 test("scheduled scraping never mutates the production database schema", () => {
   assert.doesNotMatch(scraperWorkflow, /\bprisma\s+migrate\b/i);
   assert.doesNotMatch(scraperWorkflow, /\bmigrate\s+(?:deploy|resolve|reset)\b/i);
@@ -47,4 +56,13 @@ test("cPanel releases fail before build when production dependencies have high s
     releaseWorkflow.indexOf("Audit production dependencies") <
       releaseWorkflow.indexOf("Build production bundle")
   );
+});
+
+
+test("cPanel stale-worker recovery scopes next-server processes to the Daraja runtime", () => {
+  assert.match(deployScript, /\[n\]ext-server/);
+  assert.match(deployScript, /runtime_prefix/);
+  assert.match(deployScript, /worker_cwd/);
+  assert.match(deployScript, /terminate_app_scoped_node_workers/);
+  assert.doesNotMatch(deployScript, /pkill[^\n]+\[n\]ext-server/);
 });

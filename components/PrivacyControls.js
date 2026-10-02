@@ -7,6 +7,7 @@ import { Suspense, useEffect, useState } from "react";
 import {
   CONSENT_EVENT,
   CONSENT_STORAGE_KEY,
+  PRIVACY_SETTINGS_EVENT,
   isValidAdSenseClient,
   isValidGoogleAnalyticsId,
 } from "@/lib/google-services";
@@ -35,13 +36,21 @@ function AnalyticsPageViews({ measurementId }) {
 
 export default function PrivacyControls({ analyticsId, adsenseClient }) {
   const [consent, setConsent] = useState(null);
+  const [isOpen, setIsOpen] = useState(false);
   const analyticsEnabled = isValidGoogleAnalyticsId(analyticsId);
   const adsEnabled = isValidAdSenseClient(adsenseClient);
   const servicesEnabled = analyticsEnabled || adsEnabled;
 
   useEffect(() => {
     const timer = window.setTimeout(() => setConsent(readConsent()), 0);
-    return () => window.clearTimeout(timer);
+    function openPrivacySettings() {
+      setIsOpen(true);
+    }
+    window.addEventListener(PRIVACY_SETTINGS_EVENT, openPrivacySettings);
+    return () => {
+      window.clearTimeout(timer);
+      window.removeEventListener(PRIVACY_SETTINGS_EVENT, openPrivacySettings);
+    };
   }, []);
 
   function saveConsent(value) {
@@ -56,6 +65,7 @@ export default function PrivacyControls({ analyticsId, adsenseClient }) {
       });
     }
     setConsent(value);
+    setIsOpen(false);
     window.dispatchEvent(new CustomEvent(CONSENT_EVENT, { detail: value }));
   }
 
@@ -116,7 +126,7 @@ export default function PrivacyControls({ analyticsId, adsenseClient }) {
         />
       )}
 
-      {consent === null && (
+      {(consent === null || isOpen) && (
         <section className="privacy-banner" aria-labelledby="privacy-title">
           <div>
             <h2 id="privacy-title">Your privacy choices</h2>

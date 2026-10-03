@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 import { mobileDockEnabledPath } from "@/lib/mobile-navigation";
 import NavIcon from "@/components/ui/NavIcon";
 import { PRIVACY_SETTINGS_EVENT } from "@/lib/google-services";
@@ -16,7 +16,10 @@ export default function MobileDock({
   showCandidateProfile = false,
 }) {
   const pathname = usePathname();
+  const searchParams = useSearchParams();
   const [moreOpen, setMoreOpen] = useState(false);
+  const freelanceActive =
+    pathname.startsWith("/jobs") && searchParams.get("type") === "FREELANCE";
 
   useEffect(() => {
     if (!moreOpen) return undefined;
@@ -37,13 +40,13 @@ export default function MobileDock({
       href: "/jobs",
       label: "Jobs",
       icon: "jobs",
-      active: pathname.startsWith("/jobs") && !pathname.includes("category=Internships"),
+      active: pathname.startsWith("/jobs") && !freelanceActive,
     },
     {
       href: "/jobs?type=FREELANCE",
       label: "Freelance",
       icon: "freelance",
-      active: false,
+      active: freelanceActive,
     },
   ];
 
@@ -124,7 +127,7 @@ export default function MobileDock({
               onClick={() => setMoreOpen(false)}
             >
               <span className={styles.iconWrap}>
-                <NavIcon name={item.icon} />
+                <NavIcon name={item.icon} size={24} />
               </span>
               <span className={styles.label}>{item.label}</span>
             </Link>
@@ -137,7 +140,7 @@ export default function MobileDock({
             onClick={() => setMoreOpen((value) => !value)}
           >
             <span className={styles.iconWrap}>
-              <NavIcon name="more" />
+              <NavIcon name="more" size={24} />
             </span>
             <span className={styles.label}>More</span>
           </button>

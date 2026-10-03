@@ -37,13 +37,8 @@ function daysUntil(value) {
 }
 
 function deadlineLabel(value) {
-  const days = daysUntil(value);
-  if (days === null) return null;
-  if (days < 0) return "Applications closed";
-  if (days === 0) return "Closes today";
-  if (days === 1) return "Closes tomorrow";
-  if (days <= 7) return `Closes in ${days} days`;
-  return `Closes ${formatDate(value)}`;
+  const formatted = formatDate(value);
+  return formatted ? `Deadline: ${formatted}` : null;
 }
 
 function deadlineTone(value) {
@@ -96,6 +91,12 @@ export default function JobCard({
         sizes="52px"
       />
 
+      <span className={styles.saveVisual} aria-hidden="true">
+        <svg viewBox="0 0 24 24" focusable="false">
+          <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 0 0 0-7.78Z" />
+        </svg>
+      </span>
+
       <div className={styles.content}>
         <div className={styles.titleRow}>
           <h3 className={styles.title}>{job.title}</h3>
@@ -120,7 +121,10 @@ export default function JobCard({
       <div className={styles.side}>
         {deadline && (
           <span className={`${styles.deadline} ${deadlineTone(job.deadline)}`}>
-            {deadline}
+            <span>{deadline}</span>
+            <svg className={styles.calendarIcon} viewBox="0 0 24 24" focusable="false" aria-hidden="true">
+              <path d="M7 3v3M17 3v3M4 9h16M5 5h14a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1Z" />
+            </svg>
           </span>
         )}
         {posted && <span className={styles.posted}>{posted}</span>}

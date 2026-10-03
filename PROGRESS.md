@@ -868,3 +868,14 @@ Every batch must record:
 - Mobile uses the same component with a compact two-column composition rather than a separate duplicate card implementation.
 - The reference pattern was adapted rather than copied: no fabricated experience requirement and no decorative save/bookmark action was introduced because those card-level data/actions are not currently verified owners.
 - This change is schema-free and does not alter job data, source/application destinations, authentication, permissions, filters, pagination, analytics ownership or production data.
+
+
+## Current batch: compact mobile job card alignment
+
+- Mobile job cards now use a strict three-column row alignment matching the approved reference: logo/title/save visual, company/location, then type/category/deadline.
+- Right-side mobile details stay flush to the card's inner right edge instead of being pushed by left-side content.
+- Long company names truncate safely so location and deadline remain aligned rather than wrapping unpredictably.
+- Mobile deadline wording now uses `Deadline: <date>` with a compact calendar icon; posted-time text is hidden on mobile to reduce visual noise.
+- Desktop card composition remains unchanged.
+- The heart is visual-only in this UI pass; no false saved state or new saved-job mutation was introduced.
+- This is a presentation-only change with no schema, authentication, permission, job-source, application-route or production-data impact.

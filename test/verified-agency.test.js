@@ -180,3 +180,63 @@ test("agency collection preserves existing records when discovery yields nothing
   assert.deepEqual(jobs, []);
   assert.equal(jobs.health.preserveExisting, true);
 });
+
+
+test("eKazi-style official detail keeps current deadline and login application flow", async () => {
+  const source = {
+    id: "ekazi-exact-manpower",
+    name: "eKazi / Exact Manpower Consulting Ltd",
+    url: "https://api.ekazi.co.tz/find-job",
+    recruiterName: "Exact Manpower Consulting Ltd",
+    countryFilter: "Tanzania",
+    requireDeadline: true,
+    detailPageIsApplication: true,
+    defaultLocation: "Tanzania",
+    discovery: {
+      allowedHosts: ["api.ekazi.co.tz"],
+      detailPathPattern: "^/job/show/",
+    },
+  };
+
+  const result = await parseAgencyDetail(
+    {
+      sourceUrl:
+        "https://api.ekazi.co.tz/job/show/recruitment-officer-intern-job-in-tanzania-/MTQwMDg%3D",
+      contextText:
+        "Recruitment Officer Intern Deadline Wed, 21 Oct 2026 Tanzania",
+    },
+    source,
+    {
+      now: new Date("2026-10-03T10:00:00.000Z"),
+      fetchFn: async () => ({
+        ok: true,
+        headers: new Headers({ "content-type": "text/html" }),
+        text: async () =>
+          [
+            "<html><body>",
+            "<h1>Recruitment Officer Intern</h1>",
+            "<p>Job Type Internship</p>",
+            "<p>Deadline: 21 October 2026</p>",
+            "<h2>Job Description</h2>",
+            "<p>Support recruitment, candidate screening and interview coordination.</p>",
+            "<p>Location: Dar es Salaam, Tanzania</p>",
+            "<p>Company: Exact Manpower Consulting Ltd</p>",
+            '<a href="/login">Please login or register to apply this position</a>',
+            "</body></html>",
+          ].join(""),
+      }),
+    }
+  );
+
+  assert.ok(result.job);
+  assert.equal(result.job.company, "Exact Manpower Consulting Ltd");
+  assert.equal(result.job.type, "INTERNSHIP");
+  assert.equal(
+    result.job.applicationUrl,
+    "https://api.ekazi.co.tz/login"
+  );
+  assert.equal(
+    result.job.deadline.toISOString(),
+    "2026-10-21T23:59:59.000Z"
+  );
+});

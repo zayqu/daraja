@@ -28,7 +28,6 @@ test("public job results use one shared hierarchy-first job card", async () => {
   assert.match(card, /className=\{styles\.tags\}/);
   assert.match(card, /Deadline:/);
   assert.match(card, /styles\.deadline/);
-  assert.match(card, /styles\.mobileCompanyBrand/);
   assert.match(card, /styles\.saveVisual/);
   assert.match(card, /styles\.calendarIcon/);
   assert.match(card, /JobBrandMedia/);
@@ -46,11 +45,13 @@ test("public job results use one shared hierarchy-first job card", async () => {
   );
   assert.match(
     styles,
-    /grid-template-areas:[\s\S]*"brand title save"[\s\S]*"companyBrand company location"[\s\S]*"tags tags deadline"/
+    /grid-template-areas:[\s\S]*"brand title save"[\s\S]*"brand company location"[\s\S]*"tags tags deadline"/
   );
+  assert.doesNotMatch(card, /mobileCompanyBrand/);
+  assert.doesNotMatch(styles, /mobileCompanyBrand/);
   assert.match(
     styles,
-    /\.mobileCompanyBrand[\s\S]*grid-area:\s*companyBrand[\s\S]*width:\s*22px/
+    /\.brand[\s\S]*grid-area:\s*brand[\s\S]*align-self:\s*center/
   );
   assert.match(styles, /\.location[\s\S]*justify-self:\s*end/);
   assert.match(styles, /\.deadline[\s\S]*justify-self:\s*end/);

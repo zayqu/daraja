@@ -904,3 +904,11 @@ Every batch must record:
 - Homepage counters are read server-side through a five-minute cache and use the same active-job rules as public job results; no manual numbers are embedded.
 - Contact remains a dedicated trust/support page for listing corrections, privacy and application-source questions.
 - Visitor measurement remains owned by the existing analytics layer rather than adding a public, bot-inflatable page-view number to the homepage.
+
+
+### Mobile bottom navigation reference refinement
+
+- The mobile dock now follows the reviewed bottom-navigation guidance more closely: four primary tabs, 24px icons, at least 50px item height, short one-line labels and a clearer selected state.
+- Active tabs use Daraja teal plus stronger label weight and a restrained icon highlight instead of boxing every navigation item.
+- Freelance now has a real query-aware active state; Jobs is not left selected when the user is on the Freelance filter.
+- The dock remains visually separated from page content through its existing floating glass surface, border, shadow and safe-area spacing.

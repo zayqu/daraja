@@ -17,9 +17,9 @@ function archPoint(t) {
 const HANGERS = Array.from({ length: 9 }, (_, index) => archPoint((index + 1) / 10));
 
 const CATEGORIES = [
+  { label: "Private sector & Institutions", mark: "PI", className: styles.cardPrivate },
   { label: "Government", mark: "GV", className: styles.cardGov },
-  { label: "Banking & Finance", mark: "BK", className: styles.cardBank },
-  { label: "NGO & Development", mark: "NG", className: styles.cardNgo },
+  { label: "Bank & Finance", mark: "BF", className: styles.cardBank },
 ];
 
 /**

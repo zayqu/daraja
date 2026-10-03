@@ -60,9 +60,7 @@ export default function MobileDock({
               href: "/account/career",
               label: "Career",
               icon: "user",
-              active:
-                pathname.startsWith("/account/career") ||
-                pathname.startsWith("/account/profile"),
+              active: pathname.startsWith("/account/career"),
             }
           : {
               href: "/jobs?type=FREELANCE",

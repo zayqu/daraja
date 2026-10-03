@@ -128,7 +128,7 @@ test("does not treat a generic company UI icon as an employer logo", () => {
     ),
     {
       companyLogo: null,
-      representativeImage: "https://careers.example.co.tz/icons/company.svg",
+      representativeImage: null,
     }
   );
 });

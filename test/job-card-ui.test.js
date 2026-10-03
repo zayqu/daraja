@@ -26,7 +26,10 @@ test("public job results use one shared hierarchy-first job card", async () => {
   assert.match(card, /className=\{styles\.company\}>\{job\.company\}/);
   assert.match(card, /className=\{styles\.location\}>\{job\.location\}/);
   assert.match(card, /className=\{styles\.tags\}/);
+  assert.match(card, /Deadline:/);
   assert.match(card, /styles\.deadline/);
+  assert.match(card, /styles\.saveVisual/);
+  assert.match(card, /styles\.calendarIcon/);
   assert.match(card, /JobBrandMedia/);
   assert.match(card, /JOB_TYPE_LABELS/);
   assert.match(card, /job\.category/);
@@ -38,6 +41,14 @@ test("public job results use one shared hierarchy-first job card", async () => {
   );
   assert.match(
     styles,
-    /@media \(max-width: 640px\)[\s\S]*grid-template-columns:\s*44px minmax\(0, 1fr\)/
+    /@media \(max-width: 640px\)[\s\S]*grid-template-columns:\s*40px minmax\(0, 1fr\) auto/
   );
+  assert.match(
+    styles,
+    /grid-template-areas:[\s\S]*"brand title save"[\s\S]*"company company location"[\s\S]*"tags tags deadline"/
+  );
+  assert.match(styles, /\.location[\s\S]*justify-self:\s*end/);
+  assert.match(styles, /\.deadline[\s\S]*justify-self:\s*end/);
+  assert.match(styles, /\.company[\s\S]*text-overflow:\s*ellipsis/);
+  assert.match(styles, /\.posted[\s\S]*display:\s*none/);
 });

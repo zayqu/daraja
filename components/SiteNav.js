@@ -11,9 +11,8 @@ import styles from "./SiteNav.module.css";
 const DEFAULT_LINKS = [
   { href: "/", label: "Home" },
   { href: "/jobs", label: "Jobs" },
-  { href: "/jobs?category=Internships%20%26%20Graduate%20Programs", label: "Internships" },
+  { href: "/jobs?type=FREELANCE", label: "Freelance" },
   { href: "/about", label: "About" },
-  { href: "/contact", label: "Contact" },
 ];
 
 /**

@@ -941,3 +941,12 @@ Every batch must record:
 - Added tests for official-host restrictions, Google-result filtering, closed/expired vacancy rejection, relative expiry handling, structured JobPosting parsing and empty-cycle preservation.
 - Recorded the October 2026 source audit in `docs/RECRUITMENT-SOURCE-AUDIT-2026-10.md`. Manpower Tanzania, Radar Recruitment, HR World and Reveurse remain disabled until each exposes a reliable current vacancy surface suitable for safe automation.
 
+## Current batch: privacy-safe visitor counter
+
+- Added a real monthly visitor counter backed by the production database; no placeholder or fabricated visitor number is shown.
+- The counter records only after the visitor has accepted Daraja's optional analytics/privacy choice.
+- Deduplication uses a short-lived first-party HttpOnly month marker, so no persistent visitor identifier, fingerprint or device ID is stored.
+- Obvious crawler/bot user agents are excluded and the write endpoint is same-origin protected and rate-limited.
+- The public homepage counter now shows the measured monthly visitor total alongside live opportunities, represented employers and active sources.
+- Visitor measurement follows the Africa/Dar_es_Salaam calendar month and the privacy policy documents the behavior.
+

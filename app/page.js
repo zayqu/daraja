@@ -6,6 +6,7 @@ import { JOB_CATEGORIES } from "@/lib/job-categories";
 import SiteFooter from "@/components/SiteFooter";
 import HomeHeroBridge from "@/components/HomeHeroBridge";
 import { getHomeStats } from "@/lib/home-stats";
+import VisitorCounter from "@/components/VisitorCounter";
 
 const HERO_HEADLINE = [
   { word: "Find" },
@@ -710,8 +711,7 @@ export default async function Home() {
                 <span>Active verified sources</span>
               </div>
               <div className="trust-item">
-                <strong>Hourly</strong>
-                <span>Source refresh and expiry checks</span>
+                <VisitorCounter initialCount={stats.visitorsThisMonth} />
               </div>
             </div>
           </section>

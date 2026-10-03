@@ -912,3 +912,11 @@ Every batch must record:
 - Active tabs use Daraja teal plus stronger label weight and a restrained icon highlight instead of boxing every navigation item.
 - Freelance now has a real query-aware active state; Jobs is not left selected when the user is on the Freelance filter.
 - The dock remains visually separated from page content through its existing floating glass surface, border, shadow and safe-area spacing.
+
+
+### Role-aware mobile dock
+
+- The bottom dock now adapts its third primary action to the authenticated user instead of showing the same destination to everyone.
+- Guests and freelancers see Freelance; signed-in job seekers see Career when the candidate workspace is enabled; employers see Employer when the employer portal is enabled; admins see Admin.
+- Home, Jobs and More remain stable anchors across roles, so the navigation does not become unpredictable.
+- Role awareness comes from the authenticated server session already used by Daraja; no client-side role guessing or hardcoded email/account checks were added.

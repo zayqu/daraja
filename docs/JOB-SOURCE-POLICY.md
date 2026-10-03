@@ -74,7 +74,17 @@ Prefer, in order:
 5. official HTML;
 6. official PDF/text notice;
 7. approved agency source;
-8. discovery-only secondary source.
+8. discovery-only search/index source.
+
+Search engines may be used only to **discover candidate official vacancy URLs**.
+A search result is never sufficient publication evidence on its own. Daraja must
+open the candidate page, confirm it is on an allowlisted official employer/ATS/
+verified-agency host, verify Tanzania relevance, verify that applications are
+still open, resolve a valid deadline where the source policy requires one, and
+extract the candidate application destination before publishing.
+
+Search-engine snippets, cached dates and copied descriptions must not be treated
+as authoritative vacancy facts.
 
 Do not use a headless browser when a stable structured source exists.
 
@@ -129,9 +139,14 @@ Close/archive when:
 
 - deadline passes;
 - authoritative API/feed marks it closed;
+- the official page says applications are no longer accepted;
 - employer closes it;
 - canonical page is stably removed/closed;
 - it disappears from a healthy authoritative snapshot.
+
+For search-discovered vacancies, stale search visibility does not override these
+closure signals. If Google or another search engine still indexes an expired page,
+Daraja must reject/archive the vacancy rather than keep it open.
 
 Do not archive on a failed source run. A network/parser error is not evidence that
 all jobs closed.

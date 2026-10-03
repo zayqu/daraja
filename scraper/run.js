@@ -18,17 +18,19 @@ const { collectAjiraWebJobs } = require("./sources/ajiraweb");
 const { collectNmbJobs } = require("./sources/nmb");
 const { collectReliefWebJobs } = require("./sources/reliefweb");
 const { collectStandardBankJobs } = require("./sources/standardbank");
+const { collectVerifiedAgencyJobs } = require("./sources/verified-agency");
 const { summarizeClassifications } = require("./lib/categories");
 const {
   enrichJobsWithOfficialEmployerMedia,
 } = require("./lib/employer-media");
 
 const adapters = {
-  ajira: collectAjiraJobs,
-  ajiraweb: collectAjiraWebJobs,
-  nmb: collectNmbJobs,
-  reliefweb: collectReliefWebJobs,
-  standardbank: collectStandardBankJobs,
+  ajira: () => collectAjiraJobs(),
+  ajiraweb: () => collectAjiraWebJobs(),
+  nmb: () => collectNmbJobs(),
+  reliefweb: () => collectReliefWebJobs(),
+  standardbank: () => collectStandardBankJobs(),
+  "verified-agency": (source) => collectVerifiedAgencyJobs(source),
 };
 
 function getSourceCatalog() {
@@ -108,7 +110,7 @@ async function runScrapers({ dryRun = false, requestedSources = new Set() } = {}
       try {
         const collect = adapters[source.adapter];
         if (!collect) throw new Error(`Unknown adapter: ${source.adapter}`);
-        const jobs = await collect();
+        const jobs = await collect(source);
         await enrichJobsWithOfficialEmployerMedia(jobs, {
           source: source.id,
           prisma,

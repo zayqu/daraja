@@ -1,9 +1,10 @@
 const cheerio = require("cheerio");
 
 const { cleanText, deduplicateJobs } = require("../lib/jobs");
-const { extractSourceMedia } = require("../lib/source-page");
+const { extractSourceMedia, fetchSourcePageMetadata } = require("../lib/source-page");
 
 const NMB_CAREERS_URL = "https://careers.nmbbank.co.tz/nmb_career/career.aspx";
+const NMB_CORPORATE_URL = "https://www.nmbbank.co.tz/";
 const REQUEST_TIMEOUT_MS = 60000;
 
 function parseDate(value) {
@@ -99,8 +100,27 @@ async function collectNmbJobs({ fetchFn = fetch, signal = AbortSignal.timeout(RE
   });
   if (!response.ok) throw new Error(`NMB careers returned HTTP ${response.status}.`);
   const jobs = parseNmbCareers(await response.text());
+
+  if (jobs.length && jobs.every((job) => !job.companyLogo)) {
+    const corporateMedia = await fetchSourcePageMetadata(NMB_CORPORATE_URL, {
+      fetchFn,
+    });
+    if (corporateMedia.companyLogo || corporateMedia.representativeImage) {
+      for (const job of jobs) {
+        job.companyLogo = corporateMedia.companyLogo || job.companyLogo;
+        job.representativeImage =
+          job.representativeImage || corporateMedia.representativeImage;
+      }
+    }
+  }
+
   console.log(`NMB Bank: ${jobs.length} vacancies`);
   return jobs;
 }
 
-module.exports = { NMB_CAREERS_URL, collectNmbJobs, parseNmbCareers };
+module.exports = {
+  NMB_CAREERS_URL,
+  NMB_CORPORATE_URL,
+  collectNmbJobs,
+  parseNmbCareers,
+};

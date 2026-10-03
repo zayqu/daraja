@@ -87,7 +87,6 @@ export default function JobCard({
         company={job.company}
         companyLogo={job.companyLogo}
         representativeImage={job.representativeImage}
-        sourceType={job.source}
         className={styles.brand}
         sizes="52px"
       />

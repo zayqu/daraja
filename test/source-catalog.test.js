@@ -47,3 +47,31 @@ test("a fully healthy source run completes normally", () => {
     )
   );
 });
+
+
+test("verified recruitment sources are enabled only with bounded trust config", () => {
+  const ids = [
+    "empower-tanzania",
+    "shugulika-tanzania",
+    "career-options-africa-tanzania",
+    "cvpeople-tanzania",
+    "qsourcing-tanzania",
+  ];
+
+  for (const id of ids) {
+    const source = catalog.sources.find((entry) => entry.id === id);
+    assert.ok(source, id);
+    assert.equal(source.enabled, true, id);
+    assert.equal(source.adapter, "verified-agency", id);
+    assert.equal(source.countryFilter, "Tanzania", id);
+    assert.equal(source.requireDeadline, true, id);
+    assert.ok(source.discovery?.allowedHosts?.length, id);
+    assert.ok(Number(source.discovery?.maxJobs) > 0, id);
+  }
+
+  for (const id of ["cvpeople-tanzania", "qsourcing-tanzania"]) {
+    const source = catalog.sources.find((entry) => entry.id === id);
+    assert.equal(source.discovery.mode, "google", id);
+    assert.ok(source.discovery.maxGoogleResults <= 30, id);
+  }
+});

@@ -31,6 +31,7 @@ test("public job results use one shared hierarchy-first job card", async () => {
   assert.match(card, /styles\.saveVisual/);
   assert.match(card, /styles\.calendarIcon/);
   assert.match(card, /JobBrandMedia/);
+  assert.match(card, /sourceType=\{job\.source\}/);
   assert.match(card, /JOB_TYPE_LABELS/);
   assert.match(card, /job\.category/);
   assert.doesNotMatch(card, /experience/i);
@@ -57,4 +58,22 @@ test("public job results use one shared hierarchy-first job card", async () => {
   assert.match(styles, /\.deadline[\s\S]*justify-self:\s*end/);
   assert.match(styles, /\.company[\s\S]*text-overflow:\s*ellipsis/);
   assert.match(styles, /\.posted[\s\S]*display:\s*none/);
+});
+
+
+test("Ajira brand fallback stays neutral and does not claim an employer logo", async () => {
+  const media = await readFile(
+    path.join(__dirname, "..", "components", "JobBrandMedia.js"),
+    "utf8"
+  );
+  const styles = await readFile(
+    path.join(__dirname, "..", "components", "JobBrandMedia.module.css"),
+    "utf8"
+  );
+
+  assert.match(media, /sourceType === "ajira"/);
+  assert.match(media, /Government vacancy source/);
+  assert.match(media, /governmentPlaceholder/);
+  assert.doesNotMatch(media, /coat.?of.?arms/i);
+  assert.match(styles, /\.governmentPlaceholder/);
 });

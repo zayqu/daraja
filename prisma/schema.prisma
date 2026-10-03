@@ -356,3 +356,10 @@ enum PayStatus {
   SUCCESS
   FAILED
 }
+
+
+model VisitorCounter {
+  period         String   @id
+  uniqueVisitors Int      @default(0)
+  updatedAt      DateTime @updatedAt
+}

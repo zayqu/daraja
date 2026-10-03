@@ -57,27 +57,12 @@ frontend_asset_healthcheck() {
   local page_file="$WORK_DIR/frontend-health.html"
   local asset_file="$WORK_DIR/frontend-health.js"
   local headers_file="$WORK_DIR/frontend-health.headers"
-  local expected_page_file="$RUNTIME_DIR/.next/server/app/index.html"
   local asset_urls
-  local expected_asset_urls
   local expected_asset_url
+  local asset_path
+  local installed_asset_file
   local content_type
   local attempt
-
-  if [[ ! -s "$expected_page_file" ]]; then
-    printf 'Installed homepage artifact was not found: %s\n' "$expected_page_file" >&2
-    return 1
-  fi
-
-  expected_asset_urls="$(extract_frontend_asset_urls "$expected_page_file" || true)"
-  if [[ -z "$expected_asset_urls" ]]; then
-    printf 'Installed homepage does not reference a same-origin Next.js asset.\n' >&2
-    return 1
-  fi
-  expected_asset_url="$(printf '%s\n' "$expected_asset_urls" | grep -E '/_next/static/chunks/app/page-[^/]+\.js$' | head -n 1 || true)"
-  if [[ -z "$expected_asset_url" ]]; then
-    expected_asset_url="$(printf '%s\n' "$expected_asset_urls" | head -n 1)"
-  fi
 
   for attempt in 1 2 3 4 5; do
     if curl -fsSL --connect-timeout 10 --max-time 30 \
@@ -86,15 +71,29 @@ frontend_asset_healthcheck() {
       "$HEALTHCHECK_ORIGIN/?daraja_release=$REMOTE_COMMIT&attempt=$attempt" \
       -o "$page_file"; then
       asset_urls="$(extract_frontend_asset_urls "$page_file" || true)"
+      expected_asset_url="$(printf '%s\n' "$asset_urls" | grep -E '/_next/static/chunks/app/page-[^/]+\.js$' | head -n 1 || true)"
+      if [[ -z "$expected_asset_url" ]]; then
+        expected_asset_url="$(printf '%s\n' "$asset_urls" | head -n 1)"
+      fi
 
-      if [[ "$asset_urls" == "$expected_asset_urls" ]] && \
+      asset_path="$(
+        "$NODE_BIN" -e '
+          const candidate = new URL(process.argv[1]);
+          if (!candidate.pathname.startsWith("/_next/static/")) process.exit(1);
+          process.stdout.write(candidate.pathname.replace(/^\/_next\//, ""));
+        ' "$expected_asset_url" 2>/dev/null || true
+      )"
+      installed_asset_file="$RUNTIME_DIR/.next/$asset_path"
+
+      if [[ -n "$asset_path" && -s "$installed_asset_file" ]] && \
         curl -fsSL --connect-timeout 10 --max-time 30 \
           -D "$headers_file" \
           "$expected_asset_url" \
           -o "$asset_file" && \
         [[ -s "$asset_file" ]]; then
         content_type="$(awk 'BEGIN { IGNORECASE=1 } /^content-type:/ { value=$0 } END { sub(/^[^:]+:[[:space:]]*/, "", value); sub(/\r$/, "", value); print tolower(value) }' "$headers_file")"
-        if [[ "$content_type" == application/javascript* || "$content_type" == text/javascript* ]]; then
+        if [[ "$content_type" == application/javascript* || "$content_type" == text/javascript* ]] && \
+          cmp -s "$asset_file" "$installed_asset_file"; then
           return 0
         fi
       fi

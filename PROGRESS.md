@@ -857,3 +857,14 @@ Every batch must record:
   `public/images/daraja-career-hero.webp` and rendered through `next/image`.
   The homepage keeps copy/search ownership separate from the image, with a
   responsive two-column desktop composition and a bounded mobile image block.
+
+
+## Current batch: shared hierarchy-first job cards
+
+- Public job results now render through one shared `components/ui/JobCard` owner instead of keeping the listing-card hierarchy and styling embedded inside `JobsPageClient`.
+- The card hierarchy is intentionally title-first, followed by employer, location, compact job attributes, closing status and posted context.
+- Employer media keeps the existing source priority through `JobBrandMedia`: official logo, representative image, then initials fallback.
+- Closing dates receive stronger visual treatment, including distinct soon/expired states, without competing with the job title.
+- Mobile uses the same component with a compact two-column composition rather than a separate duplicate card implementation.
+- The reference pattern was adapted rather than copied: no fabricated experience requirement and no decorative save/bookmark action was introduced because those card-level data/actions are not currently verified owners.
+- This change is schema-free and does not alter job data, source/application destinations, authentication, permissions, filters, pagination, analytics ownership or production data.

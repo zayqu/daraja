@@ -49,7 +49,7 @@
 
   .item {
     min-width: 0;
-    min-height: 48px;
+    min-height: 50px;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -57,9 +57,9 @@
     gap: 3px;
     padding: 5px 4px;
     border: 0;
-    border-radius: 16px;
+    border-radius: 14px;
     background: transparent;
-    color: #748091;
+    color: #7a8492;
     font: inherit;
     text-decoration: none;
     cursor: pointer;
@@ -69,31 +69,42 @@
   .item:hover,
   .item:focus-visible {
     color: var(--color-navy);
-    background: rgba(27, 42, 63, 0.055);
   }
 
   .active {
     color: var(--color-teal-deep);
-    background: rgba(0, 201, 167, 0.1);
   }
 
   .iconWrap {
     position: relative;
-    width: 24px;
-    height: 24px;
+    width: 34px;
+    height: 28px;
     display: grid;
     place-items: center;
+    border-radius: 12px;
+    transition:
+      background-color 0.16s ease,
+      transform 0.16s ease;
+  }
+
+  .active .iconWrap {
+    background: rgba(0, 201, 167, 0.12);
+    transform: translateY(-1px);
   }
 
   .label {
     overflow: hidden;
     max-width: 100%;
     color: inherit;
-    font-size: 0.61rem;
-    font-weight: 720;
+    font-size: 0.68rem;
+    font-weight: 650;
     line-height: 1;
     text-overflow: ellipsis;
     white-space: nowrap;
+  }
+
+  .active .label {
+    font-weight: 800;
   }
 
   .sheetLayer {
@@ -216,6 +227,6 @@
   }
 
   .label {
-    font-size: 0.6rem;
+    font-size: 0.66rem;
   }
 }

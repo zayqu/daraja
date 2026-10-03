@@ -906,3 +906,27 @@ Every batch must record:
 - Ajira preserves employer media only when the official portal exposes it. When Ajira has no employer media, the public card uses a neutral government-source glyph rather than inventing an employer logo.
 - Generic UI icons, social images, unrelated stock imagery and unverified search results are never promoted to employer branding.
 - This remains schema-free and keeps source/application URL behavior unchanged.
+
+## Current batch: homepage hierarchy, live counters and navigation
+
+- Public navigation now prioritizes Home, Jobs, Freelance and About, with Employers included when the employer portal is enabled. Internships remain discoverable inside Jobs and the mobile More sheet instead of occupying a primary navigation slot.
+- The mobile Apple-style dock now uses Home, Jobs, Freelance and More.
+- The homepage hero bridge now communicates the broader market mix through Private sector & Institutions, Government, and Bank & Finance.
+- The former light trust strip is now a dark-mint live counter band using real active-job data: live opportunities, represented employers/institutions and active sources, plus the existing hourly refresh cadence.
+- Homepage counters are read server-side through a five-minute cache and use the same active-job rules as public job results; no manual numbers are embedded.
+- Contact remains a dedicated trust/support page for listing corrections, privacy and application-source questions.
+- Visitor measurement remains owned by the existing analytics layer rather than adding a public, bot-inflatable page-view number to the homepage.
+
+### Mobile bottom navigation reference refinement
+
+- The mobile dock now follows the reviewed bottom-navigation guidance more closely: four primary tabs, 24px icons, at least 50px item height, short one-line labels and a clearer selected state.
+- Active tabs use Daraja teal plus stronger label weight and a restrained icon highlight instead of boxing every navigation item.
+- Freelance now has a real query-aware active state; Jobs is not left selected when the user is on the Freelance filter.
+- The dock remains visually separated from page content through its existing floating glass surface, border, shadow and safe-area spacing.
+
+### Role-aware mobile dock
+
+- The bottom dock now adapts its third primary action to the authenticated user instead of showing the same destination to everyone.
+- Guests and freelancers see Freelance; signed-in job seekers see Career when the candidate workspace is enabled; employers see Employer when the employer portal is enabled; admins see Admin.
+- Home, Jobs and More remain stable anchors across roles, so the navigation does not become unpredictable.
+- Role awareness comes from the authenticated server session already used by Daraja; no client-side role guessing or hardcoded email/account checks were added.

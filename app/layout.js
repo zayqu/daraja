@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { Poppins } from "next/font/google";
 import "./globals.css";
 import PrivacyControls from "@/components/PrivacyControls";
@@ -5,6 +6,7 @@ import SiteFooterLinks from "@/components/SiteFooterLinks";
 import WebVitals from "@/components/WebVitals";
 import MobileDock from "@/components/ui/MobileDock";
 import { candidateCareerEnabled, employerPortalEnabled } from "@/lib/features";
+import { auth } from "@/auth";
 
 const poppins = Poppins({
   variable: "--font-poppins",
@@ -46,12 +48,14 @@ export const metadata = {
   },
 };
 
-export default function RootLayout({ children }) {
+export default async function RootLayout({ children }) {
   const adsenseClient = process.env.NEXT_PUBLIC_GOOGLE_ADSENSE_CLIENT;
   const analyticsId =
     process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS_ID || "G-89Q157X930";
   const showEmployerCta = employerPortalEnabled();
   const showCandidateProfile = candidateCareerEnabled();
+  const session = await auth();
+  const userRole = session?.user?.role || null;
 
   return (
     <html lang="en">
@@ -61,7 +65,13 @@ export default function RootLayout({ children }) {
         </a>
         {children}
         <SiteFooterLinks />
-        <MobileDock showEmployerCta={showEmployerCta} showCandidateProfile={showCandidateProfile} />
+        <Suspense fallback={null}>
+          <MobileDock
+            showEmployerCta={showEmployerCta}
+            showCandidateProfile={showCandidateProfile}
+            userRole={userRole}
+          />
+        </Suspense>
         <WebVitals analyticsId={analyticsId} />
         <PrivacyControls analyticsId={analyticsId} adsenseClient={adsenseClient} />
       </body>

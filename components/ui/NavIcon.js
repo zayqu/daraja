@@ -26,6 +26,35 @@ export default function NavIcon({ name, size = 22 }) {
     );
   }
 
+
+  if (name === "freelance") {
+    return (
+      <svg {...common}>
+        <path d="M5 7.5h14v11H5z" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round" />
+        <path d="M9 7.5V5h6v2.5M8.5 12h7M12 9.5v5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+      </svg>
+    );
+  }
+
+
+  if (name === "employer") {
+    return (
+      <svg {...common}>
+        <rect x="4" y="7" width="16" height="13" rx="2.5" stroke="currentColor" strokeWidth="1.8" />
+        <path d="M8 7V4.5h8V7M8 11h2M14 11h2M8 15h2M14 15h2" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+      </svg>
+    );
+  }
+
+  if (name === "admin") {
+    return (
+      <svg {...common}>
+        <path d="M12 3.5 19 6v5.2c0 4.5-2.7 7.5-7 9.3-4.3-1.8-7-4.8-7-9.3V6l7-2.5Z" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round" />
+        <path d="m9.2 12.1 1.8 1.8 3.9-4" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+      </svg>
+    );
+  }
+
   if (name === "bell") {
     return (
       <svg {...common}>

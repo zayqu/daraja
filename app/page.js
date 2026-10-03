@@ -5,6 +5,7 @@ import { employerPortalEnabled } from "@/lib/features";
 import { JOB_CATEGORIES } from "@/lib/job-categories";
 import SiteFooter from "@/components/SiteFooter";
 import HomeHeroBridge from "@/components/HomeHeroBridge";
+import { getHomeStats } from "@/lib/home-stats";
 
 const HERO_HEADLINE = [
   { word: "Find" },
@@ -26,8 +27,9 @@ const FEATURED_CATEGORIES = new Set([
   "Internships & Graduate Programs",
 ]);
 
-export default function Home() {
+export default async function Home() {
   const employerEnabled = employerPortalEnabled();
+  const stats = await getHomeStats();
 
   return (
     <>
@@ -218,8 +220,8 @@ export default function Home() {
         .quick-links a:hover { color: #00c9a7; }
 
         .trust {
-          background: #fff;
-          border-bottom: 1px solid #e8ecf0;
+          background: var(--color-teal-deep);
+          border-bottom: 0;
         }
 
         .trust-inner {
@@ -233,21 +235,24 @@ export default function Home() {
 
         .trust-item {
           padding-right: 1rem;
-          border-right: 1px solid #eef1f4;
+          border-right: 1px solid rgba(255,255,255,.16);
         }
 
         .trust-item:last-child { border-right: 0; }
 
         .trust-item strong {
           display: block;
-          margin-bottom: .15rem;
-          color: #1b2a3f;
-          font-size: .84rem;
+          margin-bottom: .12rem;
+          color: #fff;
+          font-size: clamp(1.15rem, 2vw, 1.55rem);
+          font-weight: 800;
+          letter-spacing: -.02em;
         }
 
         .trust-item span {
-          color: #8b95a1;
-          font-size: .72rem;
+          color: rgba(255,255,255,.72);
+          font-size: .7rem;
+          line-height: 1.45;
         }
 
         .section {
@@ -521,8 +526,8 @@ export default function Home() {
           .trust-item {
             min-height: 66px;
             padding: .75rem .7rem;
-            border-right: 1px solid #eef1f4;
-            border-bottom: 1px solid #eef1f4;
+            border-right: 1px solid rgba(255,255,255,.14);
+            border-bottom: 1px solid rgba(255,255,255,.14);
           }
 
           .trust-item:nth-child(2),
@@ -690,12 +695,24 @@ export default function Home() {
             </div>
           </section>
 
-          <section className="trust" aria-label="Daraja service highlights">
+          <section className="trust" aria-label="Daraja live platform counters">
             <div className="trust-inner">
-              <div className="trust-item"><strong>Current opportunities</strong><span>Expired roles are separated clearly.</span></div>
-              <div className="trust-item"><strong>Free to browse</strong><span>No account needed to search vacancies.</span></div>
-              <div className="trust-item"><strong>Checked hourly</strong><span>Enabled job sources are refreshed regularly.</span></div>
-              <div className="trust-item"><strong>Source shown</strong><span>Every listing keeps its application destination.</span></div>
+              <div className="trust-item">
+                <strong>{stats.liveJobs.toLocaleString()}</strong>
+                <span>Live opportunities</span>
+              </div>
+              <div className="trust-item">
+                <strong>{stats.employers.toLocaleString()}</strong>
+                <span>Employers & institutions represented</span>
+              </div>
+              <div className="trust-item">
+                <strong>{stats.sources.toLocaleString()}</strong>
+                <span>Active verified sources</span>
+              </div>
+              <div className="trust-item">
+                <strong>Hourly</strong>
+                <span>Source refresh and expiry checks</span>
+              </div>
             </div>
           </section>
 

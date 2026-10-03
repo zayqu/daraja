@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 import { mobileDockEnabledPath } from "@/lib/mobile-navigation";
 import NavIcon from "@/components/ui/NavIcon";
 import { PRIVACY_SETTINGS_EVENT } from "@/lib/google-services";
@@ -14,9 +14,16 @@ const WHATSAPP_CHANNEL =
 export default function MobileDock({
   showEmployerCta = false,
   showCandidateProfile = false,
+  userRole = null,
 }) {
   const pathname = usePathname();
+  const searchParams = useSearchParams();
   const [moreOpen, setMoreOpen] = useState(false);
+  const freelanceActive =
+    pathname.startsWith("/jobs") && searchParams.get("type") === "FREELANCE";
+  const isCandidate = userRole === "JOB_SEEKER";
+  const isEmployer = userRole === "EMPLOYER";
+  const isAdmin = userRole === "ADMIN";
 
   useEffect(() => {
     if (!moreOpen) return undefined;
@@ -31,20 +38,46 @@ export default function MobileDock({
 
   if (!mobileDockEnabledPath(pathname)) return null;
 
+  const roleItem =
+    isAdmin
+      ? {
+          href: "/admin",
+          label: "Admin",
+          icon: "admin",
+          active: pathname.startsWith("/admin"),
+        }
+      : isEmployer && showEmployerCta
+        ? {
+            href: "/employer",
+            label: "Employer",
+            icon: "employer",
+            active:
+              pathname.startsWith("/employer") ||
+              pathname.startsWith("/post-job"),
+          }
+        : isCandidate && showCandidateProfile
+          ? {
+              href: "/account/career",
+              label: "Career",
+              icon: "user",
+              active: pathname.startsWith("/account/career"),
+            }
+          : {
+              href: "/jobs?type=FREELANCE",
+              label: "Freelance",
+              icon: "freelance",
+              active: freelanceActive,
+            };
+
   const items = [
     { href: "/", label: "Home", icon: "home", active: pathname === "/" },
     {
       href: "/jobs",
       label: "Jobs",
       icon: "jobs",
-      active: pathname.startsWith("/jobs") && !pathname.includes("category=Internships"),
+      active: pathname.startsWith("/jobs") && !freelanceActive,
     },
-    {
-      href: "/jobs?category=Internships%20%26%20Graduate%20Programs",
-      label: "Internships",
-      icon: "internships",
-      active: false,
-    },
+    roleItem,
   ];
 
   const dockItemCount = items.length + 1;
@@ -74,7 +107,7 @@ export default function MobileDock({
             </div>
 
             <nav className={styles.sheetLinks}>
-              {showCandidateProfile && (
+              {showCandidateProfile && isCandidate && (
                 <Link href="/account/career" onClick={() => setMoreOpen(false)}>
                   Career workspace
                 </Link>
@@ -94,6 +127,16 @@ export default function MobileDock({
               >
                 Privacy choices
               </button>
+              {showEmployerCta && (isEmployer || isAdmin) && (
+                <Link href="/employer" onClick={() => setMoreOpen(false)}>
+                  Employer workspace
+                </Link>
+              )}
+              {isAdmin && (
+                <Link href="/admin" onClick={() => setMoreOpen(false)}>
+                  Admin
+                </Link>
+              )}
               <Link href="/jobs?category=Internships%20%26%20Graduate%20Programs" onClick={() => setMoreOpen(false)}>
                 Internships
               </Link>
@@ -102,7 +145,11 @@ export default function MobileDock({
               <a href={WHATSAPP_CHANNEL} target="_blank" rel="noopener noreferrer" onClick={() => setMoreOpen(false)}>
                 WhatsApp Channel
               </a>
-              {showEmployerCta && <Link href="/post-job" onClick={() => setMoreOpen(false)}>Post a Job</Link>}
+              {showEmployerCta && (isEmployer || isAdmin) && (
+                <Link href="/post-job" onClick={() => setMoreOpen(false)}>
+                  Post a Job
+                </Link>
+              )}
             </nav>
           </section>
         </div>
@@ -119,7 +166,7 @@ export default function MobileDock({
               onClick={() => setMoreOpen(false)}
             >
               <span className={styles.iconWrap}>
-                <NavIcon name={item.icon} />
+                <NavIcon name={item.icon} size={24} />
               </span>
               <span className={styles.label}>{item.label}</span>
             </Link>
@@ -132,7 +179,7 @@ export default function MobileDock({
             onClick={() => setMoreOpen((value) => !value)}
           >
             <span className={styles.iconWrap}>
-              <NavIcon name="more" />
+              <NavIcon name="more" size={24} />
             </span>
             <span className={styles.label}>More</span>
           </button>

@@ -1,12 +1,11 @@
 "use client";
 
 import { useState, useEffect, useCallback, useRef } from "react";
-import Link from "next/link";
 import AdSenseSlot from "@/components/AdSenseSlot";
 import JobAlerts from "@/components/JobAlerts";
 import SiteNav from "@/components/SiteNav";
 import SiteFooter from "@/components/SiteFooter";
-import JobBrandMedia from "@/components/JobBrandMedia";
+import JobCard from "@/components/ui/JobCard";
 import { trackEvent } from "@/lib/analytics";
 import { JOB_CATEGORIES } from "@/lib/job-categories";
 import {
@@ -148,43 +147,6 @@ export default function JobsPageClient({
     setType("");
     setStatus("active");
     setPage(1);
-  }
-
-  function formatDate(value) {
-    if (!value) return null;
-    return new Date(value).toLocaleDateString("en-GB", {
-      day: "numeric",
-      month: "short",
-      year: "numeric",
-    });
-  }
-
-  function isExpired(value) {
-    return value && new Date(value) < new Date();
-  }
-
-  function daysUntil(value) {
-    if (!value) return null;
-    return Math.ceil((new Date(value) - new Date()) / 86400000);
-  }
-
-  function deadlineLabel(value) {
-    if (!value) return null;
-    const days = daysUntil(value);
-
-    if (days < 0) return "Expired";
-    if (days === 0) return "Closes today";
-    if (days === 1) return "Closes tomorrow";
-    if (days <= 7) return `Closes in ${days} days`;
-    return `Closes ${formatDate(value)}`;
-  }
-
-  function timeAgo(value) {
-    const days = Math.floor((new Date() - new Date(value)) / 86400000);
-    if (days === 0) return "Posted today";
-    if (days === 1) return "Posted yesterday";
-    if (days < 7) return `Posted ${days} days ago`;
-    return `Posted ${formatDate(value)}`;
   }
 
   return (
@@ -382,140 +344,6 @@ export default function JobsPageClient({
           display: flex;
           flex-direction: column;
           gap: .8rem;
-        }
-
-        .job-card {
-          display: block;
-          padding: 1.25rem;
-          border: 1px solid #e3e8ee;
-          border-radius: 16px;
-          background: #fff;
-          color: inherit;
-          text-decoration: none;
-          transition: border-color .15s ease, transform .15s ease, box-shadow .15s ease;
-        }
-
-        .job-card:hover {
-          transform: translateY(-1px);
-          border-color: #00c9a7;
-          box-shadow: var(--shadow-card);
-        }
-
-        .job-card-top {
-          display: flex;
-          gap: 1rem;
-          align-items: flex-start;
-        }
-
-        .company-mark {
-          width: 48px;
-          height: 48px;
-          flex: 0 0 48px;
-          display: grid;
-          place-items: center;
-          border-radius: 12px;
-          background: #e8faf6;
-          color: #087f6c;
-          font-weight: 800;
-          font-size: .85rem;
-        }
-
-        .job-card-main {
-          flex: 1;
-          min-width: 0;
-        }
-
-        .job-company {
-          margin-bottom: .28rem;
-          color: #7b8592;
-          font-size: .76rem;
-        }
-
-        .job-title {
-          color: #1b2a3f;
-          font-size: 1rem;
-          font-weight: 750;
-          line-height: 1.4;
-        }
-
-        .job-card:hover .job-title {
-          color: #087f6c;
-        }
-
-        .job-meta {
-          display: flex;
-          flex-wrap: wrap;
-          gap: .4rem .85rem;
-          margin-top: .7rem;
-          color: #75808d;
-          font-size: .72rem;
-        }
-
-        .job-card-side {
-          flex: 0 0 auto;
-          text-align: right;
-        }
-
-        .posted {
-          color: #98a1ad;
-          font-size: .68rem;
-        }
-
-        .deadline {
-          margin-top: .45rem;
-          color: #7a8492;
-          font-size: .7rem;
-          font-weight: 700;
-        }
-
-        .deadline.soon {
-          color: #c76a00;
-        }
-
-        .deadline.expired {
-          color: #b42318;
-        }
-
-        .job-card-bottom {
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          gap: 1rem;
-          margin-top: 1rem;
-          padding-top: 1rem;
-          border-top: 1px solid #eef1f4;
-        }
-
-        .tags {
-          display: flex;
-          flex-wrap: wrap;
-          gap: .4rem;
-        }
-
-        .tag {
-          padding: .28rem .65rem;
-          border-radius: 999px;
-          background: #f1f4f6;
-          color: #5f6b7a;
-          font-size: .66rem;
-          font-weight: 650;
-        }
-
-        .tag.category {
-          background: #e8faf6;
-          color: #087f6c;
-        }
-
-        .tag.featured {
-          background: #fff5dc;
-          color: #8b6200;
-        }
-
-        .view-link {
-          flex-shrink: 0;
-          color: #087f6c;
-          font-size: .72rem;
-          font-weight: 800;
         }
 
         .state {
@@ -729,64 +557,6 @@ export default function JobsPageClient({
             font-size: .72rem;
           }
 
-          .job-card {
-            padding: 1rem;
-            border-radius: 14px;
-          }
-
-          .job-card-top {
-            align-items: flex-start;
-            gap: .8rem;
-          }
-
-          .company-mark {
-            width: 42px;
-            height: 42px;
-            flex-basis: 42px;
-            border-radius: 11px;
-          }
-
-          .job-title {
-            font-size: .95rem;
-            line-height: 1.32;
-          }
-
-          .job-meta {
-            gap: .3rem .65rem;
-            margin-top: .55rem;
-            font-size: .68rem;
-          }
-
-          .job-card-side {
-            display: none;
-          }
-
-          .job-card-bottom {
-            align-items: center;
-            flex-direction: row;
-            gap: .7rem;
-            margin-top: .8rem;
-            padding-top: .8rem;
-          }
-
-          .tags {
-            gap: .3rem;
-          }
-
-          .tag {
-            padding: .24rem .52rem;
-            font-size: .61rem;
-          }
-
-          .view-link {
-            font-size: 0;
-          }
-
-          .view-link::after {
-            content: "View →";
-            font-size: .68rem;
-          }
-
           .results-head {
             min-height: 40px;
             align-items: center;
@@ -974,28 +744,13 @@ export default function JobsPageClient({
                 </div>
               ) : (
                 <div className="job-list">
-                  {jobs.map((job) => {
-                    const deadlineDays = daysUntil(job.deadline);
-                    const deadlineClass = isExpired(job.deadline)
-                      ? "expired"
-                      : deadlineDays !== null && deadlineDays <= 3
-                        ? "soon"
-                        : "";
-
-                    return (
-                      <Link
-                        key={job.id}
-                        href={`/jobs/${job.slug || job.id}`}
-                        className="job-card"
-                        onClick={() => trackEvent("select_item", {
-                          item_list_name: "Job search results",
-                          items: [{
-                            item_id: job.id,
-                            item_name: job.title,
-                            item_brand: job.company,
-                            item_category: job.category,
-                          }],
-                        })}
+                  {jobs.map((job) => (
+                    <JobCard
+                      key={job.id}
+                      job={job}
+                      listName="Job search results"
+                    />
+                  ))}
                       >
                         <div className="job-card-top">
                           <JobBrandMedia

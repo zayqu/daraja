@@ -885,3 +885,11 @@ Every batch must record:
 - The approved mobile job card now repeats the employer mark on the second row before the company name, matching the exact three-row composition supplied by the user.
 - The second-row mark is mobile-only; desktop remains unchanged.
 - Company/location and tags/deadline keep their fixed left/right grid alignment so left-side text cannot push the right-side details.
+
+
+### Mobile card correction: one employer logo
+- Removed the repeated mobile employer mark.
+- The single logo now spans the title and company rows on the left.
+- The company name sits directly under the job title.
+- Job type/category start beneath the logo, while location and deadline remain anchored to the right.
+- Desktop remains unchanged.

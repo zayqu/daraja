@@ -7,6 +7,11 @@ const AUTHORITATIVE_SNAPSHOT_SOURCES = new Set([
   "ajiraweb",
   "nmb-bank-careers",
   "standardbank-tanzania",
+  "empower-tanzania",
+  "shugulika-tanzania",
+  "career-options-africa-tanzania",
+  "cvpeople-tanzania",
+  "qsourcing-tanzania",
 ]);
 
 function createPrismaClient() {

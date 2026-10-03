@@ -22,22 +22,22 @@ test("public job results use one shared hierarchy-first job card", async () => {
   assert.doesNotMatch(jobsPage, /className="job-card"/);
   assert.doesNotMatch(jobsPage, /JobBrandMedia/);
 
-  const titleIndex = card.indexOf("styles.title");
-  const companyIndex = card.indexOf("styles.company");
-  const locationIndex = card.indexOf("styles.location");
-  const tagsIndex = card.indexOf("styles.tags");
-  const deadlineIndex = card.indexOf("styles.deadline");
-
-  assert.ok(titleIndex >= 0);
-  assert.ok(titleIndex < companyIndex);
-  assert.ok(companyIndex < locationIndex);
-  assert.ok(locationIndex < tagsIndex);
-  assert.ok(tagsIndex < deadlineIndex);
-
+  assert.match(card, /<h3 className=\{styles\.title\}>\{job\.title\}<\/h3>/);
+  assert.match(card, /className=\{styles\.company\}>\{job\.company\}/);
+  assert.match(card, /className=\{styles\.location\}>\{job\.location\}/);
+  assert.match(card, /className=\{styles\.tags\}/);
+  assert.match(card, /styles\.deadline/);
   assert.match(card, /JobBrandMedia/);
   assert.match(card, /JOB_TYPE_LABELS/);
   assert.match(card, /job\.category/);
   assert.doesNotMatch(card, /experience/i);
-  assert.match(styles, /grid-template-columns:\s*52px minmax\(0, 1fr\) auto/);
-  assert.match(styles, /@media \(max-width: 640px\)[\s\S]*grid-template-columns:\s*44px minmax\(0, 1fr\)/);
+
+  assert.match(
+    styles,
+    /grid-template-columns:\s*52px minmax\(0, 1fr\) auto/
+  );
+  assert.match(
+    styles,
+    /@media \(max-width: 640px\)[\s\S]*grid-template-columns:\s*44px minmax\(0, 1fr\)/
+  );
 });

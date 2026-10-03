@@ -2,6 +2,7 @@ const cheerio = require("cheerio");
 
 const BLOCKED_MEDIA_PATTERNS =
   /(?:pixel|tracker|tracking|spacer|favicon|avatar|badge|sprite|emoji)/i;
+const SOURCE_PAGE_TIMEOUT_MS = 20_000;
 
 const DIRECT_APPLICATION_HOSTS = [
   "greenhouse.io",
@@ -206,6 +207,23 @@ function imageValue(value) {
   return value.url || value.contentUrl || value["@id"] || "";
 }
 
+function firstSrcsetUrl(value) {
+  const srcset = cleanText(value);
+  if (!srcset) return "";
+  return cleanText(srcset.split(",")[0]).split(/\s+/)[0] || "";
+}
+
+function imageCandidateForNode(node) {
+  return (
+    node.attr("src") ||
+    node.attr("data-src") ||
+    node.attr("data-lazy-src") ||
+    node.attr("data-original") ||
+    firstSrcsetUrl(node.attr("srcset")) ||
+    ""
+  );
+}
+
 function usableImageUrl(value, pageUrl) {
   const url = normalizeCandidateUrl(imageValue(value), pageUrl);
   if (!url) return null;
@@ -264,39 +282,53 @@ function extractSourceMedia(html, pageUrl) {
     if (isOrganisation && item.logo) organisationLogos.push(item.logo);
   }
 
-  const semanticLogoImages = $("img[src]")
+  const semanticLogoImages = $(
+    "img[src], img[data-src], img[data-lazy-src], img[data-original], img[srcset]"
+  )
     .toArray()
     .filter((element) => {
       const node = $(element);
-      return /logo|brand|organisation|organization|company/i.test(
-        [
-          node.attr("alt"),
-          node.attr("class"),
-          node.attr("id"),
-          node.attr("title"),
-        ]
-          .filter(Boolean)
-          .join(" ")
-      );
+      const parent = node.parent();
+      const nearestLink = node.closest("a");
+      const semantics = [
+        node.attr("alt"),
+        node.attr("aria-label"),
+        node.attr("class"),
+        node.attr("id"),
+        node.attr("title"),
+        parent.attr("class"),
+        parent.attr("id"),
+        nearestLink.attr("class"),
+        nearestLink.attr("id"),
+      ]
+        .filter(Boolean)
+        .join(" ");
+      return /(?:^|[\s_-])(?:logo|brand)(?:$|[\s_-])/i.test(semantics);
     })
-    .map((element) => $(element).attr("src"));
+    .map((element) => imageCandidateForNode($(element)));
 
   const companyLogo = firstUsable(
     [
       ...organisationLogos,
       $('meta[property="og:logo"]').attr("content"),
+      $('meta[name="logo"]').attr("content"),
+      $('meta[itemprop="logo"]').attr("content"),
+      $('link[itemprop="logo"]').attr("href"),
       ...semanticLogoImages,
     ],
     pageUrl
   );
 
+  const representativeNodes = [
+    $("main img").first(),
+    $("article img").first(),
+  ];
   const representativeImage = firstUsable(
     [
       ...structuredImages,
       $('meta[property="og:image"]').attr("content"),
       $('meta[name="twitter:image"]').attr("content"),
-      $("main img[src]").first().attr("src"),
-      $("article img[src]").first().attr("src"),
+      ...representativeNodes.map((node) => imageCandidateForNode(node)),
     ],
     pageUrl
   );
@@ -317,10 +349,65 @@ function extractSourcePageMetadata(html, pageUrl) {
   };
 }
 
+async function fetchSourcePageMetadata(
+  pageUrl,
+  {
+    fetchFn = fetch,
+    signal = AbortSignal.timeout(SOURCE_PAGE_TIMEOUT_MS),
+  } = {}
+) {
+  if (!isSafePublicHttpUrl(pageUrl)) {
+    return {
+      applicationUrl: null,
+      companyLogo: null,
+      representativeImage: null,
+    };
+  }
+
+  try {
+    const response = await fetchFn(pageUrl, {
+      headers: {
+        Accept: "text/html,application/xhtml+xml",
+        "User-Agent": "DarajaJobsBot/1.0 (+https://www.ajira.daraja.co.tz)",
+      },
+      signal,
+    });
+    if (!response?.ok) {
+      return {
+        applicationUrl: null,
+        companyLogo: null,
+        representativeImage: null,
+      };
+    }
+
+    const contentType = response.headers?.get?.("content-type") || "";
+    if (
+      contentType &&
+      !contentType.includes("text/html") &&
+      !contentType.includes("application/xhtml+xml")
+    ) {
+      return {
+        applicationUrl: null,
+        companyLogo: null,
+        representativeImage: null,
+      };
+    }
+
+    return extractSourcePageMetadata(await response.text(), pageUrl);
+  } catch {
+    return {
+      applicationUrl: null,
+      companyLogo: null,
+      representativeImage: null,
+    };
+  }
+}
+
 module.exports = {
   extractApplicationDestination,
   extractSourceMedia,
   extractSourcePageMetadata,
+  fetchSourcePageMetadata,
   isSafePublicHttpUrl,
   looksLikeApplicationUrl,
   normalizeCandidateUrl,

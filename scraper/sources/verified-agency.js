@@ -475,7 +475,7 @@ async function parseAgencyDetail(
     company,
     location,
     description,
-    deadline,
+    deadline: deadline ? deadline.toISOString() : null,
     type: mapEmploymentType(
       posting?.employmentType ||
         labeledValue($, ["Job Type", "Employment Type", "Type"])

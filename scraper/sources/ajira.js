@@ -109,6 +109,7 @@ function mapRenderedVacancy(row) {
     numberOfPosts: row?.numberOfPosts || "",
     sourceUrl,
     applicationUrl: AJIRA_APPLICATION_URL,
+    companyLogo: row?.companyLogo || null,
   };
 }
 
@@ -127,6 +128,12 @@ function mapAjiraVacancy(vacancy) {
       ? `Number of Posts: ${vacancy.noOfPost}`
       : "",
     sourceUrl: /^\d+$/.test(id) ? getAjiraDetailUrl(id) : AJIRA_VACANCIES_URL,
+    companyLogo:
+      vacancy?.scheme?.emp?.logoUrl ||
+      vacancy?.scheme?.emp?.logo ||
+      vacancy?.employer?.logoUrl ||
+      vacancy?.employer?.logo ||
+      null,
   });
 }
 
@@ -147,12 +154,19 @@ async function extractRenderedRows(page) {
           "";
         const employer =
           cells[2].querySelector("div")?.textContent || cells[2].textContent;
+        const employerImage = cells[2].querySelector("img");
+        const companyLogo =
+          employerImage?.src ||
+          employerImage?.getAttribute("data-src") ||
+          employerImage?.getAttribute("data-lazy-src") ||
+          "";
         const deadline =
           cells[3].querySelector("span")?.textContent || cells[3].textContent;
         const link = row.querySelector('a[href*="view-advert"]')?.href || "";
         return {
           title: title?.trim(),
           company: employer?.trim(),
+          companyLogo,
           deadline: deadline?.trim(),
           numberOfPosts: posts?.trim(),
           sourceUrl: link,

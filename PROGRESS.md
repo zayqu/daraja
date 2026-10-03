@@ -950,3 +950,10 @@ Every batch must record:
 - The public homepage counter now shows the measured monthly visitor total alongside live opportunities, represented employers and active sources.
 - Visitor measurement follows the Africa/Dar_es_Salaam calendar month and the privacy policy documents the behavior.
 
+### cPanel dynamic-home release gate
+
+- Production deployment health no longer assumes the homepage is statically prerendered to `.next/server/app/index.html`; the homepage became dynamic after live counters and role-aware navigation.
+- The deploy gate now fetches the public homepage, selects a same-origin Next.js JavaScript asset, maps it to the installed runtime and byte-compares the public asset to the verified release asset before accepting the frontend.
+- The exact public release marker remains mandatory, so a stale LiteSpeed worker still fails closed.
+- Production Prisma migrations now run in the verified GitHub release workflow on non-PR runs before the cPanel bundle is published. The thin cPanel pull deployer remains migration-free.
+

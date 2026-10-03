@@ -893,3 +893,14 @@ Every batch must record:
 - The company name sits directly under the job title.
 - Job type/category start beneath the logo, while location and deadline remain anchored to the right.
 - Desktop remains unchanged.
+
+
+## Current batch: homepage hierarchy, live counters and navigation
+
+- Public navigation now prioritizes Home, Jobs, Freelance and About, with Employers included when the employer portal is enabled. Internships remain discoverable inside Jobs and the mobile More sheet instead of occupying a primary navigation slot.
+- The mobile Apple-style dock now uses Home, Jobs, Freelance and More.
+- The homepage hero bridge now communicates the broader market mix through Private sector & Institutions, Government, and Bank & Finance.
+- The former light trust strip is now a dark-mint live counter band using real active-job data: live opportunities, represented employers/institutions and active sources, plus the existing hourly refresh cadence.
+- Homepage counters are read server-side through a five-minute cache and use the same active-job rules as public job results; no manual numbers are embedded.
+- Contact remains a dedicated trust/support page for listing corrections, privacy and application-source questions.
+- Visitor measurement remains owned by the existing analytics layer rather than adding a public, bot-inflatable page-view number to the homepage.

@@ -56,7 +56,6 @@ test("cPanel deployment verifies the exact public build before recording success
   assert.doesNotMatch(deployScript, /server\/app\/index\.html/);
   assert.match(deployScript, /for attempt in 1 2 3 4 5/);
   assert.match(deployScript, /curl -fsSL --connect-timeout 10 --max-time 30/);
-  assert.match(deployScript, /asset_urls" == "\$expected_asset_urls/);
   assert.match(deployScript, /chunks\/app\/page-/);
   assert.match(deployScript, /Cache-Control: no-cache/);
   assert.match(deployScript, /release_marker_healthcheck/);

@@ -751,47 +751,6 @@ export default function JobsPageClient({
                       listName="Job search results"
                     />
                   ))}
-                      >
-                        <div className="job-card-top">
-                          <JobBrandMedia
-                            company={job.company}
-                            companyLogo={job.companyLogo}
-                            representativeImage={job.representativeImage}
-                            className="company-mark"
-                            sizes="48px"
-                          />
-
-                          <div className="job-card-main">
-                            <div className="job-company">{job.company}</div>
-                            <div className="job-title">{job.title}</div>
-                            <div className="job-meta">
-                              <span>{job.location}</span>
-                              <span>{JOB_TYPE_LABELS[job.type] || job.type}</span>
-                              <span>{timeAgo(job.createdAt)}</span>
-                            </div>
-                          </div>
-
-                          <div className="job-card-side">
-                            <div className="posted">{formatDate(job.createdAt)}</div>
-                            {job.deadline && (
-                              <div className={`deadline ${deadlineClass}`}>
-                                {deadlineLabel(job.deadline)}
-                              </div>
-                            )}
-                          </div>
-                        </div>
-
-                        <div className="job-card-bottom">
-                          <div className="tags">
-                            <span className="tag category">{job.category}</span>
-                            {job.featured && <span className="tag featured">Featured</span>}
-                            <span className="tag">{job.source === "daraja" ? "Daraja" : "External source"}</span>
-                          </div>
-                          <span className="view-link">View opportunity →</span>
-                        </div>
-                      </Link>
-                    );
-                  })}
                 </div>
               )}
 

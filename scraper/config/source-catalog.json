@@ -2359,6 +2359,31 @@
         "maxJobs": 30,
         "concurrency": 4
       }
+    },
+    {
+      "id": "ekazi-exact-manpower",
+      "name": "eKazi / Exact Manpower Consulting Ltd",
+      "url": "https://api.ekazi.co.tz/find-job",
+      "category": "professional_services_and_recruitment_firms",
+      "enabled": true,
+      "adapter": "verified-agency",
+      "recruiterName": "Exact Manpower Consulting Ltd",
+      "countryFilter": "Tanzania",
+      "requireDeadline": true,
+      "detailPageIsApplication": true,
+      "defaultLocation": "Tanzania",
+      "discovery": {
+        "mode": "listing",
+        "allowedHosts": [
+          "api.ekazi.co.tz"
+        ],
+        "detailPathPattern": "^/job/show/",
+        "listingPages": [
+          "https://api.ekazi.co.tz/find-job"
+        ],
+        "maxJobs": 60,
+        "concurrency": 5
+      }
     }
   ]
 }

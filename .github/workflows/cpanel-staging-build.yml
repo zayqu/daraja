@@ -59,6 +59,10 @@ jobs:
       - name: Validate Prisma schema
         run: npx prisma validate
 
+      - name: Apply production migrations
+        if: github.event_name != 'pull_request'
+        run: npx prisma migrate deploy
+
       - name: Build production bundle
         run: npx next build --webpack
 

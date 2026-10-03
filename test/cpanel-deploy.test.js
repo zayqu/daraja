@@ -50,10 +50,12 @@ test("cPanel deployment installs only the verified self-contained runtime", () =
 
 test("cPanel deployment verifies the exact public build before recording success", () => {
   assert.match(deployScript, /\.next\/\.daraja-commit/);
-  assert.match(deployScript, /RUNTIME_DIR\/\.next\/server\/app\/index\.html/);
+  assert.match(deployScript, /RUNTIME_DIR\/\.next\/\$asset_path/);
+  assert.match(deployScript, /candidate\.pathname\.startsWith\("\/_next\/static\/"\)/);
+  assert.match(deployScript, /cmp -s "\$asset_file" "\$installed_asset_file"/);
+  assert.doesNotMatch(deployScript, /server\/app\/index\.html/);
   assert.match(deployScript, /for attempt in 1 2 3 4 5/);
   assert.match(deployScript, /curl -fsSL --connect-timeout 10 --max-time 30/);
-  assert.match(deployScript, /asset_urls" == "\$expected_asset_urls/);
   assert.match(deployScript, /chunks\/app\/page-/);
   assert.match(deployScript, /Cache-Control: no-cache/);
   assert.match(deployScript, /release_marker_healthcheck/);
@@ -105,6 +107,15 @@ test("cPanel deployment automatically restores the previous runtime on failure",
   assert.match(deployScript, /mv runtime\.previous runtime/);
   assert.match(deployScript, /mv server\.js\.previous server\.js/);
   assert.doesNotMatch(deployScript, /prisma (?:migrate|db push)/);
+});
+
+test("production release applies Prisma migrations outside cPanel", () => {
+  assert.match(
+    releaseWorkflow,
+    /name: Apply production migrations[\s\S]*if: github\.event_name != 'pull_request'[\s\S]*npx prisma migrate deploy/,
+  );
+  assert.doesNotMatch(deployScript, /prisma (?:migrate|db push)/);
+  assert.doesNotMatch(autoDeployScript, /prisma (?:migrate|db push)/);
 });
 
 test("cPanel release packages and smoke-tests a standalone runtime", () => {

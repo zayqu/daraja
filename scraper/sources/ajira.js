@@ -9,9 +9,6 @@ const {
   deduplicateJobs,
 } = require("../lib/jobs");
 const { createPrismaClient, saveJobs } = require("../lib/store");
-const {
-  enrichJobsWithOfficialEmployerMedia,
-} = require("../lib/employer-media");
 
 const AJIRA_DETAIL_URL = "https://portal.ajira.go.tz/view-advert";
 const AJIRA_APPLICATION_URL = "https://portal.ajira.go.tz/auth";
@@ -226,10 +223,6 @@ async function collectAjiraJobs(options = {}) {
     language: "sw",
     description:
       "Visit the official Ajira Portal for the full vacancy notice and application instructions.",
-  });
-
-  await enrichJobsWithOfficialEmployerMedia(jobs, {
-    fetchFn: options.fetchFn || fetch,
   });
 
   if (!jobs.length) {

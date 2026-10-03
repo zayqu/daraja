@@ -23,24 +23,10 @@
 .placeholder {
   display: grid;
   place-items: center;
-  font-weight: 800;
-  letter-spacing: 0.04em;
+  background: #ffffff;
 }
 
-
-.governmentPlaceholder {
-  display: grid;
-  place-items: center;
-  background: #f3f6f7;
-  color: #5f6b72;
-}
-
-.governmentPlaceholder svg {
-  width: 62%;
-  height: 62%;
-  fill: none;
-  stroke: currentColor;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-  stroke-width: 1.55;
+.placeholder img {
+  object-fit: contain;
+  padding: 14%;
 }

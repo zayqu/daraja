@@ -893,3 +893,14 @@ Every batch must record:
 - The company name sits directly under the job title.
 - Job type/category start beneath the logo, while location and deadline remain anchored to the right.
 - Desktop remains unchanged.
+
+
+## Current batch: scraper employer media enrichment
+
+- The scraper media pipeline now reads real employer logos from structured data, standard logo metadata, semantic logo markup and lazy-loaded image attributes.
+- Standard Bank/SmartRecruiters jobs now make one bounded read of the verified public posting page when the API payload does not expose a logo, then reuse that official logo across the imported Tanzania vacancies.
+- NMB jobs keep the careers-page media first and fall back to NMB's official corporate website when the careers markup exposes no reliable logo.
+- Ajira now preserves an employer logo when the rendered official vacancy row or future official payload exposes one.
+- Generic UI images such as Ajira's "Company" icon are not promoted to employer logos or representative media.
+- No guessed domains, stock logos, third-party logo services or unrelated search-result imagery are introduced. Sources that do not expose reliable employer media continue to use Daraja's neutral initials fallback.
+- This is schema-free and keeps source/application URL behavior unchanged.

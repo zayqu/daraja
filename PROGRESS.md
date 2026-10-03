@@ -935,8 +935,8 @@ Every batch must record:
 
 - Added a shared `verified-agency` scraper that can discover vacancy pages from a verified official listing page or, where the official careers UI is not server-readable, from a bounded Google search restricted to an allowlisted official ATS host.
 - Search results are discovery-only. Daraja fetches the official vacancy page before publication and rejects closed pages, non-Tanzania jobs, missing required deadlines and past deadlines.
-- Enabled five active Tanzania recruitment sources in this batch: Empower Tanzania, Shugulika Africa Limited, Career Options Africa Group - Tanzania, CVPeople Tanzania and Q-Sourcing Servtec Tanzania.
-- Empower, Shugulika and Career Options use their own official listing pages. CVPeople and Q-Sourcing use bounded Google discovery only to locate vacancy URLs on their exact official Zoho Recruit hosts, then verify the official page.
+- Enabled six active Tanzania recruitment sources in this batch: Empower Tanzania, Shugulika Africa Limited, Career Options Africa Group - Tanzania, CVPeople Tanzania, Q-Sourcing Servtec Tanzania and eKazi / Exact Manpower Consulting Ltd.
+- Empower, Shugulika, Career Options and eKazi use their own official listing pages. CVPeople and Q-Sourcing use bounded Google discovery only to locate vacancy URLs on their exact official Zoho Recruit hosts, then verify the official page.
 - Added authoritative-snapshot handling so jobs disappearing from a healthy verified agency feed are archived without deleting history.
 - Added tests for official-host restrictions, Google-result filtering, closed/expired vacancy rejection, relative expiry handling, structured JobPosting parsing and empty-cycle preservation.
 - Recorded the October 2026 source audit in `docs/RECRUITMENT-SOURCE-AUDIT-2026-10.md`. Manpower Tanzania, Radar Recruitment, HR World and Reveurse remain disabled until each exposes a reliable current vacancy surface suitable for safe automation.

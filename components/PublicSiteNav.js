@@ -16,7 +16,8 @@ export default function PublicSiteNav(props) {
       {...props}
       links={links}
       showCandidateProfile={candidateCareerEnabled()}
-      showEmployerCta={false}
+      showEmployerCta={employerPortalEnabled()}
+      right={false}
     />
   );
 }

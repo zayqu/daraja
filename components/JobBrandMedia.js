@@ -8,16 +8,6 @@ function passthroughLoader({ src }) {
   return src;
 }
 
-function initialsFor(company) {
-  return String(company || "Daraja")
-    .split(/\s+/)
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((part) => part[0])
-    .join("")
-    .toUpperCase();
-}
-
 export default function JobBrandMedia({
   company,
   companyLogo,
@@ -33,9 +23,15 @@ export default function JobBrandMedia({
     return (
       <span
         className={`${styles.media} ${styles.placeholder} ${className}`}
-        aria-hidden="true"
+        aria-label="Daraja placeholder"
       >
-        {initialsFor(company)}
+        <Image
+          fill
+          sizes={sizes}
+          src="/icon.png"
+          alt=""
+          aria-hidden="true"
+        />
       </span>
     );
   }

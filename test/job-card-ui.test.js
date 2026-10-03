@@ -58,3 +58,21 @@ test("public job results use one shared hierarchy-first job card", async () => {
   assert.match(styles, /\.company[\s\S]*text-overflow:\s*ellipsis/);
   assert.match(styles, /\.posted[\s\S]*display:\s*none/);
 });
+
+
+test("missing employer media uses the Daraja brand placeholder", async () => {
+  const media = await readFile(
+    path.join(__dirname, "..", "components", "JobBrandMedia.js"),
+    "utf8"
+  );
+  const styles = await readFile(
+    path.join(__dirname, "..", "components", "JobBrandMedia.module.css"),
+    "utf8"
+  );
+
+  assert.match(media, /src="\/icon\.png"/);
+  assert.match(media, /Daraja placeholder/);
+  assert.match(media, /styles\.placeholder/);
+  assert.doesNotMatch(media, /sourceType/);
+  assert.match(styles, /\.placeholder img/);
+});

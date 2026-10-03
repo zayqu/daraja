@@ -1,7 +1,7 @@
 const cheerio = require("cheerio");
 
 const { cleanText, deduplicateJobs } = require("../lib/jobs");
-const { extractSourceMedia } = require("../lib/source-page");
+const { extractSourceMedia, fetchSourcePageMetadata } = require("../lib/source-page");
 
 const COMPANY = "StandardBankGroup";
 const API_ROOT = `https://api.smartrecruiters.com/v1/companies/${COMPANY}/postings`;
@@ -179,6 +179,22 @@ async function collectStandardBankJobs({ fetchFn = fetch } = {}) {
     const detail = await fetchJson(`${API_ROOT}/${posting.id}`, fetchFn);
     const job = mapPosting(detail);
     if (job) detailed.push(job);
+  }
+
+  if (detailed.length && detailed.some((job) => !job.companyLogo)) {
+    const officialPosting = detailed.find((job) => job.sourceUrl)?.sourceUrl;
+    if (officialPosting) {
+      const pageMedia = await fetchSourcePageMetadata(officialPosting, {
+        fetchFn,
+      });
+      if (pageMedia.companyLogo || pageMedia.representativeImage) {
+        for (const job of detailed) {
+          job.companyLogo = job.companyLogo || pageMedia.companyLogo;
+          job.representativeImage =
+            job.representativeImage || pageMedia.representativeImage;
+        }
+      }
+    }
   }
 
   return deduplicateJobs(detailed, {

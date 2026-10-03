@@ -39,6 +39,7 @@ test("collectAjiraJobs maps the rendered Advert Name into a valid job", async ()
         deadline: "06/08/2027",
         numberOfPosts: "4 Posts",
         sourceUrl,
+        companyLogo: "https://portal.ajira.go.tz/media/gst-logo.png",
       },
     ],
   });
@@ -49,4 +50,9 @@ test("collectAjiraJobs maps the rendered Advert Name into a valid job", async ()
   assert.equal(jobs[0].company, "Geological Survey of Tanzania");
   assert.equal(jobs[0].deadline.toISOString(), "2027-08-06T23:59:59.000Z");
   assert.equal(jobs[0].sourceUrl, sourceUrl);
+  assert.equal(
+    jobs[0].companyLogo,
+    "https://portal.ajira.go.tz/media/gst-logo.png"
+  );
 });
+

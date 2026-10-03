@@ -4,6 +4,7 @@ const assert = require("node:assert/strict");
 const {
   extractApplicationDestination,
   extractSourceMedia,
+  fetchSourcePageMetadata,
 } = require("../scraper/lib/source-page");
 
 const PAGE = "https://careers.example.co.tz/jobs/accountant";
@@ -103,4 +104,51 @@ test("returns no media when the source exposes nothing reliable", () => {
     companyLogo: null,
     representativeImage: null,
   });
+});
+
+
+test("reads lazy-loaded official logo markup", () => {
+  assert.deepEqual(
+    extractSourceMedia(
+      '<header><a class="navbar-brand" href="/"><img data-src="/assets/employer-mark.svg" alt="Example brand logo"></a></header>',
+      PAGE
+    ),
+    {
+      companyLogo: "https://careers.example.co.tz/assets/employer-mark.svg",
+      representativeImage: null,
+    }
+  );
+});
+
+test("does not treat a generic company UI icon as an employer logo", () => {
+  assert.deepEqual(
+    extractSourceMedia(
+      '<main><img src="/icons/company.svg" alt="Company"><p>Example Bank</p></main>',
+      PAGE
+    ),
+    {
+      companyLogo: null,
+      representativeImage: null,
+    }
+  );
+});
+
+test("fetches source-page metadata from the official posting page", async () => {
+  const metadata = await fetchSourcePageMetadata(PAGE, {
+    fetchFn: async () => ({
+      ok: true,
+      headers: new Headers({ "content-type": "text/html; charset=utf-8" }),
+      text: async () =>
+        '<img alt="Example logo" src="/assets/logo.png"><a href="/apply/123">Apply now</a>',
+    }),
+  });
+
+  assert.equal(
+    metadata.companyLogo,
+    "https://careers.example.co.tz/assets/logo.png"
+  );
+  assert.equal(
+    metadata.applicationUrl,
+    "https://careers.example.co.tz/apply/123"
+  );
 });

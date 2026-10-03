@@ -23,6 +23,10 @@
 .placeholder {
   display: grid;
   place-items: center;
-  font-weight: 800;
-  letter-spacing: 0.04em;
+  background: #ffffff;
+}
+
+.placeholder img {
+  object-fit: contain;
+  padding: 14%;
 }

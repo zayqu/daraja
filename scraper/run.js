@@ -19,6 +19,9 @@ const { collectNmbJobs } = require("./sources/nmb");
 const { collectReliefWebJobs } = require("./sources/reliefweb");
 const { collectStandardBankJobs } = require("./sources/standardbank");
 const { summarizeClassifications } = require("./lib/categories");
+const {
+  enrichJobsWithOfficialEmployerMedia,
+} = require("./lib/employer-media");
 
 const adapters = {
   ajira: collectAjiraJobs,
@@ -74,6 +77,12 @@ async function runScrapers({ dryRun = false, requestedSources = new Set() } = {}
   const failures = [];
   const warnings = [];
   const lifecycle = { archivedExpired: 0 };
+  const mediaSearchBudget = {
+    remaining: Number.parseInt(
+      process.env.EMPLOYER_MEDIA_SEARCH_BUDGET || "8",
+      10
+    ),
+  };
   let alerts = null;
 
   try {
@@ -100,6 +109,11 @@ async function runScrapers({ dryRun = false, requestedSources = new Set() } = {}
         const collect = adapters[source.adapter];
         if (!collect) throw new Error(`Unknown adapter: ${source.adapter}`);
         const jobs = await collect();
+        await enrichJobsWithOfficialEmployerMedia(jobs, {
+          source: source.id,
+          prisma,
+          searchBudget: mediaSearchBudget,
+        });
         const sourceHealth = jobs.health || {};
         const summary = dryRun
           ? {

@@ -895,21 +895,14 @@ Every batch must record:
 - Desktop remains unchanged.
 
 
-## Current batch: scraper employer media enrichment
+## Current batch: dynamic employer media discovery
 
-- The scraper media pipeline now reads real employer logos from structured data, standard logo metadata, semantic logo markup and lazy-loaded image attributes.
-- Standard Bank/SmartRecruiters jobs now make one bounded read of the verified public posting page when the API payload does not expose a logo, then reuse that official logo across the imported Tanzania vacancies.
-- NMB jobs keep the careers-page media first and fall back to NMB's official corporate website when the careers markup exposes no reliable logo.
-- Ajira now preserves an employer logo when the rendered official vacancy row or future official payload exposes one.
-- Generic UI images such as Ajira's "Company" icon are not promoted to employer logos or representative media.
-- No guessed domains, stock logos, third-party logo services or unrelated search-result imagery are introduced. Sources that do not expose reliable employer media continue to use Daraja's neutral initials fallback.
-- This is schema-free and keeps source/application URL behavior unchanged.
-
-
-### Ajira employer-homepage media fallback
-
-- Ajira itself does not consistently expose employer-specific logos, so the scraper now supports an auditable exact-match registry of verified employer homepages for those cases.
-- The registry starts with Tanzania Shipping Company Limited / Kampuni ya Meli Tanzania (TASHICO), verified against the organisation's own official website.
-- For registered employers, Ajira fetches the official homepage once per scrape cycle and reuses only media extracted from that official page.
-- Matching is exact after normalization, not fuzzy, so similar organisation names cannot silently inherit the wrong branding.
-- The registry is intentionally small and source-controlled; new employers must be added only after their official homepage is verified.
+- Employer media discovery is now centralized in the scraper pipeline instead of being hardcoded per employer.
+- Existing verified media is reused from earlier jobs with the same employer, so successful discoveries improve future imports without a new schema or a static employer map.
+- For non-Ajira sources, Daraja first derives likely official websites from verified source URLs and corporate email domains, then validates the employer identity before accepting any logo.
+- If no official site can be derived, Daraja performs a bounded Google web-search fallback for the employer's official website, filters out social networks, job boards, ATS hosts and aggregators, verifies the employer name on the candidate site, and only then extracts official media.
+- Search is capped per scraper run through `EMPLOYER_MEDIA_SEARCH_BUDGET` (default 8) so discovery cannot flood external sites or slow the hourly scraper indefinitely.
+- Standard Bank/SmartRecruiters jobs still use their verified public posting page first when the API omits branding; NMB careers still falls back to NMB's official corporate site.
+- Ajira preserves employer media only when the official portal exposes it. When Ajira has no employer media, the public card uses a neutral government-source glyph rather than inventing an employer logo.
+- Generic UI icons, social images, unrelated stock imagery and unverified search results are never promoted to employer branding.
+- This remains schema-free and keeps source/application URL behavior unchanged.

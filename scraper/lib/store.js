@@ -12,6 +12,7 @@ const AUTHORITATIVE_SNAPSHOT_SOURCES = new Set([
   "career-options-africa-tanzania",
   "cvpeople-tanzania",
   "qsourcing-tanzania",
+  "ekazi-exact-manpower",
 ]);
 
 function createPrismaClient() {

@@ -139,21 +139,21 @@
   font-weight: 800;
 }
 
-.cardGov {
+.cardPrivate {
   top: 6%;
-  left: 0;
+  left: -2%;
   animation-delay: 1.9s, 2.45s;
 }
 
-.cardBank {
+.cardGov {
   top: 0;
   right: 0;
   animation-delay: 2.15s, 2.7s;
 }
 
-.cardNgo {
+.cardBank {
   top: 21%;
-  left: 30%;
+  left: 34%;
   animation-delay: 2.4s, 2.95s;
 }
 
@@ -249,8 +249,12 @@
     font-size: .5rem;
   }
 
-  .cardNgo {
-    left: 27%;
+  .cardPrivate {
+    left: -1%;
+  }
+
+  .cardBank {
+    left: 29%;
   }
 
   .label {

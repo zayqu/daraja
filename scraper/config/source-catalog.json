@@ -2134,8 +2134,26 @@
       "name": "Empower Tanzania",
       "url": "https://www.empower.co.tz/empower-jobs",
       "category": "professional_services_and_recruitment_firms",
-      "enabled": false,
-      "adapter": null
+      "enabled": true,
+      "adapter": "verified-agency",
+      "recruiterName": "Empower Tanzania",
+      "countryFilter": "Tanzania",
+      "requireDeadline": true,
+      "detailPageIsApplication": true,
+      "defaultLocation": "Tanzania",
+      "discovery": {
+        "mode": "listing",
+        "allowedHosts": [
+          "empower.co.tz"
+        ],
+        "detailPathPattern": "^/empower-jobs/detail/",
+        "listingPages": [
+          "https://www.empower.co.tz/empower-jobs?page=1",
+          "https://www.empower.co.tz/empower-jobs?page=2"
+        ],
+        "maxJobs": 70,
+        "concurrency": 5
+      }
     },
     {
       "id": "hr-world",
@@ -2248,6 +2266,124 @@
       "category": "professional_services_and_recruitment_firms",
       "enabled": false,
       "adapter": null
+    },
+    {
+      "id": "shugulika-tanzania",
+      "name": "Shugulika Africa Limited",
+      "url": "https://www.shugulika.com/jobs",
+      "category": "professional_services_and_recruitment_firms",
+      "enabled": true,
+      "adapter": "verified-agency",
+      "recruiterName": "Shugulika Africa Limited",
+      "countryFilter": "Tanzania",
+      "requireDeadline": true,
+      "detailPageIsApplication": true,
+      "defaultLocation": "Tanzania",
+      "discovery": {
+        "mode": "listing",
+        "allowedHosts": [
+          "shugulika.com"
+        ],
+        "detailPathPattern": "^/jobs/\\d+$",
+        "maxJobs": 50,
+        "concurrency": 5
+      }
+    },
+    {
+      "id": "career-options-africa-tanzania",
+      "name": "Career Options Africa Group - Tanzania",
+      "url": "https://www.careeroptionsafricagroup.com/jobs",
+      "category": "professional_services_and_recruitment_firms",
+      "enabled": true,
+      "adapter": "verified-agency",
+      "recruiterName": "Career Options Africa Group",
+      "countryFilter": "Tanzania",
+      "requireDeadline": true,
+      "detailPageIsApplication": true,
+      "defaultLocation": "Tanzania",
+      "discovery": {
+        "mode": "listing",
+        "allowedHosts": [
+          "careeroptionsafricagroup.com"
+        ],
+        "detailPathPattern": "^/jobs/detail/",
+        "maxJobs": 80,
+        "concurrency": 5
+      }
+    },
+    {
+      "id": "cvpeople-tanzania",
+      "name": "CVPeople Tanzania",
+      "url": "https://cvpeopletanzania.zohorecruit.com/jobs/Careers",
+      "category": "professional_services_and_recruitment_firms",
+      "enabled": true,
+      "adapter": "verified-agency",
+      "recruiterName": "CVPeople Tanzania",
+      "countryFilter": "Tanzania",
+      "requireDeadline": true,
+      "detailPageIsApplication": true,
+      "defaultLocation": "Tanzania",
+      "discovery": {
+        "mode": "google",
+        "allowedHosts": [
+          "cvpeopletanzania.zohorecruit.com"
+        ],
+        "detailPathPattern": "^/jobs/Careers/\\d+/",
+        "query": "site:cvpeopletanzania.zohorecruit.com/jobs/Careers Tanzania deadline {year}",
+        "maxGoogleResults": 25,
+        "maxJobs": 30,
+        "concurrency": 4
+      }
+    },
+    {
+      "id": "qsourcing-tanzania",
+      "name": "Q-Sourcing Servtec Tanzania",
+      "url": "https://qsourcing.zohorecruit.com/jobs/Careers",
+      "category": "professional_services_and_recruitment_firms",
+      "enabled": true,
+      "adapter": "verified-agency",
+      "recruiterName": "Q-Sourcing Servtec Tanzania",
+      "countryFilter": "Tanzania",
+      "requireDeadline": true,
+      "detailPageIsApplication": true,
+      "defaultLocation": "Tanzania",
+      "discovery": {
+        "mode": "google",
+        "allowedHosts": [
+          "qsourcing.zohorecruit.com",
+          "jobs.qsourcing.com"
+        ],
+        "detailPathPattern": "^/jobs/Careers/\\d+/",
+        "query": "site:qsourcing.zohorecruit.com/jobs/Careers Tanzania deadline {year}",
+        "maxGoogleResults": 25,
+        "maxJobs": 30,
+        "concurrency": 4
+      }
+    },
+    {
+      "id": "ekazi-exact-manpower",
+      "name": "eKazi / Exact Manpower Consulting Ltd",
+      "url": "https://api.ekazi.co.tz/find-job",
+      "category": "professional_services_and_recruitment_firms",
+      "enabled": true,
+      "adapter": "verified-agency",
+      "recruiterName": "Exact Manpower Consulting Ltd",
+      "countryFilter": "Tanzania",
+      "requireDeadline": true,
+      "detailPageIsApplication": true,
+      "defaultLocation": "Tanzania",
+      "discovery": {
+        "mode": "listing",
+        "allowedHosts": [
+          "api.ekazi.co.tz"
+        ],
+        "detailPathPattern": "^/job/show/",
+        "listingPages": [
+          "https://api.ekazi.co.tz/find-job"
+        ],
+        "maxJobs": 60,
+        "concurrency": 5
+      }
     }
   ]
 }

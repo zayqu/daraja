@@ -26,6 +26,16 @@ export default function NavIcon({ name, size = 22 }) {
     );
   }
 
+
+  if (name === "freelance") {
+    return (
+      <svg {...common}>
+        <path d="M5 7.5h14v11H5z" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round" />
+        <path d="M9 7.5V5h6v2.5M8.5 12h7M12 9.5v5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+      </svg>
+    );
+  }
+
   if (name === "bell") {
     return (
       <svg {...common}>

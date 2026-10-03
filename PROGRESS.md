@@ -930,3 +930,13 @@ Every batch must record:
 - Guests and freelancers see Freelance; signed-in job seekers see Career when the candidate workspace is enabled; employers see Employer when the employer portal is enabled; admins see Admin.
 - Home, Jobs and More remain stable anchors across roles, so the navigation does not become unpredictable.
 - Role awareness comes from the authenticated server session already used by Daraja; no client-side role guessing or hardcoded email/account checks were added.
+
+## Current batch: privacy-safe visitor counter
+
+- Added a real monthly visitor counter backed by the production database; no placeholder or fabricated visitor number is shown.
+- The counter records only after the visitor has accepted Daraja's optional analytics/privacy choice.
+- Deduplication uses a short-lived first-party HttpOnly month marker, so no persistent visitor identifier, fingerprint or device ID is stored.
+- Obvious crawler/bot user agents are excluded and the write endpoint is same-origin protected and rate-limited.
+- The public homepage counter now shows the measured monthly visitor total alongside live opportunities, represented employers and active sources.
+- Visitor measurement follows the Africa/Dar_es_Salaam calendar month and the privacy policy documents the behavior.
+

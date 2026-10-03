@@ -319,16 +319,11 @@ function extractSourceMedia(html, pageUrl) {
     pageUrl
   );
 
-  const representativeNodes = [
-    $("main img").first(),
-    $("article img").first(),
-  ];
   const representativeImage = firstUsable(
     [
       ...structuredImages,
       $('meta[property="og:image"]').attr("content"),
       $('meta[name="twitter:image"]').attr("content"),
-      ...representativeNodes.map((node) => imageCandidateForNode(node)),
     ],
     pageUrl
   );

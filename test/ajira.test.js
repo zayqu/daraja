@@ -55,3 +55,36 @@ test("collectAjiraJobs maps the rendered Advert Name into a valid job", async ()
     "https://portal.ajira.go.tz/media/gst-logo.png"
   );
 });
+
+
+test("collectAjiraJobs enriches TASHICO from its verified official homepage", async () => {
+  const sourceUrl = getAjiraDetailUrl(13756);
+  const calls = [];
+  const jobs = await collectAjiraJobs({
+    rows: [
+      {
+        title: "DECK OFFICER II",
+        company: "Kampuni ya Meli Tanzania (TASHICO)",
+        deadline: "17/10/2026",
+        sourceUrl,
+      },
+    ],
+    fetchFn: async (url) => {
+      calls.push(url);
+      assert.equal(url, "https://www.tashico.co.tz/");
+      return {
+        ok: true,
+        headers: new Headers({ "content-type": "text/html" }),
+        text: async () =>
+          '<header><img class="site-logo" src="/assets/tashico-logo.png" alt="TASHICO logo"></header>',
+      };
+    },
+  });
+
+  assert.equal(jobs.length, 1);
+  assert.deepEqual(calls, ["https://www.tashico.co.tz/"]);
+  assert.equal(
+    jobs[0].companyLogo,
+    "https://www.tashico.co.tz/assets/tashico-logo.png"
+  );
+});

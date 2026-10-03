@@ -904,3 +904,12 @@ Every batch must record:
 - Generic UI images such as Ajira's "Company" icon are not promoted to employer logos or representative media.
 - No guessed domains, stock logos, third-party logo services or unrelated search-result imagery are introduced. Sources that do not expose reliable employer media continue to use Daraja's neutral initials fallback.
 - This is schema-free and keeps source/application URL behavior unchanged.
+
+
+### Ajira employer-homepage media fallback
+
+- Ajira itself does not consistently expose employer-specific logos, so the scraper now supports an auditable exact-match registry of verified employer homepages for those cases.
+- The registry starts with Tanzania Shipping Company Limited / Kampuni ya Meli Tanzania (TASHICO), verified against the organisation's own official website.
+- For registered employers, Ajira fetches the official homepage once per scrape cycle and reuses only media extracted from that official page.
+- Matching is exact after normalization, not fuzzy, so similar organisation names cannot silently inherit the wrong branding.
+- The registry is intentionally small and source-controlled; new employers must be added only after their official homepage is verified.

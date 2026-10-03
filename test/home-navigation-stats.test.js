@@ -30,7 +30,7 @@ test("public navigation prioritizes jobs, freelance, employers and about", async
   assert.match(mobileDock, /label: "Admin"/);
   assert.match(mobileDock, /size=\{24\}/);
   assert.match(mobileDock, />\s*Internships\s*</);
-  assert.match(mobileDock, />\s*Employers\s*</);
+  assert.match(mobileDock, />\s*Employer workspace\s*</);
 });
 
 test("homepage uses live database counters and dark mint trust strip", async () => {

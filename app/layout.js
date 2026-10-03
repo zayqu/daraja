@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { Poppins } from "next/font/google";
 import "./globals.css";
 import PrivacyControls from "@/components/PrivacyControls";
@@ -61,7 +62,12 @@ export default function RootLayout({ children }) {
         </a>
         {children}
         <SiteFooterLinks />
-        <MobileDock showEmployerCta={showEmployerCta} showCandidateProfile={showCandidateProfile} />
+        <Suspense fallback={null}>
+          <MobileDock
+            showEmployerCta={showEmployerCta}
+            showCandidateProfile={showCandidateProfile}
+          />
+        </Suspense>
         <WebVitals analyticsId={analyticsId} />
         <PrivacyControls analyticsId={analyticsId} adsenseClient={adsenseClient} />
       </body>

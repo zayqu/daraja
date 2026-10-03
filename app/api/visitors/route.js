@@ -14,6 +14,7 @@ export async function POST(request) {
     scope: "visitor-counter",
     limit: 12,
     windowMs: 60_000,
+    requireOrigin: true,
   });
   if (error) return error;
 

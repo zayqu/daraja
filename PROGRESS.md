@@ -879,3 +879,9 @@ Every batch must record:
 - Desktop card composition remains unchanged.
 - The heart is visual-only in this UI pass; no false saved state or new saved-job mutation was introduced.
 - This is a presentation-only change with no schema, authentication, permission, job-source, application-route or production-data impact.
+
+
+### Mobile card follow-up: repeated employer mark
+- The approved mobile job card now repeats the employer mark on the second row before the company name, matching the exact three-row composition supplied by the user.
+- The second-row mark is mobile-only; desktop remains unchanged.
+- Company/location and tags/deadline keep their fixed left/right grid alignment so left-side text cannot push the right-side details.

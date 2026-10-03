@@ -22,6 +22,12 @@ test("public navigation prioritizes jobs, freelance, employers and about", async
   assert.match(mobileDock, /icon: "freelance"/);
   assert.match(mobileDock, /useSearchParams/);
   assert.match(mobileDock, /searchParams\.get\("type"\) === "FREELANCE"/);
+  assert.match(mobileDock, /userRole === "JOB_SEEKER"/);
+  assert.match(mobileDock, /userRole === "EMPLOYER"/);
+  assert.match(mobileDock, /userRole === "ADMIN"/);
+  assert.match(mobileDock, /label: "Career"/);
+  assert.match(mobileDock, /label: "Employer"/);
+  assert.match(mobileDock, /label: "Admin"/);
   assert.match(mobileDock, /size=\{24\}/);
   assert.match(mobileDock, />\s*Internships\s*</);
   assert.match(mobileDock, />\s*Employers\s*</);
@@ -62,5 +68,7 @@ test("mobile dock follows compact bottom-navigation sizing", async () => {
   assert.match(styles, /\.active \.iconWrap/);
   assert.match(styles, /background:\s*rgba\(0, 201, 167, 0\.12\)/);
   assert.match(styles, /\.active \.label[\s\S]*font-weight:\s*800/);
+  assert.match(layout, /await auth\(\)/);
+  assert.match(layout, /userRole=\{userRole\}/);
   assert.match(layout, /<Suspense fallback=\{null\}>[\s\S]*<MobileDock/);
 });

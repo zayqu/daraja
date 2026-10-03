@@ -20,6 +20,9 @@ test("public navigation prioritizes jobs, freelance, employers and about", async
 
   assert.match(mobileDock, /label: "Freelance"/);
   assert.match(mobileDock, /icon: "freelance"/);
+  assert.match(mobileDock, /useSearchParams/);
+  assert.match(mobileDock, /searchParams\.get\("type"\) === "FREELANCE"/);
+  assert.match(mobileDock, /size=\{24\}/);
   assert.match(mobileDock, />\s*Internships\s*</);
   assert.match(mobileDock, />\s*Employers\s*</);
 });
@@ -47,4 +50,17 @@ test("hero bridge uses the approved opportunity groups", async () => {
   assert.match(bridge, /Government/);
   assert.match(bridge, /Bank & Finance/);
   assert.doesNotMatch(bridge, /NGO & Development/);
+});
+
+
+test("mobile dock follows compact bottom-navigation sizing", async () => {
+  const styles = await source("components/ui/MobileDock.module.css");
+  const layout = await source("app/layout.js");
+
+  assert.match(styles, /min-height:\s*50px/);
+  assert.match(styles, /font-size:\s*0\.68rem/);
+  assert.match(styles, /\.active \.iconWrap/);
+  assert.match(styles, /background:\s*rgba\(0, 201, 167, 0\.12\)/);
+  assert.match(styles, /\.active \.label[\s\S]*font-weight:\s*800/);
+  assert.match(layout, /<Suspense fallback=\{null\}>[\s\S]*<MobileDock/);
 });

@@ -56,6 +56,7 @@ test("verified recruitment sources are enabled only with bounded trust config", 
     "career-options-africa-tanzania",
     "cvpeople-tanzania",
     "qsourcing-tanzania",
+    "ekazi-exact-manpower",
   ];
 
   for (const id of ids) {

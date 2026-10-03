@@ -63,6 +63,14 @@ test("imports Tanzania vacancies with the exact official application destination
       });
     }
     if (url === `${API_ROOT}/${summary.id}`) return response(detail);
+    if (url === detail.postingUrl) {
+      return {
+        ok: true,
+        headers: new Headers({ "content-type": "text/html" }),
+        text: async () =>
+          '<header><img alt="Standard Bank Group logo" src="https://jobs.smartrecruiters.com/media/standard-bank-logo.svg"></header>',
+      };
+    }
     throw new Error(`Unexpected request: ${url}`);
   };
 
@@ -77,7 +85,11 @@ test("imports Tanzania vacancies with the exact official application destination
   assert.equal(jobs[0].sourceUrl, detail.postingUrl);
   assert.equal(jobs[0].applicationUrl, detail.applyUrl);
   assert.equal(jobs[0].sourceId, `standardbank-${summary.id}`);
-  assert.equal(calls.length, 2);
+  assert.equal(
+    jobs[0].companyLogo,
+    "https://jobs.smartrecruiters.com/media/standard-bank-logo.svg"
+  );
+  assert.equal(calls.length, 3);
 });
 
 test("an empty verified Tanzania feed is healthy", async () => {

@@ -40,9 +40,9 @@ export default function MobileDock({
       active: pathname.startsWith("/jobs") && !pathname.includes("category=Internships"),
     },
     {
-      href: "/jobs?category=Internships%20%26%20Graduate%20Programs",
-      label: "Internships",
-      icon: "internships",
+      href: "/jobs?type=FREELANCE",
+      label: "Freelance",
+      icon: "freelance",
       active: false,
     },
   ];
@@ -94,6 +94,11 @@ export default function MobileDock({
               >
                 Privacy choices
               </button>
+              {showEmployerCta && (
+                <Link href="/employer" onClick={() => setMoreOpen(false)}>
+                  Employers
+                </Link>
+              )}
               <Link href="/jobs?category=Internships%20%26%20Graduate%20Programs" onClick={() => setMoreOpen(false)}>
                 Internships
               </Link>

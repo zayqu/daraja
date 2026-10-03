@@ -20,4 +20,4 @@ When a model asks the operator to perform a cPanel release action, the canonical
 
 Recommended cron cadence: every 5 minutes. After the bootstrap has succeeded at least once and cPanel outbound DNS is stable, cron may invoke `/home/darajaco/.daraja-deploy/auto-deploy.sh` directly with `flock`.
 
-This path does not run Prisma migrations and does not delete production data.
+The cPanel pull path itself does not run Prisma migrations and does not delete production data. Production migrations are applied by the verified GitHub release workflow on non-PR runs before the production bundle is published, so the database schema is ready before cPanel switches runtime.

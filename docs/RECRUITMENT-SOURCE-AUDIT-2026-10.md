@@ -34,6 +34,13 @@ Status: implementation input for Daraja source expansion
 - Daraja mode: bounded Google discovery restricted to the exact official Zoho Recruit host, then official-page verification.
 - Pages stating “no longer accepting applications” or “posting no longer available” are rejected.
 
+### eKazi / Exact Manpower Consulting Ltd
+- Canonical jobs page: https://api.ekazi.co.tz/find-job
+- Current activity observed: multiple live October/November 2026 vacancies published by Exact Manpower Consulting Ltd, with explicit deadlines and vacancy-level detail pages.
+- Daraja mode: official eKazi listing-page discovery + vacancy detail verification.
+- Publication rule: Tanzania relevance + parseable unexpired deadline + official detail/application login flow.
+- Expired eKazi pages are rejected even if they remain indexed by a search engine.
+
 ## Held back
 
 ### Manpower Tanzania / Manpower Holdings

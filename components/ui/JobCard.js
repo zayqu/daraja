@@ -91,14 +91,6 @@ export default function JobCard({
         sizes="52px"
       />
 
-      <JobBrandMedia
-        company={job.company}
-        companyLogo={job.companyLogo}
-        representativeImage={job.representativeImage}
-        className={styles.mobileCompanyBrand}
-        sizes="22px"
-      />
-
       <span className={styles.saveVisual} aria-hidden="true">
         <svg viewBox="0 0 24 24" focusable="false">
           <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 0 0 0-7.78Z" />

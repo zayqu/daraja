@@ -37,6 +37,7 @@
   min-width: 0;
 }
 
+.mobileCompanyBrand,
 .saveVisual {
   display: none;
 }
@@ -176,7 +177,7 @@
     grid-template-columns: 40px minmax(0, 1fr) auto;
     grid-template-areas:
       "brand title save"
-      "company company location"
+      "companyBrand company location"
       "tags tags deadline";
     column-gap: 0.7rem;
     row-gap: 0.58rem;
@@ -196,6 +197,18 @@
   .content,
   .side {
     display: contents;
+  }
+
+  .mobileCompanyBrand {
+    grid-area: companyBrand;
+    width: 22px;
+    height: 22px;
+    flex-basis: 22px;
+    display: block;
+    justify-self: start;
+    align-self: center;
+    margin-left: 0.1rem;
+    border-radius: 6px;
   }
 
   .titleRow {

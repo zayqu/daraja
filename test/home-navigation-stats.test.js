@@ -51,9 +51,11 @@ test("homepage keeps live counters in the navy band and sends only visitor insig
   assert.doesNotMatch(footer, /stats\.employers/);
   assert.doesNotMatch(footer, /stats\.sources/);
   assert.match(footer, /VisitorCounter initialCount=\{visitorsThisMonth\}/);
-  assert.match(footer, /Visitor insight/);
+  assert.match(footer, /className={styles.visitorMeta}/);
+  assert.match(footer, /VisitorCounter initialCount=\{visitorsThisMonth\}/);
+  assert.doesNotMatch(footer, /Privacy-safe monthly visitor activity/);
   assert.doesNotMatch(footer, /Daraja at a glance/);
-  assert.match(footerStyles, /\.visitorInsight/);
+  assert.match(footerStyles, /\.visitorMeta/);
 
   assert.match(stats, /buildPublicJobWhere\("active"/);
   assert.match(stats, /prisma\.job\.count/);

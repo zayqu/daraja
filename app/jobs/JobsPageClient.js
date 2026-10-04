@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback, useRef } from "react";
 import AdSenseSlot from "@/components/AdSenseSlot";
 import JobAlerts from "@/components/JobAlerts";
 import SiteNav from "@/components/SiteNav";
+import { buildPublicNavigation } from "@/lib/public-navigation";
 import SiteFooter from "@/components/SiteFooter";
 import JobCard from "@/components/ui/JobCard";
 import { trackEvent } from "@/lib/analytics";
@@ -575,7 +576,7 @@ export default function JobsPageClient({
       `}</style>
 
       <div className="jobs-page">
-        <SiteNav showEmployerCta={showEmployerCta} />
+        <SiteNav links={buildPublicNavigation({ employerEnabled: showEmployerCta })} showEmployerCta={showEmployerCta} right={false} />
 
         <header className="jobs-hero">
           <div className="jobs-hero-inner">

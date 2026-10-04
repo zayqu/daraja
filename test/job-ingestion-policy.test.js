@@ -3,7 +3,10 @@ const assert = require("node:assert/strict");
 const { readFile } = require("node:fs/promises");
 const path = require("node:path");
 
-const { isGenericJobTitle } = require("../scraper/lib/store");
+const {
+  findExistingJob,
+  isGenericJobTitle,
+} = require("../scraper/lib/store");
 
 test("editorial roundup titles are not treated as positions", () => {
   assert.equal(isGenericJobTitle("10 New Jobs at NMB Bank"), true);
@@ -44,4 +47,55 @@ test("homepage is always rendered from the current release and mobile bridge lab
   assert.match(bridge, /aspect-ratio: 360 \/ 280/);
   assert.match(bridge, /\.labelStart[\s\S]*left: 8px/);
   assert.match(bridge, /\.labelEnd[\s\S]*right: 8px/);
+});
+
+
+test("source identity wins before legacy cross-source matching", async () => {
+  const calls = [];
+  const prisma = {
+    job: {
+      findFirst: async ({ where }) => {
+        calls.push(where);
+        if (
+          where.source === "standardbank-tanzania" &&
+          where.sourceId === "vacancy-42"
+        ) {
+          return { id: "exact-standardbank-row" };
+        }
+        return { id: "legacy-ajiraweb-row" };
+      },
+    },
+  };
+
+  const found = await findExistingJob(
+    prisma,
+    {
+      sourceId: "vacancy-42",
+      title: "Relationship Manager",
+      company: "Stanbic Bank Tanzania",
+      deadline: new Date("2026-10-31T23:59:59.000Z"),
+    },
+    "standardbank-tanzania"
+  );
+
+  assert.deepEqual(found, { id: "exact-standardbank-row" });
+  assert.equal(calls.length, 1);
+  assert.equal(calls[0].source, "standardbank-tanzania");
+  assert.equal(calls[0].sourceId, "vacancy-42");
+});
+
+test("site metadata uses the user-facing ajira.daraja.co.tz origin", async () => {
+  const layout = await readFile(
+    path.join(__dirname, "..", "app", "layout.js"),
+    "utf8"
+  );
+
+  assert.match(
+    layout,
+    /metadataBase: new URL\("https:\/\/ajira\.daraja\.co\.tz"\)/
+  );
+  assert.doesNotMatch(
+    layout,
+    /metadataBase: new URL\("https:\/\/www\.ajira\.daraja\.co\.tz"\)/
+  );
 });

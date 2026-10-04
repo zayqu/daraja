@@ -190,12 +190,21 @@ test("scraped jobs receive a slug once and updates never rewrite it", async () =
 
 test("NMB updates legacy source records using the canonical source identity", async () => {
   const updates = [];
+  let lookups = 0;
   const prisma = {
     job: {
       findFirst: async ({ where }) => {
+        lookups += 1;
+        if (lookups === 1) {
+          assert.equal(where.source, "nmb-bank-careers");
+          assert.equal(where.sourceId, "nmb-credit-analyst");
+          return null;
+        }
         assert.deepEqual(where.source, {
           in: ["nmb-bank-careers", "nmb-bank"],
         });
+        assert.equal(where.title, "Credit Analyst");
+        assert.equal(where.company, "NMB Bank Plc");
         return { id: "legacy-nmb-job" };
       },
       update: async (payload) => updates.push(payload),

@@ -164,8 +164,11 @@ model Job {
   location         String
   description      String
   category         String
-  type             JobType             @default(FULL_TIME)
+  type             JobType?            @default(FULL_TIME)
   salary           String?
+  experienceMinYears Int?
+  experienceMaxYears Int?
+  openings         Int?
   deadline         DateTime?
   sourceUrl        String?
   applicationUrl   String?

@@ -1,7 +1,11 @@
 const cheerio = require("cheerio");
 
 const { normalizeEmployerSubject } = require("../lib/applications");
-const { cleanText, deduplicateJobs } = require("../lib/jobs");
+const {
+  cleanText,
+  deduplicateJobs,
+  mapEmploymentType,
+} = require("../lib/jobs");
 const {
   extractSourceMedia,
   extractSourcePageMetadata,
@@ -244,13 +248,6 @@ function parseEmailJobsFromFeed(xml) {
   return jobs;
 }
 
-function mapEmploymentType(value) {
-  const type = cleanText(value).toLowerCase();
-  if (type.includes("part")) return "PART_TIME";
-  if (type.includes("contract") || type.includes("temporary")) return "CONTRACT";
-  if (type.includes("intern")) return "INTERNSHIP";
-  return "FULL_TIME";
-}
 
 function getJobPostingJson(html) {
   const $ = cheerio.load(html || "");

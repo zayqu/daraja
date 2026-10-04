@@ -126,11 +126,6 @@
   white-space: nowrap;
 }
 
-.category {
-  background: #e8faf6;
-  color: var(--color-teal-deep);
-}
-
 .side {
   min-width: 124px;
   min-height: 52px;

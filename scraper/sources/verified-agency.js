@@ -3,6 +3,7 @@ const cheerio = require("cheerio");
 const {
   cleanText,
   deduplicateJobs,
+  mapEmploymentType,
   parseDeadline,
 } = require("../lib/jobs");
 const {
@@ -28,20 +29,6 @@ const BLOCKED_APPLICATION_HOSTS = [
   "t.me",
 ];
 
-function mapEmploymentType(value) {
-  const type = cleanText(value).toLowerCase();
-  if (type.includes("freelance")) return "FREELANCE";
-  if (type.includes("part")) return "PART_TIME";
-  if (type.includes("intern") || type.includes("volunteer")) return "INTERNSHIP";
-  if (
-    type.includes("contract") ||
-    type.includes("temporary") ||
-    type.includes("fixed")
-  ) {
-    return "CONTRACT";
-  }
-  return "FULL_TIME";
-}
 
 function htmlToText(value) {
   const $ = cheerio.load(value || "");

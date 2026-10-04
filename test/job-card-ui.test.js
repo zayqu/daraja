@@ -27,13 +27,16 @@ test("public job results use one shared hierarchy-first job card", async () => {
   assert.match(card, /className=\{styles\.location\}>\{job\.location\}/);
   assert.match(card, /className=\{styles\.tags\}/);
   assert.match(card, /Deadline:/);
+  assert.match(card, /Closes in \$\{days\} days/);
   assert.match(card, /styles\.deadline/);
   assert.match(card, /styles\.saveVisual/);
   assert.match(card, /styles\.calendarIcon/);
   assert.match(card, /JobBrandMedia/);
   assert.match(card, /JOB_TYPE_LABELS/);
-  assert.match(card, /job\.category/);
-  assert.doesNotMatch(card, /experience/i);
+  assert.match(card, /experienceLabel\(job\.experienceMinYears, job\.experienceMaxYears\)/);
+  assert.match(card, /job\.openings > 1/);
+  assert.doesNotMatch(card, /\|\| "Job"/);
+  assert.doesNotMatch(styles, /\.category\s*\{/);
 
   assert.match(
     styles,

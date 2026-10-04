@@ -30,15 +30,58 @@ function formatDate(value) {
   });
 }
 
+const DAY_MS = 86400000;
+const EAST_AFRICA_OFFSET_MS = 3 * 60 * 60 * 1000;
+
+// Deadlines are stored as the stated calendar day (end of day, UTC), so compare
+// that day with today's date in East Africa rather than raw hours remaining.
 function daysUntil(value) {
   const date = safeDate(value);
   if (!date) return null;
-  return Math.ceil((date - new Date()) / 86400000);
+  const deadlineDay = Math.floor(date.getTime() / DAY_MS);
+  const today = Math.floor((Date.now() + EAST_AFRICA_OFFSET_MS) / DAY_MS);
+  return deadlineDay - today;
+}
+
+function formatDeadlineDate(value) {
+  const date = safeDate(value);
+  if (!date) return null;
+  return date.toLocaleDateString("en-GB", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+    timeZone: "UTC",
+  });
 }
 
 function deadlineLabel(value) {
-  const formatted = formatDate(value);
-  return formatted ? `Deadline: ${formatted}` : null;
+  const days = daysUntil(value);
+  if (days === null) return null;
+  if (days < 0) return "Closed";
+  if (days === 0) return "Closes today";
+  if (days === 1) return "Closes tomorrow";
+  if (days <= 7) return `Closes in ${days} days`;
+  return `Deadline: ${formatDeadlineDate(value)}`;
+}
+
+function experienceLabel(min, max) {
+  if (!Number.isInteger(min)) return null;
+  if (min === 0 && max === 0) return "No experience needed";
+  const unit = (count) => (count === 1 ? "yr" : "yrs");
+  if (!Number.isInteger(max)) return `${min}+ ${unit(min)} exp`;
+  if (max === min) return `${min} ${unit(min)} exp`;
+  return `${min}–${max} yrs exp`;
+}
+
+// Only facts the source stated: missing values hide their chip instead of
+// falling back to a guess.
+function factTags(job) {
+  return [
+    experienceLabel(job.experienceMinYears, job.experienceMaxYears),
+    JOB_TYPE_LABELS[job.type] || null,
+    job.openings > 1 ? `${job.openings} openings` : null,
+    job.salary ? job.salary : null,
+  ].filter(Boolean);
 }
 
 function deadlineTone(value) {
@@ -66,6 +109,7 @@ export default function JobCard({
 }) {
   const deadline = deadlineLabel(job.deadline);
   const posted = postedLabel(job.createdAt);
+  const tags = factTags(job);
 
   return (
     <Link
@@ -106,16 +150,15 @@ export default function JobCard({
         <p className={styles.company}>{job.company}</p>
         {job.location && <p className={styles.location}>{job.location}</p>}
 
-        <div className={styles.tags} aria-label="Job attributes">
-          <span className={styles.tag}>
-            {JOB_TYPE_LABELS[job.type] || job.type || "Job"}
-          </span>
-          {job.category && (
-            <span className={`${styles.tag} ${styles.category}`}>
-              {job.category}
-            </span>
-          )}
-        </div>
+        {tags.length > 0 && (
+          <div className={styles.tags} aria-label="Job attributes">
+            {tags.map((tag) => (
+              <span key={tag} className={styles.tag}>
+                {tag}
+              </span>
+            ))}
+          </div>
+        )}
       </div>
 
       <div className={styles.side}>
@@ -127,7 +170,11 @@ export default function JobCard({
             </svg>
           </span>
         )}
-        {posted && <span className={styles.posted}>{posted}</span>}
+        {posted && (
+          <span className={deadline ? styles.posted : styles.deadline}>
+            {posted}
+          </span>
+        )}
       </div>
     </Link>
   );

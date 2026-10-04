@@ -55,6 +55,10 @@ test("homepage keeps platform counters in the navy band and sends compact traffi
   assert.match(footer, /traffic\.newVisitors/);
   assert.match(footer, /traffic\.returningVisitors/);
   assert.match(footer, /traffic\.pageViews/);
+  assert.match(footer, /function formatCompactCount/);
+  assert.match(footer, /1_000_000/);
+  assert.match(footer, /suffix: "K"/);
+  assert.match(footer, /suffix: "M"/);
   assert.doesNotMatch(footer, /Privacy-safe monthly visitor activity/);
   assert.doesNotMatch(footer, /Daraja at a glance/);
   assert.match(footerStyles, /\.trafficMeta/);

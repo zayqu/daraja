@@ -15,6 +15,7 @@ export default function ContentPage({ title, description, children }) {
         title={title}
         description={description}
         maxWidth="narrow"
+        variant="dark"
       >
         <Link href="/" className="content-page-back">
           ← Back to Daraja

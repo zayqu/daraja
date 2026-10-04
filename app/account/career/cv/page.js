@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { notFound, redirect } from "next/navigation";
 import {
   candidateCareerEnabled,
@@ -35,7 +36,9 @@ export default async function CvBuilderPage() {
 
         <WorkspaceShell width="wide">
           <CandidateAccountTabs showCareer />
-          <CvBuilder />
+          <Suspense fallback={<p>Loading CV Builder…</p>}>
+            <CvBuilder />
+          </Suspense>
         </WorkspaceShell>
       </main>
     </>

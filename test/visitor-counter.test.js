@@ -21,43 +21,54 @@ test("visitor period follows Tanzania calendar month and filters obvious bots", 
   assert.equal(isLikelyBot("Mozilla/5.0 Chrome/154 Safari/537.36"), false);
 });
 
-test("visitor endpoint is consent-gated, rate-limited and monthly-cookie deduplicated", async () => {
+test("traffic endpoint counts aggregate visits without storing visitor identity", async () => {
   const route = await read("app/api/visitors/route.js");
 
   assert.match(route, /protectMutation/);
   assert.match(route, /scope: "visitor-counter"/);
-  assert.match(route, /x-daraja-consent/);
+  assert.match(route, /VISITOR_SESSION_COOKIE/);
+  assert.match(route, /VISITOR_SEEN_COOKIE/);
   assert.match(route, /VISITOR_PERIOD_COOKIE/);
+  assert.match(route, /totalVisits/);
+  assert.match(route, /newVisitors/);
+  assert.match(route, /returningVisitors/);
+  assert.match(route, /pageViews/);
   assert.match(route, /httpOnly: true/);
   assert.match(route, /sameSite: "lax"/);
-  assert.match(route, /uniqueVisitors: \{ increment: 1 \}/);
+  assert.doesNotMatch(route, /x-daraja-consent/);
   assert.doesNotMatch(route, /fingerprint|deviceId|ipAddress/);
 });
 
-test("visitor counter only records after accepted privacy consent", async () => {
-  const component = await read("components/VisitorCounter.js");
-  const privacy = await read("app/privacy/page.js");
+test("global tracker records route views across the site", async () => {
+  const tracker = await read("components/TrafficTracker.js");
+  const layout = await read("app/layout.js");
 
-  assert.match(component, /CONSENT_STORAGE_KEY/);
-  assert.match(component, /CONSENT_EVENT/);
-  assert.match(component, /acceptedConsent\(\)/);
-  assert.match(component, /x-daraja-consent/);
-  assert.match(privacy, /count the browser once[\s\S]*calendar month/);
-  assert.match(privacy, /rather than storing a persistent[\s\S]*visitor identifier/);
+  assert.match(tracker, /usePathname/);
+  assert.match(tracker, /useSearchParams/);
+  assert.match(tracker, /fetch\("\/api\/visitors"/);
+  assert.match(tracker, /keepalive: true/);
+  assert.match(layout, /<TrafficTracker \/>/);
+  assert.match(layout, /<Suspense fallback=\{null\}>[\s\S]*<TrafficTracker/);
 });
 
-test("visitor metric is stored as aggregate monthly count only", async () => {
+test("traffic metrics are stored as monthly aggregate counts only", async () => {
   const schema = await read("prisma/schema.prisma");
   const migration = await read(
-    "prisma/migrations/20261003193500_add_visitor_counter/migration.sql"
+    "prisma/migrations/20261004163000_expand_visitor_counter/migration.sql"
   );
   const footer = await read("components/SiteFooter.js");
   const stats = await read("lib/home-stats.js");
 
   assert.match(schema, /model VisitorCounter[\s\S]*period\s+String\s+@id/);
-  assert.match(schema, /uniqueVisitors\s+Int\s+@default\(0\)/);
-  assert.match(migration, /CREATE TABLE "VisitorCounter"/);
-  assert.match(footer, /<VisitorCounter initialCount=\{visitorsThisMonth\}/);
+  assert.match(schema, /totalVisits\s+Int\s+@default\(0\)/);
+  assert.match(schema, /newVisitors\s+Int\s+@default\(0\)/);
+  assert.match(schema, /returningVisitors\s+Int\s+@default\(0\)/);
+  assert.match(schema, /pageViews\s+Int\s+@default\(0\)/);
+  assert.match(migration, /ADD COLUMN "totalVisits"/);
+  assert.match(footer, /traffic\.totalVisits/);
+  assert.match(footer, /traffic\.newVisitors/);
+  assert.match(footer, /traffic\.returningVisitors/);
+  assert.match(footer, /traffic\.pageViews/);
   assert.match(stats, /prisma\.visitorCounter/);
-  assert.match(stats, /visitorsThisMonth/);
+  assert.match(stats, /traffic:/);
 });

@@ -8,6 +8,7 @@ const {
 } = require("../lib/jobs");
 const {
   extractSourcePageMetadata,
+  htmlToLines,
   inspectEmployerPage,
   isSafePublicHttpUrl,
 } = require("../lib/source-page");
@@ -32,9 +33,7 @@ const BLOCKED_APPLICATION_HOSTS = [
 
 
 function htmlToText(value) {
-  const $ = cheerio.load(value || "");
-  $("script, style, noscript").remove();
-  return cleanText($.text());
+  return htmlToLines(`<body>${value || ""}</body>`).join("\n");
 }
 
 function normalizeIdentity(value) {
@@ -429,11 +428,31 @@ function pageIsClosed(text) {
   );
 }
 
+const DESCRIPTION_SECTION_HEADING =
+  /^(?:key\s+|main\s+|job\s+)?(?:responsibilit|duties|requirement|qualification|skills|experience|education|competenc|benefits|what\s+we\s+offer|remuneration|overview|position|role|summary|purpose|desirable|preferred|majukumu|sifa)/i;
+
+const EMPLOYER_PAGE_START =
+  /^(?:job\s+description|description|about\s+(?:the\s+)?(?:role|job|us|company)|key\s+responsibilit|responsibilit|duties|position\s+overview|overview|summary)\s*:?$/i;
+
+// The description section of the employer's own vacancy page, if it has one.
+function descriptionFromEmployerLines(lines = []) {
+  const start = lines.findIndex(
+    (line) => line.length <= 60 && EMPLOYER_PAGE_START.test(line)
+  );
+  if (start < 0) return "";
+  return lines.slice(start).join("\n").slice(0, 12000);
+}
+
+// Keeps the description's own line and heading structure so the job page can
+// present it in sections. Collection stops at the recruiter's application
+// block or page furniture.
 function descriptionFromPage($, source) {
+  const linesOf = (element) =>
+    htmlToLines(`<body>${$.html(element) || ""}</body>`);
   const selector = source.detail?.descriptionSelector;
   if (selector) {
-    const text = cleanText($(selector).first().text());
-    if (text) return text;
+    const lines = linesOf($(selector).first());
+    if (lines.length) return lines.join("\n").slice(0, 12000);
   }
 
   const heading = $("h1, h2, h3, h4")
@@ -445,23 +464,23 @@ function descriptionFromPage($, source) {
     .first();
 
   if (heading.length) {
-    const parts = [];
+    const lines = [];
     let current = heading.next();
-    while (
-      current.length &&
-      !/^h[1-4]$/i.test(current[0]?.tagName || "") &&
-      parts.join(" ").length < 12000
-    ) {
-      const text = cleanText(current.text());
-      if (text) parts.push(text);
+    while (current.length && lines.join(" ").length < 12000) {
+      if (/^h[1-4]$/i.test(current[0]?.tagName || "")) {
+        const title = cleanText(current.text());
+        if (!DESCRIPTION_SECTION_HEADING.test(title)) break;
+        lines.push(title);
+      } else {
+        lines.push(...linesOf(current));
+      }
       current = current.next();
     }
-    if (parts.length) return parts.join("\n\n");
+    if (lines.length) return lines.join("\n");
   }
 
   const main = $("main, article").first();
-  const text = cleanText(main.length ? main.text() : $("body").text());
-  return text.slice(0, 12000);
+  return linesOf(main.length ? main : $("body")).join("\n").slice(0, 12000);
 }
 
 function sourceIdFromUrl(value) {
@@ -807,6 +826,7 @@ async function parseAgencyDetail(
   // Follow the employer's own application link: it must still show this
   // vacancy, and the facts it states outrank the recruiter's copy.
   let official = {};
+  let employerDescription = "";
   let finalApplicationUrl = applicationUrl;
   const reviewReasons = [];
   if (applicationUrl && !applicationUrl.startsWith("mailto:")) {
@@ -820,6 +840,7 @@ async function parseAgencyDetail(
         return { job: null, reason: "closed" };
       }
       official = employerPage.facts;
+      employerDescription = descriptionFromEmployerLines(employerPage.lines);
       // Send candidates straight to where the employer takes applications,
       // not to a second description page.
       finalApplicationUrl = employerPage.applyUrl || applicationUrl;
@@ -848,9 +869,14 @@ async function parseAgencyDetail(
     }
   }
 
-  const description = posting?.description
+  const recruiterDescription = posting?.description
     ? htmlToText(posting.description)
     : descriptionFromPage($, source);
+  // Prefer the employer's own, usually fuller, description.
+  const description =
+    employerDescription.length > recruiterDescription.length
+      ? employerDescription
+      : recruiterDescription;
 
   if (
     !identity.title ||

@@ -555,6 +555,47 @@ async function inspectEmployerPage(
   };
 }
 
+// Follows an application link one step further when it points at a vacancy
+// description rather than the application itself: returns the employer's
+// apply, login or registration page when that page opens, else the original.
+async function resolveApplicationDestination(
+  url,
+  { fetchFn = fetch, render = null, signal = AbortSignal.timeout(SOURCE_PAGE_TIMEOUT_MS) } = {}
+) {
+  if (!url || url.startsWith("mailto:") || !isSafePublicHttpUrl(url)) return url;
+  if (looksLikeApplicationUrl(url)) return url;
+
+  const page = await fetchPage(url, fetchFn, signal);
+  let html = page.ok ? page.html : "";
+  if (!htmlToLines(html).length && render) {
+    try {
+      html = renderedPage(await render(url)).html;
+    } catch {
+      html = "";
+    }
+  }
+  const next = html ? extractApplicationDestination(html, page.url || url) : null;
+  if (!next || next === url || next === page.url) return url;
+  if (next.startsWith("mailto:")) return next;
+  return (await destinationOpens(next, { fetchFn, render, signal })) ? next : url;
+}
+
+async function resolveApplicationDestinations(jobs, options = {}, concurrency = 4) {
+  const queue = jobs.filter((job) => job?.applicationUrl);
+  const workers = Array.from({ length: Math.min(concurrency, queue.length) }, async () => {
+    while (queue.length) {
+      const job = queue.shift();
+      try {
+        job.applicationUrl = await resolveApplicationDestination(job.applicationUrl, options);
+      } catch {
+        // Keep the verified destination the adapter already found.
+      }
+    }
+  });
+  await Promise.all(workers);
+  return jobs;
+}
+
 // One shared headless browser per scraper run, with a page budget so a large
 // source cannot make the run slow. Returns null renders once the budget is
 // spent or when Playwright is unavailable.
@@ -600,4 +641,6 @@ module.exports = {
   labelledFacts,
   looksLikeApplicationUrl,
   normalizeCandidateUrl,
+  resolveApplicationDestination,
+  resolveApplicationDestinations,
 };

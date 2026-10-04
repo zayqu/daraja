@@ -7,6 +7,7 @@ import SiteNav from "@/components/SiteNav";
 import SiteFooter from "@/components/SiteFooter";
 import JobBrandMedia from "@/components/JobBrandMedia";
 import { trackEvent } from "@/lib/analytics";
+import { structureJobDescription } from "@/lib/job-description";
 import styles from "./job-detail.module.css";
 
 export default function JobDetailPageClient({ showEmployerCta }) {
@@ -259,7 +260,24 @@ export default function JobDetailPageClient({ showEmployerCta }) {
             <article className={`${styles.card} ${styles.contentCard}`}>
               <div className={styles.cardEyebrow}>About the role</div>
               <h2>Position description</h2>
-              <div className={styles.description}>{job.description}</div>
+              <div className={styles.description}>
+                {structureJobDescription(job.description, { title: job.title }).map((section) => (
+                  <section key={section.key} className={styles.descriptionSection}>
+                    <h3>{section.title}</h3>
+                    {section.items ? (
+                      <ul>
+                        {section.items.map((item, index) => (
+                          <li key={`${section.key}-${index}`}>{item}</li>
+                        ))}
+                      </ul>
+                    ) : (
+                      section.paragraphs.map((paragraph, index) => (
+                        <p key={`${section.key}-${index}`}>{paragraph}</p>
+                      ))
+                    )}
+                  </section>
+                ))}
+              </div>
 
               {job.salary && (
                 <section className={styles.salarySection}>

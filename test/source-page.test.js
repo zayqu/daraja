@@ -152,3 +152,30 @@ test("fetches source-page metadata from the official posting page", async () => 
     "https://careers.example.co.tz/apply/123"
   );
 });
+
+test("an application link to a vacancy description is followed to the apply page", async () => {
+  const { resolveApplicationDestination } = require("../scraper/lib/source-page");
+  const pages = {
+    "https://careers.example.co.tz/vacancies/42":
+      '<html><body><h1>Accountant</h1><p>Duties and requirements.</p><a href="/apply/42">Apply now</a></body></html>',
+    "https://careers.example.co.tz/apply/42":
+      "<html><body><h1>Sign in to apply</h1><p>Log in or register to continue.</p></body></html>",
+  };
+  const fetchFn = async (url) =>
+    pages[url]
+      ? { ok: true, url, text: async () => pages[url] }
+      : { ok: false, status: 404 };
+
+  assert.equal(
+    await resolveApplicationDestination("https://careers.example.co.tz/vacancies/42", { fetchFn }),
+    "https://careers.example.co.tz/apply/42"
+  );
+  assert.equal(
+    await resolveApplicationDestination("https://careers.example.co.tz/apply/42", { fetchFn }),
+    "https://careers.example.co.tz/apply/42"
+  );
+  assert.equal(
+    await resolveApplicationDestination("mailto:hr@example.co.tz", { fetchFn }),
+    "mailto:hr@example.co.tz"
+  );
+});

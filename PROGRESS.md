@@ -1011,3 +1011,10 @@ Every batch must record:
 - Recruiter vacancies now store the employer's own apply, login or registration page as the Apply destination when that page opens, instead of the employer's vacancy description page. Blank apply links fall back to the employer vacancy page; a vacancy page that contains the application form stays the destination.
 - The shared renderer now returns rendered HTML as well as text so apply links on JavaScript applicant systems can be found.
 - Tests: `npm test` 285/285 (Prisma client stubbed in the sandbox), ESLint clean.
+
+## Current batch: professional description sections and final Apply destination
+
+- `lib/job-description.js` presents every vacancy description in fixed professional sections (Role overview, Key responsibilities, Requirements, Added advantage, What the employer offers, About the employer, How to apply). It recognises English and Swahili headings, inline headings ("Position Overview:"), bullets and run-together sentences, removes repeated lines, and never adds text the source did not contain. The job page renders these sections; existing records benefit immediately without a data migration.
+- Recruiter descriptions keep their headings and line structure, and the employer's own fuller description replaces the recruiter excerpt when available.
+- Apply for all non-agency sources now follows a vacancy-description link one step to the employer's apply, login or registration page when that page opens (`resolveApplicationDestination`).
+- Tests: `npm test` 291/291 (Prisma client stubbed in the sandbox), ESLint clean.

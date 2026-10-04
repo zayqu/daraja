@@ -575,3 +575,28 @@ test("a vacancy page that is itself the application form stays the destination",
 
   assert.equal(result.job.applicationUrl, JAZA_EMPLOYER_URL);
 });
+
+test("the employer's fuller description replaces the recruiter's excerpt with its sections", async () => {
+  const result = await parseAgencyDetail(JAZA_DISCOVERY, STRICT_RECRUITER_SOURCE, {
+    now: JAZA_NOW,
+    fetchFn: routedFetch({
+      [JAZA_AGENCY_URL]: JAZA_AGENCY_PAGE,
+      [JAZA_EMPLOYER_URL]: JAZA_EMPLOYER_PAGE.replace(
+        "</body>",
+        [
+          "<h3>Job Description</h3>",
+          "<p>Lead a cohort of solar hubs in Mwanza.</p>",
+          "<h4>Key Responsibilities</h4>",
+          "<ul><li>Grow hub revenue</li><li>Coach Jaza Stars</li></ul>",
+          "<h4>Requirements</h4>",
+          "<ul><li>Degree in Business</li><li>Fluent Swahili and English</li></ul>",
+          "</body>",
+        ].join("")
+      ),
+    }),
+  });
+
+  assert.match(result.job.description, /^Job Description\n\nLead a cohort/);
+  assert.match(result.job.description, /Key Responsibilities\n\nGrow hub revenue\n\nCoach Jaza Stars/);
+  assert.match(result.job.description, /Requirements\n\nDegree in Business/);
+});

@@ -20,7 +20,10 @@ const { collectReliefWebJobs } = require("./sources/reliefweb");
 const { collectStandardBankJobs } = require("./sources/standardbank");
 const { collectVerifiedAgencyJobs } = require("./sources/verified-agency");
 const { summarizeClassifications } = require("./lib/categories");
-const { createPageRenderer } = require("./lib/source-page");
+const {
+  createPageRenderer,
+  resolveApplicationDestinations,
+} = require("./lib/source-page");
 const {
   enrichJobsWithOfficialEmployerMedia,
 } = require("./lib/employer-media");
@@ -114,6 +117,10 @@ async function runScrapers({ dryRun = false, requestedSources = new Set() } = {}
         const collect = adapters[source.adapter];
         if (!collect) throw new Error(`Unknown adapter: ${source.adapter}`);
         const jobs = await collect(source, { renderer });
+        // Agency jobs are resolved during employer-page verification.
+        if (source.adapter !== "verified-agency") {
+          await resolveApplicationDestinations(jobs, { render: renderer.render });
+        }
         await enrichJobsWithOfficialEmployerMedia(jobs, {
           source: source.id,
           prisma,

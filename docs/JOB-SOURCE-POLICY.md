@@ -74,7 +74,13 @@ replace the recruiter's copy. Apply sends candidates to the deepest working
 application destination on the employer's side: the employer's apply, login or
 registration page when one opens, otherwise the employer vacancy page when that
 page is itself where the application starts. Daraja never adds an
-intermediate description step. Records managed automatically follow the latest
+intermediate description step; for every other source, an application link
+that lands on a vacancy description is followed to the employer's apply, login
+or registration page when that page opens.
+
+Descriptions are stored as the source wrote them (structure preserved) and
+presented by `lib/job-description.js` in fixed sections. Presentation may
+reorder and de-duplicate source text but never adds content. Records managed automatically follow the latest
 evidence (held, rejected or re-published) until an administrator decides.
 
 ## What Daraja must never auto-publish

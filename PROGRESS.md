@@ -997,3 +997,11 @@ Every batch must record:
 - `/admin` now lists up to 50 PENDING_REVIEW vacancies with Publish and Reject (reason required) actions using the existing audited moderation route. The page remains behind `EMPLOYER_PORTAL_ENABLED` and the ADMIN role.
 - The scraper health summary reports held-for-review, blocked and merged-duplicate counts per source.
 - Tests: `npm test` 275/275 passing (Prisma client stubbed in the sandbox), ESLint clean on changed files. No schema change in this batch.
+
+## Current batch: employer-page verification for recruiter vacancies
+
+- Found in production: a Jaza Energy "Hub Manager" vacancy showed the recruiter's location (Dar es Salaam) instead of the employer's (Mwanza), no contract type or experience, category "Health" (from the phrase "financial health"), and an Apply link that opened a blank applicant page.
+- Recruiter-discovered vacancies now open the employer application link (`inspectEmployerPage`), rendering JavaScript applicant systems with Playwright when static HTML is empty. Employer-stated location, employment type, experience and deadline outrank the recruiter's copy; closed employer pages stop the import; links that do not show the vacancy hold it for review.
+- Automatically managed records now follow the latest evidence: held for review when a problem appears, re-published when it clears. Administrator decisions are never overwritten.
+- Categorization checks title, then employer name, then requires the strongest description rule to match at least twice, so a single passing word no longer decides a sector.
+- Tests: `npm test` 282/282 (Prisma client stubbed in the sandbox), ESLint clean. Rendering itself is exercised in the scheduled scraper workflow, which installs Chromium.

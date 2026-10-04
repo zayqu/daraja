@@ -195,9 +195,11 @@ async function findCrossSourceDuplicate(prisma, job, source) {
   );
 }
 
-// Moderation fields for a write. New records take the policy decision; existing
-// records keep their status (an administrator's decision is never overwritten)
-// unless a blocking signal now appears on an automatically published record.
+// Moderation fields for a write. New records take the policy decision.
+// Existing records keep an administrator's decision; an automatically
+// managed record follows the latest decision: it moves to review or
+// rejection when a refresh finds a problem (a broken employer link, a fee
+// request) and returns to published once the problem is gone.
 function moderationData(decision, existing) {
   if (!existing) {
     return {
@@ -205,13 +207,13 @@ function moderationData(decision, existing) {
       moderationNote: decision.note,
     };
   }
-  if (
-    decision.status === "REJECTED" &&
+  const automatic =
     !existing.moderatedById &&
-    existing.moderationStatus !== "REJECTED"
-  ) {
+    (existing.moderationStatus === "PUBLISHED" ||
+      existing.moderationStatus === "PENDING_REVIEW");
+  if (automatic && decision.status !== existing.moderationStatus) {
     return {
-      moderationStatus: "REJECTED",
+      moderationStatus: decision.status,
       moderationNote: decision.note,
     };
   }
@@ -245,8 +247,10 @@ async function saveJobs(
     if (data.moderationStatus === "REJECTED") counts.blocked += 1;
   };
 
-  for (const job of jobs) {
-    const decision = decidePublication(job, source);
+  for (const candidate of jobs) {
+    const decision = decidePublication(candidate, source);
+    // Review reasons inform the decision only; they are not Job columns.
+    const { reviewReasons: _reviewReasons, ...job } = candidate;
     const existing = await findExistingJob(prisma, job, source);
 
     if (existing) {

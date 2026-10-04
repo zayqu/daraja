@@ -165,3 +165,41 @@ test("administrators see the vacancy review queue", async () => {
   assert.match(queue, /\/api\/admin\/jobs\/\$\{job\.id\}\/moderate/);
   assert.match(queue, /!reason\.trim\(\)/);
 });
+
+test("review reasons from ingestion hold a vacancy and are never written as columns", async () => {
+  const prisma = fakePrisma();
+  const summary = await saveJobs(
+    prisma,
+    [{ ...vacancy, reviewReasons: ["the employer application link did not show this vacancy"] }],
+    "ajiraweb"
+  );
+  const created = prisma.creates[0].data;
+  assert.equal(created.moderationStatus, "PENDING_REVIEW");
+  assert.match(created.moderationNote, /employer application link/);
+  assert.equal(Object.hasOwn(created, "reviewReasons"), false);
+  assert.equal(summary.heldForReview, 1);
+});
+
+test("automatic records follow the latest evidence until an administrator decides", async () => {
+  const broken = fakePrisma({
+    existing: { id: "row", source: "ajiraweb", moderationStatus: "PUBLISHED", moderatedById: null },
+  });
+  await saveJobs(
+    broken,
+    [{ ...vacancy, reviewReasons: ["the employer application link did not show this vacancy"] }],
+    "ajiraweb"
+  );
+  assert.equal(broken.updates[0].data.moderationStatus, "PENDING_REVIEW");
+
+  const fixed = fakePrisma({
+    existing: { id: "row", source: "ajiraweb", moderationStatus: "PENDING_REVIEW", moderatedById: null },
+  });
+  await saveJobs(fixed, [vacancy], "ajiraweb");
+  assert.equal(fixed.updates[0].data.moderationStatus, "PUBLISHED");
+
+  const decided = fakePrisma({
+    existing: { id: "row", source: "ajiraweb", moderationStatus: "PENDING_REVIEW", moderatedById: "admin" },
+  });
+  await saveJobs(decided, [vacancy], "ajiraweb");
+  assert.equal(Object.hasOwn(decided.updates[0].data, "moderationStatus"), false);
+});

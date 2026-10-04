@@ -56,11 +56,27 @@ function classifyJob(job = {}) {
     };
   }
 
-  const context = [job.company, job.description].filter(Boolean).join(" ");
-  const contextRule = RULES.find(([, pattern]) => pattern.test(context));
-  if (contextRule) {
+  const company = job.company || "";
+  const companyRule = RULES.find(([, pattern]) => pattern.test(company));
+  if (companyRule) {
     return {
-      category: contextRule[0],
+      category: companyRule[0],
+      confidence: 0.8,
+      evidence: "company",
+    };
+  }
+
+  // A single passing word in a description ("financial health") is not
+  // evidence of a sector; require the strongest rule to match repeatedly.
+  const description = job.description || "";
+  let best = null;
+  for (const [category, pattern] of RULES) {
+    const hits = (description.match(new RegExp(pattern.source, "gi")) || []).length;
+    if (hits >= 2 && (!best || hits > best.hits)) best = { category, hits };
+  }
+  if (best) {
+    return {
+      category: best.category,
       confidence: 0.72,
       evidence: "context",
     };

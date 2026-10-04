@@ -20,6 +20,7 @@ const { collectReliefWebJobs } = require("./sources/reliefweb");
 const { collectStandardBankJobs } = require("./sources/standardbank");
 const { collectVerifiedAgencyJobs } = require("./sources/verified-agency");
 const { summarizeClassifications } = require("./lib/categories");
+const { createPageRenderer } = require("./lib/source-page");
 const {
   enrichJobsWithOfficialEmployerMedia,
 } = require("./lib/employer-media");
@@ -30,7 +31,8 @@ const adapters = {
   nmb: () => collectNmbJobs(),
   reliefweb: () => collectReliefWebJobs(),
   standardbank: () => collectStandardBankJobs(),
-  "verified-agency": (source) => collectVerifiedAgencyJobs(source),
+  "verified-agency": (source, { renderer }) =>
+    collectVerifiedAgencyJobs(source, { render: renderer.render }),
 };
 
 function getSourceCatalog() {
@@ -75,6 +77,7 @@ async function runScrapers({ dryRun = false, requestedSources = new Set() } = {}
   }
 
   const prisma = dryRun ? null : createPrismaClient();
+  const renderer = createPageRenderer();
   const summaries = [];
   const failures = [];
   const warnings = [];
@@ -110,7 +113,7 @@ async function runScrapers({ dryRun = false, requestedSources = new Set() } = {}
       try {
         const collect = adapters[source.adapter];
         if (!collect) throw new Error(`Unknown adapter: ${source.adapter}`);
-        const jobs = await collect(source);
+        const jobs = await collect(source, { renderer });
         await enrichJobsWithOfficialEmployerMedia(jobs, {
           source: source.id,
           prisma,
@@ -212,6 +215,7 @@ async function runScrapers({ dryRun = false, requestedSources = new Set() } = {}
       writeHealthReport(report);
       console.log(`SCRAPER_HEALTH ${JSON.stringify(report)}`);
     } finally {
+      await renderer.close().catch(() => {});
       await prisma?.$disconnect();
     }
   }

@@ -155,14 +155,14 @@ export default function JobsPageClient({
       <style>{`
         .jobs-page {
           min-height: 100vh;
-          background: #f7f8fa;
-          color: #1b2a3f;
+          background: var(--color-bg);
+          color: var(--color-navy);
         }
 
         .jobs-hero {
           padding: 3rem var(--gutter) 3.25rem;
-          background: #fbfaf7;
-          border-bottom: 1px solid #ebe8e1;
+          background: var(--color-surface-warm);
+          border-bottom: 1px solid var(--color-border-warm);
         }
 
         .jobs-hero-inner {
@@ -171,7 +171,7 @@ export default function JobsPageClient({
         }
 
         .jobs-eyebrow {
-          color: #00c9a7;
+          color: var(--color-teal);
           font-size: .7rem;
           font-weight: 700;
           letter-spacing: .16em;
@@ -194,7 +194,7 @@ export default function JobsPageClient({
           max-width: 760px;
           padding: .65rem;
           border-radius: 16px;
-          background: #fff;
+          background: var(--color-surface);
         }
 
         .search-input {
@@ -203,12 +203,12 @@ export default function JobsPageClient({
           padding: 0 .95rem;
           border: 1px solid #e4e8ed;
           border-radius: 11px;
-          color: #1b2a3f;
+          color: var(--color-navy);
           outline: 0;
         }
 
         .search-input:focus {
-          border-color: #00c9a7;
+          border-color: var(--color-teal);
           box-shadow: 0 0 0 3px rgba(0,201,167,.08);
         }
 
@@ -217,8 +217,8 @@ export default function JobsPageClient({
           padding: 0 1.35rem;
           border: 0;
           border-radius: 11px;
-          background: #00c9a7;
-          color: #1b2a3f;
+          background: var(--color-teal);
+          color: var(--color-navy);
           font-weight: 800;
           cursor: pointer;
         }
@@ -240,9 +240,9 @@ export default function JobsPageClient({
           position: sticky;
           top: calc(var(--nav-height) + 1rem);
           padding: 1.25rem;
-          border: 1px solid #e3e8ee;
+          border: 1px solid var(--color-border-strong);
           border-radius: 16px;
-          background: #fff;
+          background: var(--color-surface);
         }
 
         .filters-head {
@@ -274,7 +274,7 @@ export default function JobsPageClient({
         .clear-btn {
           border: 0;
           background: transparent;
-          color: #087f6c;
+          color: var(--color-teal-deep);
           font-size: .72rem;
           font-weight: 700;
           cursor: pointer;
@@ -298,13 +298,13 @@ export default function JobsPageClient({
           padding: 0 .75rem;
           border: 1px solid #dfe4e9;
           border-radius: 10px;
-          background: #fff;
-          color: #1b2a3f;
+          background: var(--color-surface);
+          color: var(--color-navy);
           outline: 0;
         }
 
         .filter-control:focus {
-          border-color: #00c9a7;
+          border-color: var(--color-teal);
         }
 
         .results {
@@ -321,12 +321,12 @@ export default function JobsPageClient({
         }
 
         .results-count {
-          color: #667085;
+          color: var(--color-text-muted);
           font-size: .8rem;
         }
 
         .results-count strong {
-          color: #1b2a3f;
+          color: var(--color-navy);
         }
 
         .results-actions {
@@ -336,7 +336,7 @@ export default function JobsPageClient({
         }
 
         .result-context {
-          color: #8b95a1;
+          color: var(--color-text-faint);
           font-size: .72rem;
           text-align: right;
         }
@@ -349,9 +349,9 @@ export default function JobsPageClient({
 
         .state {
           padding: 4.5rem 1rem;
-          border: 1px solid #e3e8ee;
+          border: 1px solid var(--color-border-strong);
           border-radius: 16px;
-          background: #fff;
+          background: var(--color-surface);
           color: #7a8492;
           text-align: center;
         }
@@ -359,7 +359,7 @@ export default function JobsPageClient({
         .state strong {
           display: block;
           margin-bottom: .35rem;
-          color: #1b2a3f;
+          color: var(--color-navy);
           font-size: 1rem;
         }
 
@@ -372,8 +372,8 @@ export default function JobsPageClient({
           padding: .65rem 1rem;
           border: 0;
           border-radius: 10px;
-          background: #1b2a3f;
-          color: #fff;
+          background: var(--color-navy);
+          color: var(--color-on-dark);
           cursor: pointer;
         }
 
@@ -390,7 +390,7 @@ export default function JobsPageClient({
           padding: 0 .85rem;
           border: 1px solid #dfe4e9;
           border-radius: 10px;
-          background: #fff;
+          background: var(--color-surface);
           color: #5f6b7a;
           cursor: pointer;
         }
@@ -406,8 +406,8 @@ export default function JobsPageClient({
           align-items: center;
           padding: 0 .9rem;
           border-radius: 10px;
-          background: #1b2a3f;
-          color: #fff;
+          background: var(--color-navy);
+          color: var(--color-on-dark);
           font-size: .74rem;
           font-weight: 700;
         }
@@ -544,7 +544,7 @@ export default function JobsPageClient({
             margin-top: .2rem;
             border-radius: 12px;
             background: var(--color-navy);
-            color: #fff;
+            color: var(--color-on-dark);
             font-size: .78rem;
           }
 
@@ -553,7 +553,7 @@ export default function JobsPageClient({
             padding: 0 .85rem;
             border: 1px solid var(--color-border-strong);
             border-radius: 999px;
-            background: #fff;
+            background: var(--color-surface);
             color: var(--color-navy);
             font-size: .72rem;
           }

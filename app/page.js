@@ -784,7 +784,7 @@ export default async function Home() {
           )}
         </main>
 
-        <SiteFooter visitorsThisMonth={stats.visitorsThisMonth} />
+        <SiteFooter traffic={stats.traffic} />
       </div>
     </>
   );

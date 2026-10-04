@@ -93,13 +93,14 @@ export default async function CareerPage() {
             </article>
 
             <article className={styles.card}>
-              <span className={styles.cardLabel}>Coming next</span>
-              <h2>CV Builder</h2>
+              <span className={styles.cardLabel}>Career documents</span>
+              <h2>Smart CV Builder</h2>
               <p>
-                The structured CV Builder is part of the next candidate-product
-                phase. Candidate documents remain private and upload stays
-                disabled until malware scanning is verified.
+                Build a private Master CV, create job-specific versions, check
+                ATS readiness and export a clean PDF using Tanzania-first
+                application modes.
               </p>
+              <Link href="/account/career/cv">Build or update your CV →</Link>
             </article>
           </section>
         </WorkspaceShell>

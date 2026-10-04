@@ -1,0 +1,110 @@
+const test = require("node:test");
+const assert = require("node:assert/strict");
+const fs = require("node:fs");
+const path = require("node:path");
+
+const root = path.join(__dirname, "..");
+const read = (file) => fs.readFileSync(path.join(root, file), "utf8");
+
+test("CV builder schema is additive, private and versioned", () => {
+  const schema = read("prisma/schema.prisma");
+  const migration = read(
+    "prisma/migrations/20261004194000_candidate_cv_builder/migration.sql"
+  );
+
+  assert.match(schema, /model CandidateCv/);
+  assert.match(schema, /jobSeekerId String/);
+  assert.match(schema, /kind\s+CandidateCvKind/);
+  assert.match(schema, /mode\s+CandidateCvMode/);
+  assert.match(schema, /content\s+Json/);
+  assert.match(schema, /theme\s+Json/);
+  assert.match(schema, /atsScore\s+Int/);
+  assert.match(schema, /cvs\s+CandidateCv\[\]/);
+  assert.match(migration, /CREATE TABLE "CandidateCv"/);
+  assert.match(migration, /ON DELETE CASCADE/);
+  assert.doesNotMatch(migration, /DROP TABLE|DELETE FROM|TRUNCATE/);
+});
+
+test("CV APIs are feature-gated and owner-scoped", () => {
+  const collection = read("app/api/candidate/cv/route.js");
+  const detail = read("app/api/candidate/cv/[id]/route.js");
+
+  assert.match(collection, /candidateCareerEnabled\(\)/);
+  assert.match(collection, /ensureJobSeeker/);
+  assert.match(collection, /jobSeekerId: user\.jobSeeker\.id/);
+  assert.match(detail, /jobSeekerId: user\.jobSeeker\.id/);
+  assert.match(detail, /scope: "candidate-cv-update"/);
+  assert.match(detail, /scope: "candidate-cv-delete"/);
+  assert.doesNotMatch(collection, /body\.userId/);
+  assert.doesNotMatch(detail, /body\.userId/);
+  assert.match(collection, /kind = "TAILORED"/);
+});
+
+test("CV builder keeps user facts separate from design choices", () => {
+  const engine = read("lib/cv-builder.js");
+  const builder = read("components/CvBuilder.js");
+  const preview = read("components/CvPreview.js");
+
+  assert.match(engine, /normalizeCvContent/);
+  assert.match(engine, /normalizeCvTheme/);
+  assert.match(engine, /scoreCandidateCv/);
+  assert.match(engine, /\^#\[0-9a-f\]\{6\}\$/i);
+  assert.match(engine, /PUBLIC_SERVICE/);
+  assert.match(engine, /three reputable referees/);
+  assert.match(engine, /postal address\/postcode/);
+  assert.match(builder, /type="color"/);
+  assert.match(builder, /Save as PDF/);
+  assert.match(builder, /This is a quality\/readiness score, not a guarantee/);
+  assert.match(builder, /Private sector \/ NGO \/ Bank/);
+  assert.match(builder, /Tanzania Public Service/);
+  assert.match(preview, /<section>/);
+  assert.match(preview, /<h2>/);
+  assert.match(preview, /<ul>/);
+  assert.doesNotMatch(preview, /<canvas|<svg|progress|skill-bar/i);
+});
+
+test("CV builder supports flexible ATS-safe presentation combinations", () => {
+  const engine = read("lib/cv-builder.js");
+  const builder = read("components/CvBuilder.js");
+  const styles = read("components/CvBuilder.module.css");
+
+  for (const template of ["modern", "classic", "minimal", "executive", "public"]) {
+    assert.match(engine, new RegExp(`"${template}"`));
+    assert.match(builder, new RegExp(`value="${template}"`));
+  }
+
+  assert.match(builder, /fontFamily/);
+  assert.match(builder, /density/);
+  assert.match(builder, /headerAlign/);
+  assert.match(builder, /headingStyle/);
+  assert.match(builder, /sectionOrder/);
+  assert.match(styles, /@page/);
+  assert.match(styles, /size: A4/);
+  assert.match(styles, /visibility: hidden/);
+  assert.match(styles, /\.paper,\n  \.paper \*/);
+});
+
+test("CV page is protected and integrated with candidate navigation", () => {
+  const page = read("app/account/career/cv/page.js");
+  const tabs = read("components/CandidateAccountTabs.js");
+  const career = read("app/account/career/page.js");
+
+  assert.match(page, /if \(!candidateCareerEnabled\(\)\) notFound\(\)/);
+  assert.match(page, /callbackUrl=\/account\/career\/cv/);
+  assert.match(page, /<CvBuilder \/>/);
+  assert.match(tabs, /\/account\/career\/cv/);
+  assert.match(tabs, /CV Builder/);
+  assert.match(career, /Smart CV Builder/);
+  assert.match(career, /Build or update your CV/);
+});
+
+test("CV records follow account export and erasure lifecycle", () => {
+  const exportSource = read("lib/account-data-export.js");
+  const deletion = read("lib/account-deletion.js");
+
+  assert.match(exportSource, /cvs: \{/);
+  assert.match(exportSource, /content: true/);
+  assert.match(exportSource, /theme: true/);
+  assert.match(deletion, /tx\.candidateCv\.deleteMany/);
+  assert.match(deletion, /jobSeekerId: account\.jobSeeker\.id/);
+});

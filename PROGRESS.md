@@ -969,3 +969,9 @@ Every batch must record:
 - Healthy agency snapshots that contain zero publishable jobs may now archive stale recruiter-sourced listings, while genuine source failures still preserve existing records.
 - The homepage is explicitly force-dynamic so the current release UI is not served from stale static HTML, mobile counters are more legible, and Talent / Opportunity labels have protected mobile spacing below the bridge.
 
+### Production-origin and scraper identity follow-up
+
+- Production release verification now treats `https://ajira.daraja.co.tz` as the primary user-facing origin and also verifies the `www` alias release marker before recording deployment success.
+- Site metadata now uses the same user-facing origin so canonical URLs match what mobile visitors actually open.
+- Standard Bank / legacy-source reconciliation now checks the exact `source + sourceId` identity before cross-source title matching, preventing a duplicate unique-key update from degrading the full scraper run.
+

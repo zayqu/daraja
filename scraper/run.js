@@ -115,6 +115,9 @@ async function runScrapers({ dryRun = false, requestedSources = new Set() } = {}
           source: source.id,
           prisma,
           searchBudget: mediaSearchBudget,
+          blockedHosts: source.publishPolicy?.hideSourceBranding
+            ? source.discovery?.allowedHosts || []
+            : [],
         });
         const sourceHealth = jobs.health || {};
         const summary = dryRun

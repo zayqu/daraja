@@ -117,6 +117,7 @@ model JobSeeker {
   user         User                @relation(fields: [userId], references: [id])
   applications Application[]
   documents    CandidateDocument[]
+  cvs          CandidateCv[]
 }
 
 model CandidateDocument {
@@ -139,6 +140,37 @@ enum CandidateDocumentKind {
   CERTIFICATE
   PORTFOLIO
   OTHER
+}
+
+enum CandidateCvKind {
+  MASTER
+  TAILORED
+}
+
+enum CandidateCvMode {
+  GENERAL
+  PUBLIC_SERVICE
+}
+
+model CandidateCv {
+  id          String          @id @default(cuid())
+  jobSeekerId String
+  name        String
+  kind        CandidateCvKind @default(MASTER)
+  mode        CandidateCvMode @default(GENERAL)
+  targetRole  String?
+  targetJobId String?
+  language    String          @default("en")
+  content     Json
+  theme       Json
+  atsScore    Int             @default(0)
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+
+  jobSeeker JobSeeker @relation(fields: [jobSeekerId], references: [id], onDelete: Cascade)
+
+  @@index([jobSeekerId, updatedAt])
+  @@index([targetJobId])
 }
 
 model Freelancer {

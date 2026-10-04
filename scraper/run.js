@@ -20,7 +20,30 @@ const { collectReliefWebJobs } = require("./sources/reliefweb");
 const { collectStandardBankJobs } = require("./sources/standardbank");
 const { collectVerifiedAgencyJobs } = require("./sources/verified-agency");
 const { summarizeClassifications } = require("./lib/categories");
-const { createPageRenderer } = require("./lib/source-page");
+const {
+  createPageRenderer,
+  deepenApplicationUrl,
+} = require("./lib/source-page");
+
+// Apply must open where the application starts, not another description
+// page, so every source's application link is followed to its deepest
+// working destination before saving.
+async function deepenApplicationUrls(jobs, { render, concurrency = 4 } = {}) {
+  let next = 0;
+  const worker = async () => {
+    while (next < jobs.length) {
+      const job = jobs[next];
+      next += 1;
+      if (!job.applicationUrl || job.applicationUrl.startsWith("mailto:")) continue;
+      try {
+        job.applicationUrl = await deepenApplicationUrl(job.applicationUrl, { render });
+      } catch {
+        // Keep the verified link the adapter found.
+      }
+    }
+  };
+  await Promise.all(Array.from({ length: Math.min(concurrency, jobs.length) }, worker));
+}
 const {
   enrichJobsWithOfficialEmployerMedia,
 } = require("./lib/employer-media");
@@ -114,6 +137,7 @@ async function runScrapers({ dryRun = false, requestedSources = new Set() } = {}
         const collect = adapters[source.adapter];
         if (!collect) throw new Error(`Unknown adapter: ${source.adapter}`);
         const jobs = await collect(source, { renderer });
+        await deepenApplicationUrls(jobs, { render: renderer.render });
         await enrichJobsWithOfficialEmployerMedia(jobs, {
           source: source.id,
           prisma,

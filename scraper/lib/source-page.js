@@ -481,12 +481,20 @@ async function fetchPage(url, fetchFn, signal) {
 // Confirms an apply/login/register destination actually opens to something.
 // Sign-in and registration pages count: candidates go where the employer
 // takes applications, even when it asks them to log in first.
+const APPLICANT_INPUT = /<input\b[^>]*type=["']?(?:email|password|file|tel)\b|<form\b/i;
+
+function pageHasContent(text, html) {
+  const words = String(text || "").replace(/\s+/g, " ").trim();
+  return words.length >= 20 || APPLICANT_INPUT.test(html || "");
+}
+
 async function destinationOpens(url, { fetchFn, render, signal }) {
   const page = await fetchPage(url, fetchFn, signal);
-  if (page.ok && htmlToLines(page.html).join(" ").length >= 20) return true;
+  if (page.ok && pageHasContent(htmlToLines(page.html).join(" "), page.html)) return true;
   if (!render) return false;
   try {
-    return renderedPage(await render(url)).text.replace(/\s+/g, " ").trim().length >= 20;
+    const rendered = renderedPage(await render(url));
+    return pageHasContent(rendered.text, rendered.html);
   } catch {
     return false;
   }
@@ -555,6 +563,37 @@ async function inspectEmployerPage(
   };
 }
 
+// Follows "Apply" links from a vacancy page to the page where the
+// application actually starts (an apply form, sign-in or registration page),
+// for at most two hops. Returns the original URL when nothing deeper opens.
+async function deepenApplicationUrl(
+  url,
+  { fetchFn = fetch, render = null, maxHops = 2 } = {}
+) {
+  let current = url;
+  for (let hop = 0; hop < maxHops; hop += 1) {
+    if (!current || current.startsWith("mailto:") || !isSafePublicHttpUrl(current)) break;
+    if (looksLikeApplicationUrl(current)) break;
+    const signal = AbortSignal.timeout(SOURCE_PAGE_TIMEOUT_MS);
+    const fetched = await fetchPage(current, fetchFn, signal);
+    let html = fetched.ok ? fetched.html : "";
+    const baseUrl = fetched.url || current;
+    let next = html ? extractApplicationDestination(html, baseUrl) : null;
+    if (!next && render) {
+      try {
+        html = renderedPage(await render(current)).html;
+        next = html ? extractApplicationDestination(html, baseUrl) : null;
+      } catch {
+        next = null;
+      }
+    }
+    if (!next || next === baseUrl || next === current) break;
+    if (!next.startsWith("mailto:") && !(await destinationOpens(next, { fetchFn, render, signal }))) break;
+    current = next;
+  }
+  return current;
+}
+
 // One shared headless browser per scraper run, with a page budget so a large
 // source cannot make the run slow. Returns null renders once the budget is
 // spent or when Playwright is unavailable.
@@ -590,6 +629,7 @@ function createPageRenderer({
 
 module.exports = {
   createPageRenderer,
+  deepenApplicationUrl,
   extractApplicationDestination,
   extractSourceMedia,
   extractSourcePageMetadata,

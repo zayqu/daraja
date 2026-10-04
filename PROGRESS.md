@@ -1022,3 +1022,9 @@ Every batch must record:
 - Other pages keep the existing footer without querying or fabricating homepage metrics; the live insight block is rendered only when real stats are supplied by the homepage.
 - Schema, authentication, analytics consent, production data and visitor-storage behavior are unchanged.
 - Pull request #149 validation passed on 4 October 2026: 285/285 tests, runtime production dependency audit, ESLint, Prisma validation, production build, self-contained cPanel runtime smoke, packaging and Vercel all completed successfully.
+## Current batch: deepest Apply destination for every source and structured job descriptions
+
+- Every source's application link is now followed (up to two hops, rendering JavaScript pages when needed) to the page where the application starts: an apply form, sign-in or registration page. Links already pointing at application systems (Ajira Portal login, ATS hosts, apply/login URLs) are kept; blank destinations are never used.
+- `lib/job-description.js` regroups source text into professional sections (Role summary, What you'll do, What you need, Nice to have, What we offer, About the employer, How to apply) using English and Swahili headings, splits glued sentences and list items, and removes repeated lines. It never adds content; text with no headings stays as "About the role".
+- The job detail page renders those sections and lists experience and number of openings when stated.
+- Tests: `npm test` 289/289 (Prisma client stubbed in the sandbox), ESLint clean.

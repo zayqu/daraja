@@ -80,22 +80,22 @@
   gap: 1rem;
 }
 
-.visitorMeta {
+.trafficMeta {
   display: inline-flex;
-  align-items: baseline;
-  gap: .3rem;
+  align-items: center;
+  gap: .75rem;
   white-space: nowrap;
 }
 
-.visitorMeta strong {
-  color: rgba(255, 255, 255, 0.62);
-  font-size: .72rem;
-  font-weight: 700;
+.trafficMeta > span {
+  color: rgba(255, 255, 255, 0.34);
+  font-size: .64rem;
 }
 
-.visitorMeta span {
-  color: rgba(255, 255, 255, 0.34);
-  font-size: .66rem;
+.trafficMeta strong {
+  color: rgba(255, 255, 255, 0.62);
+  font-size: .68rem;
+  font-weight: 700;
 }
 
 @media (max-width: 760px) {

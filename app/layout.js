@@ -4,6 +4,7 @@ import "./globals.css";
 import PrivacyControls from "@/components/PrivacyControls";
 import SiteFooterLinks from "@/components/SiteFooterLinks";
 import WebVitals from "@/components/WebVitals";
+import TrafficTracker from "@/components/TrafficTracker";
 import MobileDock from "@/components/ui/MobileDock";
 import { candidateCareerEnabled, employerPortalEnabled } from "@/lib/features";
 import { auth } from "@/auth";
@@ -71,6 +72,9 @@ export default async function RootLayout({ children }) {
             showCandidateProfile={showCandidateProfile}
             userRole={userRole}
           />
+        </Suspense>
+        <Suspense fallback={null}>
+          <TrafficTracker />
         </Suspense>
         <WebVitals analyticsId={analyticsId} />
         <PrivacyControls analyticsId={analyticsId} adsenseClient={adsenseClient} />

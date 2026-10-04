@@ -1,11 +1,11 @@
 import Link from "next/link";
 import styles from "./SiteFooter.module.css";
-import VisitorCounter from "@/components/VisitorCounter";
+
 
 const WHATSAPP_CHANNEL =
   "https://whatsapp.com/channel/0029Vanw1OQ1CYoYdxl32g3V";
 
-export default function SiteFooter({ visitorsThisMonth = null }) {
+export default function SiteFooter({ traffic = null }) {
   return (
     <footer className={styles.footer}>
       <div className={styles.inner}>
@@ -40,9 +40,12 @@ export default function SiteFooter({ visitorsThisMonth = null }) {
         <span>{new Date().getFullYear()} Daraja. All rights reserved.</span>
         <div className={styles.bottomMeta}>
           <span>Jobs and opportunities across Tanzania.</span>
-          {visitorsThisMonth !== null && (
-            <span className={styles.visitorMeta} aria-label="Daraja visitor insight">
-              <VisitorCounter initialCount={visitorsThisMonth} />
+          {traffic && (
+            <span className={styles.trafficMeta} aria-label="Daraja visitor numbers">
+              <span><strong>{traffic.totalVisits.toLocaleString()}</strong> Visits</span>
+              <span><strong>{traffic.newVisitors.toLocaleString()}</strong> New</span>
+              <span><strong>{traffic.returningVisitors.toLocaleString()}</strong> Returning</span>
+              <span><strong>{traffic.pageViews.toLocaleString()}</strong> Page views</span>
             </span>
           )}
         </div>

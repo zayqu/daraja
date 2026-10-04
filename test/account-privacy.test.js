@@ -38,6 +38,9 @@ test("account export excludes authentication secrets and private storage locator
   assert.ok(documentsStart >= 0 && applicationsStart > documentsStart);
   assert.doesNotMatch(documentSelection, /\burl:\s*true/);
   assert.match(source, /privateDocumentStorageLocatorsExcluded: true/);
+  assert.match(source, /cvs: \{/);
+  assert.match(source, /content: true/);
+  assert.match(source, /theme: true/);
 });
 
 test("account deletion derives identity from the session and uses the protected mutation boundary", () => {
@@ -62,6 +65,7 @@ test("account erasure removes active identity and private career state", () => {
   assert.match(source, /tx\.savedJob\.deleteMany/);
   assert.match(source, /tx\.application\.deleteMany/);
   assert.match(source, /tx\.candidateDocument\.deleteMany/);
+  assert.match(source, /tx\.candidateCv\.deleteMany/);
   assert.match(source, /tx\.jobSeeker\.delete/);
   assert.match(source, /tx\.freelancer\.delete/);
   assert.match(source, /tx\.employer\.delete/);

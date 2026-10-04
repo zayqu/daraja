@@ -1047,3 +1047,18 @@ Every batch must record:
 - Shared semantic tokens now include warm public hero surfaces/borders, on-dark text and focus color. Public home/jobs/job-detail/alerts/navigation components use shared design tokens instead of repeating Daraja brand hex values.
 - Email scraper templates remain self-contained intentionally because CSS custom properties are not reliable across email clients.
 - No job ingestion, Apply routing, authentication, permissions, schema, payment, scraper or candidate-data behavior is changed by this cleanup batch.
+
+
+## Current batch: Tanzania-first Smart CV Builder foundation
+
+- Candidate career workspace now includes a protected Smart CV Builder at `/account/career/cv`.
+- CVs are first-class private records owned by the signed-in candidate. The additive `CandidateCv` model supports Master and Tailored versions, General and Tanzania Public Service modes, target role/job context, language, structured CV content, theme settings and a stored ATS-readiness score.
+- The builder starts from candidate-approved Daraja profile facts and never requires a public CV URL or document upload.
+- Users can create multiple versions, duplicate a Master CV for a specific vacancy, edit structured sections, reorder sections and export through an A4 print-to-PDF view.
+- Public job detail pages now offer `Tailor CV for this job`, passing the Daraja vacancy into the builder so the readiness engine can compare supported CV language against the selected job.
+- The first smart layer is deterministic and provider-free: completeness checks, Tanzania public-service requirements, experience/bullet quality checks, role-relevant keyword coverage and supported keyword-gap suggestions. It does not claim or calculate a guaranteed interview/shortlist probability.
+- Tanzania Public Service mode adds postal-address and three-referee readiness checks in line with common PSRS application requirements. General mode stays lean for private-sector, NGO and bank applications.
+- Design freedom is separated from CV facts: users can choose template treatment, unrestricted six-digit hex accent color, ATS-safe font, density, header alignment, heading style and section order. The preview/export remains semantic text-first single-column HTML without skill bars, canvases or text embedded in graphics.
+- CV versions are included in Daraja account-data export and explicitly erased with candidate account deletion.
+- Candidate document upload remains independently scanner-gated and is not enabled by the CV Builder.
+- No paid AI/provider dependency is introduced in this batch. Future AI wording assistance remains subject to D-007/D-015 review-and-approve rules and must never invent candidate facts.

@@ -312,3 +312,29 @@ test("shared navigation and layout use the centralized light UI system", async (
   assert.match(home, /\.hero h1[\s\S]*font-weight:\s*700/);
   assert.doesNotMatch(home, /max-width:\s*1080px/);
 });
+
+
+test("Daraja PWA manifest owns installed-app branding", async () => {
+  const manifestSource = await readFile(
+    path.join(__dirname, "..", "app", "manifest.js"),
+    "utf8"
+  );
+  const layout = await readFile(
+    path.join(__dirname, "..", "app", "layout.js"),
+    "utf8"
+  );
+  const appIcon = await readFile(
+    path.join(__dirname, "..", "public", "daraja-app-icon.svg"),
+    "utf8"
+  );
+
+  assert.match(manifestSource, /name: "Daraja Jobs"/);
+  assert.match(manifestSource, /short_name: "Daraja"/);
+  assert.match(manifestSource, /display: "standalone"/);
+  assert.match(manifestSource, /src: "\/daraja-app-icon\.svg"/);
+  assert.match(manifestSource, /purpose: "any maskable"/);
+  assert.match(layout, /manifest: "\/manifest\.webmanifest"/);
+  assert.match(layout, /themeColor: "#1b2a3f"/);
+  assert.match(appIcon, /data:image\/png;base64/);
+  assert.doesNotMatch(manifestSource, /vercel/i);
+});

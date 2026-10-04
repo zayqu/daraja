@@ -690,7 +690,7 @@ export default function CvBuilder() {
                 </div>
               ) : null}
               <p>
-                This is a quality/readiness score, not a guarantee of shortlisting or interview.
+                Aim for 90+ ATS readiness. Job match measures supported relevance to the selected vacancy; neither score guarantees shortlisting or interview.
               </p>
               {job ? <p><strong>Tailoring for:</strong> {job.title} · {job.company}</p> : null}
               {evaluation?.suggestions?.length ? (

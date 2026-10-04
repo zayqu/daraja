@@ -618,30 +618,26 @@
 }
 
 @media print {
-  .sidebar,
-  .toolbar,
-  .editor,
-  .scoreCard,
-  .status {
-    display: none !important;
+  :global(body *) {
+    visibility: hidden !important;
   }
 
-  .builder,
-  .workspace,
-  .columns,
-  .previewPane,
+  .paper,
+  .paper * {
+    visibility: visible !important;
+  }
+
   .paper {
+    position: absolute !important;
+    inset: 0 auto auto 0 !important;
     display: block !important;
-    width: auto !important;
+    width: 100% !important;
+    overflow: visible !important;
     margin: 0 !important;
     padding: 0 !important;
     border: 0 !important;
     background: #fff !important;
     box-shadow: none !important;
-  }
-
-  :global(body > *:not(main)) {
-    display: none !important;
   }
 
   :global(.cv-document) {

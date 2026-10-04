@@ -15,12 +15,29 @@ const GOOGLE_SEARCH_URL = "https://www.google.com/search";
 const DEFAULT_MAX_JOBS = 40;
 const DEFAULT_MAX_GOOGLE_RESULTS = 20;
 
+const MONTHS =
+  "January|February|March|April|May|June|July|August|September|October|November|December";
+const BLOCKED_APPLICATION_HOSTS = [
+  "facebook.com",
+  "instagram.com",
+  "linkedin.com",
+  "x.com",
+  "twitter.com",
+  "youtube.com",
+  "whatsapp.com",
+  "t.me",
+];
+
 function mapEmploymentType(value) {
   const type = cleanText(value).toLowerCase();
   if (type.includes("freelance")) return "FREELANCE";
   if (type.includes("part")) return "PART_TIME";
   if (type.includes("intern") || type.includes("volunteer")) return "INTERNSHIP";
-  if (type.includes("contract") || type.includes("temporary") || type.includes("fixed")) {
+  if (
+    type.includes("contract") ||
+    type.includes("temporary") ||
+    type.includes("fixed")
+  ) {
     return "CONTRACT";
   }
   return "FULL_TIME";
@@ -32,6 +49,33 @@ function htmlToText(value) {
   return cleanText($.text());
 }
 
+function normalizeIdentity(value) {
+  return cleanText(value)
+    .toLowerCase()
+    .replace(/&/g, " and ")
+    .replace(/[^a-z0-9]+/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function normalizeHost(value) {
+  try {
+    return new URL(value).hostname.toLowerCase().replace(/^www\./, "");
+  } catch {
+    return "";
+  }
+}
+
+function hostMatches(hostname, expected) {
+  const host = String(hostname || "").toLowerCase().replace(/^www\./, "");
+  const target = String(expected || "").toLowerCase().replace(/^www\./, "");
+  return Boolean(
+    host &&
+      target &&
+      (host === target || host.endsWith("." + target))
+  );
+}
+
 function isAllowedHost(urlValue, source) {
   try {
     const url = new URL(urlValue);
@@ -39,12 +83,32 @@ function isAllowedHost(urlValue, source) {
     const allowed = source.discovery?.allowedHosts || [
       new URL(source.url).hostname.toLowerCase().replace(/^www\./, ""),
     ];
-    return allowed.some((value) => {
-      const expected = String(value).toLowerCase().replace(/^www\./, "");
-      return host === expected || host.endsWith("." + expected);
-    });
+    return allowed.some((value) => hostMatches(host, value));
   } catch {
     return false;
+  }
+}
+
+function isSourceHost(urlValue, source) {
+  try {
+    const host = new URL(urlValue).hostname;
+    const allowed = source.discovery?.allowedHosts || [
+      new URL(source.url).hostname,
+    ];
+    return allowed.some((value) => hostMatches(host, value));
+  } catch {
+    return false;
+  }
+}
+
+function isBlockedApplicationHost(urlValue) {
+  try {
+    const host = new URL(urlValue).hostname;
+    return BLOCKED_APPLICATION_HOSTS.some((value) =>
+      hostMatches(host, value)
+    );
+  } catch {
+    return true;
   }
 }
 
@@ -88,7 +152,11 @@ function discoverListingLinks(html, pageUrl, source) {
   const seen = new Set();
 
   $("a[href]").each((_, element) => {
-    const sourceUrl = normalizeJobLink($(element).attr("href"), pageUrl, source);
+    const sourceUrl = normalizeJobLink(
+      $(element).attr("href"),
+      pageUrl,
+      source
+    );
     if (!sourceUrl || seen.has(sourceUrl)) return;
     seen.add(sourceUrl);
     results.push({
@@ -148,7 +216,9 @@ async function fetchHtml(url, fetchFn = fetch) {
   });
 
   if (!response?.ok) {
-    throw new Error("HTTP " + (response?.status || "unknown") + " from " + url);
+    throw new Error(
+      "HTTP " + (response?.status || "unknown") + " from " + url
+    );
   }
 
   const contentType = response.headers?.get?.("content-type") || "";
@@ -157,7 +227,9 @@ async function fetchHtml(url, fetchFn = fetch) {
     !contentType.includes("text/html") &&
     !contentType.includes("application/xhtml+xml")
   ) {
-    throw new Error("Unexpected content type from " + url + ": " + contentType);
+    throw new Error(
+      "Unexpected content type from " + url + ": " + contentType
+    );
   }
 
   return response.text();
@@ -166,20 +238,31 @@ async function fetchHtml(url, fetchFn = fetch) {
 function replaceTemplate(value, now = new Date()) {
   return String(value || "")
     .replaceAll("{year}", String(now.getUTCFullYear()))
-    .replaceAll("{month}", String(now.getUTCMonth() + 1).padStart(2, "0"));
+    .replaceAll(
+      "{month}",
+      String(now.getUTCMonth() + 1).padStart(2, "0")
+    );
 }
 
-async function discoverAgencyJobs(source, { fetchFn = fetch, now = new Date() } = {}) {
+async function discoverAgencyJobs(
+  source,
+  { fetchFn = fetch, now = new Date() } = {}
+) {
   const mode = source.discovery?.mode || "listing";
   const maxJobs = Math.max(
     1,
-    Math.min(Number(source.discovery?.maxJobs) || DEFAULT_MAX_JOBS, 100)
+    Math.min(
+      Number(source.discovery?.maxJobs) || DEFAULT_MAX_JOBS,
+      100
+    )
   );
 
   if (mode === "google") {
     const query = replaceTemplate(
       source.discovery?.query ||
-        ("site:" + new URL(source.url).hostname + " Tanzania jobs {year}"),
+        "site:" +
+          new URL(source.url).hostname +
+          " Tanzania jobs {year}",
       now
     );
     const url = new URL(GOOGLE_SEARCH_URL);
@@ -237,7 +320,9 @@ function flattenJsonLd(value, output = []) {
 
 function getJobPostingJson(html) {
   const $ = cheerio.load(html || "");
-  for (const script of $('script[type="application/ld+json"]').toArray()) {
+  for (const script of $(
+    'script[type="application/ld+json"]'
+  ).toArray()) {
     try {
       const value = JSON.parse($(script).text());
       const posting = flattenJsonLd(value).find((item) => {
@@ -248,7 +333,7 @@ function getJobPostingJson(html) {
       });
       if (posting) return posting;
     } catch {
-      // Ignore malformed structured data and use the visible page instead.
+      // Ignore malformed structured data and use visible page facts.
     }
   }
   return null;
@@ -289,7 +374,9 @@ function extractDeadlineText(value) {
 }
 
 function relativeDeadline(value, now = new Date()) {
-  const match = cleanText(value).match(/\bexpir(?:es|ing)\s+in\s+(\d{1,3})\s+days?\b/i);
+  const match = cleanText(value).match(
+    /\bexpir(?:es|ing)\s+in\s+(\d{1,3})\s+days?\b/i
+  );
   if (!match) return null;
   const days = Number(match[1]);
   if (!Number.isFinite(days) || days < 0 || days > 120) return null;
@@ -318,6 +405,34 @@ function locationFromPosting(posting) {
     if (value) return value;
   }
   return "";
+}
+
+function locationFromContext(value) {
+  const text = cleanText(value);
+  const match = text.match(
+    /(?:job\s+location|location|duty\s+station)\s*:?\s*(.+?)(?=\s+(?:employment\s+type|job\s+type|date\s+published|closing\s+date|deadline|posted|$))/i
+  );
+  return cleanText(match?.[1]);
+}
+
+function countryMatchesTanzania(value) {
+  return /\btanzania\b|\bdar es salaam\b|\btanga\b|\barusha\b|\bdodoma\b|\bmwanza\b|\bzanzibar\b|\bkilimanjaro\b|\bmoshi\b|\bmara\b|\bmbeya\b|\bmorogoro\b|\bmtwara\b|\biringa\b|\bnjombe\b|\bkatavi\b|\brukwa\b|\bsongwe\b|\btabora\b|\bsingida\b|\bshinyanga\b|\bsimiyu\b|\bgeita\b|\bkagera\b|\bkigoma\b|\blindi\b|\bpwani\b|\bcoast region\b/i.test(
+    cleanText(value)
+  );
+}
+
+function normalizeTanzaniaLocation(value) {
+  let location = cleanText(value);
+  if (!location) return "";
+
+  location = location
+    .replace(/^tanzania\s*,\s*/i, "")
+    .replace(/\s*,\s*tanzania$/i, "")
+    .replace(/\s+/g, " ")
+    .trim();
+
+  if (!location || /^tanzania$/i.test(location)) return "Tanzania";
+  return location + ", Tanzania";
 }
 
 function pageIsClosed(text) {
@@ -364,17 +479,208 @@ function descriptionFromPage($, source) {
 function sourceIdFromUrl(value) {
   try {
     const url = new URL(value);
-    const tail = url.pathname.split("/").filter(Boolean).slice(-2).join("-");
+    const tail = url.pathname
+      .split("/")
+      .filter(Boolean)
+      .slice(-2)
+      .join("-");
     return tail || url.toString();
   } catch {
     return value;
   }
 }
 
-function countryMatchesTanzania(value) {
-  return /\btanzania\b|\bdar es salaam\b|\btanga\b|\barusha\b|\bdodoma\b|\bmwanza\b|\bzanzibar\b|\bkilimanjaro\b|\bmara\b|\bmbeya\b|\bmorogoro\b|\bmtwara\b|\biringa\b|\bnjombe\b|\bkatavi\b|\brukwa\b|\bsongwe\b/i.test(
-    cleanText(value)
+function stripDateSuffix(value) {
+  return cleanText(value)
+    .replace(
+      new RegExp("\\s+(?:" + MONTHS + ")\\s+20\\d{2}$", "i"),
+      ""
+    )
+    .replace(/\s*\(\s*\d+\s+posts?\s*\)\s*$/i, "")
+    .trim();
+}
+
+function cleanPositionTitle(value) {
+  return stripDateSuffix(value)
+    .replace(/\s+vacanc(?:y|ies)(?:\s+in\s+.+)?$/i, "")
+    .replace(/\s+job$/i, "")
+    .replace(/^\s*(?:job|vacancy)\s*[:-]\s*/i, "")
+    .trim();
+}
+
+function splitTitleAndCompany(rawTitle, explicitCompany, source) {
+  let title = stripDateSuffix(rawTitle);
+  let company = cleanText(explicitCompany);
+
+  const atMatch = title.match(/^(.*?)\s+(?:job\s+)?at\s+(.+)$/i);
+  if (atMatch) {
+    const parsedTitle = cleanPositionTitle(atMatch[1]);
+    const parsedCompany = stripDateSuffix(atMatch[2]);
+    if (parsedTitle) title = parsedTitle;
+
+    const recruiter = normalizeIdentity(source.recruiterName || source.name);
+    if (
+      !company ||
+      normalizeIdentity(company) === recruiter
+    ) {
+      company = parsedCompany;
+    }
+  }
+
+  title = cleanPositionTitle(title);
+  company = stripDateSuffix(company);
+  return { title, company };
+}
+
+function isEditorialJobTitle(value) {
+  const title = cleanText(value);
+  return (
+    /^(?:\d+\s+)?(?:new\s+)?jobs?\s+(?:at|from|with)\b/i.test(title) ||
+    /^(?:latest\s+)?(?:job|vacancy)\s+opportunities?\s+(?:at|from|with)\b/i.test(
+      title
+    ) ||
+    /^vacancies?\s+(?:at|from|with)\b/i.test(title) ||
+    /\bmultiple\s+(?:job\s+)?positions?\b/i.test(title)
   );
+}
+
+function applicationSectionHtml($) {
+  const heading = $("h1, h2, h3, h4, h5, h6")
+    .filter((_, element) =>
+      /^(?:application\s+process|how\s+to\s+apply|application\s+instructions?|method\s+of\s+application|apply)$/i.test(
+        cleanText($(element).text())
+      )
+    )
+    .first();
+
+  if (heading.length) {
+    const parts = [];
+    let current = heading.next();
+    let guard = 0;
+    while (
+      current.length &&
+      !/^h[1-6]$/i.test(current[0]?.tagName || "") &&
+      guard < 20
+    ) {
+      parts.push($.html(current));
+      current = current.next();
+      guard += 1;
+    }
+    if (parts.length) return parts.join("\n");
+  }
+
+  const targeted = [];
+  $("p, li, div").each((_, element) => {
+    const text = cleanText($(element).text());
+    if (
+      text.length <= 1200 &&
+      /(?:interested|qualified)\s+(?:candidates|applicants)|submit\s+(?:your\s+)?(?:cv|resume|application)|send\s+(?:your\s+)?(?:cv|resume|application)|email\s+(?:your\s+)?(?:cv|resume|application)|to\s+apply\b/i.test(
+        text
+      )
+    ) {
+      targeted.push($.html(element));
+    }
+  });
+  return targeted.slice(0, 8).join("\n");
+}
+
+function mailtoFromEmail(email) {
+  const value = cleanText(email).replace(/[),.;:]+$/, "");
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)
+    ? "mailto:" + value
+    : null;
+}
+
+function extractDirectEmployerApplication(
+  $,
+  pageUrl,
+  source,
+  metadata
+) {
+  const sectionHtml = applicationSectionHtml($);
+  const section = cheerio.load(sectionHtml || "");
+  const sectionText = cleanText(section.text());
+
+  let mailto = null;
+  section('a[href^="mailto:" i]').each((_, element) => {
+    if (mailto) return;
+    const href = cleanText(section(element).attr("href"));
+    if (/^mailto:[^\s@]+@[^\s@]+\.[^\s@]+/i.test(href)) {
+      mailto = href;
+    }
+  });
+  if (mailto) return mailto;
+
+  const textEmail = sectionText.match(
+    /\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\b/i
+  )?.[0];
+  const textMailto = mailtoFromEmail(textEmail);
+  if (textMailto) return textMailto;
+
+  const externalCandidates = [];
+  section("a[href]").each((index, element) => {
+    const raw = cleanText(section(element).attr("href"));
+    if (!raw || /^mailto:/i.test(raw)) return;
+
+    try {
+      const url = new URL(raw, pageUrl).toString();
+      if (!isSafePublicHttpUrl(url)) return;
+      if (isSourceHost(url, source)) return;
+      if (isBlockedApplicationHost(url)) return;
+
+      const label = cleanText(section(element).text());
+      let score = 10;
+      if (/\bapply\b|\bapplication\b|\bcareer\b|\bvacanc/i.test(label)) {
+        score += 40;
+      }
+      if (/submit|send|proceed|continue/i.test(sectionText)) score += 15;
+      externalCandidates.push({ url, score, index });
+    } catch {
+      // Ignore malformed application links.
+    }
+  });
+
+  const textUrls =
+    sectionText.match(/https?:\/\/[^\s<>"')\]]+/gi) || [];
+  for (const raw of textUrls) {
+    try {
+      const url = raw.replace(/[),.;:]+$/, "");
+      if (!isSafePublicHttpUrl(url)) continue;
+      if (isSourceHost(url, source)) continue;
+      if (isBlockedApplicationHost(url)) continue;
+      externalCandidates.push({
+        url,
+        score: 25,
+        index: externalCandidates.length + 100,
+      });
+    } catch {
+      // Ignore malformed application URLs.
+    }
+  }
+
+  externalCandidates.sort(
+    (a, b) => b.score - a.score || a.index - b.index
+  );
+  if (externalCandidates[0]?.url) return externalCandidates[0].url;
+
+  if (metadata?.applicationUrl) {
+    if (metadata.applicationUrl.startsWith("mailto:")) {
+      const address = decodeURIComponent(
+        metadata.applicationUrl
+          .slice("mailto:".length)
+          .split("?")[0]
+      );
+      if (sectionText.includes(address)) return metadata.applicationUrl;
+    } else if (
+      isSafePublicHttpUrl(metadata.applicationUrl) &&
+      !isSourceHost(metadata.applicationUrl, source) &&
+      !isBlockedApplicationHost(metadata.applicationUrl)
+    ) {
+      return metadata.applicationUrl;
+    }
+  }
+
+  return null;
 }
 
 async function parseAgencyDetail(
@@ -391,30 +697,76 @@ async function parseAgencyDetail(
   }
 
   const posting = getJobPostingJson(html);
-  const metadata = extractSourcePageMetadata(html, discovery.sourceUrl);
+  const metadata = extractSourcePageMetadata(
+    html,
+    discovery.sourceUrl
+  );
 
-  const title =
+  const rawTitle =
     cleanText(posting?.title) ||
-    cleanText($(source.detail?.titleSelector || "h1").first().text()) ||
-    cleanText($('meta[property="og:title"]').attr("content"));
+    cleanText(
+      $(source.detail?.titleSelector || "h1")
+        .first()
+        .text()
+    ) ||
+    cleanText(
+      $('meta[property="og:title"]').attr("content")
+    );
 
-  const company =
+  if (
+    source.publishPolicy?.rejectEditorialTitles &&
+    isEditorialJobTitle(rawTitle)
+  ) {
+    return { job: null, reason: "editorial-title" };
+  }
+
+  const explicitCompany =
     cleanText(posting?.hiringOrganization?.name) ||
-    labeledValue($, ["Company", "Employer", "Organization", "Organisation"]) ||
-    cleanText(source.recruiterName) ||
-    cleanText(source.name);
+    labeledValue($, [
+      "Company",
+      "Employer",
+      "Organization",
+      "Organisation",
+    ]);
+
+  const identity = splitTitleAndCompany(
+    rawTitle,
+    explicitCompany,
+    source
+  );
+
+  const recruiterIdentity = normalizeIdentity(
+    source.recruiterName || source.name
+  );
+  if (
+    source.publishPolicy?.requireNamedEmployer &&
+    (!identity.company ||
+      normalizeIdentity(identity.company) === recruiterIdentity)
+  ) {
+    return { job: null, reason: "employer-missing" };
+  }
+
+  const explicitLocation =
+    locationFromPosting(posting) ||
+    labeledValue($, [
+      "Location",
+      "Job Location",
+      "Duty Station",
+    ]) ||
+    locationFromContext(discovery.contextText);
+
+  if (
+    source.countryFilter === "Tanzania" &&
+    (!explicitLocation ||
+      !countryMatchesTanzania(explicitLocation))
+  ) {
+    return { job: null, reason: "country" };
+  }
 
   const location =
-    locationFromPosting(posting) ||
-    labeledValue($, ["Location", "Job Location", "Duty Station"]) ||
-    (() => {
-      const match = cleanText(discovery.contextText).match(
-        /(?:location\s*:?\s*)?([^|]{0,80}\bTanzania\b)/i
-      );
-      return cleanText(match?.[1]);
-    })() ||
-    cleanText(source.defaultLocation) ||
-    "Tanzania";
+    source.countryFilter === "Tanzania"
+      ? normalizeTanzaniaLocation(explicitLocation)
+      : cleanText(explicitLocation || source.defaultLocation);
 
   const deadlineText =
     cleanText(posting?.validThrough) ||
@@ -429,25 +781,11 @@ async function parseAgencyDetail(
     extractDeadlineText(bodyText) ||
     extractDeadlineText(discovery.contextText);
 
-  let deadline = deadlineText ? parseDeadline(deadlineText) : null;
+  let deadline = deadlineText
+    ? parseDeadline(deadlineText)
+    : null;
   if (!deadline) {
     deadline = relativeDeadline(discovery.contextText, now);
-  }
-
-  const combinedCountryEvidence = [
-    location,
-    posting?.jobLocation?.address?.addressCountry,
-    discovery.contextText,
-    bodyText.slice(0, 4000),
-  ]
-    .filter(Boolean)
-    .join(" ");
-
-  if (
-    source.countryFilter === "Tanzania" &&
-    !countryMatchesTanzania(combinedCountryEvidence)
-  ) {
-    return { job: null, reason: "country" };
   }
 
   if (source.requireDeadline !== false && !deadline) {
@@ -458,12 +796,36 @@ async function parseAgencyDetail(
     return { job: null, reason: "expired" };
   }
 
-  const description =
-    posting?.description
-      ? htmlToText(posting.description)
-      : descriptionFromPage($, source);
+  const applicationUrl = source.publishPolicy
+    ?.requireDirectEmployerApplication
+    ? extractDirectEmployerApplication(
+        $,
+        discovery.sourceUrl,
+        source,
+        metadata
+      )
+    : metadata.applicationUrl ||
+      (source.detailPageIsApplication
+        ? discovery.sourceUrl
+        : null);
 
-  if (!title || title.length < 3 || !description || description.length < 20) {
+  if (
+    source.publishPolicy?.requireDirectEmployerApplication &&
+    !applicationUrl
+  ) {
+    return { job: null, reason: "application-missing" };
+  }
+
+  const description = posting?.description
+    ? htmlToText(posting.description)
+    : descriptionFromPage($, source);
+
+  if (
+    !identity.title ||
+    identity.title.length < 3 ||
+    !description ||
+    description.length < 20
+  ) {
     return { job: null, reason: "incomplete" };
   }
 
@@ -471,21 +833,27 @@ async function parseAgencyDetail(
     sourceId:
       cleanText(posting?.identifier?.value) ||
       sourceIdFromUrl(discovery.sourceUrl),
-    title,
-    company,
+    title: identity.title,
+    company: identity.company,
     location,
     description,
     deadline: deadline ? deadline.toISOString() : null,
     type: mapEmploymentType(
       posting?.employmentType ||
-        labeledValue($, ["Job Type", "Employment Type", "Type"])
+        labeledValue($, [
+          "Job Type",
+          "Employment Type",
+          "Type",
+        ])
     ),
     sourceUrl: discovery.sourceUrl,
-    applicationUrl:
-      metadata.applicationUrl ||
-      (source.detailPageIsApplication ? discovery.sourceUrl : null),
-    companyLogo: metadata.companyLogo,
-    representativeImage: metadata.representativeImage,
+    applicationUrl,
+    companyLogo: source.publishPolicy?.hideSourceBranding
+      ? null
+      : metadata.companyLogo,
+    representativeImage: source.publishPolicy?.hideSourceBranding
+      ? null
+      : metadata.representativeImage,
   };
 
   const [job] = deduplicateJobs([rawJob], {
@@ -514,8 +882,13 @@ async function mapWithConcurrency(values, limit, mapper) {
     }
   }
 
-  const count = Math.max(1, Math.min(limit, values.length || 1));
-  await Promise.all(Array.from({ length: count }, () => worker()));
+  const count = Math.max(
+    1,
+    Math.min(limit, values.length || 1)
+  );
+  await Promise.all(
+    Array.from({ length: count }, () => worker())
+  );
   return output;
 }
 
@@ -527,10 +900,15 @@ async function collectVerifiedAgencyJobs(
   } = {}
 ) {
   if (!source?.id || !source?.url) {
-    throw new Error("Verified agency source configuration is incomplete.");
+    throw new Error(
+      "Verified agency source configuration is incomplete."
+    );
   }
 
-  const discoveries = await discoverAgencyJobs(source, { fetchFn, now });
+  const discoveries = await discoverAgencyJobs(source, {
+    fetchFn,
+    now,
+  });
   if (!discoveries.length) {
     const empty = [];
     Object.defineProperty(empty, "health", {
@@ -549,31 +927,52 @@ async function collectVerifiedAgencyJobs(
     closed: 0,
     country: 0,
     deadlineMissing: 0,
+    employerMissing: 0,
+    applicationMissing: 0,
+    editorialTitle: 0,
     incomplete: 0,
     failed: 0,
   };
 
   const results = await mapWithConcurrency(
     discoveries,
-    Math.max(1, Math.min(Number(source.discovery?.concurrency) || 5, 8)),
+    Math.max(
+      1,
+      Math.min(
+        Number(source.discovery?.concurrency) || 5,
+        8
+      )
+    ),
     async (discovery) => {
       try {
-        const result = await parseAgencyDetail(discovery, source, {
-          fetchFn,
-          now,
-        });
+        const result = await parseAgencyDetail(
+          discovery,
+          source,
+          { fetchFn, now }
+        );
         if (!result.job) {
           if (result.reason === "expired") counters.expired += 1;
           else if (result.reason === "closed") counters.closed += 1;
           else if (result.reason === "country") counters.country += 1;
-          else if (result.reason === "deadline-missing") counters.deadlineMissing += 1;
+          else if (result.reason === "deadline-missing")
+            counters.deadlineMissing += 1;
+          else if (result.reason === "employer-missing")
+            counters.employerMissing += 1;
+          else if (result.reason === "application-missing")
+            counters.applicationMissing += 1;
+          else if (result.reason === "editorial-title")
+            counters.editorialTitle += 1;
           else counters.incomplete += 1;
         }
         return result.job;
       } catch (error) {
         counters.failed += 1;
         console.warn(
-          source.name + ": could not verify " + discovery.sourceUrl + ": " + error.message
+          source.name +
+            ": could not verify " +
+            discovery.sourceUrl +
+            ": " +
+            error.message
         );
         return null;
       }
@@ -581,6 +980,12 @@ async function collectVerifiedAgencyJobs(
   );
 
   const jobs = results.filter(Boolean);
+  const allFailed =
+    discoveries.length > 0 &&
+    counters.failed === discoveries.length;
+  const cleanEmptySnapshot =
+    jobs.length === 0 && counters.failed === 0;
+
   Object.defineProperty(jobs, "health", {
     enumerable: false,
     value: {
@@ -591,7 +996,12 @@ async function collectVerifiedAgencyJobs(
         counters.deadlineMissing,
       rejectedExpired: counters.expired + counters.closed,
       rejectedOutsideTanzania: counters.country,
-      preserveExisting: jobs.length === 0,
+      rejectedUnnamedEmployer: counters.employerMissing,
+      rejectedRecruiterOnlyApplication:
+        counters.applicationMissing,
+      rejectedEditorialTitles: counters.editorialTitle,
+      preserveExisting: allFailed,
+      archiveEmptySnapshot: cleanEmptySnapshot,
     },
   });
 
@@ -604,9 +1014,13 @@ module.exports = {
   discoverGoogleLinks,
   discoverListingLinks,
   extractDeadlineText,
+  extractDirectEmployerApplication,
   getJobPostingJson,
+  isEditorialJobTitle,
   mapEmploymentType,
+  normalizeTanzaniaLocation,
   pageIsClosed,
   parseAgencyDetail,
   relativeDeadline,
+  splitTitleAndCompany,
 };

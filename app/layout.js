@@ -22,7 +22,7 @@ export const viewport = {
 };
 
 export const metadata = {
-  metadataBase: new URL("https://www.ajira.daraja.co.tz"),
+  metadataBase: new URL("https://ajira.daraja.co.tz"),
   title: {
     default: "Jobs in Tanzania | Daraja",
     template: "%s | Daraja",

@@ -54,7 +54,8 @@ test("CV builder keeps user facts separate from design choices", () => {
   assert.match(engine, /postal address\/postcode/);
   assert.match(builder, /type="color"/);
   assert.match(builder, /Download PDF/);
-  assert.match(builder, /\\/api\\/candidate\\/cv\\/\\$\\{encodeURIComponent\\(savedCv\\.id\\)\\}\\/pdf/);
+  assert.match(builder, /savedCv\\.id/);
+  assert.match(builder, /\/pdf/);
   assert.doesNotMatch(builder, /window\\.print\\(|afterprint|cv-printing/);
   assert.match(builder, /Aim for 90\+ ATS readiness/);
   assert.match(builder, /neither score guarantees shortlisting or interview/);

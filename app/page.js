@@ -37,14 +37,14 @@ export default async function Home() {
   return (
     <>
       <style>{`
-        .home { background: #f7f8fa; min-height: 100vh; color: #1b2a3f; }
+        .home { background: var(--color-bg); min-height: 100vh; color: var(--color-navy); }
 
         .hero {
           position: relative;
           overflow: hidden;
           padding: 5rem var(--gutter) 5.25rem;
-          background: #fbfaf7;
-          border-bottom: 1px solid #ebe8e1;
+          background: var(--color-surface-warm);
+          border-bottom: 1px solid var(--color-border-warm);
         }
 
         .hero-inner {
@@ -68,7 +68,7 @@ export default async function Home() {
 
         .hero-eyebrow,
         .section-kicker {
-          color: #00c9a7;
+          color: var(--color-teal);
           font-size: .7rem;
           font-weight: 700;
           letter-spacing: .16em;
@@ -90,7 +90,7 @@ export default async function Home() {
           animation: hero-word-rise .7s cubic-bezier(.22, 1, .36, 1) backwards;
         }
 
-        .hero h1 .hero-accent { color: #00c9a7; }
+        .hero h1 .hero-accent { color: var(--color-teal); }
 
         .hero h1 .hero-underline {
           position: relative;
@@ -104,7 +104,7 @@ export default async function Home() {
           bottom: -.04em;
           height: .07em;
           border-radius: 999px;
-          background: #00c9a7;
+          background: var(--color-teal);
           opacity: .45;
           transform-origin: left center;
           animation: hero-underline-draw .5s cubic-bezier(.65, 0, .35, 1) 1.15s backwards;
@@ -160,7 +160,7 @@ export default async function Home() {
 
         .hero-lead {
           max-width: 620px;
-          color: #667085;
+          color: var(--color-text-muted);
           font-size: 1rem;
           line-height: 1.7;
         }
@@ -172,7 +172,7 @@ export default async function Home() {
           max-width: 960px;
           padding: .7rem;
           border-radius: 18px;
-          background: #fff;
+          background: var(--color-surface);
           border: 1px solid #e4e1da;
           box-shadow: 0 18px 45px rgba(27, 31, 35, .08);
         }
@@ -182,8 +182,8 @@ export default async function Home() {
           width: 100%;
           border: 1px solid #e5e9ef;
           border-radius: 12px;
-          background: #fff;
-          color: #1b2a3f;
+          background: var(--color-surface);
+          color: var(--color-navy);
           padding: 0 1rem;
           outline: none;
           font: inherit;
@@ -191,7 +191,7 @@ export default async function Home() {
         }
 
         .hero-field:focus {
-          border-color: #00c9a7;
+          border-color: var(--color-teal);
           box-shadow: 0 0 0 3px rgba(0,201,167,.08);
         }
 
@@ -200,8 +200,8 @@ export default async function Home() {
           padding: 0 1.6rem;
           border: 0;
           border-radius: 12px;
-          background: #00c9a7;
-          color: #1b2a3f;
+          background: var(--color-teal);
+          color: var(--color-navy);
           font-weight: 800;
           cursor: pointer;
         }
@@ -220,11 +220,11 @@ export default async function Home() {
           text-decoration: none;
         }
 
-        .quick-links a:hover { color: #00c9a7; }
+        .quick-links a:hover { color: var(--color-teal); }
 
 
         .trust {
-          background: #1b2a3f;
+          background: var(--color-navy);
           border-bottom: 0;
         }
 
@@ -247,7 +247,7 @@ export default async function Home() {
         .trust-item strong {
           display: block;
           margin-bottom: .12rem;
-          color: #fff;
+          color: var(--color-on-dark);
           font-size: clamp(1.15rem, 2vw, 1.55rem);
           font-weight: 800;
           letter-spacing: -.02em;
@@ -275,7 +275,7 @@ export default async function Home() {
 
         .section-title {
           margin-top: .45rem;
-          color: #1b2a3f;
+          color: var(--color-navy);
           font-size: clamp(1.7rem, 3vw, 2.2rem);
           font-weight: 700;
           line-height: 1.15;
@@ -301,16 +301,16 @@ export default async function Home() {
           flex-direction: column;
           justify-content: space-between;
           padding: 1.35rem;
-          border: 1px solid #e3e8ee;
+          border: 1px solid var(--color-border-strong);
           border-radius: 16px;
-          background: #fff;
+          background: var(--color-surface);
           text-decoration: none;
           transition: transform .15s ease, border-color .15s ease, box-shadow .15s ease;
         }
 
         .category-card:hover {
           transform: translateY(-2px);
-          border-color: #00c9a7;
+          border-color: var(--color-teal);
           box-shadow: var(--shadow-card);
         }
 
@@ -320,7 +320,7 @@ export default async function Home() {
         }
 
         .category-card strong {
-          color: #1b2a3f;
+          color: var(--color-navy);
           font-size: .9rem;
           line-height: 1.35;
         }
@@ -330,20 +330,20 @@ export default async function Home() {
           align-items: center;
           justify-content: space-between;
           gap: .75rem;
-          color: #8b95a1;
+          color: var(--color-text-faint);
           font-size: .7rem;
         }
 
         .category-card span b {
-          color: #087f6c;
+          color: var(--color-teal-deep);
           font-size: 1rem;
           font-weight: 500;
         }
 
         .how {
-          background: #fff;
-          border-top: 1px solid #e8ecf0;
-          border-bottom: 1px solid #e8ecf0;
+          background: var(--color-surface);
+          border-top: 1px solid var(--color-border);
+          border-bottom: 1px solid var(--color-border);
         }
 
         .how-grid {
@@ -355,7 +355,7 @@ export default async function Home() {
 
         .how-card {
           padding: 1.6rem;
-          border: 1px solid #e8ecf0;
+          border: 1px solid var(--color-border);
           border-radius: 16px;
           background: #f9fafb;
         }
@@ -367,8 +367,8 @@ export default async function Home() {
           place-items: center;
           margin-bottom: 1rem;
           border-radius: 50%;
-          background: #1b2a3f;
-          color: #00c9a7;
+          background: var(--color-navy);
+          color: var(--color-teal);
           font-size: .75rem;
           font-weight: 800;
         }
@@ -397,11 +397,11 @@ export default async function Home() {
           gap: 2rem;
           padding: 2rem;
           border-radius: 18px;
-          background: #1b2a3f;
+          background: var(--color-navy);
         }
 
         .employer-card h2 {
-          color: #fff;
+          color: var(--color-on-dark);
           font-size: 1.35rem;
           margin-bottom: .35rem;
         }
@@ -415,8 +415,8 @@ export default async function Home() {
           flex-shrink: 0;
           padding: .8rem 1.25rem;
           border-radius: 12px;
-          background: #00c9a7;
-          color: #1b2a3f;
+          background: var(--color-teal);
+          color: var(--color-navy);
           font-size: .8rem;
           font-weight: 800;
           text-decoration: none;
@@ -432,7 +432,7 @@ export default async function Home() {
         @media (max-width: 640px) {
           .hero {
             padding: 2rem var(--gutter) 2.4rem;
-            background: #fbfaf7;
+            background: var(--color-surface-warm);
           }
 
           .hero-inner {

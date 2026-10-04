@@ -784,7 +784,7 @@ export default async function Home() {
           )}
         </main>
 
-        <SiteFooter traffic={stats.traffic} />
+        <SiteFooter />
       </div>
     </>
   );

@@ -73,7 +73,9 @@ export default async function RootLayout({ children }) {
             userRole={userRole}
           />
         </Suspense>
-        <TrafficTracker />
+        <Suspense fallback={null}>
+          <TrafficTracker />
+        </Suspense>
         <WebVitals analyticsId={analyticsId} />
         <PrivacyControls analyticsId={analyticsId} adsenseClient={adsenseClient} />
       </body>

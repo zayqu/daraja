@@ -33,14 +33,14 @@ test("public navigation prioritizes jobs, freelance, employers and about", async
   assert.match(mobileDock, />\s*Employer workspace\s*</);
 });
 
-test("homepage keeps live counters in the navy band and sends only visitor insight to footer", async () => {
+test("homepage keeps platform counters in the navy band and sends compact traffic numbers to footer", async () => {
   const home = await source("app/page.js");
   const footer = await source("components/SiteFooter.js");
   const footerStyles = await source("components/SiteFooter.module.css");
   const stats = await source("lib/home-stats.js");
 
   assert.match(home, /await getHomeStats\(\)/);
-  assert.match(home, /<SiteFooter visitorsThisMonth=\{stats\.visitorsThisMonth\} \/>/);
+  assert.match(home, /<SiteFooter traffic=\{stats\.traffic\} \/>/);
   assert.match(home, /className="trust"/);
   assert.match(home, /stats\.liveJobs/);
   assert.match(home, /stats\.employers/);
@@ -50,12 +50,14 @@ test("homepage keeps live counters in the navy band and sends only visitor insig
   assert.doesNotMatch(footer, /stats\.liveJobs/);
   assert.doesNotMatch(footer, /stats\.employers/);
   assert.doesNotMatch(footer, /stats\.sources/);
-  assert.match(footer, /VisitorCounter initialCount=\{visitorsThisMonth\}/);
-  assert.match(footer, /className={styles.visitorMeta}/);
-  assert.match(footer, /VisitorCounter initialCount=\{visitorsThisMonth\}/);
+  assert.match(footer, /className={styles.trafficMeta}/);
+  assert.match(footer, /traffic\.totalVisits/);
+  assert.match(footer, /traffic\.newVisitors/);
+  assert.match(footer, /traffic\.returningVisitors/);
+  assert.match(footer, /traffic\.pageViews/);
   assert.doesNotMatch(footer, /Privacy-safe monthly visitor activity/);
   assert.doesNotMatch(footer, /Daraja at a glance/);
-  assert.match(footerStyles, /\.visitorMeta/);
+  assert.match(footerStyles, /\.trafficMeta/);
 
   assert.match(stats, /buildPublicJobWhere\("active"/);
   assert.match(stats, /prisma\.job\.count/);

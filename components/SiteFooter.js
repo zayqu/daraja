@@ -1,12 +1,39 @@
 import Link from "next/link";
 import styles from "./SiteFooter.module.css";
+import VisitorCounter from "@/components/VisitorCounter";
 
 const WHATSAPP_CHANNEL =
   "https://whatsapp.com/channel/0029Vanw1OQ1CYoYdxl32g3V";
 
-export default function SiteFooter() {
+export default function SiteFooter({ stats = null }) {
   return (
     <footer className={styles.footer}>
+      {stats && (
+        <section className={styles.insights} aria-label="Daraja live platform insights">
+          <div className={styles.insightsHeading}>
+            <span>Daraja at a glance</span>
+            <p>Live platform activity, updated from verified Daraja data.</p>
+          </div>
+          <div className={styles.insightsGrid}>
+            <div className={styles.insight}>
+              <strong>{stats.liveJobs.toLocaleString()}</strong>
+              <span>Live opportunities</span>
+            </div>
+            <div className={styles.insight}>
+              <strong>{stats.employers.toLocaleString()}</strong>
+              <span>Employers & institutions</span>
+            </div>
+            <div className={styles.insight}>
+              <strong>{stats.sources.toLocaleString()}</strong>
+              <span>Verified active sources</span>
+            </div>
+            <div className={styles.insight}>
+              <VisitorCounter initialCount={stats.visitorsThisMonth} />
+            </div>
+          </div>
+        </section>
+      )}
+
       <div className={styles.inner}>
         <div className={styles.brand}>
           <div className={styles.logo}>DARAJA</div>

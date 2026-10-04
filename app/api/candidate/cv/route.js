@@ -100,12 +100,16 @@ export async function POST(request) {
   const targetRole = clean(parsed.body.targetRole, 180) || null;
   const mode = modeValue(parsed.body.mode);
   const language = parsed.body.language === "sw" ? "sw" : "en";
-  const name = clean(parsed.body.name, 120) || (targetRole ? `${targetRole} CV` : "Master CV");
+  const requestedName = clean(parsed.body.name, 120);
 
   const job = await targetJob(targetJobId);
   if (targetJobId && !job) {
     return privateJson({ error: "Selected vacancy is not available." }, { status: 404 });
   }
+
+  const name =
+    requestedName ||
+    (job?.title ? `${job.title} CV` : targetRole ? `${targetRole} CV` : "Master CV");
 
   const cv = await prisma.$transaction(async (tx) => {
     const jobSeeker = await ensureJobSeeker(tx, user);

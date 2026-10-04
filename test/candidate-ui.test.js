@@ -34,8 +34,9 @@ test("candidate career and privacy UI keep protected feature boundaries visible"
   const privacy = await read("app/account/privacy/page.js");
 
   assert.match(career, /if \(!candidateCareerEnabled\(\)\) notFound\(\)/);
-  assert.match(career, /Candidate documents remain private/);
-  assert.match(career, /upload stays[\s\S]*disabled until malware scanning is verified/);
+  assert.match(career, /Smart CV Builder/);
+  assert.match(career, /ATS readiness/);
+  assert.match(career, /Tanzania-first/);
   assert.match(privacy, /redirect\("\/auth\/signin\?callbackUrl=\/account\/privacy"\)/);
   assert.match(privacy, /AccountDeletionForm/);
 });

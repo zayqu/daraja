@@ -1,5 +1,5 @@
 import JobsPageClient from "./JobsPageClient";
-import { employerPortalEnabled } from "@/lib/features";
+import { candidateCareerEnabled, employerPortalEnabled } from "@/lib/features";
 import { normalizeJobsSearchParams } from "@/lib/job-search";
 import {
   PUBLIC_JOBS_PAGE_SIZE,
@@ -33,6 +33,7 @@ export default async function JobsPage({ searchParams }) {
   return (
     <JobsPageClient
       showEmployerCta={employerPortalEnabled()}
+      showCandidateCv={candidateCareerEnabled()}
       initialJobs={initialJobs}
       initialPagination={initialPagination}
       initialFilters={filters}

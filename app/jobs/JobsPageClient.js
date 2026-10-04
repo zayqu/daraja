@@ -24,6 +24,7 @@ const JOB_TYPE_LABELS = {
 
 export default function JobsPageClient({
   showEmployerCta,
+  showCandidateCv,
   initialJobs,
   initialPagination,
   initialFilters,
@@ -576,7 +577,7 @@ export default function JobsPageClient({
       `}</style>
 
       <div className="jobs-page">
-        <SiteNav links={buildPublicNavigation({ employerEnabled: showEmployerCta })} showEmployerCta={showEmployerCta} right={false} />
+        <SiteNav links={buildPublicNavigation({ employerEnabled: showEmployerCta, candidateCareerEnabled: showCandidateCv })} showEmployerCta={showEmployerCta} showCandidateProfile={showCandidateCv} right={false} />
 
         <header className="jobs-hero">
           <div className="jobs-hero-inner">

@@ -4,7 +4,8 @@ import { buildPublicNavigation } from "@/lib/public-navigation";
 
 export default function PublicSiteNav(props) {
   const employerEnabled = employerPortalEnabled();
-  const links = buildPublicNavigation({ employerEnabled });
+  const careerEnabled = candidateCareerEnabled();
+  const links = buildPublicNavigation({ employerEnabled, candidateCareerEnabled: careerEnabled });
 
   return (
     <SiteNav

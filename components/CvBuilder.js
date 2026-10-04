@@ -129,7 +129,8 @@ export default function CvBuilder() {
   const [job, setJob] = useState(null);
   const [evaluation, setEvaluation] = useState(null);
   const [status, setStatus] = useState("");
-  const [busy, setBusy] = useState(false);\n  const [pdfBusy, setPdfBusy] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const [pdfBusy, setPdfBusy] = useState(false);
 
   const loadList = useCallback(async () => {
     const response = await fetch("/api/candidate/cv", { cache: "no-store" });

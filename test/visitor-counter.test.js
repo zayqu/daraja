@@ -57,7 +57,7 @@ test("visitor metric is stored as aggregate monthly count only", async () => {
   assert.match(schema, /model VisitorCounter[\s\S]*period\s+String\s+@id/);
   assert.match(schema, /uniqueVisitors\s+Int\s+@default\(0\)/);
   assert.match(migration, /CREATE TABLE "VisitorCounter"/);
-  assert.match(footer, /<VisitorCounter initialCount=\{stats\.visitorsThisMonth\}/);
+  assert.match(footer, /<VisitorCounter initialCount=\{visitorsThisMonth\}/);
   assert.match(stats, /prisma\.visitorCounter/);
   assert.match(stats, /visitorsThisMonth/);
 });

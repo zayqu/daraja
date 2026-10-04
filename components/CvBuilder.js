@@ -245,6 +245,14 @@ export default function CvBuilder() {
     }
   }
 
+  const printCv = useCallback(() => {
+    document.body.classList.add("cv-printing");
+    const cleanup = () => document.body.classList.remove("cv-printing");
+    window.addEventListener("afterprint", cleanup, { once: true });
+    window.print();
+    window.setTimeout(cleanup, 2_000);
+  }, []);
+
   const designCount = useMemo(() => {
     if (!cv) return "";
     return `${cv.theme?.template || "modern"} · ${cv.theme?.accent || "#1b2a3f"} · ${cv.theme?.fontFamily || "Arial"}`;
@@ -316,7 +324,7 @@ export default function CvBuilder() {
             <strong>{designCount}</strong>
           </div>
           <div className={styles.toolbarActions}>
-            <button type="button" onClick={() => window.print()}>Save as PDF</button>
+            <button type="button" onClick={printCv}>Save as PDF</button>
             <button type="button" className={styles.primaryButton} onClick={saveCv} disabled={busy}>
               {busy ? "Saving…" : "Save CV"}
             </button>
@@ -572,7 +580,7 @@ export default function CvBuilder() {
                 </ul>
               ) : null}
             </div>
-            <div className={styles.paper}>
+            <div className={`${styles.paper} cv-print-target`}>
               <CvPreview cv={cv} />
             </div>
           </section>

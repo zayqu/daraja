@@ -8,6 +8,7 @@ const {
 } = require("../lib/jobs");
 const {
   extractSourcePageMetadata,
+  inspectEmployerPage,
   isSafePublicHttpUrl,
 } = require("../lib/source-page");
 
@@ -673,7 +674,7 @@ function extractDirectEmployerApplication(
 async function parseAgencyDetail(
   discovery,
   source,
-  { fetchFn = fetch, now = new Date() } = {}
+  { fetchFn = fetch, now = new Date(), render = null } = {}
 ) {
   const html = await fetchHtml(discovery.sourceUrl, fetchFn);
   const $ = cheerio.load(html || "");
@@ -803,6 +804,46 @@ async function parseAgencyDetail(
     return { job: null, reason: "application-missing" };
   }
 
+  // Follow the employer's own application link: it must still show this
+  // vacancy, and the facts it states outrank the recruiter's copy.
+  let official = {};
+  const reviewReasons = [];
+  if (applicationUrl && !applicationUrl.startsWith("mailto:")) {
+    const employerPage = await inspectEmployerPage(applicationUrl, {
+      title: identity.title,
+      fetchFn,
+      render,
+    });
+    if (employerPage.status === "ok") {
+      if (pageIsClosed(employerPage.lines.join(" "))) {
+        return { job: null, reason: "closed" };
+      }
+      official = employerPage.facts;
+    } else {
+      reviewReasons.push(
+        "the employer application link did not show this vacancy"
+      );
+    }
+  }
+
+  if (official.location && source.countryFilter === "Tanzania") {
+    if (!countryMatchesTanzania(official.location)) {
+      return { job: null, reason: "country" };
+    }
+  }
+  const finalLocation = official.location
+    ? source.countryFilter === "Tanzania"
+      ? normalizeTanzaniaLocation(official.location)
+      : cleanText(official.location)
+    : location;
+
+  if (!deadline && official.deadline) {
+    deadline = parseDeadline(official.deadline);
+    if (deadline && deadline.getTime() < now.getTime()) {
+      return { job: null, reason: "expired" };
+    }
+  }
+
   const description = posting?.description
     ? htmlToText(posting.description)
     : descriptionFromPage($, source);
@@ -822,11 +863,16 @@ async function parseAgencyDetail(
       sourceIdFromUrl(discovery.sourceUrl),
     title: identity.title,
     company: identity.company,
-    location,
+    location: finalLocation,
     description,
+    experience: official.experience
+      ? `Experience: ${official.experience}`
+      : "",
+    reviewReasons,
     deadline: deadline ? deadline.toISOString() : null,
     type: mapEmploymentType(
-      posting?.employmentType ||
+      official.employmentType ||
+        posting?.employmentType ||
         labeledValue($, [
           "Job Type",
           "Employment Type",
@@ -884,6 +930,7 @@ async function collectVerifiedAgencyJobs(
   {
     fetchFn = fetch,
     now = new Date(),
+    render = null,
   } = {}
 ) {
   if (!source?.id || !source?.url) {
@@ -935,7 +982,7 @@ async function collectVerifiedAgencyJobs(
         const result = await parseAgencyDetail(
           discovery,
           source,
-          { fetchFn, now }
+          { fetchFn, now, render }
         );
         if (!result.job) {
           if (result.reason === "expired") counters.expired += 1;

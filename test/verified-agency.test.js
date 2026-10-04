@@ -412,3 +412,116 @@ test("editorial roundup headlines are rejected instead of becoming job positions
   assert.equal(result.job, null);
   assert.equal(result.reason, "editorial-title");
 });
+
+function routedFetch(pages) {
+  return async (url) => {
+    const html = pages[String(url)];
+    if (html === undefined) return { ok: false, status: 404, headers: new Headers() };
+    return {
+      ok: true,
+      headers: new Headers({ "content-type": "text/html" }),
+      text: async () => html,
+    };
+  };
+}
+
+const JAZA_AGENCY_URL =
+  "https://www.careeroptionsafricagroup.com/jobs/detail/hub-manager-at-jaza-energy-inc-october-2026-20263";
+const JAZA_EMPLOYER_URL = "https://hris.peoplehum.com/ehire/jobs/ddb0ebc";
+const JAZA_AGENCY_PAGE = [
+  "<html><body>",
+  "<h1>Hub Manager at Jaza Energy Inc October 2026</h1>",
+  "<p>Location: Tanzania, Dar es Salaam</p>",
+  "<p>Employment Type: Full-Time</p>",
+  "<p>Closing Date: 14/10/2026</p>",
+  "<h2>Job Description</h2>",
+  "<p>Lead hub growth, operations and customer service across assigned locations.</p>",
+  "<h2>Application Process</h2>",
+  `<p>Apply on the employer career site: <a href="${JAZA_EMPLOYER_URL}">Apply now</a></p>`,
+  "</body></html>",
+].join("");
+const JAZA_EMPLOYER_PAGE = [
+  "<html><body><header>JAZA</header><h2>Job details</h2>",
+  "<h3>Hub Manager (Solar Energy)-</h3><p>Mwanza, Tanzania</p>",
+  "<dl><dt>Job Function</dt><dd>Execution</dd>",
+  "<dt>Employment Type</dt><dd>Contract</dd>",
+  "<dt>Experience level</dt><dd>3 to 6Years</dd>",
+  "<dt>Location</dt><dd>Mwanza, Tanzania</dd></dl>",
+  "<p>Jaza builds solar-powered hubs that charge batteries for homes across Tanzania.</p>",
+  "</body></html>",
+].join("");
+const JAZA_DISCOVERY = {
+  sourceUrl: JAZA_AGENCY_URL,
+  contextText: "Hub Manager at Jaza Energy Inc October 2026 Closing Date: 14/10/2026",
+};
+const JAZA_NOW = new Date("2026-10-04T05:00:00.000Z");
+
+test("employer page facts outrank the recruiter's copy", async () => {
+  const result = await parseAgencyDetail(JAZA_DISCOVERY, STRICT_RECRUITER_SOURCE, {
+    now: JAZA_NOW,
+    fetchFn: routedFetch({
+      [JAZA_AGENCY_URL]: JAZA_AGENCY_PAGE,
+      [JAZA_EMPLOYER_URL]: JAZA_EMPLOYER_PAGE,
+    }),
+  });
+
+  assert.equal(result.job.location, "Mwanza, Tanzania");
+  assert.equal(result.job.type, "CONTRACT");
+  assert.equal(result.job.experienceMinYears, 3);
+  assert.equal(result.job.experienceMaxYears, 6);
+  assert.equal(result.job.applicationUrl, JAZA_EMPLOYER_URL);
+  assert.equal(result.job.reviewReasons, undefined);
+});
+
+test("an employer link that shows nothing holds the vacancy for review", async () => {
+  const rendered = [];
+  const result = await parseAgencyDetail(JAZA_DISCOVERY, STRICT_RECRUITER_SOURCE, {
+    now: JAZA_NOW,
+    fetchFn: routedFetch({
+      [JAZA_AGENCY_URL]: JAZA_AGENCY_PAGE,
+      [JAZA_EMPLOYER_URL]: "<html><body><div>English</div></body></html>",
+    }),
+    render: async (url) => {
+      rendered.push(url);
+      return "English";
+    },
+  });
+
+  assert.deepEqual(rendered, [JAZA_EMPLOYER_URL]);
+  assert.ok(result.job);
+  assert.deepEqual(result.job.reviewReasons, [
+    "the employer application link did not show this vacancy",
+  ]);
+});
+
+test("a JavaScript-only employer page is read through the renderer", async () => {
+  const result = await parseAgencyDetail(JAZA_DISCOVERY, STRICT_RECRUITER_SOURCE, {
+    now: JAZA_NOW,
+    fetchFn: routedFetch({
+      [JAZA_AGENCY_URL]: JAZA_AGENCY_PAGE,
+      [JAZA_EMPLOYER_URL]: "<html><body><app-root></app-root></body></html>",
+    }),
+    render: async () =>
+      "Job details\nHub Manager (Solar Energy)-\nMwanza, Tanzania\nEmployment Type\nContract\nExperience level\n3 to 6Years\nLocation\nMwanza, Tanzania\nJaza builds solar-powered hubs that charge batteries for homes.",
+  });
+
+  assert.equal(result.job.location, "Mwanza, Tanzania");
+  assert.equal(result.job.type, "CONTRACT");
+  assert.equal(result.job.reviewReasons, undefined);
+});
+
+test("a vacancy closed on the employer page is not imported", async () => {
+  const result = await parseAgencyDetail(JAZA_DISCOVERY, STRICT_RECRUITER_SOURCE, {
+    now: JAZA_NOW,
+    fetchFn: routedFetch({
+      [JAZA_AGENCY_URL]: JAZA_AGENCY_PAGE,
+      [JAZA_EMPLOYER_URL]: JAZA_EMPLOYER_PAGE.replace(
+        "<dl>",
+        "<p>This position is no longer accepting applications.</p><dl>"
+      ),
+    }),
+  });
+
+  assert.equal(result.job, null);
+  assert.equal(result.reason, "closed");
+});

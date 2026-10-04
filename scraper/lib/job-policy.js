@@ -99,6 +99,7 @@ function decidePublication(job, sourceId) {
   if (messagingOnlyApplication(job)) {
     reasons.push("applications go only through a messaging app");
   }
+  reasons.push(...(job.reviewReasons || []));
 
   return reasons.length
     ? { status: "PENDING_REVIEW", note: `Needs review: ${reasons.join("; ")}.` }

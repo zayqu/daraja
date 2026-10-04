@@ -273,6 +273,8 @@ function normalizeJob(rawJob, defaults = {}) {
     deadline,
     active: deadline ? deadline.getTime() >= Date.now() : true,
   };
+  const reviewReasons = (rawJob.reviewReasons || []).map(cleanText).filter(Boolean);
+  if (reviewReasons.length) job.reviewReasons = reviewReasons;
   return { ...job, sourceId: cleanText(rawJob.sourceId) || getSourceId(job, baseUrl) };
 }
 

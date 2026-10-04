@@ -62,9 +62,36 @@ test("classification reports deterministic confidence and evidence", () => {
   });
   assert.deepEqual(classifyJob({ title: "Opportunity", company: "Example Bank" }), {
     category: "Banking & Finance",
-    confidence: 0.72,
-    evidence: "context",
+    confidence: 0.8,
+    evidence: "company",
   });
+});
+
+test("a single passing description word does not decide the category", () => {
+  assert.equal(
+    classifyJob({
+      title: "Hub Manager",
+      company: "Jaza Energy Inc",
+      description: "Responsible for the financial health of a cohort of hubs.",
+    }).category,
+    "Mining, Energy, Oil & Gas"
+  );
+  assert.equal(
+    classifyJob({
+      title: "Hub Manager",
+      company: "Acme Ltd",
+      description: "Responsible for the financial health of a cohort of hubs.",
+    }).category,
+    "General"
+  );
+  assert.equal(
+    classifyJob({
+      title: "Officer",
+      company: "Acme Ltd",
+      description: "Support health programmes and community health workers.",
+    }).category,
+    "Health"
+  );
 });
 
 test("assisted classification cannot override a deterministic category", () => {

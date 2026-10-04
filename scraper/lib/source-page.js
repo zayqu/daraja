@@ -398,12 +398,150 @@ async function fetchSourcePageMetadata(
   }
 }
 
+const BLOCK_TAGS =
+  /<\/?(?:p|div|li|ul|ol|h[1-6]|tr|td|th|dt|dd|dl|section|article|header|footer|br|label|span)\b[^>]*>/gi;
+
+// Readable lines from an HTML page, keeping block boundaries so labelled
+// fields ("Employment Type" / "Contract") stay on separate lines.
+function htmlToLines(html) {
+  const $ = cheerio.load(html || "");
+  $("script, style, noscript, template, svg").remove();
+  const markup = ($("body").html() || "").replace(BLOCK_TAGS, "\n");
+  return textToLines(cheerio.load(`<div>${markup}</div>`)("div").first().text());
+}
+
+function textToLines(text) {
+  return String(text || "")
+    .split(/\n+/)
+    .map((line) => line.replace(/\s+/g, " ").trim())
+    .filter(Boolean);
+}
+
+const FACT_LABELS = {
+  location: ["Location", "Job Location", "Work Location", "Duty Station"],
+  employmentType: ["Employment Type", "Job Type", "Contract Type", "Type of Employment"],
+  experience: ["Experience level", "Experience Level", "Years of Experience", "Work Experience", "Experience"],
+  deadline: ["Closing Date", "Application Deadline", "Deadline", "Apply Before", "Last Day to Apply"],
+};
+
+function escapeLabel(label) {
+  return label.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+function labelledFacts(lines) {
+  const facts = {};
+  for (const [field, labels] of Object.entries(FACT_LABELS)) {
+    for (const label of labels) {
+      const exact = new RegExp(`^${escapeLabel(label)}\\s*:?$`, "i");
+      const inline = new RegExp(`^${escapeLabel(label)}\\s*:\\s*(.+)$`, "i");
+      for (let index = 0; index < lines.length && !facts[field]; index += 1) {
+        const value = exact.test(lines[index])
+          ? lines[index + 1]
+          : lines[index].match(inline)?.[1];
+        if (value && !/^[-–—]+$/.test(value) && value.length <= 120) {
+          facts[field] = value;
+        }
+      }
+      if (facts[field]) break;
+    }
+  }
+  return facts;
+}
+
+function significantWords(title) {
+  return String(title || "")
+    .toLowerCase()
+    .split(/[^a-z0-9]+/)
+    .filter((word) => word.length >= 4);
+}
+
+// Opens the employer's own vacancy or application page and reports whether it
+// actually shows this vacancy, plus any facts it states. JavaScript-only pages
+// are rendered with the optional renderer when static HTML is empty.
+async function inspectEmployerPage(
+  pageUrl,
+  {
+    title,
+    fetchFn = fetch,
+    render = null,
+    signal = AbortSignal.timeout(SOURCE_PAGE_TIMEOUT_MS),
+  } = {}
+) {
+  if (!isSafePublicHttpUrl(pageUrl)) return { status: "unreachable", lines: [], facts: {} };
+
+  const words = significantWords(title);
+  const showsVacancy = (lines) => {
+    const text = lines.join(" ").toLowerCase();
+    return text.length >= 80 && (!words.length || words.some((word) => text.includes(word)));
+  };
+
+  let lines = [];
+  try {
+    const response = await fetchFn(pageUrl, {
+      redirect: "follow",
+      headers: {
+        Accept: "text/html,application/xhtml+xml",
+        "User-Agent": "DarajaJobsBot/1.0 (+https://www.ajira.daraja.co.tz)",
+      },
+      signal,
+    });
+    if (response?.ok) lines = htmlToLines(await response.text());
+  } catch {
+    lines = [];
+  }
+
+  if (!showsVacancy(lines) && render) {
+    try {
+      lines = textToLines(await render(pageUrl));
+    } catch {
+      lines = [];
+    }
+  }
+
+  if (!showsVacancy(lines)) return { status: "blank", lines, facts: {} };
+  return { status: "ok", lines, facts: labelledFacts(lines) };
+}
+
+// One shared headless browser per scraper run, with a page budget so a large
+// source cannot make the run slow. Returns null renders once the budget is
+// spent or when Playwright is unavailable.
+function createPageRenderer({
+  launch = async () => require("playwright").chromium.launch({ headless: true }),
+  budget = Number.parseInt(process.env.EMPLOYER_PAGE_RENDER_BUDGET || "20", 10),
+  timeoutMs = 25_000,
+} = {}) {
+  let browser = null;
+  let remaining = budget;
+  return {
+    async render(url) {
+      if (remaining <= 0) return null;
+      remaining -= 1;
+      browser ||= await launch();
+      const page = await browser.newPage();
+      try {
+        await page.goto(url, { waitUntil: "networkidle", timeout: timeoutMs });
+        return await page.evaluate(() => document.body?.innerText || "");
+      } finally {
+        await page.close();
+      }
+    },
+    async close() {
+      await browser?.close();
+      browser = null;
+    },
+  };
+}
+
 module.exports = {
+  createPageRenderer,
   extractApplicationDestination,
   extractSourceMedia,
   extractSourcePageMetadata,
   fetchSourcePageMetadata,
+  htmlToLines,
+  inspectEmployerPage,
   isSafePublicHttpUrl,
+  labelledFacts,
   looksLikeApplicationUrl,
   normalizeCandidateUrl,
 };

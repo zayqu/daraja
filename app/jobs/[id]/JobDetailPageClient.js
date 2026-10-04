@@ -7,7 +7,17 @@ import SiteNav from "@/components/SiteNav";
 import SiteFooter from "@/components/SiteFooter";
 import JobBrandMedia from "@/components/JobBrandMedia";
 import { trackEvent } from "@/lib/analytics";
+import { structureJobDescription } from "@/lib/job-description";
 import styles from "./job-detail.module.css";
+
+function experienceLabel({ experienceMinYears: min, experienceMaxYears: max }) {
+  if (!Number.isInteger(min)) return null;
+  if (min === 0 && max === 0) return "No experience needed";
+  const years = (count) => `${count} year${count === 1 ? "" : "s"}`;
+  if (!Number.isInteger(max)) return `${years(min)} or more`;
+  if (max === min) return years(min);
+  return `${min}–${max} years`;
+}
 
 export default function JobDetailPageClient({ showEmployerCta }) {
   const { id } = useParams();
@@ -245,6 +255,18 @@ export default function JobDetailPageClient({ showEmployerCta }) {
                   <dt>Job type</dt>
                   <dd>{formatJobType(job.type)}</dd>
                 </div>
+                {experienceLabel(job) && (
+                  <div>
+                    <dt>Experience</dt>
+                    <dd>{experienceLabel(job)}</dd>
+                  </div>
+                )}
+                {job.openings > 1 && (
+                  <div>
+                    <dt>Openings</dt>
+                    <dd>{job.openings}</dd>
+                  </div>
+                )}
                 {job.deadline && (
                   <div>
                     <dt>Deadline</dt>
@@ -259,7 +281,23 @@ export default function JobDetailPageClient({ showEmployerCta }) {
             <article className={`${styles.card} ${styles.contentCard}`}>
               <div className={styles.cardEyebrow}>About the role</div>
               <h2>Position description</h2>
-              <div className={styles.description}>{job.description}</div>
+              <div className={styles.description}>
+                {structureJobDescription(job.description, { company: job.company }).map((section) => (
+                  <section key={section.id} className={styles.descriptionSection}>
+                    <h3>{section.title}</h3>
+                    {section.paragraphs.map((paragraph) => (
+                      <p key={paragraph}>{paragraph}</p>
+                    ))}
+                    {section.items.length > 0 && (
+                      <ul>
+                        {section.items.map((item) => (
+                          <li key={item}>{item}</li>
+                        ))}
+                      </ul>
+                    )}
+                  </section>
+                ))}
+              </div>
 
               {job.salary && (
                 <section className={styles.salarySection}>

@@ -214,9 +214,40 @@
   margin-top: 1.1rem;
   color: #3d4b5c;
   font-size: 0.88rem;
-  line-height: 1.8;
-  white-space: pre-wrap;
+  line-height: 1.7;
   overflow-wrap: anywhere;
+}
+
+.descriptionSection + .descriptionSection {
+  margin-top: 1.35rem;
+  padding-top: 1.2rem;
+  border-top: 1px solid #eef1f4;
+}
+
+.descriptionSection h3 {
+  margin: 0 0 0.5rem;
+  color: #1b2a3f;
+  font-size: 0.95rem;
+  font-weight: 700;
+}
+
+.descriptionSection p {
+  margin: 0;
+}
+
+.descriptionSection p + p {
+  margin-top: 0.6rem;
+}
+
+.descriptionSection ul {
+  display: grid;
+  gap: 0.45rem;
+  margin: 0.4rem 0 0;
+  padding-left: 1.15rem;
+}
+
+.descriptionSection li::marker {
+  color: #087f6c;
 }
 
 .salarySection {

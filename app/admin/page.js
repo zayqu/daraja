@@ -4,11 +4,13 @@ import {
   getActor,
   isAdmin,
 } from "@/lib/employer-access";
+import AdminJobReviewQueue from "@/components/AdminJobReviewQueue";
 import EmployerPortalTabs from "@/components/EmployerPortalTabs";
 import SiteNav from "@/components/SiteNav";
 import PageHero from "@/components/ui/PageHero";
 import WorkspaceShell from "@/components/ui/WorkspaceShell";
 import SurfaceCard from "@/components/ui/SurfaceCard";
+import prisma from "@/lib/prisma";
 import styles from "../portal.module.css";
 
 export const metadata = { title: "Moderation | Daraja" };
@@ -20,6 +22,23 @@ export default async function AdminPage() {
   const actor = await getActor();
   if (!actor) redirect("/auth/signin?callbackUrl=/admin");
   if (!isAdmin(actor)) notFound();
+
+  const pendingJobs = await prisma.job.findMany({
+    where: { moderationStatus: "PENDING_REVIEW" },
+    orderBy: { createdAt: "desc" },
+    take: 50,
+    select: {
+      id: true,
+      title: true,
+      company: true,
+      location: true,
+      source: true,
+      sourceUrl: true,
+      description: true,
+      deadline: true,
+      moderationNote: true,
+    },
+  });
 
   return (
     <div className={styles.page}>
@@ -44,6 +63,18 @@ export default async function AdminPage() {
               <span>Access level</span>
               <strong className={styles.statusVerified}>admin</strong>
             </div>
+          </section>
+
+          <section className={styles.reviewQueue} aria-labelledby="review-queue-title">
+            <h2 id="review-queue-title" className={styles.sectionTitle}>
+              Vacancies waiting for review ({pendingJobs.length})
+            </h2>
+            <AdminJobReviewQueue
+              jobs={pendingJobs.map((job) => ({
+                ...job,
+                deadline: job.deadline?.toISOString() ?? null,
+              }))}
+            />
           </section>
 
           <section className={styles.grid} aria-label="Administration safeguards">

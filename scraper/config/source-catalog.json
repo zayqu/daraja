@@ -7,7 +7,10 @@
       "url": "https://portal.ajira.go.tz/vacancies",
       "category": "general_tanzania_job_websites",
       "enabled": true,
-      "adapter": "ajira"
+      "adapter": "ajira",
+      "publishPolicy": {
+        "autoPublish": true
+      }
     },
     {
       "id": "public-service-recruitment-secretariat",
@@ -151,7 +154,10 @@
       "url": "https://ajiraweb.com/",
       "category": "general_tanzania_job_websites",
       "enabled": true,
-      "adapter": "ajiraweb"
+      "adapter": "ajiraweb",
+      "publishPolicy": {
+        "autoPublish": true
+      }
     },
     {
       "id": "careers-mitihani",
@@ -359,7 +365,10 @@
       "url": "https://jobs.smartrecruiters.com/StandardBankGroup",
       "category": "banks_and_financial_institutions",
       "enabled": true,
-      "adapter": "standardbank"
+      "adapter": "standardbank",
+      "publishPolicy": {
+        "autoPublish": true
+      }
     },
     {
       "id": "citi-careers",
@@ -2158,7 +2167,8 @@
         "requireNamedEmployer": true,
         "requireDirectEmployerApplication": true,
         "hideSourceBranding": true,
-        "rejectEditorialTitles": true
+        "rejectEditorialTitles": true,
+        "autoPublish": true
       }
     },
     {
@@ -2298,7 +2308,8 @@
         "requireNamedEmployer": true,
         "requireDirectEmployerApplication": true,
         "hideSourceBranding": true,
-        "rejectEditorialTitles": true
+        "rejectEditorialTitles": true,
+        "autoPublish": true
       }
     },
     {
@@ -2326,7 +2337,8 @@
         "requireNamedEmployer": true,
         "requireDirectEmployerApplication": true,
         "hideSourceBranding": true,
-        "rejectEditorialTitles": true
+        "rejectEditorialTitles": true,
+        "autoPublish": true
       }
     },
     {
@@ -2356,7 +2368,8 @@
         "requireNamedEmployer": true,
         "requireDirectEmployerApplication": true,
         "hideSourceBranding": true,
-        "rejectEditorialTitles": true
+        "rejectEditorialTitles": true,
+        "autoPublish": true
       }
     },
     {
@@ -2387,7 +2400,8 @@
         "requireNamedEmployer": true,
         "requireDirectEmployerApplication": true,
         "hideSourceBranding": true,
-        "rejectEditorialTitles": true
+        "rejectEditorialTitles": true,
+        "autoPublish": true
       }
     },
     {
@@ -2418,7 +2432,8 @@
         "requireNamedEmployer": true,
         "requireDirectEmployerApplication": true,
         "hideSourceBranding": true,
-        "rejectEditorialTitles": true
+        "rejectEditorialTitles": true,
+        "autoPublish": true
       }
     }
   ]

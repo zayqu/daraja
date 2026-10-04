@@ -393,6 +393,16 @@
   line-height: 1.56;
 }
 
+.paper :global(.cv-document[data-page-margin="narrow"]) {
+  padding-left: 46px;
+  padding-right: 46px;
+}
+
+.paper :global(.cv-document[data-page-margin="wide"]) {
+  padding-left: 78px;
+  padding-right: 78px;
+}
+
 .paper :global(.cv-header) {
   margin-bottom: calc(var(--cv-space) * 1.25);
   text-align: var(--cv-header-align);
@@ -406,6 +416,25 @@
   letter-spacing: -.02em;
 }
 
+.paper :global(.cv-document[data-name-scale="compact"] .cv-header h1) {
+  font-size: 24px;
+}
+
+.paper :global(.cv-document[data-name-scale="prominent"] .cv-header h1) {
+  font-size: 34px;
+}
+
+.paper :global(.cv-document[data-header-style="rule"] .cv-header) {
+  padding-bottom: 12px;
+  border-bottom: 2px solid var(--cv-accent);
+}
+
+.paper :global(.cv-document[data-header-style="accent"] .cv-header) {
+  padding: 14px 16px;
+  border-left: 5px solid var(--cv-accent);
+  background: color-mix(in srgb, var(--cv-accent) 7%, white);
+}
+
 .paper :global(.cv-headline) {
   margin: 7px 0 0;
   font-size: 13px;
@@ -417,6 +446,11 @@
   color: #4d5560;
   font-size: 10.5px;
   overflow-wrap: anywhere;
+}
+
+.paper :global(.cv-document[data-contacts="lines"] .cv-contacts) {
+  white-space: pre-line;
+  line-height: 1.55;
 }
 
 .paper :global(.cv-document section) {
@@ -442,6 +476,15 @@
   border-bottom: 0;
   letter-spacing: .08em;
   text-transform: uppercase;
+}
+
+.paper :global(.cv-document[data-heading="accent"] h2) {
+  display: inline-block;
+  padding: 3px 7px;
+  border: 0;
+  border-radius: 2px;
+  background: var(--cv-accent);
+  color: #fff;
 }
 
 .paper :global(.cv-document[data-template="classic"] h1),
@@ -479,6 +522,25 @@
 .paper :global(.cv-document ul) {
   margin: 5px 0 0;
   padding-left: 18px;
+}
+
+.paper :global(.cv-document[data-bullets="square"] ul:not(.cv-clean-list)) {
+  list-style-type: square;
+}
+
+.paper :global(.cv-document[data-bullets="dash"] ul:not(.cv-clean-list)) {
+  list-style: none;
+  padding-left: 14px;
+}
+
+.paper :global(.cv-document[data-bullets="dash"] ul:not(.cv-clean-list) li) {
+  position: relative;
+}
+
+.paper :global(.cv-document[data-bullets="dash"] ul:not(.cv-clean-list) li::before) {
+  content: "–";
+  position: absolute;
+  left: -12px;
 }
 
 .paper :global(.cv-document li + li) {

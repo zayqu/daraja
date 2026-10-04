@@ -184,13 +184,24 @@ export default function CvPreview({ cv }) {
     personal.linkedIn,
     personal.portfolio,
   ].filter(Boolean);
+  const contactSeparator =
+    theme.contactStyle === "pipes"
+      ? " | "
+      : theme.contactStyle === "lines"
+        ? "\n"
+        : " · ";
 
   return (
     <article
       className="cv-document"
       data-template={theme.template || "modern"}
       data-density={theme.density || "comfortable"}
+      data-header-style={theme.headerStyle || "clean"}
       data-heading={theme.headingStyle || "line"}
+      data-bullets={theme.bulletStyle || "disc"}
+      data-contacts={theme.contactStyle || "dots"}
+      data-name-scale={theme.nameScale || "balanced"}
+      data-page-margin={theme.pageMargin || "standard"}
       style={{
         "--cv-accent": theme.accent || "#1b2a3f",
         "--cv-font": theme.fontFamily || "Arial",
@@ -200,7 +211,7 @@ export default function CvPreview({ cv }) {
       <header className="cv-header">
         <h1>{personal.fullName || "Your name"}</h1>
         {personal.headline ? <p className="cv-headline">{personal.headline}</p> : null}
-        {contacts.length ? <p className="cv-contacts">{contacts.join(" · ")}</p> : null}
+        {contacts.length ? <p className="cv-contacts">{contacts.join(contactSeparator)}</p> : null}
       </header>
 
       {order.map((key) => (sections[key] ? <div key={key}>{sections[key]}</div> : null))}

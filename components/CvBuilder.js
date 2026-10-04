@@ -173,7 +173,11 @@ export default function CvBuilder() {
         body: JSON.stringify({
           sourceCvId: sourceCvId || undefined,
           targetJobId: requestedJob || undefined,
-          name: sourceCvId ? `${cv?.name || "CV"} copy` : "Master CV",
+          name: requestedJob && sourceCvId
+            ? undefined
+            : sourceCvId
+              ? `${cv?.name || "CV"} copy`
+              : "Master CV",
           mode: cv?.mode || "GENERAL",
           language: cv?.language || "en",
         }),
@@ -293,7 +297,7 @@ export default function CvBuilder() {
           onClick={() => createCv(cv.id)}
           disabled={busy}
         >
-          Duplicate for another job
+          {requestedJob ? "Tailor this CV to selected job" : "Duplicate for another job"}
         </button>
         <button
           type="button"

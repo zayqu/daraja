@@ -54,7 +54,8 @@ test("CV builder keeps user facts separate from design choices", () => {
   assert.match(engine, /postal address\/postcode/);
   assert.match(builder, /type="color"/);
   assert.match(builder, /Save as PDF/);
-  assert.match(builder, /Aim for 90\+ ATS readiness/);\n  assert.match(builder, /neither score guarantees shortlisting or interview/);
+  assert.match(builder, /Aim for 90\+ ATS readiness/);
+  assert.match(builder, /neither score guarantees shortlisting or interview/);
   assert.match(builder, /Private sector \/ NGO \/ Bank/);
   assert.match(builder, /Tanzania Public Service/);
   assert.match(preview, /<section>/);

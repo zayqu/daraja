@@ -1,29 +1,12 @@
 import Link from "next/link";
 import styles from "./SiteFooter.module.css";
+import TrafficNumbers from "@/components/TrafficNumbers";
 
 
 const WHATSAPP_CHANNEL =
   "https://whatsapp.com/channel/0029Vanw1OQ1CYoYdxl32g3V";
 
-function formatCompactCount(value) {
-  const count = Number(value) || 0;
-  if (count < 1_000) return count.toLocaleString();
-
-  const units = [
-    { threshold: 1_000_000_000, suffix: "B" },
-    { threshold: 1_000_000, suffix: "M" },
-    { threshold: 1_000, suffix: "K" },
-  ];
-
-  const unit = units.find(({ threshold }) => count >= threshold);
-  if (!unit) return count.toLocaleString();
-
-  const scaled = count / unit.threshold;
-  const decimals = scaled < 10 ? 2 : scaled < 100 ? 1 : 0;
-  return `${Number(scaled.toFixed(decimals))}${unit.suffix}`;
-}
-
-export default function SiteFooter({ traffic = null }) {
+export default function SiteFooter() {
   return (
     <footer className={styles.footer}>
       <div className={styles.inner}>
@@ -58,14 +41,7 @@ export default function SiteFooter({ traffic = null }) {
         <span>{new Date().getFullYear()} Daraja. All rights reserved.</span>
         <div className={styles.bottomMeta}>
           <span>Jobs and opportunities across Tanzania.</span>
-          {traffic && (
-            <span className={styles.trafficMeta} aria-label="Daraja visitor numbers">
-              <span><strong>{formatCompactCount(traffic.totalVisits)}</strong> Visits</span>
-              <span><strong>{formatCompactCount(traffic.newVisitors)}</strong> New</span>
-              <span><strong>{formatCompactCount(traffic.returningVisitors)}</strong> Returning</span>
-              <span><strong>{formatCompactCount(traffic.pageViews)}</strong> Page views</span>
-            </span>
-          )}
+          <TrafficNumbers className={styles.trafficMeta} />
         </div>
       </div>
     </footer>

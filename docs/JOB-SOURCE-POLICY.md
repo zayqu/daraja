@@ -255,3 +255,29 @@ repairs them.
 Media collection follows this order: official organisation logo, official
 organisation/job image, representative source-page image, then Daraja's neutral
 placeholder. Do not substitute unrelated stock imagery for employer branding.
+
+## Recruitment-agency discovery rule
+
+Recruitment agencies may be used to discover genuine vacancies, but Daraja must
+not republish the agency as though it were the hiring employer or route users
+through a competitor by default.
+
+For agency-discovered vacancies:
+
+- a named hiring company/institution is required;
+- the displayed title must be the actual position, not an editorial roundup
+  such as "10 new jobs at...";
+- Tanzania relevance must come from the vacancy's explicit location field,
+  not generic page/footer text;
+- the application destination must be the hiring employer's stated email,
+  careers page, ATS/application page, or another application channel explicitly
+  named in the vacancy;
+- a recruiter-only Apply button is not sufficient when the employer's direct
+  application channel cannot be verified;
+- recruiter branding/media must not be reused as the hiring company's logo;
+- recruiter/source branding is retained internally for audit/provenance, not
+  promoted in the public job overview.
+
+If these conditions cannot be verified, Daraja rejects the vacancy rather than
+publishing an incomplete or promotional listing.
+

@@ -2139,7 +2139,7 @@
       "recruiterName": "Empower Tanzania",
       "countryFilter": "Tanzania",
       "requireDeadline": true,
-      "detailPageIsApplication": true,
+      "detailPageIsApplication": false,
       "defaultLocation": "Tanzania",
       "discovery": {
         "mode": "listing",
@@ -2153,6 +2153,12 @@
         ],
         "maxJobs": 70,
         "concurrency": 5
+      },
+      "publishPolicy": {
+        "requireNamedEmployer": true,
+        "requireDirectEmployerApplication": true,
+        "hideSourceBranding": true,
+        "rejectEditorialTitles": true
       }
     },
     {
@@ -2277,7 +2283,7 @@
       "recruiterName": "Shugulika Africa Limited",
       "countryFilter": "Tanzania",
       "requireDeadline": true,
-      "detailPageIsApplication": true,
+      "detailPageIsApplication": false,
       "defaultLocation": "Tanzania",
       "discovery": {
         "mode": "listing",
@@ -2287,6 +2293,12 @@
         "detailPathPattern": "^/jobs/\\d+$",
         "maxJobs": 50,
         "concurrency": 5
+      },
+      "publishPolicy": {
+        "requireNamedEmployer": true,
+        "requireDirectEmployerApplication": true,
+        "hideSourceBranding": true,
+        "rejectEditorialTitles": true
       }
     },
     {
@@ -2299,7 +2311,7 @@
       "recruiterName": "Career Options Africa Group",
       "countryFilter": "Tanzania",
       "requireDeadline": true,
-      "detailPageIsApplication": true,
+      "detailPageIsApplication": false,
       "defaultLocation": "Tanzania",
       "discovery": {
         "mode": "listing",
@@ -2309,6 +2321,12 @@
         "detailPathPattern": "^/jobs/detail/",
         "maxJobs": 80,
         "concurrency": 5
+      },
+      "publishPolicy": {
+        "requireNamedEmployer": true,
+        "requireDirectEmployerApplication": true,
+        "hideSourceBranding": true,
+        "rejectEditorialTitles": true
       }
     },
     {
@@ -2321,7 +2339,7 @@
       "recruiterName": "CVPeople Tanzania",
       "countryFilter": "Tanzania",
       "requireDeadline": true,
-      "detailPageIsApplication": true,
+      "detailPageIsApplication": false,
       "defaultLocation": "Tanzania",
       "discovery": {
         "mode": "google",
@@ -2333,6 +2351,12 @@
         "maxGoogleResults": 25,
         "maxJobs": 30,
         "concurrency": 4
+      },
+      "publishPolicy": {
+        "requireNamedEmployer": true,
+        "requireDirectEmployerApplication": true,
+        "hideSourceBranding": true,
+        "rejectEditorialTitles": true
       }
     },
     {
@@ -2345,7 +2369,7 @@
       "recruiterName": "Q-Sourcing Servtec Tanzania",
       "countryFilter": "Tanzania",
       "requireDeadline": true,
-      "detailPageIsApplication": true,
+      "detailPageIsApplication": false,
       "defaultLocation": "Tanzania",
       "discovery": {
         "mode": "google",
@@ -2358,6 +2382,12 @@
         "maxGoogleResults": 25,
         "maxJobs": 30,
         "concurrency": 4
+      },
+      "publishPolicy": {
+        "requireNamedEmployer": true,
+        "requireDirectEmployerApplication": true,
+        "hideSourceBranding": true,
+        "rejectEditorialTitles": true
       }
     },
     {
@@ -2370,7 +2400,7 @@
       "recruiterName": "Exact Manpower Consulting Ltd",
       "countryFilter": "Tanzania",
       "requireDeadline": true,
-      "detailPageIsApplication": true,
+      "detailPageIsApplication": false,
       "defaultLocation": "Tanzania",
       "discovery": {
         "mode": "listing",
@@ -2383,6 +2413,12 @@
         ],
         "maxJobs": 60,
         "concurrency": 5
+      },
+      "publishPolicy": {
+        "requireNamedEmployer": true,
+        "requireDirectEmployerApplication": true,
+        "hideSourceBranding": true,
+        "rejectEditorialTitles": true
       }
     }
   ]

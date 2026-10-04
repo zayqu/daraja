@@ -76,3 +76,29 @@ test("verified recruitment sources are enabled only with bounded trust config", 
     assert.ok(source.discovery.maxGoogleResults <= 30, id);
   }
 });
+
+
+test("recruiter discovery sources require named employers and direct employer application", () => {
+  const ids = [
+    "empower-tanzania",
+    "shugulika-tanzania",
+    "career-options-africa-tanzania",
+    "cvpeople-tanzania",
+    "qsourcing-tanzania",
+    "ekazi-exact-manpower",
+  ];
+
+  for (const id of ids) {
+    const source = catalog.sources.find((entry) => entry.id === id);
+    assert.ok(source, id);
+    assert.equal(source.publishPolicy?.requireNamedEmployer, true, id);
+    assert.equal(
+      source.publishPolicy?.requireDirectEmployerApplication,
+      true,
+      id
+    );
+    assert.equal(source.publishPolicy?.hideSourceBranding, true, id);
+    assert.equal(source.publishPolicy?.rejectEditorialTitles, true, id);
+    assert.equal(source.detailPageIsApplication, false, id);
+  }
+});

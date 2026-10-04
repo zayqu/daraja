@@ -86,49 +86,50 @@ function employerTokens(company) {
   return [...new Set([...acronyms, ...tokens])];
 }
 
-function hostIsBlocked(hostname) {
+function hostIsBlocked(hostname, extraBlockedHosts = []) {
   const host = String(hostname || "").toLowerCase().replace(/^www\./, "");
-  return BLOCKED_DISCOVERY_HOSTS.some(
-    (blocked) => host === blocked || host.endsWith("." + blocked)
-  );
+  return [...BLOCKED_DISCOVERY_HOSTS, ...extraBlockedHosts].some((blocked) => {
+    const expected = String(blocked || "").toLowerCase().replace(/^www\./, "");
+    return host === expected || host.endsWith("." + expected);
+  });
 }
 
-function rootUrl(value) {
+function rootUrl(value, extraBlockedHosts = []) {
   try {
     const url = new URL(value);
     if (!isSafePublicHttpUrl(url.toString())) return null;
-    if (hostIsBlocked(url.hostname)) return null;
+    if (hostIsBlocked(url.hostname, extraBlockedHosts)) return null;
     return url.protocol + "//" + url.host + "/";
   } catch {
     return null;
   }
 }
 
-function siteFromMailto(value) {
+function siteFromMailto(value, extraBlockedHosts = []) {
   try {
     const url = new URL(value);
     if (url.protocol !== "mailto:") return null;
     const email = decodeURIComponent(url.pathname || "").trim();
     const domain = email.split("@")[1]?.toLowerCase();
-    if (!domain || hostIsBlocked(domain)) return null;
+    if (!domain || hostIsBlocked(domain, extraBlockedHosts)) return null;
     return "https://" + domain + "/";
   } catch {
     return null;
   }
 }
 
-function candidateSitesFromJob(job) {
+function candidateSitesFromJob(job, { blockedHosts = [] } = {}) {
   const candidates = [];
 
   if (job?.sourceUrl) {
-    const candidate = rootUrl(job.sourceUrl);
+    const candidate = rootUrl(job.sourceUrl, blockedHosts);
     if (candidate) candidates.push(candidate);
   }
 
   if (job?.applicationUrl) {
     const candidate = job.applicationUrl.startsWith("mailto:")
-      ? siteFromMailto(job.applicationUrl)
-      : rootUrl(job.applicationUrl);
+      ? siteFromMailto(job.applicationUrl, blockedHosts)
+      : rootUrl(job.applicationUrl, blockedHosts);
     if (candidate) candidates.push(candidate);
   }
 
@@ -318,6 +319,7 @@ async function enrichJobsWithOfficialEmployerMedia(
     prisma = null,
     fetchFn = fetch,
     searchBudget = { remaining: 8 },
+    blockedHosts = [],
   } = {}
 ) {
   if (!Array.isArray(jobs) || jobs.length === 0) return jobs;
@@ -351,7 +353,11 @@ async function enrichJobsWithOfficialEmployerMedia(
     if (source === "ajira") continue;
 
     const directCandidates = [
-      ...new Set(group.flatMap((job) => candidateSitesFromJob(job))),
+      ...new Set(
+        group.flatMap((job) =>
+          candidateSitesFromJob(job, { blockedHosts })
+        )
+      ),
     ];
 
     let resolved = null;

@@ -70,7 +70,11 @@ budgeted headless browser (`EMPLOYER_PAGE_RENDER_BUDGET`, default 20 pages per
 run). The link must show the vacancy; if it does not, the vacancy is held for
 review. A vacancy the employer page marks closed is not imported. Location,
 employment type, experience and a missing deadline stated on the employer page
-replace the recruiter's copy. Records managed automatically follow the latest
+replace the recruiter's copy. Apply sends candidates to the deepest working
+application destination on the employer's side: the employer's apply, login or
+registration page when one opens, otherwise the employer vacancy page when that
+page is itself where the application starts. Daraja never adds an
+intermediate description step. Records managed automatically follow the latest
 evidence (held, rejected or re-published) until an administrator decides.
 
 ## What Daraja must never auto-publish

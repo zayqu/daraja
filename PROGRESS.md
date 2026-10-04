@@ -1005,3 +1005,9 @@ Every batch must record:
 - Automatically managed records now follow the latest evidence: held for review when a problem appears, re-published when it clears. Administrator decisions are never overwritten.
 - Categorization checks title, then employer name, then requires the strongest description rule to match at least twice, so a single passing word no longer decides a sector.
 - Tests: `npm test` 282/282 (Prisma client stubbed in the sandbox), ESLint clean. Rendering itself is exercised in the scheduled scraper workflow, which installs Chromium.
+
+## Current batch: Apply goes straight to the employer application
+
+- Recruiter vacancies now store the employer's own apply, login or registration page as the Apply destination when that page opens, instead of the employer's vacancy description page. Blank apply links fall back to the employer vacancy page; a vacancy page that contains the application form stays the destination.
+- The shared renderer now returns rendered HTML as well as text so apply links on JavaScript applicant systems can be found.
+- Tests: `npm test` 285/285 (Prisma client stubbed in the sandbox), ESLint clean.

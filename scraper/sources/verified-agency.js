@@ -807,6 +807,7 @@ async function parseAgencyDetail(
   // Follow the employer's own application link: it must still show this
   // vacancy, and the facts it states outrank the recruiter's copy.
   let official = {};
+  let finalApplicationUrl = applicationUrl;
   const reviewReasons = [];
   if (applicationUrl && !applicationUrl.startsWith("mailto:")) {
     const employerPage = await inspectEmployerPage(applicationUrl, {
@@ -819,6 +820,9 @@ async function parseAgencyDetail(
         return { job: null, reason: "closed" };
       }
       official = employerPage.facts;
+      // Send candidates straight to where the employer takes applications,
+      // not to a second description page.
+      finalApplicationUrl = employerPage.applyUrl || applicationUrl;
     } else {
       reviewReasons.push(
         "the employer application link did not show this vacancy"
@@ -880,7 +884,7 @@ async function parseAgencyDetail(
         ])
     ),
     sourceUrl: discovery.sourceUrl,
-    applicationUrl,
+    applicationUrl: finalApplicationUrl,
     companyLogo: source.publishPolicy?.hideSourceBranding
       ? null
       : metadata.companyLogo,

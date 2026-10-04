@@ -525,3 +525,53 @@ test("a vacancy closed on the employer page is not imported", async () => {
   assert.equal(result.job, null);
   assert.equal(result.reason, "closed");
 });
+
+test("Apply goes to the employer's own apply or sign-in page, not a second description", async () => {
+  const applyUrl = "https://careers.jazaenergy.com/apply/hub-manager";
+  const result = await parseAgencyDetail(JAZA_DISCOVERY, STRICT_RECRUITER_SOURCE, {
+    now: JAZA_NOW,
+    fetchFn: routedFetch({
+      [JAZA_AGENCY_URL]: JAZA_AGENCY_PAGE,
+      [JAZA_EMPLOYER_URL]: JAZA_EMPLOYER_PAGE.replace(
+        "</body>",
+        `<a href="${applyUrl}">Apply now</a></body>`
+      ),
+      [applyUrl]: "<html><body><h1>Sign in to apply</h1><p>Create an account or log in to continue your application.</p></body></html>",
+    }),
+  });
+
+  assert.equal(result.job.applicationUrl, applyUrl);
+});
+
+test("an apply link that opens blank falls back to the employer vacancy page", async () => {
+  const brokenApply = "https://hris.peoplehum.com/ehire/candidate-app/ddb0ebc";
+  const result = await parseAgencyDetail(JAZA_DISCOVERY, STRICT_RECRUITER_SOURCE, {
+    now: JAZA_NOW,
+    fetchFn: routedFetch({
+      [JAZA_AGENCY_URL]: JAZA_AGENCY_PAGE,
+      [JAZA_EMPLOYER_URL]: JAZA_EMPLOYER_PAGE.replace(
+        "</body>",
+        `<a href="${brokenApply}">Apply</a></body>`
+      ),
+      [brokenApply]: "<html><body><div>English</div></body></html>",
+    }),
+    render: async () => ({ text: "English", html: "<body>English</body>" }),
+  });
+
+  assert.equal(result.job.applicationUrl, JAZA_EMPLOYER_URL);
+});
+
+test("a vacancy page that is itself the application form stays the destination", async () => {
+  const result = await parseAgencyDetail(JAZA_DISCOVERY, STRICT_RECRUITER_SOURCE, {
+    now: JAZA_NOW,
+    fetchFn: routedFetch({
+      [JAZA_AGENCY_URL]: JAZA_AGENCY_PAGE,
+      [JAZA_EMPLOYER_URL]: JAZA_EMPLOYER_PAGE.replace(
+        "</body>",
+        '<form><input type="email" name="email"><button>Apply</button></form></body>'
+      ),
+    }),
+  });
+
+  assert.equal(result.job.applicationUrl, JAZA_EMPLOYER_URL);
+});

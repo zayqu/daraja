@@ -30,7 +30,10 @@ test("job detail uses the shared Jobtex-inspired Daraja layout without changing 
   assert.match(component, /trackEvent\("apply_job"/);
   assert.match(component, /JobBrandMedia/);
   assert.match(component, /job\.applicationUrl/);
-  assert.match(component, /href=\{job\.sourceUrl\}/);
+  assert.doesNotMatch(component, /href=\{job\.sourceUrl\}/);
+  assert.match(component, /<dt>Position<\/dt>/);
+  assert.match(component, /<dt>Company \/ Institution<\/dt>/);
+  assert.match(component, /<dt>Deadline<\/dt>/);
 
   assert.match(
     styles,

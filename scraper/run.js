@@ -115,6 +115,9 @@ async function runScrapers({ dryRun = false, requestedSources = new Set() } = {}
           source: source.id,
           prisma,
           searchBudget: mediaSearchBudget,
+          blockedHosts: source.publishPolicy?.hideSourceBranding
+            ? source.discovery?.allowedHosts || []
+            : [],
         });
         const sourceHealth = jobs.health || {};
         const summary = dryRun
@@ -150,7 +153,10 @@ async function runScrapers({ dryRun = false, requestedSources = new Set() } = {}
                 archived: 0,
                 preserved: true,
               }
-            : await saveJobs(prisma, jobs, source.id);
+            : await saveJobs(prisma, jobs, source.id, {
+                archiveEmptySnapshot:
+                  sourceHealth.archiveEmptySnapshot === true,
+              });
         summaries.push({
           ...summary,
           ...sourceHealth,

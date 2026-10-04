@@ -43,9 +43,9 @@ export async function POST(request) {
   const activeSession =
     request.cookies.get(VISITOR_SESSION_COOKIE)?.value === "1";
 
-  const isNewVisitor = !countedThisMonth && !seenBefore;
-  const isReturningVisitor = !countedThisMonth && seenBefore;
   const isNewVisit = !activeSession;
+  const isNewVisitor = isNewVisit && !seenBefore;
+  const isReturningVisitor = isNewVisit && seenBefore;
 
   const create = {
     period,

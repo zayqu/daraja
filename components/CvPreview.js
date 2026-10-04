@@ -27,6 +27,17 @@ const LABELS = {
   },
 };
 
+function readableAccentColor(value) {
+  const match = /^#([0-9a-f]{6})$/i.exec(value || "");
+  if (!match) return "#1b2a3f";
+  const hex = match[1];
+  const r = parseInt(hex.slice(0, 2), 16);
+  const g = parseInt(hex.slice(2, 4), 16);
+  const b = parseInt(hex.slice(4, 6), 16);
+  const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+  return luminance > 0.72 ? "#1b2a3f" : value;
+}
+
 function dateRange(item, present) {
   const start = item.startDate || item.startYear || "";
   const end = item.current ? present : item.endDate || item.endYear || "";
@@ -184,15 +195,27 @@ export default function CvPreview({ cv }) {
     personal.linkedIn,
     personal.portfolio,
   ].filter(Boolean);
+  const contactSeparator =
+    theme.contactStyle === "pipes"
+      ? " | "
+      : theme.contactStyle === "lines"
+        ? "\n"
+        : " · ";
 
   return (
     <article
       className="cv-document"
       data-template={theme.template || "modern"}
       data-density={theme.density || "comfortable"}
+      data-header-style={theme.headerStyle || "clean"}
       data-heading={theme.headingStyle || "line"}
+      data-bullets={theme.bulletStyle || "disc"}
+      data-contacts={theme.contactStyle || "dots"}
+      data-name-scale={theme.nameScale || "balanced"}
+      data-page-margin={theme.pageMargin || "standard"}
       style={{
         "--cv-accent": theme.accent || "#1b2a3f",
+        "--cv-accent-text": readableAccentColor(theme.accent || "#1b2a3f"),
         "--cv-font": theme.fontFamily || "Arial",
         "--cv-header-align": theme.headerAlign || "left",
       }}
@@ -200,7 +223,7 @@ export default function CvPreview({ cv }) {
       <header className="cv-header">
         <h1>{personal.fullName || "Your name"}</h1>
         {personal.headline ? <p className="cv-headline">{personal.headline}</p> : null}
-        {contacts.length ? <p className="cv-contacts">{contacts.join(" · ")}</p> : null}
+        {contacts.length ? <p className="cv-contacts">{contacts.join(contactSeparator)}</p> : null}
       </header>
 
       {order.map((key) => (sections[key] ? <div key={key}>{sections[key]}</div> : null))}

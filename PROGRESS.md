@@ -1062,3 +1062,14 @@ Every batch must record:
 - CV versions are included in Daraja account-data export and explicitly erased with candidate account deletion.
 - Candidate document upload remains independently scanner-gated and is not enabled by the CV Builder.
 - No paid AI/provider dependency is introduced in this batch. Future AI wording assistance remains subject to D-007/D-015 review-and-approve rules and must never invent candidate facts.
+
+
+### Smart CV Design Studio expansion
+
+- The CV Builder now uses a combinatorial ATS-safe design engine instead of relying on a small fixed-template catalogue.
+- Candidates can generate a fresh design without changing any CV facts. The generator adapts its design pool for Tanzania Public Service, finance/banking, technology, NGO/health/social-sector and general private-sector contexts.
+- Design controls now combine base personality, unrestricted six-digit hex accent colour, ATS-safe font, density, header alignment, header treatment, section-heading treatment, bullet style, contact separator, name scale, page margin and section order. These combinations create effectively unlimited presentation variants while preserving one semantic single-column document structure.
+- Added Verdana and Tahoma to the existing ATS-safe font choices.
+- Custom colours remain unrestricted, but the preview derives a separate readable text accent when a chosen colour is too light, so design freedom cannot make the name or headings illegible.
+- The preview remains HTML text with semantic headings/lists; no canvas, skill bars, text-in-image or multi-column parsing risks were introduced.
+- The product now explicitly encourages candidates to reach 90+ ATS readiness while keeping job-match scoring separate. Both remain quality/relevance indicators, not promises of shortlisting or interview.

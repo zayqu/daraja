@@ -48,6 +48,45 @@ const SECTION_NAMES = {
   references: "Referees",
 };
 
+const DESIGN_POOLS = {
+  general: {
+    templates: ["modern", "classic", "minimal", "executive"],
+    accents: ["#1b2a3f", "#0f766e", "#31511e", "#4338ca", "#7c2d12", "#374151"],
+    fonts: ["Arial", "Georgia", "Times New Roman", "Trebuchet MS", "Verdana", "Tahoma"],
+  },
+  finance: {
+    templates: ["executive", "modern", "classic"],
+    accents: ["#1b2a3f", "#243447", "#3f3f46", "#4a1d2f"],
+    fonts: ["Arial", "Georgia", "Tahoma"],
+  },
+  tech: {
+    templates: ["modern", "minimal", "executive"],
+    accents: ["#1b2a3f", "#0f766e", "#334155", "#4338ca"],
+    fonts: ["Arial", "Trebuchet MS", "Verdana", "Tahoma"],
+  },
+  social: {
+    templates: ["modern", "classic", "minimal"],
+    accents: ["#1b2a3f", "#166534", "#0f766e", "#7c2d12"],
+    fonts: ["Arial", "Georgia", "Trebuchet MS"],
+  },
+  public: {
+    templates: ["public", "classic"],
+    accents: ["#1b2a3f", "#263238", "#374151"],
+    fonts: ["Times New Roman", "Georgia", "Arial"],
+  },
+};
+
+const randomFrom = (items) => items[Math.floor(Math.random() * items.length)];
+
+function designPool(mode, job) {
+  if (mode === "PUBLIC_SERVICE") return DESIGN_POOLS.public;
+  const text = [job?.category, job?.title, job?.company].filter(Boolean).join(" ").toLowerCase();
+  if (/bank|finance|account|audit|insurance|investment/.test(text)) return DESIGN_POOLS.finance;
+  if (/technology|software|developer|data|engineer|digital|ict|it\b/.test(text)) return DESIGN_POOLS.tech;
+  if (/ngo|health|development|social|community|education/.test(text)) return DESIGN_POOLS.social;
+  return DESIGN_POOLS.general;
+}
+
 function clone(value) {
   return JSON.parse(JSON.stringify(value));
 }
@@ -127,6 +166,30 @@ export default function CvBuilder() {
       active = false;
     };
   }, [activeId]);
+
+  const generateDesign = useCallback(() => {
+    setCv((current) => {
+      if (!current) return current;
+      const pool = designPool(current.mode, job);
+      return {
+        ...current,
+        theme: {
+          ...current.theme,
+          template: randomFrom(pool.templates),
+          accent: randomFrom(pool.accents),
+          fontFamily: randomFrom(pool.fonts),
+          density: randomFrom(["compact", "comfortable", "spacious"]),
+          headerAlign: randomFrom(["left", "center"]),
+          headerStyle: randomFrom(["clean", "rule", "accent"]),
+          headingStyle: randomFrom(["line", "plain", "caps", "accent"]),
+          bulletStyle: randomFrom(["disc", "square", "dash"]),
+          contactStyle: randomFrom(["dots", "pipes", "lines"]),
+          nameScale: randomFrom(["compact", "balanced", "prominent"]),
+          pageMargin: randomFrom(["narrow", "standard", "wide"]),
+        },
+      };
+    });
+  }, [job]);
 
   const updateContent = useCallback((updater) => {
     setCv((current) => {
@@ -471,10 +534,19 @@ export default function CvBuilder() {
             ))}
 
             <details open>
-              <summary>Design</summary>
+              <summary>Design Studio</summary>
               <div className={styles.panel}>
+                <div className={styles.designIntro}>
+                  <div>
+                    <strong>ATS-safe design engine</strong>
+                    <span>Generate a fresh design without changing any CV facts.</span>
+                  </div>
+                  <button type="button" className={styles.addButton} onClick={generateDesign}>
+                    Generate design
+                  </button>
+                </div>
                 <label className={styles.field}>
-                  <span>Template treatment</span>
+                  <span>Base personality</span>
                   <select value={cv.theme.template} onChange={(event) => setCv({ ...cv, theme: { ...cv.theme, template: event.target.value } })}>
                     <option value="modern">Modern</option>
                     <option value="classic">Classic</option>
@@ -497,6 +569,8 @@ export default function CvBuilder() {
                     <option>Georgia</option>
                     <option>Times New Roman</option>
                     <option>Trebuchet MS</option>
+                    <option>Verdana</option>
+                    <option>Tahoma</option>
                   </select>
                 </label>
                 <label className={styles.field}>
@@ -515,13 +589,58 @@ export default function CvBuilder() {
                   </select>
                 </label>
                 <label className={styles.field}>
+                  <span>Header treatment</span>
+                  <select value={cv.theme.headerStyle || "clean"} onChange={(event) => setCv({ ...cv, theme: { ...cv.theme, headerStyle: event.target.value } })}>
+                    <option value="clean">Clean</option>
+                    <option value="rule">Rule</option>
+                    <option value="accent">Accent</option>
+                  </select>
+                </label>
+                <label className={styles.field}>
                   <span>Section headings</span>
                   <select value={cv.theme.headingStyle} onChange={(event) => setCv({ ...cv, theme: { ...cv.theme, headingStyle: event.target.value } })}>
                     <option value="line">Line</option>
                     <option value="plain">Plain</option>
                     <option value="caps">Uppercase</option>
+                    <option value="accent">Accent</option>
                   </select>
                 </label>
+                <div className={styles.twoCol}>
+                  <label className={styles.field}>
+                    <span>Bullet style</span>
+                    <select value={cv.theme.bulletStyle || "disc"} onChange={(event) => setCv({ ...cv, theme: { ...cv.theme, bulletStyle: event.target.value } })}>
+                      <option value="disc">Round</option>
+                      <option value="square">Square</option>
+                      <option value="dash">Dash</option>
+                    </select>
+                  </label>
+                  <label className={styles.field}>
+                    <span>Contact separator</span>
+                    <select value={cv.theme.contactStyle || "dots"} onChange={(event) => setCv({ ...cv, theme: { ...cv.theme, contactStyle: event.target.value } })}>
+                      <option value="dots">Dots</option>
+                      <option value="pipes">Pipes</option>
+                      <option value="lines">Separate lines</option>
+                    </select>
+                  </label>
+                </div>
+                <div className={styles.twoCol}>
+                  <label className={styles.field}>
+                    <span>Name size</span>
+                    <select value={cv.theme.nameScale || "balanced"} onChange={(event) => setCv({ ...cv, theme: { ...cv.theme, nameScale: event.target.value } })}>
+                      <option value="compact">Compact</option>
+                      <option value="balanced">Balanced</option>
+                      <option value="prominent">Prominent</option>
+                    </select>
+                  </label>
+                  <label className={styles.field}>
+                    <span>Page margin</span>
+                    <select value={cv.theme.pageMargin || "standard"} onChange={(event) => setCv({ ...cv, theme: { ...cv.theme, pageMargin: event.target.value } })}>
+                      <option value="narrow">Narrow</option>
+                      <option value="standard">Standard</option>
+                      <option value="wide">Wide</option>
+                    </select>
+                  </label>
+                </div>
                 <div className={styles.orderList}>
                   <span>Section order</span>
                   {cv.theme.sectionOrder.map((key, index) => (
@@ -571,7 +690,7 @@ export default function CvBuilder() {
                 </div>
               ) : null}
               <p>
-                This is a quality/readiness score, not a guarantee of shortlisting or interview.
+                Aim for 90+ ATS readiness. Job match measures supported relevance to the selected vacancy; neither score guarantees shortlisting or interview.
               </p>
               {job ? <p><strong>Tailoring for:</strong> {job.title} · {job.company}</p> : null}
               {evaluation?.suggestions?.length ? (

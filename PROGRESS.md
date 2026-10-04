@@ -1034,3 +1034,16 @@ Every batch must record:
 - Recruiter vacancy descriptions (JSON-LD and page HTML) now keep their headings and line breaks instead of being flattened into one paragraph, so the structured job-page sections from #150 have headings to work with.
 - When the employer's own vacancy page has a fuller description than the recruiter's excerpt, the employer's description is stored.
 - Tests: `npm test` 290/290 (Prisma client stubbed in the sandbox), ESLint clean.
+
+
+## Current batch: sitewide UI ownership and code cleanup
+
+- Public traffic numbers are now owned by the shared footer instead of being passed only from the homepage. The footer reads aggregate monthly metrics from the existing first-party visitor endpoint, so Home, Jobs, job detail and generic content pages show the same public traffic numbers wherever the shared footer is rendered.
+- The visitor endpoint now supports a read-only GET for aggregate totals; POST remains the only path that increments visits/page views.
+- Compact number formatting moved to one shared helper instead of living inside the footer.
+- Public navigation links moved to one shared source used by the default SiteNav, PublicSiteNav and Jobs page; mobile dock navigation remains deliberately separate because it has a different approved information architecture.
+- Generic content pages now compose the existing shared PageHero, WorkspaceShell and SurfaceCard primitives rather than maintaining a parallel hero/card shell.
+- Homepage live opportunity counters remain in their approved #1b2a3f navy band. Footer traffic remains compact and separate.
+- Shared semantic tokens now include warm public hero surfaces/borders, on-dark text and focus color. Public home/jobs/job-detail/alerts/navigation components use shared design tokens instead of repeating Daraja brand hex values.
+- Email scraper templates remain self-contained intentionally because CSS custom properties are not reliable across email clients.
+- No job ingestion, Apply routing, authentication, permissions, schema, payment, scraper or candidate-data behavior is changed by this cleanup batch.

@@ -9,7 +9,13 @@ export default function PageHero({
   children,
 }) {
   return (
-    <section className={[styles.hero, variant === "overlap" ? styles.overlap : ""].filter(Boolean).join(" ")}>
+    <section
+      className={[
+        styles.hero,
+        variant === "overlap" ? styles.overlap : "",
+        variant === "dark" ? styles.dark : "",
+      ].filter(Boolean).join(" ")}
+    >
       <div
         className={[
           styles.inner,

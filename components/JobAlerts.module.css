@@ -11,7 +11,7 @@
 
 .heading > span,
 .kicker {
-  color: #087f6c;
+  color: var(--color-teal-deep);
   font-size: 0.68rem;
   font-weight: 800;
   letter-spacing: 0.14em;
@@ -20,7 +20,7 @@
 
 .heading h2 {
   margin: 0.45rem 0;
-  color: #1b2a3f;
+  color: var(--color-navy);
   font-size: clamp(1.45rem, 3vw, 1.9rem);
   line-height: 1.25;
   letter-spacing: -0.025em;
@@ -28,7 +28,7 @@
 
 .heading p,
 .card p {
-  color: #667085;
+  color: var(--color-text-muted);
   font-size: 0.84rem;
   line-height: 1.65;
 }
@@ -46,14 +46,14 @@
   flex-direction: column;
   align-items: flex-start;
   padding: 1.5rem;
-  border: 1px solid #e3e8ee;
+  border: 1px solid var(--color-border-strong);
   border-radius: 16px;
-  background: #fff;
+  background: var(--color-surface);
 }
 
 .card h3 {
   margin: 0.45rem 0;
-  color: #1b2a3f;
+  color: var(--color-navy);
   font-size: 1rem;
   line-height: 1.4;
 }
@@ -75,8 +75,8 @@
 }
 
 .primaryAction {
-  background: #00c9a7;
-  color: #1b2a3f;
+  background: var(--color-teal);
+  color: var(--color-navy);
 }
 
 .whatsappCard {
@@ -86,18 +86,18 @@
 
 .whatsappAction {
   background: #167b3c;
-  color: #fff;
+  color: var(--color-on-dark);
 }
 
 .whatsappCard small {
   margin-top: 0.65rem;
-  color: #667085;
+  color: var(--color-text-muted);
   font-size: 0.67rem;
 }
 
 .primaryAction:focus-visible,
 .whatsappAction:focus-visible {
-  outline: 3px solid #f59e0b;
+  outline: 3px solid var(--color-focus);
   outline-offset: 2px;
 }
 

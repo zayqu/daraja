@@ -21,7 +21,7 @@ export default async function UnsubscribePage({ searchParams }) {
       style={{ maxWidth: "620px", margin: "0 auto", padding: "5rem 1.25rem" }}
     >
       <h1>{valid ? "Stop job-alert emails?" : "This link is not valid"}</h1>
-      <p style={{ margin: "1rem 0 1.5rem", color: "#667085", lineHeight: 1.7 }}>
+      <p style={{ margin: "1rem 0 1.5rem", color: "var(--color-text-muted)", lineHeight: 1.7 }}>
         {valid
           ? "Confirm below and Daraja will stop sending job-alert emails to this address. You can subscribe again at any time."
           : "Please use the unsubscribe link from your latest Daraja job-alert email."}
@@ -35,7 +35,7 @@ export default async function UnsubscribePage({ searchParams }) {
               border: 0,
               borderRadius: "6px",
               padding: "0.75rem 1.1rem",
-              background: "#1b2a3f",
+              background: "var(--color-navy)",
               color: "#fff",
               font: "inherit",
               fontWeight: 700,
@@ -46,7 +46,7 @@ export default async function UnsubscribePage({ searchParams }) {
           </button>
         </form>
       ) : (
-        <Link href="/jobs" style={{ color: "#087f6c", fontWeight: 600 }}>
+        <Link href="/jobs" style={{ color: "var(--color-teal-deep)", fontWeight: 600 }}>
           Browse current jobs →
         </Link>
       )}

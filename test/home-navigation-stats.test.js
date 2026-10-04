@@ -7,16 +7,20 @@ async function source(relative) {
   return readFile(path.join(__dirname, "..", relative), "utf8");
 }
 
-test("public navigation prioritizes jobs, freelance, employers and about", async () => {
+test("public navigation uses one shared source of truth", async () => {
   const publicNav = await source("components/PublicSiteNav.js");
+  const siteNav = await source("components/SiteNav.js");
+  const navigation = await source("lib/public-navigation.js");
   const mobileDock = await source("components/ui/MobileDock.js");
 
-  assert.match(publicNav, /label: "Home"/);
-  assert.match(publicNav, /label: "Jobs"/);
-  assert.match(publicNav, /jobs\?type=FREELANCE/);
-  assert.match(publicNav, /label: "Employers"/);
-  assert.match(publicNav, /label: "About"/);
-  assert.doesNotMatch(publicNav, /label: "Internships"/);
+  assert.match(publicNav, /buildPublicNavigation/);
+  assert.match(siteNav, /const DEFAULT_LINKS = buildPublicNavigation\(\)/);
+  assert.match(navigation, /label: "Home"/);
+  assert.match(navigation, /label: "Jobs"/);
+  assert.match(navigation, /jobs\?type=FREELANCE/);
+  assert.match(navigation, /label: "Employers"/);
+  assert.match(navigation, /label: "About"/);
+  assert.doesNotMatch(navigation, /label: "Internships"/);
 
   assert.match(mobileDock, /label: "Freelance"/);
   assert.match(mobileDock, /icon: "freelance"/);
@@ -33,40 +37,37 @@ test("public navigation prioritizes jobs, freelance, employers and about", async
   assert.match(mobileDock, />\s*Employer workspace\s*</);
 });
 
-test("homepage keeps platform counters in the navy band and sends compact traffic numbers to footer", async () => {
+test("homepage keeps platform counters while shared footer owns public traffic numbers", async () => {
   const home = await source("app/page.js");
   const footer = await source("components/SiteFooter.js");
+  const trafficNumbers = await source("components/TrafficNumbers.js");
+  const formatter = await source("lib/format-number.js");
   const footerStyles = await source("components/SiteFooter.module.css");
   const stats = await source("lib/home-stats.js");
 
   assert.match(home, /await getHomeStats\(\)/);
-  assert.match(home, /<SiteFooter traffic=\{stats\.traffic\} \/>/);
+  assert.match(home, /<SiteFooter \/>/);
   assert.match(home, /className="trust"/);
   assert.match(home, /stats\.liveJobs/);
   assert.match(home, /stats\.employers/);
   assert.match(home, /stats\.sources/);
-  assert.match(home, /\.trust \{[\s\S]*background:\s*#1b2a3f/);
+  assert.match(home, /\.trust \{[\s\S]*background:\s*var\(--color-navy\)/);
 
-  assert.doesNotMatch(footer, /stats\.liveJobs/);
-  assert.doesNotMatch(footer, /stats\.employers/);
-  assert.doesNotMatch(footer, /stats\.sources/);
-  assert.match(footer, /className={styles.trafficMeta}/);
-  assert.match(footer, /traffic\.totalVisits/);
-  assert.match(footer, /traffic\.newVisitors/);
-  assert.match(footer, /traffic\.returningVisitors/);
-  assert.match(footer, /traffic\.pageViews/);
-  assert.match(footer, /function formatCompactCount/);
-  assert.match(footer, /1_000_000/);
-  assert.match(footer, /suffix: "K"/);
-  assert.match(footer, /suffix: "M"/);
-  assert.doesNotMatch(footer, /Privacy-safe monthly visitor activity/);
-  assert.doesNotMatch(footer, /Daraja at a glance/);
+  assert.match(footer, /<TrafficNumbers className=\{styles\.trafficMeta\} \/>/);
+  assert.match(trafficNumbers, /fetch\("\/api\/visitors"/);
+  assert.match(trafficNumbers, /traffic\.totalVisits/);
+  assert.match(trafficNumbers, /traffic\.newVisitors/);
+  assert.match(trafficNumbers, /traffic\.returningVisitors/);
+  assert.match(trafficNumbers, /traffic\.pageViews/);
+  assert.match(formatter, /suffix: "K"/);
+  assert.match(formatter, /suffix: "M"/);
   assert.match(footerStyles, /\.trafficMeta/);
 
   assert.match(stats, /buildPublicJobWhere\("active"/);
   assert.match(stats, /prisma\.job\.count/);
   assert.match(stats, /distinct: \["company"\]/);
   assert.match(stats, /distinct: \["source"\]/);
+  assert.doesNotMatch(stats, /visitorCounter/);
 });
 
 test("hero bridge uses the approved opportunity groups", async () => {
@@ -77,7 +78,6 @@ test("hero bridge uses the approved opportunity groups", async () => {
   assert.match(bridge, /Bank & Finance/);
   assert.doesNotMatch(bridge, /NGO & Development/);
 });
-
 
 test("mobile dock follows compact bottom-navigation sizing", async () => {
   const styles = await source("components/ui/MobileDock.module.css");
@@ -91,4 +91,14 @@ test("mobile dock follows compact bottom-navigation sizing", async () => {
   assert.match(layout, /await auth\(\)/);
   assert.match(layout, /userRole=\{userRole\}/);
   assert.match(layout, /<Suspense fallback=\{null\}>[\s\S]*<MobileDock/);
+});
+
+test("generic content pages compose shared UI primitives", async () => {
+  const contentPage = await source("components/ContentPage.js");
+
+  assert.match(contentPage, /<PageHero/);
+  assert.match(contentPage, /<WorkspaceShell/);
+  assert.match(contentPage, /<SurfaceCard/);
+  assert.match(contentPage, /<PublicSiteNav \/>/);
+  assert.match(contentPage, /<SiteFooter \/>/);
 });

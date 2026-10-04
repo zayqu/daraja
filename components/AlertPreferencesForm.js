@@ -244,20 +244,20 @@ export default function AlertPreferencesForm({ initialPreferences }) {
       <style jsx>{`
         .preferences { margin-top: 2rem; }
         .saved-summary { display: flex; gap: .85rem; margin: 0 0 1.5rem; padding: 1rem 1.1rem; border: 1px solid #a6f4c5; border-radius: 10px; background: #ecfdf3; color: #065f46; }
-        .saved-mark { display: grid; width: 30px; height: 30px; flex: 0 0 30px; place-items: center; border-radius: 50%; background: #087f6c; color: white; font-weight: 800; }
+        .saved-mark { display: grid; width: 30px; height: 30px; flex: 0 0 30px; place-items: center; border-radius: 50%; background: var(--color-teal-deep); color: white; font-weight: 800; }
         .saved-summary h2 { margin: 0 0 .2rem; color: #065f46; font-size: .9rem; }
         .saved-summary p { margin: 0; font-size: .76rem; line-height: 1.55; }
         fieldset { margin: 0 0 1.5rem; padding: 1.25rem; border: 1px solid #e4e7ec; border-radius: 9px; }
         legend { padding: 0 .4rem; font-weight: 750; }
-        legend span { margin-left: .35rem; color: #087f6c; font-size: .68rem; text-transform: uppercase; }
-        fieldset > p { margin: 0 0 1rem; color: #667085; font-size: .8rem; line-height: 1.55; }
+        legend span { margin-left: .35rem; color: var(--color-teal-deep); font-size: .68rem; text-transform: uppercase; }
+        fieldset > p { margin: 0 0 1rem; color: var(--color-text-muted); font-size: .8rem; line-height: 1.55; }
         .choice-grid { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: .55rem; }
         .choice-grid label, .compact-choice { display: flex; min-height: 42px; padding: .6rem .7rem; align-items: flex-start; gap: .55rem; border: 1px solid #e4e7ec; border-radius: 6px; color: #344054; font-size: .78rem; line-height: 1.4; cursor: pointer; }
-        input[type="checkbox"] { width: 18px; height: 18px; flex: 0 0 auto; accent-color: #087f6c; }
+        input[type="checkbox"] { width: 18px; height: 18px; flex: 0 0 auto; accent-color: var(--color-teal-deep); }
         .text-label { display: block; margin: .9rem 0 .35rem; color: #344054; font-size: .78rem; font-weight: 700; }
         .text-label:first-of-type { margin-top: 0; }
         input:not([type="checkbox"]) { width: 100%; min-height: 46px; padding: 0 .8rem; border: 1.5px solid #cfd6df; border-radius: 6px; font: inherit; }
-        small { display: block; margin-top: .3rem; color: #667085; font-size: .68rem; }
+        small { display: block; margin-top: .3rem; color: var(--color-text-muted); font-size: .68rem; }
         .missing-field { margin-top: 1.15rem; padding: 1rem; border-radius: 8px; background: #f8fafc; }
         .missing-field .text-label { margin-top: 0; }
         .option-columns { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1.25rem; }
@@ -268,7 +268,7 @@ export default function AlertPreferencesForm({ initialPreferences }) {
         .message.success { color: #067647; }
         .message.error { color: #b42318; }
         .actions { display: flex; gap: .75rem; margin-top: 1rem; }
-        button { min-height: 46px; padding: .75rem 1rem; border: 0; border-radius: 6px; background: #00c9a7; color: #1b2a3f; font: inherit; font-size: .8rem; font-weight: 750; cursor: pointer; }
+        button { min-height: 46px; padding: .75rem 1rem; border: 0; border-radius: 6px; background: var(--color-teal); color: var(--color-navy); font: inherit; font-size: .8rem; font-weight: 750; cursor: pointer; }
         button:disabled { opacity: .55; cursor: not-allowed; }
         button.secondary { background: #f2f4f7; color: #344054; }
         input:focus-visible, button:focus-visible { outline: 3px solid #f59e0b; outline-offset: 2px; }

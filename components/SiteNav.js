@@ -6,14 +6,10 @@ import { usePathname, useRouter } from "next/navigation";
 import { buildJobsUrl } from "@/lib/job-search";
 import { mobileDockEnabledPath } from "@/lib/mobile-navigation";
 import NavIcon from "@/components/ui/NavIcon";
+import { buildPublicNavigation } from "@/lib/public-navigation";
 import styles from "./SiteNav.module.css";
 
-const DEFAULT_LINKS = [
-  { href: "/", label: "Home" },
-  { href: "/jobs", label: "Jobs" },
-  { href: "/jobs?type=FREELANCE", label: "Freelance" },
-  { href: "/about", label: "About" },
-];
+const DEFAULT_LINKS = buildPublicNavigation();
 
 /**
  * Shared site header used across marketing pages (home, jobs, job detail)

@@ -226,7 +226,7 @@ test("homepage hero uses the light reference canvas rather than a photo backgrou
     "utf8"
   );
 
-  assert.match(home, /background:\s*#fbfaf7/);
+  assert.match(home, /background:\s*var\(--color-surface-warm\)/);
   assert.doesNotMatch(home, /daraja-career-hero\.webp/);
   assert.doesNotMatch(home, /className="hero-visual"/);
 });
@@ -308,7 +308,7 @@ test("shared navigation and layout use the centralized light UI system", async (
   assert.match(nav, /\.logo span[\s\S]*margin-top:\s*\.38rem/);
   assert.match(tokens, /--content-max:\s*1120px/);
   assert.match(tokens, /--section-padding-block:/);
-  assert.match(pageHero, /background:\s*#fbfaf7/);
+  assert.match(pageHero, /background:\s*var\(--color-surface-warm\)/);
   assert.match(home, /\.hero h1[\s\S]*font-weight:\s*700/);
   assert.doesNotMatch(home, /max-width:\s*1080px/);
 });

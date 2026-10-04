@@ -20,6 +20,35 @@ const metricSelect = {
   pageViews: true,
 };
 
+
+export async function GET() {
+  const period = currentVisitorPeriod();
+
+  try {
+    const record = await prisma.visitorCounter.findUnique({
+      where: { period },
+      select: metricSelect,
+    });
+
+    return NextResponse.json(
+      {
+        period,
+        totalVisits: record?.totalVisits || 0,
+        newVisitors: record?.newVisitors || 0,
+        returningVisitors: record?.returningVisitors || 0,
+        pageViews: record?.pageViews || 0,
+      },
+      { headers: { "Cache-Control": "no-store" } }
+    );
+  } catch (visitorError) {
+    console.error("Visitor counter unavailable:", visitorError);
+    return NextResponse.json(
+      { error: "Visitor counter unavailable." },
+      { status: 503, headers: { "Cache-Control": "no-store" } }
+    );
+  }
+}
+
 export async function POST(request) {
   const error = protectMutation(request, {
     scope: "visitor-counter",

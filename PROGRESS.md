@@ -1028,3 +1028,9 @@ Every batch must record:
 - `lib/job-description.js` regroups source text into professional sections (Role summary, What you'll do, What you need, Nice to have, What we offer, About the employer, How to apply) using English and Swahili headings, splits glued sentences and list items, and removes repeated lines. It never adds content; text with no headings stays as "About the role".
 - The job detail page renders those sections and lists experience and number of openings when stated.
 - Tests: `npm test` 289/289 (Prisma client stubbed in the sandbox), ESLint clean.
+
+## Current batch: recruiter descriptions keep their structure
+
+- Recruiter vacancy descriptions (JSON-LD and page HTML) now keep their headings and line breaks instead of being flattened into one paragraph, so the structured job-page sections from #150 have headings to work with.
+- When the employer's own vacancy page has a fuller description than the recruiter's excerpt, the employer's description is stored.
+- Tests: `npm test` 290/290 (Prisma client stubbed in the sandbox), ESLint clean.

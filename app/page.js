@@ -223,6 +223,42 @@ export default async function Home() {
         .quick-links a:hover { color: #00c9a7; }
 
 
+        .trust {
+          background: #1b2a3f;
+          border-bottom: 0;
+        }
+
+        .trust-inner {
+          max-width: var(--content-max);
+          margin: 0 auto;
+          padding: 1.5rem var(--gutter);
+          display: grid;
+          grid-template-columns: repeat(3, 1fr);
+          gap: 1rem;
+        }
+
+        .trust-item {
+          padding-right: 1rem;
+          border-right: 1px solid rgba(255,255,255,.16);
+        }
+
+        .trust-item:last-child { border-right: 0; }
+
+        .trust-item strong {
+          display: block;
+          margin-bottom: .12rem;
+          color: #fff;
+          font-size: clamp(1.15rem, 2vw, 1.55rem);
+          font-weight: 800;
+          letter-spacing: -.02em;
+        }
+
+        .trust-item span {
+          color: rgba(255,255,255,.72);
+          font-size: .7rem;
+          line-height: 1.45;
+        }
+
         .section {
           max-width: var(--content-max);
           margin: 0 auto;
@@ -485,6 +521,32 @@ export default async function Home() {
           }
 
 
+          .trust-inner {
+            grid-template-columns: repeat(3, 1fr);
+            gap: 0;
+            padding-top: .9rem;
+            padding-bottom: .9rem;
+          }
+
+          .trust-item {
+            min-height: 66px;
+            padding: .75rem .7rem;
+            border-right: 1px solid rgba(255,255,255,.14);
+          }
+
+          .trust-item:last-child {
+            border-right: 0;
+          }
+
+          .trust-item strong {
+            font-size: 1.12rem;
+          }
+
+          .trust-item span {
+            font-size: .66rem;
+            line-height: 1.45;
+          }
+
           .section {
             padding-top: var(--section-padding-block);
             padding-bottom: var(--section-padding-block);
@@ -630,6 +692,24 @@ export default async function Home() {
               </div>
             </div>
           </section>
+
+          <section className="trust" aria-label="Daraja live platform counters">
+            <div className="trust-inner">
+              <div className="trust-item">
+                <strong>{stats.liveJobs.toLocaleString()}</strong>
+                <span>Live opportunities</span>
+              </div>
+              <div className="trust-item">
+                <strong>{stats.employers.toLocaleString()}</strong>
+                <span>Employers & institutions represented</span>
+              </div>
+              <div className="trust-item">
+                <strong>{stats.sources.toLocaleString()}</strong>
+                <span>Active verified sources</span>
+              </div>
+            </div>
+          </section>
+
           <section className="section" aria-labelledby="category-title">
             <div className="section-head">
               <div>
@@ -704,7 +784,7 @@ export default async function Home() {
           )}
         </main>
 
-        <SiteFooter stats={stats} />
+        <SiteFooter visitorsThisMonth={stats.visitorsThisMonth} />
       </div>
     </>
   );

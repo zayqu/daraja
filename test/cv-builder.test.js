@@ -54,7 +54,7 @@ test("CV builder keeps user facts separate from design choices", () => {
   assert.match(engine, /postal address\/postcode/);
   assert.match(builder, /type="color"/);
   assert.match(builder, /Download PDF/);
-  assert.match(builder, /savedCv\\.id/);
+  assert.equal(builder.includes("savedCv.id"), true);
   assert.match(builder, /\/pdf/);
   assert.equal(builder.includes("window.print("), false);
   assert.equal(builder.includes("afterprint"), false);

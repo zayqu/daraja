@@ -46,6 +46,10 @@ function isGenericJobTitle(value, { company, source } = {}) {
     /^(?:vacancies?|jobs?)\s+(?:and|&)\s+(?:tenders?|opportunities)$/i.test(title) ||
     /^(?:working at|why join)\b/i.test(title) ||
     /^(?:careers?|vacancies?|jobs?)\s+(?:overview|page|portal)$/i.test(title) ||
+    /^(?:\d+\s+)?(?:new\s+)?jobs?\s+(?:at|from|with)\b/i.test(title) ||
+    /^(?:latest\s+)?(?:job|vacancy)\s+opportunities?\s+(?:at|from|with)\b/i.test(title) ||
+    /^vacancies?\s+(?:at|from|with)\b/i.test(title) ||
+    /\bmultiple\s+(?:job\s+)?positions?\b/i.test(title) ||
     isRetiredInstitutionHomepage
   );
 }

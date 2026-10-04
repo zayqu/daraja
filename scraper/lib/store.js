@@ -1,6 +1,7 @@
 const { PrismaClient } = require("@prisma/client");
 const { PrismaPg } = require("@prisma/adapter-pg");
 const { createJobWithPositionSlug } = require("../../lib/job-slug");
+const { decidePublication, sourcePolicy } = require("./job-policy");
 
 const AUTHORITATIVE_SNAPSHOT_SOURCES = new Set([
   "ajira",
@@ -121,6 +122,13 @@ async function archiveMissingSourceJobs(
   return result.count;
 }
 
+const EXISTING_SELECT = {
+  id: true,
+  source: true,
+  moderationStatus: true,
+  moderatedById: true,
+};
+
 function getCandidateSources(source) {
   if (source === "standardbank-tanzania") {
     return { in: ["standardbank-tanzania", "ajiraweb"] };
@@ -137,7 +145,7 @@ async function findExistingJob(prisma, job, source) {
       source,
       sourceId: job.sourceId,
     },
-    select: { id: true },
+    select: EXISTING_SELECT,
   });
   if (exact) return exact;
 
@@ -148,8 +156,66 @@ async function findExistingJob(prisma, job, source) {
       company: job.company,
       deadline: job.deadline,
     },
-    select: { id: true },
+    select: EXISTING_SELECT,
   });
+}
+
+function sameDayRange(value) {
+  const date = value instanceof Date ? value : value ? new Date(value) : null;
+  if (!date || Number.isNaN(date.getTime())) return null;
+  const start = new Date(Date.UTC(
+    date.getUTCFullYear(),
+    date.getUTCMonth(),
+    date.getUTCDate()
+  ));
+  return { gte: start, lt: new Date(start.getTime() + 86400000) };
+}
+
+// The same vacancy published by another source: same position, same employer
+// and the same closing day (or no deadline on either side).
+async function findCrossSourceDuplicate(prisma, job, source) {
+  if (typeof prisma?.job?.findMany !== "function") return null;
+  const candidates = await prisma.job.findMany({
+    where: {
+      source: { not: source },
+      active: true,
+      moderationStatus: { not: "REJECTED" },
+      title: { equals: job.title, mode: "insensitive" },
+      company: { equals: job.company, mode: "insensitive" },
+      deadline: sameDayRange(job.deadline),
+    },
+    select: EXISTING_SELECT,
+    take: 5,
+  });
+  if (!Array.isArray(candidates) || !candidates.length) return null;
+  return candidates.reduce((best, candidate) =>
+    sourcePolicy(candidate.source).precedence < sourcePolicy(best.source).precedence
+      ? candidate
+      : best
+  );
+}
+
+// Moderation fields for a write. New records take the policy decision; existing
+// records keep their status (an administrator's decision is never overwritten)
+// unless a blocking signal now appears on an automatically published record.
+function moderationData(decision, existing) {
+  if (!existing) {
+    return {
+      moderationStatus: decision.status,
+      moderationNote: decision.note,
+    };
+  }
+  if (
+    decision.status === "REJECTED" &&
+    !existing.moderatedById &&
+    existing.moderationStatus !== "REJECTED"
+  ) {
+    return {
+      moderationStatus: "REJECTED",
+      moderationNote: decision.note,
+    };
+  }
+  return {};
 }
 
 async function saveJobs(
@@ -159,39 +225,63 @@ async function saveJobs(
   { archiveEmptySnapshot = false } = {}
 ) {
   const now = new Date();
-  let created = 0;
-  let updated = 0;
+  const counts = {
+    created: 0,
+    updated: 0,
+    heldForReview: 0,
+    blocked: 0,
+    crossSourceDuplicates: 0,
+  };
+  const ownPrecedence = sourcePolicy(source).precedence;
+
+  const write = async (existing, job, decision) => {
+    const data = { ...job, ...moderationData(decision, existing) };
+    await prisma.job.update({
+      where: { id: existing.id },
+      data,
+      select: { id: true },
+    });
+    counts.updated += 1;
+    if (data.moderationStatus === "REJECTED") counts.blocked += 1;
+  };
 
   for (const job of jobs) {
+    const decision = decidePublication(job, source);
     const existing = await findExistingJob(prisma, job, source);
 
     if (existing) {
-      await prisma.job.update({
-        where: { id: existing.id },
-        data: job,
-        select: { id: true },
-      });
-      updated += 1;
-    } else {
-      try {
-        await createJobWithPositionSlug(
-          prisma,
-          job,
-          `${source}:${job.sourceId}`
-        );
-        created += 1;
-      } catch (error) {
-        if (error?.code !== "P2002") throw error;
+      await write(existing, job, decision);
+      continue;
+    }
 
-        const concurrent = await findExistingJob(prisma, job, source);
-        if (!concurrent) throw error;
-        await prisma.job.update({
-          where: { id: concurrent.id },
-          data: job,
-          select: { id: true },
-        });
-        updated += 1;
+    const duplicate = await findCrossSourceDuplicate(prisma, job, source);
+    if (duplicate) {
+      if (sourcePolicy(duplicate.source).precedence <= ownPrecedence) {
+        // A more authoritative source already lists this vacancy.
+        counts.crossSourceDuplicates += 1;
+        continue;
       }
+      // This source outranks the current listing: it becomes canonical.
+      await write(duplicate, job, decision);
+      counts.crossSourceDuplicates += 1;
+      continue;
+    }
+
+    try {
+      await createJobWithPositionSlug(
+        prisma,
+        { ...job, ...moderationData(decision, null) },
+        `${source}:${job.sourceId}`
+      );
+      counts.created += 1;
+      if (decision.status === "PENDING_REVIEW") counts.heldForReview += 1;
+      if (decision.status === "REJECTED") counts.blocked += 1;
+    } catch (error) {
+      if (error?.code !== "P2002") throw error;
+
+      const concurrent = await findExistingJob(prisma, job, source);
+      if (!concurrent) throw error;
+      await write(concurrent, job, decision);
     }
   }
 
@@ -214,8 +304,7 @@ async function saveJobs(
   return {
     source,
     found: jobs.length,
-    created,
-    updated,
+    ...counts,
     archived:
       expired.count + missingFromSourceArchived + invalidTitlesArchived,
     missingFromSourceArchived,
@@ -228,6 +317,7 @@ module.exports = {
   archiveGenericJobTitles,
   archiveMissingSourceJobs,
   createPrismaClient,
+  findCrossSourceDuplicate,
   findExistingJob,
   getCandidateSources,
   isGenericJobTitle,

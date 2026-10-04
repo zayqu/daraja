@@ -408,3 +408,15 @@ source vacancy states. Ingestion never fills them with defaults, and the card
 hides a chip whose value is missing. Category is used for discovery (filters,
 alerts, detail page) rather than as a card chip, keeping the card to the facts a
 candidate uses to decide whether to open a vacancy.
+
+## D-030 - Scraped vacancies earn automatic publication per source
+
+**Status:** accepted
+
+Automatic publication is a per-source approval recorded in the source catalog
+(`publishPolicy.autoPublish`), not a default. New or unproven sources publish
+through human review. Vacancies that ask candidates to pay are blocked at
+ingestion regardless of source. When several sources list the same vacancy,
+one record is kept and the source-precedence order in
+`docs/JOB-SOURCE-POLICY.md` decides which source is canonical. Automated
+ingestion never overrides a moderation decision made by an administrator.

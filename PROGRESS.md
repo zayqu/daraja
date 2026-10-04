@@ -985,3 +985,15 @@ Every batch must record:
 - Closing dates count calendar days in East Africa: "Closes today", "Closes tomorrow", "Closes in N days" within a week, otherwise "Deadline: <date>". Cards with no deadline show the posted date in that slot on mobile.
 - Tests: `npm test` 263/263 passing (Prisma client stubbed locally because engine binaries could not be downloaded in the build sandbox), ESLint clean on changed files. Not yet verified: `next build`, migration against a database, visual check on device.
 - Next planned steps: scraped-job review gate, cross-source duplicate merge, fee/scam blocking, learned source trust.
+
+## Current batch: scraped-job trust gate
+
+- `scraper/lib/job-policy.js` is the single owner of the ingestion publication decision: fee blocking, review signals, source auto-publish approval and source precedence.
+- Vacancies asking candidates to pay (English and Swahili wording, including mobile-money instructions) are stored as REJECTED with the matched wording. Fee disclaimers ("no application fee", "hakuna ada ya maombi") and job duties mentioning fees are not blocked.
+- Sources must carry `publishPolicy.autoPublish: true` in the catalog to publish automatically. All ten currently enabled sources were given it, so live publishing is unchanged; any newly enabled source starts in review.
+- Messaging-app-only applications (WhatsApp/Telegram links) go to review.
+- Cross-source duplicates (same position, employer and closing day) are stored once; the higher-precedence source becomes canonical. This generalizes the previous hardcoded Standard Bank/AjiraWeb pairing, which remains only as a legacy identity alias.
+- Scraper refreshes never overwrite an administrator's moderation decision; a newly detected fee request does reject an automatically published record.
+- `/admin` now lists up to 50 PENDING_REVIEW vacancies with Publish and Reject (reason required) actions using the existing audited moderation route. The page remains behind `EMPLOYER_PORTAL_ENABLED` and the ADMIN role.
+- The scraper health summary reports held-for-review, blocked and merged-duplicate counts per source.
+- Tests: `npm test` 275/275 passing (Prisma client stubbed in the sandbox), ESLint clean on changed files. No schema change in this batch.

@@ -1,10 +1,10 @@
 {
   "version": 1,
   "sources": [
-    { "id": "nmb-bank-careers", "name": "NMB Bank Careers", "url": "https://careers.nmbbank.co.tz/nmb_career/career.aspx", "category": "banks_and_financial_institutions", "enabled": true, "adapter": "nmb" },
+    { "id": "nmb-bank-careers", "name": "NMB Bank Careers", "url": "https://careers.nmbbank.co.tz/nmb_career/career.aspx", "category": "banks_and_financial_institutions", "enabled": true, "adapter": "nmb", "publishPolicy": { "autoPublish": true } },
     { "id": "crdb-bank-careers", "name": "CRDB Bank Careers", "url": "https://www.crdbbank.co.tz/en/about-us/careers", "category": "banks_and_financial_institutions", "enabled": false, "adapter": null },
     { "id": "nbc-bank-careers", "name": "NBC Bank Careers", "url": "https://www.nbc.co.tz/en/vacancies/", "category": "banks_and_financial_institutions", "enabled": false, "adapter": null },
-    { "id": "standardbank-tanzania", "name": "Stanbic Bank Tanzania Careers", "url": "https://jobs.smartrecruiters.com/StandardBankGroup", "category": "banks_and_financial_institutions", "enabled": true, "adapter": "standardbank" },
+    { "id": "standardbank-tanzania", "name": "Stanbic Bank Tanzania Careers", "url": "https://jobs.smartrecruiters.com/StandardBankGroup", "category": "banks_and_financial_institutions", "enabled": true, "adapter": "standardbank", "publishPolicy": { "autoPublish": true } },
     { "id": "absa-tanzania-careers", "name": "Absa Tanzania Careers", "url": "https://absa.wd3.myworkdayjobs.com/ABSAcareersite", "category": "banks_and_financial_institutions", "enabled": false, "adapter": null },
     { "id": "standard-chartered-tanzania-careers", "name": "Standard Chartered Tanzania Careers", "url": "https://www.sc.com/en/global-careers/", "category": "banks_and_financial_institutions", "enabled": false, "adapter": null },
     { "id": "citi-tanzania-careers", "name": "Citi Tanzania Careers", "url": "https://jobs.citi.com/", "category": "banks_and_financial_institutions", "enabled": false, "adapter": null },

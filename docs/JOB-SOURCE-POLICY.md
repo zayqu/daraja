@@ -48,6 +48,21 @@ A source may auto-publish only when:
 
 Unknown sources default to review, not automatic publication.
 
+Implementation: `scraper/lib/job-policy.js` owns this decision. A source
+auto-publishes only when its catalog entry sets
+`"publishPolicy": { "autoPublish": true }`; every other source's new vacancies
+are stored as `PENDING_REVIEW` and appear in the admin review queue. Vacancies
+asking candidates to pay (application, registration, medical, training or
+similar fees, in English or Swahili) are stored as `REJECTED` with the matched
+wording as the note. Vacancies whose only application channel is a messaging
+app go to review. A scraper refresh never overwrites an administrator's
+moderation decision.
+
+The same vacancy from several sources (same position, employer and closing
+day) is stored once. The more authoritative source under "Source precedence"
+becomes canonical; a catalog entry may override its rank with
+`publishPolicy.precedence`.
+
 ## What Daraja must never auto-publish
 
 - fake or unverifiable jobs;

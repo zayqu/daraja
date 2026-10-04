@@ -67,10 +67,12 @@ function renderHealthSummary(report) {
           (source) =>
             `| ${source.source} | ${source.found ?? 0} | ` +
             `${source.created ?? "—"} | ${source.updated ?? "—"} | ` +
+            `${source.heldForReview ?? "—"} | ${source.blocked ?? "—"} | ` +
+            `${source.crossSourceDuplicates ?? "—"} | ` +
             `${source.archived ?? "—"} | ${source.durationMs ?? "—"} |`
         )
         .join("\n")
-    : "| No successful sources | 0 | — | — | — | — |";
+    : "| No successful sources | 0 | — | — | — | — | — | — | — |";
   const failures = report.failures.length
     ? `\n### Failures\n${report.failures
         .map((failure) => `- **${failure.source}:** ${failure.error}`)
@@ -101,8 +103,8 @@ function renderHealthSummary(report) {
 - Expired vacancies archived: ${report.lifecycle.archivedExpired}
 - Alert digests sent: ${report.alerts?.sent ?? 0}${report.alerts?.skipped ? " (delivery not configured)" : ""}
 
-| Source | Found | Created | Updated | Archived | Duration (ms) |
-| --- | ---: | ---: | ---: | ---: | ---: |
+| Source | Found | Created | Updated | Held for review | Blocked | Merged duplicates | Archived | Duration (ms) |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
 ${rows}
 ${classifications}${warnings}${failures}`;
 }

@@ -6,6 +6,7 @@ export default function CandidateAccountTabs({ showCareer = false }) {
       ? [
           { href: "/account/profile", label: "Profile" },
           { href: "/account/career", label: "Career workspace" },
+          { href: "/account/career/cv", label: "CV Builder" },
         ]
       : []),
     { href: "/account/notifications", label: "Notifications" },

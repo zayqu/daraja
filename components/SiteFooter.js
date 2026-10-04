@@ -8,16 +8,6 @@ const WHATSAPP_CHANNEL =
 export default function SiteFooter({ visitorsThisMonth = null }) {
   return (
     <footer className={styles.footer}>
-      {visitorsThisMonth !== null && (
-        <section className={styles.visitorInsight} aria-label="Daraja visitor insight">
-          <div>
-            <span className={styles.visitorLabel}>Visitor insight</span>
-            <p>Privacy-safe monthly visitor activity.</p>
-          </div>
-          <VisitorCounter initialCount={visitorsThisMonth} />
-        </section>
-      )}
-
       <div className={styles.inner}>
         <div className={styles.brand}>
           <div className={styles.logo}>DARAJA</div>
@@ -48,7 +38,14 @@ export default function SiteFooter({ visitorsThisMonth = null }) {
 
       <div className={styles.bottom}>
         <span>{new Date().getFullYear()} Daraja. All rights reserved.</span>
-        <span>Jobs and opportunities across Tanzania.</span>
+        <div className={styles.bottomMeta}>
+          <span>Jobs and opportunities across Tanzania.</span>
+          {visitorsThisMonth !== null && (
+            <span className={styles.visitorMeta} aria-label="Daraja visitor insight">
+              <VisitorCounter initialCount={visitorsThisMonth} />
+            </span>
+          )}
+        </div>
       </div>
     </footer>
   );

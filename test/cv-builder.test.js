@@ -67,6 +67,7 @@ test("CV builder supports flexible ATS-safe presentation combinations", () => {
   const engine = read("lib/cv-builder.js");
   const builder = read("components/CvBuilder.js");
   const styles = read("components/CvBuilder.module.css");
+  const globals = read("app/globals.css");
 
   for (const template of ["modern", "classic", "minimal", "executive", "public"]) {
     assert.match(engine, new RegExp(`"${template}"`));
@@ -78,10 +79,12 @@ test("CV builder supports flexible ATS-safe presentation combinations", () => {
   assert.match(builder, /headerAlign/);
   assert.match(builder, /headingStyle/);
   assert.match(builder, /sectionOrder/);
-  assert.match(styles, /@page/);
-  assert.match(styles, /size: A4/);
-  assert.match(styles, /visibility: hidden/);
-  assert.match(styles, /\.paper,\n  \.paper \*/);
+  assert.match(styles, /\.paper :global\(\.cv-document\)/);
+  assert.match(globals, /body\.cv-printing \*/);
+  assert.match(globals, /visibility: hidden/);
+  assert.match(globals, /\.cv-print-target/);
+  assert.match(globals, /@page/);
+  assert.match(globals, /size: A4/);
 });
 
 test("CV page is protected and integrated with candidate navigation", () => {

@@ -33,15 +33,22 @@ test("public navigation prioritizes jobs, freelance, employers and about", async
   assert.match(mobileDock, />\s*Employer workspace\s*</);
 });
 
-test("homepage uses live database counters and dark mint trust strip", async () => {
+test("homepage sends live counters to the navy footer insights", async () => {
   const home = await source("app/page.js");
+  const footer = await source("components/SiteFooter.js");
+  const footerStyles = await source("components/SiteFooter.module.css");
   const stats = await source("lib/home-stats.js");
 
   assert.match(home, /await getHomeStats\(\)/);
-  assert.match(home, /stats\.liveJobs/);
-  assert.match(home, /stats\.employers/);
-  assert.match(home, /stats\.sources/);
-  assert.match(home, /background: var\(--color-teal-deep\)/);
+  assert.match(home, /<SiteFooter stats=\{stats\} \/>/);
+  assert.doesNotMatch(home, /className="trust"/);
+
+  assert.match(footer, /stats\.liveJobs/);
+  assert.match(footer, /stats\.employers/);
+  assert.match(footer, /stats\.sources/);
+  assert.match(footer, /VisitorCounter initialCount=\{stats\.visitorsThisMonth\}/);
+  assert.match(footer, /Daraja at a glance/);
+  assert.match(footerStyles, /background:\s*#1b2a3f/);
 
   assert.match(stats, /buildPublicJobWhere\("active"/);
   assert.match(stats, /prisma\.job\.count/);

@@ -51,13 +51,13 @@ test("visitor metric is stored as aggregate monthly count only", async () => {
   const migration = await read(
     "prisma/migrations/20261003193500_add_visitor_counter/migration.sql"
   );
-  const home = await read("app/page.js");
+  const footer = await read("components/SiteFooter.js");
   const stats = await read("lib/home-stats.js");
 
   assert.match(schema, /model VisitorCounter[\s\S]*period\s+String\s+@id/);
   assert.match(schema, /uniqueVisitors\s+Int\s+@default\(0\)/);
   assert.match(migration, /CREATE TABLE "VisitorCounter"/);
-  assert.match(home, /<VisitorCounter initialCount=\{stats\.visitorsThisMonth\}/);
+  assert.match(footer, /<VisitorCounter initialCount=\{stats\.visitorsThisMonth\}/);
   assert.match(stats, /prisma\.visitorCounter/);
   assert.match(stats, /visitorsThisMonth/);
 });

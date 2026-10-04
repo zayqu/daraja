@@ -9,8 +9,13 @@
   --color-teal-deep: #087f6c;
   --color-bg: #f7f8fa;
   --color-surface: #ffffff;
+  --color-surface-muted: #f8fafb;
+  --color-surface-warm: #fbfaf7;
+  --color-on-dark: #ffffff;
   --color-border: #e8ecf0;
   --color-border-strong: #e3e8ee;
+  --color-border-warm: #ebe8e1;
+  --color-focus: #f59e0b;
   --color-text: #1b2a3f;
   --color-text-secondary: #344054;
   --color-text-muted: #667085;

@@ -975,3 +975,13 @@ Every batch must record:
 - Site metadata now uses the same user-facing origin so canonical URLs match what mobile visitors actually open.
 - Standard Bank / legacy-source reconciliation now checks the exact `source + sourceId` identity before cross-source title matching, preventing a duplicate unique-key update from degrading the full scraper run.
 
+## Current batch: stated job facts on the list card
+
+- The scraper normalizer (`scraper/lib/jobs.js`) is now the single owner of employment-type mapping; the three duplicate adapter mappers were removed.
+- Employment type, experience and number of openings are stored only when the vacancy states them. Missing values stay null instead of defaulting to Full-time, and a vacancy with no stated employer is dropped instead of being labelled "Government of Tanzania" (the Ajira adapter still sets its own institution).
+- Experience is extracted from English and Swahili wording, including number words and "minimum/usiopungua" (open-ended) phrasing. Deadlines now parse Swahili months and long-form English dates.
+- Migration `20261004120000_job_card_stated_facts` adds nullable `experienceMinYears`, `experienceMaxYears`, `openings` and makes `Job.type` nullable. Additive; existing rows are unchanged until their next source refresh.
+- The job card shows stated facts as chips (experience, job type, openings when more than one, salary when stated) and hides any chip without data. The category chip moved off the card; category remains in filters, alerts and the detail page.
+- Closing dates count calendar days in East Africa: "Closes today", "Closes tomorrow", "Closes in N days" within a week, otherwise "Deadline: <date>". Cards with no deadline show the posted date in that slot on mobile.
+- Tests: `npm test` 263/263 passing (Prisma client stubbed locally because engine binaries could not be downloaded in the build sandbox), ESLint clean on changed files. Not yet verified: `next build`, migration against a database, visual check on device.
+- Next planned steps: scraped-job review gate, cross-source duplicate merge, fee/scam blocking, learned source trust.

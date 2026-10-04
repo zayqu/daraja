@@ -4,10 +4,13 @@ const assert = require("node:assert/strict");
 const {
   cleanDescription,
   deduplicateJobs,
+  extractExperience,
   getSourceId,
+  mapEmploymentType,
   normalizeJob,
   normalizeUrl,
   parseDeadline,
+  parseOpenings,
 } = require("../scraper/lib/jobs");
 
 test("cleanDescription removes fields already displayed by the job page", () => {
@@ -114,4 +117,63 @@ test("deduplicateJobs returns one normalized record per source identity", () => 
 
   assert.equal(jobs.length, 1);
   assert.equal(jobs[0].sourceId, "7");
+});
+
+test("extractExperience keeps only experience the vacancy states", () => {
+  assert.deepEqual(extractExperience("3-5 years of experience in UX"), { min: 3, max: 5 });
+  assert.deepEqual(extractExperience("Experience: 2 to 4 years"), { min: 2, max: 4 });
+  assert.deepEqual(
+    extractExperience("Minimum of three (3) years of relevant working experience"),
+    { min: 3, max: null }
+  );
+  assert.deepEqual(extractExperience("At least 5+ years experience in banking"), { min: 5, max: null });
+  assert.deepEqual(extractExperience("3 years of experience in audit"), { min: 3, max: 3 });
+  assert.deepEqual(
+    extractExperience("Awe na uzoefu wa kazi usiopungua miaka mitatu"),
+    { min: 3, max: null }
+  );
+  assert.deepEqual(extractExperience("No experience required"), { min: 0, max: 0 });
+  assert.equal(extractExperience("Three-year contract renewable"), null);
+  assert.equal(extractExperience("Bachelor degree in Accounting"), null);
+});
+
+test("parseDeadline reads Swahili and long-form English dates", () => {
+  assert.equal(parseDeadline("30 Oktoba 2026").toISOString(), "2026-10-30T23:59:59.000Z");
+  assert.equal(parseDeadline("Tarehe 5 Novemba 2026").toISOString(), "2026-11-05T23:59:59.000Z");
+  assert.equal(parseDeadline("30th October, 2026").toISOString(), "2026-10-30T23:59:59.000Z");
+  assert.equal(parseDeadline("October 30, 2026").toISOString(), "2026-10-30T23:59:59.000Z");
+  assert.equal(parseDeadline("31 Februari 2026"), null);
+});
+
+test("employment type and openings are never defaulted", () => {
+  assert.equal(mapEmploymentType("Contract"), "CONTRACT");
+  assert.equal(mapEmploymentType("FULL_TIME"), "FULL_TIME");
+  assert.equal(mapEmploymentType("", "Graduate Intern"), "INTERNSHIP");
+  assert.equal(mapEmploymentType("", "Accountant", "Ajira ya mkataba wa miaka miwili"), "CONTRACT");
+  assert.equal(mapEmploymentType("", "Accountant", "Manage contract documentation"), null);
+  assert.equal(parseOpenings("2 Posts"), 2);
+  assert.equal(parseOpenings("Nafasi 5"), 5);
+  assert.equal(parseOpenings(""), null);
+
+  const job = normalizeJob(
+    { title: "Accountant", description: "Prepare monthly reports." },
+    { company: "Example Ltd" }
+  );
+  assert.equal(job.type, null);
+  assert.equal(job.experienceMinYears, null);
+  assert.equal(job.openings, null);
+});
+
+test("normalizeJob drops vacancies with no stated employer", () => {
+  assert.equal(normalizeJob({ title: "Driver", description: "Drive." }), null);
+  const job = normalizeJob({
+    title: "Senior Accountant",
+    company: "Example Bank",
+    numberOfPosts: "3 Posts",
+    description: "Requires 4-6 years of experience. Full-time role.",
+  });
+  assert.equal(job.openings, 3);
+  assert.equal(job.experienceMinYears, 4);
+  assert.equal(job.experienceMaxYears, 6);
+  assert.equal(job.type, "FULL_TIME");
 });

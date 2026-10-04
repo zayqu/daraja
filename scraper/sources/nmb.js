@@ -74,7 +74,6 @@ function parseNmbCareers(html) {
         : null,
       companyLogo: media.companyLogo,
       representativeImage: media.representativeImage,
-      type: "FULL_TIME",
     });
   });
 

@@ -398,3 +398,13 @@ must not be relabelled as in-app notifications.
 
 Candidate career and employer feature flags remain centralized and continue to
 control which product entry points are exposed.
+
+## D-029 - Job cards show stated facts only
+
+**Status:** accepted
+
+Job card chips (experience, job type, openings, salary) come only from what the
+source vacancy states. Ingestion never fills them with defaults, and the card
+hides a chip whose value is missing. Category is used for discovery (filters,
+alerts, detail page) rather than as a card chip, keeping the card to the facts a
+candidate uses to decide whether to open a vacancy.

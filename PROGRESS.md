@@ -957,3 +957,15 @@ Every batch must record:
 - The exact public release marker remains mandatory, so a stale LiteSpeed worker still fails closed.
 - Production Prisma migrations now run in the verified GitHub release workflow on non-PR runs before the cPanel bundle is published. The thin cPanel pull deployer remains migration-free.
 
+## Current batch: professional recruiter-source correction
+
+- Recruitment agencies are now discovery inputs, not public destination brands.
+- Agency-discovered jobs must identify the actual hiring company/institution and a direct employer-authorized application channel before publication.
+- Recruiter-only Apply buttons, unnamed-client vacancies, editorial roundup titles and non-Tanzania locations are rejected.
+- Tanzania filtering now uses the vacancy's explicit location instead of broad page text, preventing Lagos/Nigeria listings from passing because another part of the page happens to mention Tanzania.
+- Agency titles are normalized from editorial forms such as "Hub Manager at Jaza Energy Inc October 2026" into Daraja fields: Position = Hub Manager, Company = Jaza Energy Inc.
+- Recruiter logos/images are discarded at ingestion; Daraja's employer-media enrichment may then resolve the real company's official media. If none is verified, the Daraja placeholder remains.
+- The public job detail overview now follows the fixed professional format: Position, Company / Institution, Location, Category, Job type and Deadline. Recruiter/source branding and the old source link are no longer shown there.
+- Healthy agency snapshots that contain zero publishable jobs may now archive stale recruiter-sourced listings, while genuine source failures still preserve existing records.
+- The homepage is explicitly force-dynamic so the current release UI is not served from stale static HTML, mobile counters are more legible, and Talent / Opportunity labels have protected mobile spacing below the bridge.
+

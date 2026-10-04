@@ -20,6 +20,7 @@ export const viewport = {
   width: "device-width",
   initialScale: 1,
   viewportFit: "cover",
+  themeColor: "#1b2a3f",
 };
 
 export const metadata = {
@@ -31,6 +32,10 @@ export const metadata = {
   description:
     "Find current government, NGO, finance, health, education, IT and engineering jobs across Tanzania.",
   applicationName: "Daraja Jobs",
+  manifest: "/manifest.webmanifest",
+  icons: {
+    icon: [{ url: "/icon.png", type: "image/png" }],
+  },
   alternates: {
     canonical: "/",
   },

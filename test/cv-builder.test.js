@@ -77,7 +77,18 @@ test("CV builder supports flexible ATS-safe presentation combinations", () => {
   assert.match(builder, /fontFamily/);
   assert.match(builder, /density/);
   assert.match(builder, /headerAlign/);
+  assert.match(builder, /headerStyle/);
   assert.match(builder, /headingStyle/);
+  assert.match(builder, /bulletStyle/);
+  assert.match(builder, /contactStyle/);
+  assert.match(builder, /nameScale/);
+  assert.match(builder, /pageMargin/);
+  assert.match(builder, /Generate design/);
+  assert.match(builder, /designPool/);
+  assert.match(builder, /PUBLIC_SERVICE/);
+  assert.match(builder, /finance/);
+  assert.match(builder, /tech/);
+  assert.match(builder, /social/);
   assert.match(builder, /sectionOrder/);
   assert.match(styles, /\.paper :global\(\.cv-document\)/);
   assert.match(globals, /body\.cv-printing \*/);
@@ -110,4 +121,29 @@ test("CV records follow account export and erasure lifecycle", () => {
   assert.match(exportSource, /theme: true/);
   assert.match(deletion, /tx\.candidateCv\.deleteMany/);
   assert.match(deletion, /jobSeekerId: account\.jobSeeker\.id/);
+});
+
+
+test("smart CV design engine keeps unlimited color choice readable and semantic", () => {
+  const engine = read("lib/cv-builder.js");
+  const builder = read("components/CvBuilder.js");
+  const preview = read("components/CvPreview.js");
+
+  assert.match(engine, /headerStyle/);
+  assert.match(engine, /bulletStyle/);
+  assert.match(engine, /contactStyle/);
+  assert.match(engine, /nameScale/);
+  assert.match(engine, /pageMargin/);
+  assert.match(engine, /"Verdana"/);
+  assert.match(engine, /"Tahoma"/);
+  assert.match(builder, /type="color"/);
+  assert.match(builder, /Hex color/);
+  assert.match(preview, /readableAccentColor/);
+  assert.match(preview, /--cv-accent-text/);
+  assert.match(preview, /data-header-style/);
+  assert.match(preview, /data-bullets/);
+  assert.match(preview, /data-contacts/);
+  assert.match(preview, /data-name-scale/);
+  assert.match(preview, /data-page-margin/);
+  assert.doesNotMatch(preview, /canvas|skill-bar|progress/i);
 });

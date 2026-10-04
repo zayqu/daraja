@@ -11,7 +11,8 @@ NODE_BIN="${NODE_BIN:-$(command -v node 2>/dev/null || true)}"
 if [[ -z "$NODE_BIN" ]]; then
   NODE_BIN="/home/$APP_USER/nodevenv/$CLOUDLINUX_APP_ROOT/22/bin/node"
 fi
-HEALTHCHECK_ORIGIN="${HEALTHCHECK_ORIGIN:-https://www.ajira.daraja.co.tz}"
+HEALTHCHECK_ORIGIN="${HEALTHCHECK_ORIGIN:-https://ajira.daraja.co.tz}"
+SECONDARY_HEALTHCHECK_ORIGIN="${SECONDARY_HEALTHCHECK_ORIGIN:-https://www.ajira.daraja.co.tz}"
 STALE_WORKER_WAIT_SECONDS="${STALE_WORKER_WAIT_SECONDS:-5}"
 CLOUDLINUX_SELECTOR="${CLOUDLINUX_SELECTOR:-$(command -v cloudlinux-selector 2>/dev/null || true)}"
 if [[ -z "$CLOUDLINUX_SELECTOR" && -x /usr/sbin/cloudlinux-selector ]]; then
@@ -108,8 +109,10 @@ frontend_asset_healthcheck() {
 }
 
 release_marker_healthcheck() {
-  local url="$HEALTHCHECK_ORIGIN/api/health/release"
-  local response_file="$WORK_DIR/release-health.json"
+  local origin="${1:-$HEALTHCHECK_ORIGIN}"
+  local response_suffix="${2:-primary}"
+  local url="$origin/api/health/release"
+  local response_file="$WORK_DIR/release-health-$response_suffix.json"
   local attempt
 
   for attempt in 1 2 3 4 5; do
@@ -134,7 +137,9 @@ release_marker_healthcheck() {
 }
 
 public_release_healthcheck() {
-  frontend_asset_healthcheck && release_marker_healthcheck
+  frontend_asset_healthcheck &&
+    release_marker_healthcheck "$HEALTHCHECK_ORIGIN" primary &&
+    release_marker_healthcheck "$SECONDARY_HEALTHCHECK_ORIGIN" secondary
 }
 
 restart_application() {

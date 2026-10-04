@@ -438,8 +438,15 @@ export default function CvBuilder() {
             <strong>{designCount}</strong>
           </div>
           <div className={styles.toolbarActions}>
-            <button type="button" onClick={printCv}>Save as PDF</button>
-            <button type="button" className={styles.primaryButton} onClick={saveCv} disabled={busy}>
+            <button type="button" onClick={downloadPdf} disabled={busy || pdfBusy}>
+              {pdfBusy ? "Generating PDF…" : "Download PDF"}
+            </button>
+            <button
+              type="button"
+              className={styles.primaryButton}
+              onClick={saveCv}
+              disabled={busy || pdfBusy}
+            >
               {busy ? "Saving…" : "Save CV"}
             </button>
           </div>

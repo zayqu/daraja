@@ -39,6 +39,15 @@ test("traffic endpoint counts aggregate visits without storing visitor identity"
   assert.doesNotMatch(route, /fingerprint|deviceId|ipAddress/);
 });
 
+test("traffic endpoint exposes aggregate public numbers without mutation", async () => {
+  const route = await read("app/api/visitors/route.js");
+
+  assert.match(route, /export async function GET\(\)/);
+  assert.match(route, /prisma\.visitorCounter\.findUnique/);
+  assert.match(route, /select: metricSelect/);
+  assert.match(route, /Cache-Control": "no-store"/);
+});
+
 test("global tracker records route views across the site", async () => {
   const tracker = await read("components/TrafficTracker.js");
   const layout = await read("app/layout.js");
@@ -57,7 +66,7 @@ test("traffic metrics are stored as monthly aggregate counts only", async () => 
     "prisma/migrations/20261004163000_expand_visitor_counter/migration.sql"
   );
   const footer = await read("components/SiteFooter.js");
-  const stats = await read("lib/home-stats.js");
+  const numbers = await read("components/TrafficNumbers.js");
 
   assert.match(schema, /model VisitorCounter[\s\S]*period\s+String\s+@id/);
   assert.match(schema, /totalVisits\s+Int\s+@default\(0\)/);
@@ -65,10 +74,9 @@ test("traffic metrics are stored as monthly aggregate counts only", async () => 
   assert.match(schema, /returningVisitors\s+Int\s+@default\(0\)/);
   assert.match(schema, /pageViews\s+Int\s+@default\(0\)/);
   assert.match(migration, /ADD COLUMN "totalVisits"/);
-  assert.match(footer, /traffic\.totalVisits/);
-  assert.match(footer, /traffic\.newVisitors/);
-  assert.match(footer, /traffic\.returningVisitors/);
-  assert.match(footer, /traffic\.pageViews/);
-  assert.match(stats, /prisma\.visitorCounter/);
-  assert.match(stats, /traffic:/);
+  assert.match(footer, /TrafficNumbers/);
+  assert.match(numbers, /totalVisits/);
+  assert.match(numbers, /newVisitors/);
+  assert.match(numbers, /returningVisitors/);
+  assert.match(numbers, /pageViews/);
 });

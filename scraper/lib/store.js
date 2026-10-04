@@ -132,17 +132,21 @@ function getCandidateSources(source) {
 }
 
 async function findExistingJob(prisma, job, source) {
+  const exact = await prisma.job.findFirst({
+    where: {
+      source,
+      sourceId: job.sourceId,
+    },
+    select: { id: true },
+  });
+  if (exact) return exact;
+
   return prisma.job.findFirst({
     where: {
       source: getCandidateSources(source),
-      OR: [
-        { sourceId: job.sourceId },
-        {
-          title: job.title,
-          company: job.company,
-          deadline: job.deadline,
-        },
-      ],
+      title: job.title,
+      company: job.company,
+      deadline: job.deadline,
     },
     select: { id: true },
   });

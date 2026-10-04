@@ -1021,4 +1021,4 @@ Every batch must record:
 - Visitor measurement, consent gating, bot exclusion, monthly deduplication and the existing database-backed counter remain unchanged.
 - Other pages keep the existing footer without querying or fabricating homepage metrics; the live insight block is rendered only when real stats are supplied by the homepage.
 - Schema, authentication, analytics consent, production data and visitor-storage behavior are unchanged.
-- Validation pending on the focused pull request.
+- Pull request #149 validation passed on 4 October 2026: 285/285 tests, runtime production dependency audit, ESLint, Prisma validation, production build, self-contained cPanel runtime smoke, packaging and Vercel all completed successfully.

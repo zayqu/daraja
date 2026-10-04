@@ -129,7 +129,7 @@ export default function CvBuilder() {
   const [job, setJob] = useState(null);
   const [evaluation, setEvaluation] = useState(null);
   const [status, setStatus] = useState("");
-  const [busy, setBusy] = useState(false);
+  const [busy, setBusy] = useState(false);\n  const [pdfBusy, setPdfBusy] = useState(false);
 
   const loadList = useCallback(async () => {
     const response = await fetch("/api/candidate/cv", { cache: "no-store" });
@@ -257,31 +257,37 @@ export default function CvBuilder() {
     }
   }
 
+  async function persistCv({ notify = true } = {}) {
+    if (!cv) return null;
+    const response = await fetch(`/api/candidate/cv/${encodeURIComponent(cv.id)}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        name: cv.name,
+        mode: cv.mode,
+        targetRole: cv.targetRole,
+        targetJobId: cv.targetJobId,
+        language: cv.language,
+        content: cv.content,
+        theme: cv.theme,
+      }),
+    });
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.error || "Unable to save CV.");
+    setCv(data.cv);
+    setJob(data.job || null);
+    setEvaluation(data.evaluation || null);
+    if (notify) setStatus("Saved.");
+    await loadList();
+    return data.cv;
+  }
+
   async function saveCv() {
     if (!cv) return;
     setBusy(true);
     setStatus("");
     try {
-      const response = await fetch(`/api/candidate/cv/${encodeURIComponent(cv.id)}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name: cv.name,
-          mode: cv.mode,
-          targetRole: cv.targetRole,
-          targetJobId: cv.targetJobId,
-          language: cv.language,
-          content: cv.content,
-          theme: cv.theme,
-        }),
-      });
-      const data = await response.json();
-      if (!response.ok) throw new Error(data.error || "Unable to save CV.");
-      setCv(data.cv);
-      setJob(data.job || null);
-      setEvaluation(data.evaluation || null);
-      setStatus("Saved.");
-      await loadList();
+      await persistCv();
     } catch (error) {
       setStatus(error.message);
     } finally {
@@ -308,13 +314,58 @@ export default function CvBuilder() {
     }
   }
 
-  const printCv = useCallback(() => {
-    document.body.classList.add("cv-printing");
-    const cleanup = () => document.body.classList.remove("cv-printing");
-    window.addEventListener("afterprint", cleanup, { once: true });
-    window.print();
-    window.setTimeout(cleanup, 2_000);
-  }, []);
+  async function downloadPdf() {
+    if (!cv || pdfBusy) return;
+    setPdfBusy(true);
+    setStatus("Preparing your PDF…");
+
+    try {
+      const savedCv = await persistCv({ notify: false });
+      const response = await fetch(
+        `/api/candidate/cv/${encodeURIComponent(savedCv.id)}/pdf`,
+        { cache: "no-store" }
+      );
+
+      if (!response.ok) {
+        const message = await response.text();
+        throw new Error(message || "Unable to generate PDF.");
+      }
+
+      const contentType = response.headers.get("content-type") || "";
+      if (!contentType.includes("application/pdf")) {
+        throw new Error("Daraja did not receive a valid PDF response.");
+      }
+
+      const blob = await response.blob();
+      const signature = await blob.slice(0, 5).text();
+      if (signature !== "%PDF-") {
+        throw new Error("The generated file is not a valid PDF.");
+      }
+
+      const disposition = response.headers.get("content-disposition") || "";
+      const encodedName = disposition.match(/filename\*=UTF-8''([^;]+)/i)?.[1];
+      const plainName = disposition.match(/filename="([^"]+)"/i)?.[1];
+      const filename = encodedName
+        ? decodeURIComponent(encodedName)
+        : plainName || "Daraja-CV.pdf";
+
+      const objectUrl = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = objectUrl;
+      link.download = filename;
+      link.rel = "noopener";
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.setTimeout(() => URL.revokeObjectURL(objectUrl), 10_000);
+
+      setStatus("PDF generated successfully. Your download has started.");
+    } catch (error) {
+      setStatus(error.message || "Unable to generate PDF.");
+    } finally {
+      setPdfBusy(false);
+    }
+  }
 
   const designCount = useMemo(() => {
     if (!cv) return "";

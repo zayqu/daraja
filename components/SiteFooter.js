@@ -5,32 +5,16 @@ import VisitorCounter from "@/components/VisitorCounter";
 const WHATSAPP_CHANNEL =
   "https://whatsapp.com/channel/0029Vanw1OQ1CYoYdxl32g3V";
 
-export default function SiteFooter({ stats = null }) {
+export default function SiteFooter({ visitorsThisMonth = null }) {
   return (
     <footer className={styles.footer}>
-      {stats && (
-        <section className={styles.insights} aria-label="Daraja live platform insights">
-          <div className={styles.insightsHeading}>
-            <span>Daraja at a glance</span>
-            <p>Live platform activity, updated from verified Daraja data.</p>
+      {visitorsThisMonth !== null && (
+        <section className={styles.visitorInsight} aria-label="Daraja visitor insight">
+          <div>
+            <span className={styles.visitorLabel}>Visitor insight</span>
+            <p>Privacy-safe monthly visitor activity.</p>
           </div>
-          <div className={styles.insightsGrid}>
-            <div className={styles.insight}>
-              <strong>{stats.liveJobs.toLocaleString()}</strong>
-              <span>Live opportunities</span>
-            </div>
-            <div className={styles.insight}>
-              <strong>{stats.employers.toLocaleString()}</strong>
-              <span>Employers & institutions</span>
-            </div>
-            <div className={styles.insight}>
-              <strong>{stats.sources.toLocaleString()}</strong>
-              <span>Verified active sources</span>
-            </div>
-            <div className={styles.insight}>
-              <VisitorCounter initialCount={stats.visitorsThisMonth} />
-            </div>
-          </div>
+          <VisitorCounter initialCount={visitorsThisMonth} />
         </section>
       )}
 

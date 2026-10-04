@@ -8,6 +8,9 @@ import HomeHeroBridge from "@/components/HomeHeroBridge";
 import { getHomeStats } from "@/lib/home-stats";
 import VisitorCounter from "@/components/VisitorCounter";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 const HERO_HEADLINE = [
   { word: "Find" },
   { word: "work" },
@@ -542,7 +545,7 @@ export default async function Home() {
           }
 
           .trust-item strong {
-            font-size: .76rem;
+            font-size: 1.12rem;
           }
 
           .trust-item span {

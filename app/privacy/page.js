@@ -12,7 +12,7 @@ export default function PrivacyPage() {
       title="Privacy Policy"
       description="How Daraja handles usage information, optional analytics, advertising and job-alert data."
     >
-      <p>Last updated: 3 October 2026</p>
+      <p>Last updated: 4 October 2026</p>
 
       <h2>Information we process</h2>
       <p>
@@ -36,10 +36,12 @@ export default function PrivacyPage() {
         advertising. If Google advertising is enabled, Google and its partners may
         use cookies to show and measure ads in accordance with Google&apos;s policies.
         Optional analytics and advertising do not load until a visitor accepts
-        them. When analytics is accepted, Daraja may also count the browser once
-        per calendar month in an aggregate visitor counter. The counter uses a
-        short-lived first-party month marker rather than storing a persistent
-        visitor identifier. Visitors can decline without losing access to job
+        them. Separately, Daraja keeps anonymous first-party aggregate traffic
+        numbers for service operations: total visits, new visits, returning visits
+        and page views. Short-lived session and first-party seen-before markers are
+        used to separate those totals; Daraja does not store a visitor ID, name,
+        fingerprint or IP address in the traffic-counter database. Visitors can
+        decline optional analytics and advertising without losing access to job
         search or application links, and can reopen their privacy choices at any
         time.
       </p>

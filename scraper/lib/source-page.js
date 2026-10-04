@@ -455,9 +455,49 @@ function significantWords(title) {
     .filter((word) => word.length >= 4);
 }
 
-// Opens the employer's own vacancy or application page and reports whether it
-// actually shows this vacancy, plus any facts it states. JavaScript-only pages
-// are rendered with the optional renderer when static HTML is empty.
+function renderedPage(result) {
+  if (typeof result === "string") return { text: result, html: "" };
+  return { text: result?.text || "", html: result?.html || "" };
+}
+
+async function fetchPage(url, fetchFn, signal) {
+  try {
+    const response = await fetchFn(url, {
+      redirect: "follow",
+      headers: {
+        Accept: "text/html,application/xhtml+xml",
+        "User-Agent": "DarajaJobsBot/1.0 (+https://www.ajira.daraja.co.tz)",
+      },
+      signal,
+    });
+    if (!response?.ok) return { ok: false, html: "", url };
+    const finalUrl = isSafePublicHttpUrl(response.url) ? response.url : url;
+    return { ok: true, html: await response.text(), url: finalUrl };
+  } catch {
+    return { ok: false, html: "", url };
+  }
+}
+
+// Confirms an apply/login/register destination actually opens to something.
+// Sign-in and registration pages count: candidates go where the employer
+// takes applications, even when it asks them to log in first.
+async function destinationOpens(url, { fetchFn, render, signal }) {
+  const page = await fetchPage(url, fetchFn, signal);
+  if (page.ok && htmlToLines(page.html).join(" ").length >= 20) return true;
+  if (!render) return false;
+  try {
+    return renderedPage(await render(url)).text.replace(/\s+/g, " ").trim().length >= 20;
+  } catch {
+    return false;
+  }
+}
+
+// Opens the employer's own vacancy page and reports whether it actually shows
+// this vacancy, the facts it states, and the deepest working application
+// destination (the employer's apply, login or registration page). When the
+// vacancy page itself is where the application starts (an applicant form),
+// that page is the destination. JavaScript-only pages are rendered with the
+// optional renderer when static HTML is empty.
 async function inspectEmployerPage(
   pageUrl,
   {
@@ -467,7 +507,9 @@ async function inspectEmployerPage(
     signal = AbortSignal.timeout(SOURCE_PAGE_TIMEOUT_MS),
   } = {}
 ) {
-  if (!isSafePublicHttpUrl(pageUrl)) return { status: "unreachable", lines: [], facts: {} };
+  if (!isSafePublicHttpUrl(pageUrl)) {
+    return { status: "unreachable", lines: [], facts: {}, applyUrl: null };
+  }
 
   const words = significantWords(title);
   const showsVacancy = (lines) => {
@@ -475,31 +517,42 @@ async function inspectEmployerPage(
     return text.length >= 80 && (!words.length || words.some((word) => text.includes(word)));
   };
 
-  let lines = [];
-  try {
-    const response = await fetchFn(pageUrl, {
-      redirect: "follow",
-      headers: {
-        Accept: "text/html,application/xhtml+xml",
-        "User-Agent": "DarajaJobsBot/1.0 (+https://www.ajira.daraja.co.tz)",
-      },
-      signal,
-    });
-    if (response?.ok) lines = htmlToLines(await response.text());
-  } catch {
-    lines = [];
-  }
+  const fetched = await fetchPage(pageUrl, fetchFn, signal);
+  let lines = fetched.ok ? htmlToLines(fetched.html) : [];
+  let html = fetched.html;
+  const baseUrl = fetched.url || pageUrl;
 
   if (!showsVacancy(lines) && render) {
     try {
-      lines = textToLines(await render(pageUrl));
+      const rendered = renderedPage(await render(pageUrl));
+      lines = textToLines(rendered.text);
+      html = rendered.html;
     } catch {
       lines = [];
+      html = "";
     }
   }
 
-  if (!showsVacancy(lines)) return { status: "blank", lines, facts: {} };
-  return { status: "ok", lines, facts: labelledFacts(lines) };
+  if (!showsVacancy(lines)) {
+    return { status: "blank", lines, facts: {}, applyUrl: null };
+  }
+
+  let applyUrl = html ? extractApplicationDestination(html, baseUrl) : null;
+  if (
+    applyUrl &&
+    !applyUrl.startsWith("mailto:") &&
+    applyUrl !== baseUrl &&
+    !(await destinationOpens(applyUrl, { fetchFn, render, signal }))
+  ) {
+    applyUrl = null;
+  }
+
+  return {
+    status: "ok",
+    lines,
+    facts: labelledFacts(lines),
+    applyUrl: applyUrl || null,
+  };
 }
 
 // One shared headless browser per scraper run, with a page budget so a large
@@ -520,7 +573,10 @@ function createPageRenderer({
       const page = await browser.newPage();
       try {
         await page.goto(url, { waitUntil: "networkidle", timeout: timeoutMs });
-        return await page.evaluate(() => document.body?.innerText || "");
+        return {
+          text: await page.evaluate(() => document.body?.innerText || ""),
+          html: await page.content(),
+        };
       } finally {
         await page.close();
       }

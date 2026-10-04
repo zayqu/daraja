@@ -3,7 +3,7 @@
   display: block;
   overflow: hidden;
   background: #e8faf6;
-  color: #087f6c;
+  color: var(--color-teal-deep);
 }
 
 .media img {

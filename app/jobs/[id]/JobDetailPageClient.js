@@ -355,6 +355,13 @@ export default function JobDetailPageClient({ showEmployerCta }) {
                 </p>
               )}
 
+              <Link
+                href={`/account/career/cv?job=${encodeURIComponent(job.id)}`}
+                className={styles.cvAction}
+              >
+                Tailor CV for this job
+              </Link>
+
               <p className={styles.trustNote}>
                 Daraja never charges job seekers fees to view or apply for jobs.
               </p>

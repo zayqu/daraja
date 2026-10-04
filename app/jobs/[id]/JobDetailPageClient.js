@@ -64,14 +64,6 @@ export default function JobDetailPageClient({ showEmployerCta }) {
       .replace("Part Time", "Part-time");
   }
 
-  function formatSource(value) {
-    if (!value) return "Verified source";
-    if (value === "daraja") return "Daraja";
-    return value
-      .replaceAll("-", " ")
-      .replace(/\b\w/g, (letter) => letter.toUpperCase());
-  }
-
   function isExpired(value) {
     return value && new Date(value) < new Date();
   }
@@ -234,7 +226,11 @@ export default function JobDetailPageClient({ showEmployerCta }) {
 
               <dl className={styles.detailsList}>
                 <div>
-                  <dt>Organisation</dt>
+                  <dt>Position</dt>
+                  <dd>{job.title}</dd>
+                </div>
+                <div>
+                  <dt>Company / Institution</dt>
                   <dd>{job.company}</dd>
                 </div>
                 <div>
@@ -242,42 +238,21 @@ export default function JobDetailPageClient({ showEmployerCta }) {
                   <dd>{job.location}</dd>
                 </div>
                 <div>
-                  <dt>Job type</dt>
-                  <dd>{formatJobType(job.type)}</dd>
-                </div>
-                <div>
                   <dt>Category</dt>
                   <dd>{job.category}</dd>
                 </div>
+                <div>
+                  <dt>Job type</dt>
+                  <dd>{formatJobType(job.type)}</dd>
+                </div>
                 {job.deadline && (
                   <div>
-                    <dt>Closing date</dt>
+                    <dt>Deadline</dt>
                     <dd className={getDeadlineClass(job.deadline)}>
                       {formatDate(job.deadline)}
                     </dd>
                   </div>
                 )}
-                <div>
-                  <dt>Posted</dt>
-                  <dd>{formatDate(job.createdAt)}</dd>
-                </div>
-                <div>
-                  <dt>Source</dt>
-                  <dd>
-                    {job.sourceUrl ? (
-                      <a
-                        href={job.sourceUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className={styles.sourceLink}
-                      >
-                        {formatSource(job.source)}
-                      </a>
-                    ) : (
-                      formatSource(job.source)
-                    )}
-                  </dd>
-                </div>
               </dl>
             </aside>
 

@@ -240,3 +240,175 @@ test("eKazi-style official detail keeps current deadline and login application f
     "2026-10-21T23:59:59.000Z"
   );
 });
+
+
+const STRICT_RECRUITER_SOURCE = {
+  id: "career-options-africa-tanzania",
+  name: "Career Options Africa Group - Tanzania",
+  url: "https://www.careeroptionsafricagroup.com/jobs",
+  recruiterName: "Career Options Africa Group",
+  countryFilter: "Tanzania",
+  requireDeadline: true,
+  detailPageIsApplication: false,
+  defaultLocation: "Tanzania",
+  publishPolicy: {
+    requireNamedEmployer: true,
+    requireDirectEmployerApplication: true,
+    hideSourceBranding: true,
+    rejectEditorialTitles: true,
+  },
+  discovery: {
+    mode: "listing",
+    allowedHosts: ["careeroptionsafricagroup.com"],
+    detailPathPattern: "^/jobs/detail/",
+    maxJobs: 20,
+    concurrency: 2,
+  },
+};
+
+test("recruiter discovery is rewritten to Daraja position/company fields and direct employer apply", async () => {
+  const result = await parseAgencyDetail(
+    {
+      sourceUrl:
+        "https://www.careeroptionsafricagroup.com/jobs/detail/hub-manager-at-jaza-energy-inc-october-2026-20263",
+      contextText:
+        "Hub Manager at Jaza Energy Inc October 2026 Location: Tanzania, Dar es Salaam Closing Date: 14/10/2026",
+    },
+    STRICT_RECRUITER_SOURCE,
+    {
+      now: new Date("2026-10-04T05:00:00.000Z"),
+      fetchFn: async () => ({
+        ok: true,
+        headers: new Headers({ "content-type": "text/html" }),
+        text: async () =>
+          [
+            "<html><body>",
+            "<h1>Hub Manager at Jaza Energy Inc October 2026</h1>",
+            "<p>Location: Tanzania, Dar es Salaam</p>",
+            "<p>Employment Type: Full-Time</p>",
+            "<p>Closing Date: 14/10/2026</p>",
+            "<h2>Job Description</h2>",
+            "<p>Lead hub growth, operations and customer service across assigned locations.</p>",
+            "<h2>Application Process</h2>",
+            '<p>Apply on the employer career site: <a href="https://careers.jazaenergy.com/jobs/hub-manager">Apply now</a></p>',
+            '<img class="site-logo" src="/career-options-logo.png" alt="Career Options Africa Group logo">',
+            "</body></html>",
+          ].join(""),
+      }),
+    }
+  );
+
+  assert.ok(result.job);
+  assert.equal(result.job.title, "Hub Manager");
+  assert.equal(result.job.company, "Jaza Energy Inc");
+  assert.equal(result.job.location, "Dar es Salaam, Tanzania");
+  assert.equal(result.job.type, "FULL_TIME");
+  assert.equal(
+    result.job.applicationUrl,
+    "https://careers.jazaenergy.com/jobs/hub-manager"
+  );
+  assert.equal(result.job.companyLogo, null);
+  assert.equal(result.job.representativeImage, null);
+});
+
+test("explicit Lagos location is rejected even if the page mentions Tanzania elsewhere", async () => {
+  const result = await parseAgencyDetail(
+    {
+      sourceUrl:
+        "https://www.careeroptionsafricagroup.com/jobs/detail/regional-manager-999",
+      contextText:
+        "Regional Manager Employment Type: Full-Time Location: Lagos, Nigeria Closing Date: 20/10/2026",
+    },
+    STRICT_RECRUITER_SOURCE,
+    {
+      now: new Date("2026-10-04T05:00:00.000Z"),
+      fetchFn: async () => ({
+        ok: true,
+        headers: new Headers({ "content-type": "text/html" }),
+        text: async () =>
+          [
+            "<html><body>",
+            "<h1>Regional Manager at Example Group</h1>",
+            "<p>Location: Lagos, Nigeria</p>",
+            "<p>Closing Date: 20/10/2026</p>",
+            "<h2>Job Description</h2>",
+            "<p>Regional leadership role. Our offices also operate in Tanzania and Kenya.</p>",
+            "<h2>Application Process</h2>",
+            '<a href="https://careers.example.com/apply/999">Apply</a>',
+            "</body></html>",
+          ].join(""),
+      }),
+    }
+  );
+
+  assert.equal(result.job, null);
+  assert.equal(result.reason, "country");
+});
+
+test("recruiter-only application flow is rejected when employer-direct application is required", async () => {
+  const result = await parseAgencyDetail(
+    {
+      sourceUrl:
+        "https://www.careeroptionsafricagroup.com/jobs/detail/finance-manager-1000",
+      contextText:
+        "Finance Manager at Example Manufacturing Location: Tanzania, Arusha Closing Date: 20/10/2026",
+    },
+    STRICT_RECRUITER_SOURCE,
+    {
+      now: new Date("2026-10-04T05:00:00.000Z"),
+      fetchFn: async () => ({
+        ok: true,
+        headers: new Headers({ "content-type": "text/html" }),
+        text: async () =>
+          [
+            "<html><body>",
+            "<h1>Finance Manager at Example Manufacturing</h1>",
+            "<p>Location: Arusha, Tanzania</p>",
+            "<p>Closing Date: 20/10/2026</p>",
+            "<h2>Job Description</h2>",
+            "<p>Lead financial planning, reporting and business controls.</p>",
+            "<h2>Application Process</h2>",
+            '<a href="/apply/1000">Apply now</a>',
+            "</body></html>",
+          ].join(""),
+      }),
+    }
+  );
+
+  assert.equal(result.job, null);
+  assert.equal(result.reason, "application-missing");
+});
+
+test("editorial roundup headlines are rejected instead of becoming job positions", async () => {
+  const result = await parseAgencyDetail(
+    {
+      sourceUrl:
+        "https://www.careeroptionsafricagroup.com/jobs/detail/10-new-jobs-at-nmb-bank-1001",
+      contextText:
+        "10 New Jobs at NMB Bank Location: Tanzania, Dar es Salaam Closing Date: 20/10/2026",
+    },
+    STRICT_RECRUITER_SOURCE,
+    {
+      now: new Date("2026-10-04T05:00:00.000Z"),
+      fetchFn: async () => ({
+        ok: true,
+        headers: new Headers({ "content-type": "text/html" }),
+        text: async () =>
+          [
+            "<html><body>",
+            "<h1>10 New Jobs at NMB Bank</h1>",
+            "<p>Location: Dar es Salaam, Tanzania</p>",
+            "<p>Closing Date: 20/10/2026</p>",
+            "<h2>Job Description</h2>",
+            "<p>Roundup article containing several unrelated positions.</p>",
+            "<h2>Application Process</h2>",
+            '<a href="https://careers.nmbbank.co.tz/">Apply</a>',
+            "</body></html>",
+          ].join(""),
+      }),
+    }
+  );
+
+  assert.equal(result.job, null);
+  assert.equal(result.reason, "editorial-title");
+});

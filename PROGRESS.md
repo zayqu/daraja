@@ -1011,3 +1011,14 @@ Every batch must record:
 - Recruiter vacancies now store the employer's own apply, login or registration page as the Apply destination when that page opens, instead of the employer's vacancy description page. Blank apply links fall back to the employer vacancy page; a vacancy page that contains the application form stays the destination.
 - The shared renderer now returns rendered HTML as well as text so apply links on JavaScript applicant systems can be found.
 - Tests: `npm test` 285/285 (Prisma client stubbed in the sandbox), ESLint clean.
+
+
+## Current batch: footer-owned live platform insights
+
+- The homepage no longer uses a separate counter/trust strip between the hero and content.
+- Live opportunities, represented employers/institutions, verified active sources and the privacy-safe monthly visitor count now appear together in the homepage footer, where platform context and visitor insight belong.
+- The insight area uses Daraja navy `#1b2a3f` and preserves the existing Poppins typography, Daraja colours and brand system; licensed template styling is not imported.
+- Visitor measurement, consent gating, bot exclusion, monthly deduplication and the existing database-backed counter remain unchanged.
+- Other pages keep the existing footer without querying or fabricating homepage metrics; the live insight block is rendered only when real stats are supplied by the homepage.
+- Schema, authentication, analytics consent, production data and visitor-storage behavior are unchanged.
+- Validation pending on the focused pull request.

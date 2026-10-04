@@ -48,6 +48,25 @@ test("cPanel deployment installs only the verified self-contained runtime", () =
   assert.doesNotMatch(deployScript, /ensure_cloudlinux_node_modules/);
 });
 
+test("cPanel deployment verifies the user-facing and www production origins", () => {
+  assert.match(
+    deployScript,
+    /HEALTHCHECK_ORIGIN=.*https:\/\/ajira\.daraja\.co\.tz/,
+  );
+  assert.match(
+    deployScript,
+    /SECONDARY_HEALTHCHECK_ORIGIN=.*https:\/\/www\.ajira\.daraja\.co\.tz/,
+  );
+  assert.match(
+    deployScript,
+    /release_marker_healthcheck "\$HEALTHCHECK_ORIGIN" primary/,
+  );
+  assert.match(
+    deployScript,
+    /release_marker_healthcheck "\$SECONDARY_HEALTHCHECK_ORIGIN" secondary/,
+  );
+});
+
 test("cPanel deployment verifies the exact public build before recording success", () => {
   assert.match(deployScript, /\.next\/\.daraja-commit/);
   assert.match(deployScript, /RUNTIME_DIR\/\.next\/\$asset_path/);

@@ -79,16 +79,32 @@ async function archiveExpiredJobs(prisma, now = new Date()) {
   return result.count;
 }
 
-async function archiveMissingSourceJobs(prisma, jobs, source) {
+async function archiveMissingSourceJobs(
+  prisma,
+  jobs,
+  source,
+  { archiveEmptySnapshot = false } = {}
+) {
   if (!AUTHORITATIVE_SNAPSHOT_SOURCES.has(source)) return 0;
-  if (!Array.isArray(jobs) || jobs.length === 0) return 0;
+  if (!Array.isArray(jobs)) return 0;
 
   const currentSourceIds = [...new Set(
     jobs
       .map((job) => String(job?.sourceId || "").trim())
       .filter(Boolean)
   )];
-  if (!currentSourceIds.length) return 0;
+
+  if (!currentSourceIds.length) {
+    if (!archiveEmptySnapshot) return 0;
+    const result = await prisma.job.updateMany({
+      where: {
+        source,
+        active: true,
+      },
+      data: { active: false },
+    });
+    return result.count;
+  }
 
   const result = await prisma.job.updateMany({
     where: {
@@ -128,7 +144,12 @@ async function findExistingJob(prisma, job, source) {
   });
 }
 
-async function saveJobs(prisma, jobs, source) {
+async function saveJobs(
+  prisma,
+  jobs,
+  source,
+  { archiveEmptySnapshot = false } = {}
+) {
   const now = new Date();
   let created = 0;
   let updated = 0;
@@ -177,7 +198,8 @@ async function saveJobs(prisma, jobs, source) {
   const missingFromSourceArchived = await archiveMissingSourceJobs(
     prisma,
     jobs,
-    source
+    source,
+    { archiveEmptySnapshot }
   );
   const invalidTitlesArchived = await archiveGenericJobTitles(prisma);
 

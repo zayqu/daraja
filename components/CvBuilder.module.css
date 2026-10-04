@@ -198,6 +198,38 @@
   padding: 0 1rem 1rem;
 }
 
+.designIntro {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: .75rem;
+  border: 1px solid rgba(0, 201, 167, .18);
+  border-radius: var(--radius-input);
+  background: rgba(0, 201, 167, .04);
+}
+
+.designIntro > div {
+  min-width: 0;
+}
+
+.designIntro strong,
+.designIntro span {
+  display: block;
+}
+
+.designIntro strong {
+  color: var(--color-text);
+  font-size: .72rem;
+}
+
+.designIntro span {
+  margin-top: .18rem;
+  color: var(--color-text-muted);
+  font-size: .62rem;
+  line-height: 1.45;
+}
+
 .field {
   display: grid;
   gap: .35rem;
@@ -410,7 +442,7 @@
 
 .paper :global(.cv-header h1) {
   margin: 0;
-  color: var(--cv-accent);
+  color: var(--cv-accent-text);
   font-size: 28px;
   line-height: 1.05;
   letter-spacing: -.02em;
@@ -460,7 +492,7 @@
 .paper :global(.cv-document h2) {
   margin: 0 0 8px;
   padding-bottom: 4px;
-  color: var(--cv-accent);
+  color: var(--cv-accent-text);
   border-bottom: 1px solid var(--cv-accent);
   font-size: 12px;
   line-height: 1.2;
@@ -478,13 +510,11 @@
   text-transform: uppercase;
 }
 
-.paper :global(.cv-document[data-heading="accent"] h2) {
-  display: inline-block;
-  padding: 3px 7px;
+ .paper :global(.cv-document[data-heading="accent"] h2) {
+  padding: 0 0 0 8px;
   border: 0;
-  border-radius: 2px;
-  background: var(--cv-accent);
-  color: #fff;
+  border-left: 4px solid var(--cv-accent);
+  color: var(--cv-accent-text);
 }
 
 .paper :global(.cv-document[data-template="classic"] h1),
@@ -648,6 +678,11 @@
 
   .toolbarActions {
     width: 100%;
+  }
+
+  .designIntro {
+    align-items: stretch;
+    flex-direction: column;
   }
 
   .toolbarActions button {

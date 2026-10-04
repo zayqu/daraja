@@ -143,26 +143,3 @@ select {
   }
 }
 
-
-/* CV Builder print boundary: activated only for an explicit candidate export. */
-@media print {
-  body.cv-printing * {
-    visibility: hidden !important;
-  }
-
-  body.cv-printing .cv-print-target,
-  body.cv-printing .cv-print-target * {
-    visibility: visible !important;
-  }
-
-  body.cv-printing .cv-print-target {
-    position: absolute !important;
-    inset: 0 auto auto 0 !important;
-    width: 100% !important;
-  }
-
-  @page {
-    size: A4;
-    margin: 14mm 16mm;
-  }
-}

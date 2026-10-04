@@ -53,7 +53,12 @@ test("CV builder keeps user facts separate from design choices", () => {
   assert.match(engine, /three reputable referees/);
   assert.match(engine, /postal address\/postcode/);
   assert.match(builder, /type="color"/);
-  assert.match(builder, /Save as PDF/);
+  assert.match(builder, /Download PDF/);
+  assert.equal(builder.includes("savedCv.id"), true);
+  assert.match(builder, /\/pdf/);
+  assert.equal(builder.includes("window.print("), false);
+  assert.equal(builder.includes("afterprint"), false);
+  assert.equal(builder.includes("cv-printing"), false);
   assert.match(builder, /Aim for 90\+ ATS readiness/);
   assert.match(builder, /neither score guarantees shortlisting or interview/);
   assert.match(builder, /Private sector \/ NGO \/ Bank/);
@@ -92,11 +97,7 @@ test("CV builder supports flexible ATS-safe presentation combinations", () => {
   assert.match(builder, /social/);
   assert.match(builder, /sectionOrder/);
   assert.match(styles, /\.paper :global\(\.cv-document\)/);
-  assert.match(globals, /body\.cv-printing \*/);
-  assert.match(globals, /visibility: hidden/);
-  assert.match(globals, /\.cv-print-target/);
-  assert.match(globals, /@page/);
-  assert.match(globals, /size: A4/);
+  assert.doesNotMatch(globals, /cv-printing|@media print/);
 });
 
 test("CV page is protected and integrated with candidate navigation", () => {
@@ -147,4 +148,85 @@ test("smart CV design engine keeps unlimited color choice readable and semantic"
   assert.match(preview, /data-name-scale/);
   assert.match(preview, /data-page-margin/);
   assert.doesNotMatch(preview, /canvas|skill-bar|progress/i);
+});
+
+
+test("CV PDF export is protected, direct and text based", async () => {
+  const route = read("app/api/candidate/cv/[id]/pdf/route.js");
+  const generator = read("lib/cv-pdf.js");
+
+  assert.match(route, /candidateCareerEnabled\(\)/);
+  assert.match(route, /getCandidateUser\(\)/);
+  assert.match(route, /jobSeekerId: user\.jobSeeker\.id/);
+  assert.match(route, /Content-Type": "application\/pdf"/);
+  assert.match(route, /Content-Disposition/);
+  assert.match(route, /attachment/);
+  assert.match(route, /buildCandidateCvPdf/);
+
+  assert.match(generator, /%PDF-1\.4/);
+  assert.match(generator, /\/Subtype \/Type1/);
+  assert.match(generator, /Helvetica/);
+  assert.match(generator, /Times-Roman/);
+  assert.match(generator, /Tj ET/);
+  assert.match(generator, /MediaBox \[0 0/);
+  assert.doesNotMatch(generator, /\/Subtype \/Image|canvas|playwright|window\.print/i);
+
+  const { buildCandidateCvPdf } = await import("../lib/cv-pdf.js");
+  const pdf = buildCandidateCvPdf({
+    name: "Test CV",
+    mode: "GENERAL",
+    language: "en",
+    theme: {
+      accent: "#1b2a3f",
+      fontFamily: "Arial",
+      density: "comfortable",
+      headerAlign: "left",
+      headerStyle: "rule",
+      headingStyle: "line",
+      bulletStyle: "disc",
+      contactStyle: "dots",
+      nameScale: "balanced",
+      pageMargin: "standard",
+      sectionOrder: ["summary", "experience", "education", "skills"],
+    },
+    content: {
+      personal: {
+        fullName: "Asha Mushi",
+        headline: "Finance Officer",
+        phone: "+255 700 000 000",
+        email: "asha@example.com",
+        location: "Dar es Salaam",
+      },
+      summary: "Finance professional with experience in reporting and reconciliation.",
+      experience: [{
+        role: "Finance Officer",
+        employer: "Example Tanzania Ltd",
+        location: "Dar es Salaam",
+        startDate: "2024",
+        endDate: "2026",
+        current: false,
+        bullets: ["Improved monthly reconciliation accuracy by 20%."],
+      }],
+      education: [{
+        qualification: "Bachelor of Commerce",
+        institution: "University of Dar es Salaam",
+        location: "Dar es Salaam",
+        startYear: "2020",
+        endYear: "2023",
+        details: "",
+      }],
+      skills: ["Financial reporting", "Reconciliation", "Excel"],
+      certifications: [],
+      trainings: [],
+      projects: [],
+      languages: [],
+      references: [],
+    },
+  });
+
+  assert.equal(pdf.subarray(0, 5).toString("latin1"), "%PDF-");
+  const raw = pdf.toString("latin1");
+  assert.match(raw, /Asha Mushi/);
+  assert.match(raw, /Finance Officer/);
+  assert.match(raw, /Example Tanzania Ltd/);
 });

@@ -230,3 +230,22 @@ test("CV PDF export is protected, direct and text based", async () => {
   assert.match(raw, /Finance Officer/);
   assert.match(raw, /Example Tanzania Ltd/);
 });
+
+
+test("CV builder workspace autosaves drafts and keeps mobile edit/preview focused", () => {
+  const builder = read("components/CvBuilder.js");
+  const styles = read("components/CvBuilder.module.css");
+
+  assert.match(builder, /Saved automatically/);
+  assert.match(builder, /Changes pending/);
+  assert.match(builder, /Saving…/);
+  assert.match(builder, /window\.setTimeout\(\(\) => \{/);
+  assert.match(builder, /persistCv\(\{ notify: false, refreshList: false \}\)/);
+  assert.match(builder, /activeIdRef\.current === data\.cv\.id/);
+  assert.match(builder, /aria-label="Builder view"/);
+  assert.match(builder, /aria-pressed=\{mobileView === "edit"\}/);
+  assert.match(builder, /aria-pressed=\{mobileView === "preview"\}/);
+  assert.match(styles, /\.mobileViewSwitch/);
+  assert.match(styles, /\.mobileHidden/);
+  assert.match(styles, /@media \(max-width: 640px\)/);
+});

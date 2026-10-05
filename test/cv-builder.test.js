@@ -77,7 +77,7 @@ test("CV builder supports flexible ATS-safe presentation combinations", () => {
 
   for (const template of ["modern", "classic", "minimal", "executive", "public"]) {
     assert.match(engine, new RegExp(`"${template}"`));
-    assert.match(builder, new RegExp(`value="${template}"`));
+    assert.match(builder, new RegExp(`value: "${template}"`));
   }
 
   assert.match(builder, /fontFamily/);

@@ -9,6 +9,15 @@ tested vertical releases. The current priority is Phase 0 security and privacy
 hardening before expanding candidate CV, employer, freelance, payment or AI
 workflows.
 
+## Current batch: application, typography and mobile navigation consistency
+
+- External application destinations continue to be resolved at ingestion, with the shared resolver now following a bounded chain of up to four application/detail/login hops so Apply reaches the deepest verified working destination instead of stopping at an intermediate description page.
+- Email-only vacancies still use the employer's verified `mailto:` application method, but clicking Apply now also reveals a copyable recipient/subject fallback when the browser or computer has no configured email handler.
+- The floating mobile dock is now the single primary navigation owner across Daraja mobile routes; the mobile header does not expose a competing hamburger menu.
+- Candidate/employer workspace tab navigation is hidden at phone widths so it does not appear as a second mobile menu.
+- Poppins remains the single Daraja application UI typeface through `next/font/google` and `--font-daraja`. D-025 and D-027 now explicitly document the non-negotiable typography and one-mobile-navigation rules, and tests enforce both.
+- Generated CV document font choices remain intentionally separate from the Daraja application UI font.
+
 ## Current batch: multi-position AjiraWeb vacancy integrity
 
 - AjiraWeb email-application articles that contain several real roles now publish each role separately instead of turning editorial group headings such as "Administrative and Technical Professional Positions – 5 Posts" into a public vacancy.

@@ -87,20 +87,9 @@ export default async function AccountPage() {
   const displayName = profile?.fullName || session.user.name || "Daraja user";
   const profileReady = progress.complete === progress.total;
 
-  const signOutForm = (
-    <form
-      action={async () => {
-        "use server";
-        await signOut({ redirectTo: "/" });
-      }}
-    >
-      <button className={styles.navSignOut} type="submit">Sign out</button>
-    </form>
-  );
-
   return (
     <div className={styles.page}>
-      <PublicSiteNav right={signOutForm} />
+      <PublicSiteNav />
 
       <main className={styles.main} id="main-content">
         <section className={styles.accountCard} aria-labelledby="account-title">

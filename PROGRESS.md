@@ -9,6 +9,16 @@ tested vertical releases. The current priority is Phase 0 security and privacy
 hardening before expanding candidate CV, employer, freelance, payment or AI
 workflows.
 
+## Current batch: multi-position AjiraWeb vacancy integrity
+
+- AjiraWeb email-application articles that contain several real roles now publish each role separately instead of turning editorial group headings such as "Administrative and Technical Professional Positions – 5 Posts" into a public vacancy.
+- Hyphenated employer names such as "Abdulrahman Al-Sumait University" are preserved instead of being truncated at the hyphen.
+- Table-based positions and bold academic role headings are extracted as individual vacancies; group/department headings are rejected as job titles.
+- Each extracted vacancy keeps the source article as provenance and gets its own verified employer email application destination with a role-specific subject.
+- Narrative deadline wording such as "deadline for submitting applications is 20 October 2026" is recognised and normalised without inventing missing dates.
+- Regression coverage reproduces the reported SUMAIT article structure. The focused AjiraWeb test suite passes 8/8, and a live-feed dry run resolves 12 distinct SUMAIT role titles covering the article's 19 advertised posts with the correct employer, verified application email and 20 October 2026 deadline.
+- No schema, authentication, payment, DNS or credential changes are included in this batch.
+
 ## Current batch: complete shared UI polish
 
 - The shared Daraja navigation is now a white, sticky header on desktop and

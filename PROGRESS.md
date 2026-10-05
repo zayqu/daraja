@@ -1082,3 +1082,14 @@ Every batch must record:
 - Account actions point only to working Daraja features: Personal information, Smart CV Builder, Career workspace, Job alerts, Notifications, Privacy & data and Sign out.
 - CV count and alert status are shown only when backed by current account data; no placeholder metrics or fake activity are displayed.
 - The mobile header user icon now opens `/account`; the mobile More sheet also exposes My account. Existing account subpages include Account as their first shared tab.
+
+
+## Current batch: CV Builder workspace flow refinement
+
+- The existing Smart CV Builder remains the single owner of candidate CV editing; no parallel builder or duplicate route was introduced.
+- Draft changes now autosave after a short idle period while the explicit Save CV action remains available.
+- Autosave responses are scoped to the currently active CV version so a delayed save from one version cannot overwrite another version after the candidate switches.
+- Mobile now uses an Edit / Preview workspace switch to avoid stacking the full editor and A4 preview into one long page; desktop keeps the existing side-by-side live editor and preview.
+- The toolbar shows Saved automatically, pending, saving and failed states so candidates can see whether their private CV changes are persisted.
+- ATS scoring, job-match scoring, Tanzania Public Service mode, multiple CV versions, design generation and protected direct PDF download are unchanged.
+- This batch changes no schema, production data, authentication, authorisation, job ingestion, payment, DNS or provider configuration.

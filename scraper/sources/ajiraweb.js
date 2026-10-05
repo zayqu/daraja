@@ -18,9 +18,9 @@ const OFFICIAL_PAGE_TIMEOUT_MS = 20000;
 function extractDeadline(text) {
   const value = cleanText(text);
   const patterns = [
-    /(?:application\s+deadline|closing\s+date|deadline)\s*:?\s*(\d{1,2}(?:st|nd|rd|th)?\s+[A-Za-z]+\s+\d{4})/i,
-    /(?:application\s+deadline|closing\s+date|deadline)\s*:?\s*([A-Za-z]+\s+\d{1,2}(?:st|nd|rd|th)?,?\s+\d{4})/i,
-    /(?:application\s+deadline|closing\s+date|deadline)\s*:?\s*(\d{1,2}[./-]\d{1,2}[./-]\d{4})/i,
+    /(?:application\s+deadline|closing\s+date|deadline(?:\s+for\s+(?:submitting\s+)?applications)?)\s*(?:is\s*)?:?\s*(\d{1,2}(?:st|nd|rd|th)?\s+[A-Za-z]+\s+\d{4})/i,
+    /(?:application\s+deadline|closing\s+date|deadline(?:\s+for\s+(?:submitting\s+)?applications)?)\s*(?:is\s*)?:?\s*([A-Za-z]+\s+\d{1,2}(?:st|nd|rd|th)?,?\s+\d{4})/i,
+    /(?:application\s+deadline|closing\s+date|deadline(?:\s+for\s+(?:submitting\s+)?applications)?)\s*(?:is\s*)?:?\s*(\d{1,2}[./-]\d{1,2}[./-]\d{4})/i,
   ];
   return patterns.map((pattern) => value.match(pattern)?.[1]).find(Boolean) || null;
 }

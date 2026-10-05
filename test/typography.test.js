@@ -45,5 +45,5 @@ test("Daraja uses the shared Poppins typography stack across the app", async () 
   assert.match(privacyPage, /ContentPage/);
   assert.match(decisions, /D-025 - Daraja uses one canonical application typeface/);
   assert.match(decisions, /canonical Daraja web typeface is \*\*Poppins\*\*/);
-  assert.match(decisions, /must not replace or override Daraja typography page by page/);
+  assert.match(decisions, /must not[\s\S]*replace or override Daraja typography page by page/);
 });

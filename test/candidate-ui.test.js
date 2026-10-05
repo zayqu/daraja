@@ -9,7 +9,7 @@ async function read(relativePath) {
 
 test("candidate account pages share the Jobtex-inspired Daraja account navigation", async () => {
   const tabs = await read("components/CandidateAccountTabs.js");
-  const career = await read("app/account/career/page.js");
+  const account = await read("app/account/page.js");\n  const career = await read("app/account/career/page.js");
   const alerts = await read("app/account/alerts/page.js");
   const privacy = await read("app/account/privacy/page.js");
   const profile = await read("app/account/profile/page.js");

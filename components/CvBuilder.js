@@ -146,6 +146,7 @@ export default function CvBuilder() {
   const [pdfBusy, setPdfBusy] = useState(false);
   const [mobileView, setMobileView] = useState("edit");
   const [saveState, setSaveState] = useState("saved");
+  const activeIdRef = useRef("");
   const lastSavedRef = useRef("");
 
   const loadList = useCallback(async () => {
@@ -159,6 +160,10 @@ export default function CvBuilder() {
   useEffect(() => {
     loadList().catch((error) => setStatus(error.message));
   }, [loadList]);
+
+  useEffect(() => {
+    activeIdRef.current = activeId;
+  }, [activeId]);
 
   useEffect(() => {
     if (!activeId) {
@@ -286,11 +291,13 @@ export default function CvBuilder() {
     const data = await response.json();
     if (!response.ok) throw new Error(data.error || "Unable to save CV.");
 
-    lastSavedRef.current = cvPayload(data.cv);
-    setCv(data.cv);
-    setJob(data.job || null);
-    setEvaluation(data.evaluation || null);
-    setSaveState("saved");
+    if (activeIdRef.current === data.cv.id) {
+      lastSavedRef.current = cvPayload(data.cv);
+      setCv(data.cv);
+      setJob(data.job || null);
+      setEvaluation(data.evaluation || null);
+      setSaveState("saved");
+    }
     if (notify) setStatus("Saved.");
     if (refreshList) await loadList();
     return data.cv;

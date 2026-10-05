@@ -161,7 +161,7 @@ test("Apply links are followed to the page where the application starts", async 
     "https://employer.co.tz/jobs/1/details":
       '<body><h1>Accountant</h1><p>Full details of the vacancy.</p><a href="/jobs/1/process">Continue to apply</a></body>',
     "https://employer.co.tz/jobs/1/process":
-      '<body><a href="/auth/login?job=1">Login to apply</a></body>',
+      '<body><p>Continue through the employer recruitment process to submit your application.</p><a href="/auth/login?job=1">Login to apply</a></body>',
     "https://employer.co.tz/auth/login?job=1":
       '<body><h1>Sign in</h1><form><input type="email" name="email"></form></body>',
   };

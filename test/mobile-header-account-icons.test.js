@@ -16,7 +16,7 @@ test("mobile header owns notification and account icon actions", async () => {
   assert.match(nav, /href="\/account\/notifications"/);
   assert.match(nav, /aria-label="Notifications"/);
   assert.match(nav, /<NavIcon name="bell" \/>/);
-  assert.match(nav, /href="\/account\/profile"/);
+  assert.match(nav, /href="\/account"/);
   assert.match(nav, /aria-label="Account"/);
   assert.match(nav, /<NavIcon name="user" \/>/);
   assert.match(styles, /\.mobileAccountActions/);

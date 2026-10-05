@@ -48,6 +48,25 @@ const SECTION_NAMES = {
   references: "Referees",
 };
 
+const TEMPLATE_OPTIONS = [
+  { value: "modern", label: "Modern", description: "Clean and versatile" },
+  { value: "classic", label: "Classic", description: "Traditional and formal" },
+  { value: "minimal", label: "Minimal", description: "Simple and focused" },
+  { value: "executive", label: "Executive", description: "Stronger hierarchy" },
+  { value: "public", label: "Public Service", description: "Formal Tanzania applications" },
+];
+
+const COLOR_OPTIONS = [
+  "#1b2a3f",
+  "#0f766e",
+  "#31511e",
+  "#4338ca",
+  "#7c2d12",
+  "#374151",
+  "#243447",
+  "#4a1d2f",
+];
+
 const DESIGN_POOLS = {
   general: {
     templates: ["modern", "classic", "minimal", "executive"],
@@ -674,21 +693,47 @@ export default function CvBuilder() {
                     Generate design
                   </button>
                 </div>
-                <label className={styles.field}>
-                  <span>Base personality</span>
-                  <select value={cv.theme.template} onChange={(event) => setCv({ ...cv, theme: { ...cv.theme, template: event.target.value } })}>
-                    <option value="modern">Modern</option>
-                    <option value="classic">Classic</option>
-                    <option value="minimal">Minimal</option>
-                    <option value="executive">Executive</option>
-                    <option value="public">Public Service</option>
-                  </select>
-                </label>
-                <div className={styles.colorRow}>
-                  <label className={styles.field}>
-                    <span>Accent color</span>
-                    <input type="color" value={cv.theme.accent} onChange={(event) => setCv({ ...cv, theme: { ...cv.theme, accent: event.target.value } })} />
-                  </label>
+                <div className={styles.templateChooser}>
+                  <span>Template</span>
+                  <div className={styles.templateGrid}>
+                    {TEMPLATE_OPTIONS.map((option) => (
+                      <button
+                        type="button"
+                        key={option.value}
+                        className={cv.theme.template === option.value ? styles.activeTemplate : ""}
+                        aria-pressed={cv.theme.template === option.value}
+                        onClick={() => setCv({ ...cv, theme: { ...cv.theme, template: option.value } })}
+                      >
+                        <span className={styles.templateMiniature} data-template={option.value} aria-hidden="true">
+                          <i />
+                          <b />
+                          <em />
+                        </span>
+                        <strong>{option.label}</strong>
+                        <small>{option.description}</small>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                <div className={styles.paletteChooser}>
+                  <span>Accent color</span>
+                  <div className={styles.paletteRow}>
+                    {COLOR_OPTIONS.map((color) => (
+                      <button
+                        type="button"
+                        key={color}
+                        className={cv.theme.accent === color ? styles.activeColor : ""}
+                        style={{ "--swatch": color }}
+                        aria-label={`Use ${color} accent`}
+                        aria-pressed={cv.theme.accent === color}
+                        onClick={() => setCv({ ...cv, theme: { ...cv.theme, accent: color } })}
+                      />
+                    ))}
+                    <label className={styles.customColor}>
+                      <span>Custom</span>
+                      <input type="color" value={cv.theme.accent} onChange={(event) => setCv({ ...cv, theme: { ...cv.theme, accent: event.target.value } })} />
+                    </label>
+                  </div>
                   <Field label="Hex color" value={cv.theme.accent} onChange={(value) => setCv({ ...cv, theme: { ...cv.theme, accent: value } })} />
                 </div>
                 <label className={styles.field}>

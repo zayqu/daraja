@@ -29,19 +29,18 @@ test("root layout mounts the shared mobile dock with iPhone safe-area support", 
   assert.doesNotMatch(styles, /linear-gradient|radial-gradient/);
 });
 
-test("mobile dock owns public navigation without exposing protected workspaces", async () => {
+test("mobile dock is the single primary mobile navigation across routes", async () => {
   const routeRules = await read("lib/mobile-navigation.js");
   const siteNav = await read("components/SiteNav.js");
   const siteNavStyles = await read("components/SiteNav.module.css");
+  const workspaceTabs = await read("components/ui/WorkspaceTabs.module.css");
 
-  assert.match(routeRules, /pathname\.startsWith\("\/admin"\)/);
-  assert.match(routeRules, /pathname\.startsWith\("\/employer"\)/);
-  assert.match(routeRules, /pathname\.startsWith\("\/post-job"\)/);
-  assert.match(routeRules, /pathname\.startsWith\("\/auth\/"\)/);
+  assert.match(routeRules, /return true/);
   assert.match(siteNav, /mobileDockEnabledPath/);
   assert.match(siteNav, /styles\.dockManaged/);
   assert.match(siteNavStyles, /\.dockManaged \.toggle/);
   assert.match(siteNavStyles, /\.dockManaged \.links/);
+  assert.match(workspaceTabs, /@media \(max-width: 760px\)[\s\S]*\.tabs\s*\{[\s\S]*display:\s*none/);
 });
 
 test("mobile dock uses centralized Daraja design tokens", async () => {

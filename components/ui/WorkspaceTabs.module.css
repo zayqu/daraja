@@ -25,14 +25,8 @@
   color: var(--color-teal-deep);
 }
 
-@media (max-width: 520px) {
+@media (max-width: 760px) {
   .tabs {
-    display: grid;
-    grid-template-columns: 1fr;
-  }
-
-  .tabs a {
-    justify-content: center;
-    border-radius: 10px;
+    display: none;
   }
 }

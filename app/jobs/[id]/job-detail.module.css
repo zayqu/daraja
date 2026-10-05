@@ -317,6 +317,41 @@
   color: var(--color-teal-deep);
 }
 
+
+.emailFallback {
+  margin-top: 0.75rem;
+  display: grid;
+  gap: 0.45rem;
+  padding: 0.8rem;
+  border: 1px solid var(--color-border-strong);
+  border-radius: 10px;
+  background: var(--color-surface-muted);
+  color: var(--color-text-secondary);
+  font-size: 0.7rem;
+  line-height: 1.5;
+}
+
+.emailFallback strong {
+  color: var(--color-navy);
+  font-size: 0.72rem;
+}
+
+.emailFallback button {
+  min-height: 40px;
+  margin-top: 0.2rem;
+  border: 1px solid var(--color-teal);
+  border-radius: 9px;
+  background: var(--color-surface);
+  color: var(--color-teal-deep);
+  font-weight: 750;
+  cursor: pointer;
+}
+
+.emailFallback button:hover,
+.emailFallback button:focus-visible {
+  background: rgba(0, 201, 167, 0.07);
+}
+
 .cvAction {
   width: 100%;
   min-height: 44px;

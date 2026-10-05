@@ -24,6 +24,8 @@ export default function JobDetailPageClient({ showEmployerCta }) {
   const [job, setJob] = useState(null);
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
+  const [emailFallbackOpen, setEmailFallbackOpen] = useState(false);
+  const [copyStatus, setCopyStatus] = useState("");
 
   const fetchJob = useCallback(async function fetchJob() {
     try {
@@ -136,6 +138,35 @@ export default function JobDetailPageClient({ showEmployerCta }) {
       ? `/api/jobs/${encodeURIComponent(job.slug || job.id)}/apply`
       : "#";
 
+  async function copyEmailApplicationDetails() {
+    if (!applicationEmail) return;
+    const value = [
+      `Email: ${applicationEmail}`,
+      applicationSubject ? `Subject: ${applicationSubject}` : "",
+    ]
+      .filter(Boolean)
+      .join("\n");
+
+    try {
+      await navigator.clipboard.writeText(value);
+      setCopyStatus("Copied");
+    } catch {
+      setCopyStatus("Copy unavailable");
+    }
+  }
+
+  function trackApplication() {
+    trackEvent("apply_job", {
+      job_id: job.id,
+      job_title: job.title,
+      employer: job.company,
+      category: job.category,
+      application_method: applicationEmail ? "email" : "resolved_external",
+      source: job.source,
+    });
+    if (applicationEmail) setEmailFallbackOpen(true);
+  }
+
   return (
     <div className={styles.page}>
       <SiteNav
@@ -207,18 +238,7 @@ export default function JobDetailPageClient({ showEmployerCta }) {
                     target={applicationEmail ? undefined : "_blank"}
                     rel={applicationEmail ? undefined : "noopener noreferrer"}
                     className={styles.primaryAction}
-                    onClick={() =>
-                      trackEvent("apply_job", {
-                        job_id: job.id,
-                        job_title: job.title,
-                        employer: job.company,
-                        category: job.category,
-                        application_method: applicationEmail
-                          ? "email"
-                          : "resolved_external",
-                        source: job.source,
-                      })
-                    }
+                    onClick={trackApplication}
                   >
                     Apply now →
                   </a>
@@ -317,18 +337,7 @@ export default function JobDetailPageClient({ showEmployerCta }) {
                   target={applicationEmail ? undefined : "_blank"}
                   rel={applicationEmail ? undefined : "noopener noreferrer"}
                   className={styles.primaryAction}
-                  onClick={() =>
-                    trackEvent("apply_job", {
-                      job_id: job.id,
-                      job_title: job.title,
-                      employer: job.company,
-                      category: job.category,
-                      application_method: applicationEmail
-                        ? "email"
-                        : "resolved_external",
-                      source: job.source,
-                    })
-                  }
+                  onClick={trackApplication}
                 >
                   Apply now →
                 </a>
@@ -344,15 +353,29 @@ export default function JobDetailPageClient({ showEmployerCta }) {
               )}
 
               {applicationEmail && (
-                <p className={styles.helpText}>
-                  Email: <a href={job.applicationUrl}>{applicationEmail}</a>
-                  {applicationSubject && (
-                    <>
-                      <br />
-                      Subject: {applicationSubject}
-                    </>
+                <>
+                  <p className={styles.helpText}>
+                    Email: <a href={job.applicationUrl}>{applicationEmail}</a>
+                    {applicationSubject && (
+                      <>
+                        <br />
+                        Subject: {applicationSubject}
+                      </>
+                    )}
+                  </p>
+                  {emailFallbackOpen && (
+                    <div className={styles.emailFallback} role="status">
+                      <strong>Email app did not open?</strong>
+                      <span>
+                        Copy the verified recipient and subject, then send your
+                        application from your preferred email app.
+                      </span>
+                      <button type="button" onClick={copyEmailApplicationDetails}>
+                        {copyStatus || "Copy email details"}
+                      </button>
+                    </div>
                   )}
-                </p>
+                </>
               )}
 
               <Link

@@ -320,6 +320,14 @@ Poppins through that token. Arial/Helvetica remain fallback fonts only.
 Licensed templates may influence layout and interaction, but they must not
 replace or override Daraja typography page by page.
 
+This is a non-negotiable platform rule. New page/component CSS must inherit
+`--font-daraja`; it must not introduce another UI font. The only intentional
+exceptions are generated CV document typography chosen by the candidate and
+HTML email markup that requires mail-client-safe fallback fonts.
+
+Typography changes are incomplete until the shared Poppins regression test
+passes and the live production release marker is verified to include the change.
+
 This updates the earlier Geist baseline by explicit product-owner decision; the
 centralized typography rule itself remains unchanged.
 
@@ -355,8 +363,9 @@ privacy/security boundaries and business logic.
 
 **Status:** accepted
 
-On public and candidate mobile surfaces, Daraja uses one shared floating bottom
-navigation dock rather than duplicating the desktop hamburger menu.
+On mobile web surfaces, Daraja uses one shared floating bottom navigation dock
+as the single primary navigation owner rather than duplicating the desktop
+hamburger menu.
 
 The dock is inspired by modern iOS navigation behaviour and the licensed Jobko
 mobile reference, but it is implemented entirely inside Daraja using Poppins,
@@ -371,10 +380,16 @@ top-right: a bell icon for `/account/notifications` and a user icon for
 candidate utilities such as Job Alerts/Privacy, WhatsApp and the feature-gated
 employer entry point.
 
-The dock is not shown on admin, employer, post-job or authentication routes
-until role-specific mobile navigation is deliberately designed. Template-only
-features such as messages or application tracking must not appear until Daraja
-owns the corresponding backend/product capability.
+The shared dock also owns mobile navigation on admin, employer, post-job and
+authentication routes, using the existing role-aware destination when the user
+has a protected role. The mobile header may show the Daraja brand plus approved
+context actions such as notification/profile icons, but it must not expose a
+second hamburger/primary menu. Candidate/employer workspace tab bars are
+desktop/tablet navigation and are hidden at phone widths so they do not compete
+with the dock.
+
+Template-only features such as messages or application tracking must not appear
+until Daraja owns the corresponding backend/product capability.
 
 
 ## D-028 - Candidate profile and notification slots are real product surfaces

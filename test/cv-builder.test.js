@@ -249,3 +249,20 @@ test("CV builder workspace autosaves drafts and keeps mobile edit/preview focuse
   assert.match(styles, /\.mobileHidden/);
   assert.match(styles, /@media \(max-width: 640px\)/);
 });
+
+
+test("CV design studio offers visual templates and simple color choices", () => {
+  const builder = read("components/CvBuilder.js");
+  const styles = read("components/CvBuilder.module.css");
+
+  assert.match(builder, /TEMPLATE_OPTIONS/);
+  assert.match(builder, /COLOR_OPTIONS/);
+  assert.match(builder, /templateMiniature/);
+  assert.match(builder, /aria-label=\{\`Use \${color} accent\`\}/);
+  assert.match(builder, /type="color"/);
+  assert.match(builder, /Hex color/);
+  assert.match(styles, /\.templateGrid/);
+  assert.match(styles, /\.paletteRow/);
+  assert.match(styles, /\.activeTemplate/);
+  assert.match(styles, /\.activeColor/);
+});

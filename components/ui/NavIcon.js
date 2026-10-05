@@ -73,6 +73,51 @@ export default function NavIcon({ name, size = 22 }) {
     );
   }
 
+
+  if (name === "document") {
+    return (
+      <svg {...common}>
+        <path d="M6 3.5h8l4 4V20.5H6z" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round" />
+        <path d="M14 3.5v4h4M9 12h6M9 15.5h6" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+      </svg>
+    );
+  }
+
+  if (name === "career") {
+    return (
+      <svg {...common}>
+        <path d="M4 7.5h16v12H4z" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round" />
+        <path d="M8.5 7.5V5h7v2.5M4 12h16M9.5 12v2h5v-2" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+      </svg>
+    );
+  }
+
+  if (name === "alert") {
+    return (
+      <svg {...common}>
+        <path d="M5 5.5h14v11H8l-3 3v-14Z" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round" />
+        <path d="M8.5 9.5h7M8.5 12.5h4.5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+      </svg>
+    );
+  }
+
+  if (name === "privacy") {
+    return (
+      <svg {...common}>
+        <path d="M12 3.5 19 6v5.2c0 4.5-2.7 7.5-7 9.3-4.3-1.8-7-4.8-7-9.3V6l7-2.5Z" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round" />
+        <path d="M9.5 11.5h5v4h-5zM10.5 11.5V10a1.5 1.5 0 0 1 3 0v1.5" stroke="currentColor" strokeWidth="1.6" strokeLinejoin="round" />
+      </svg>
+    );
+  }
+
+  if (name === "logout") {
+    return (
+      <svg {...common}>
+        <path d="M10 5H5v14h5M13.5 8.5 17 12l-3.5 3.5M9 12h8" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+      </svg>
+    );
+  }
+
   if (name === "internships") {
     return (
       <svg {...common}>

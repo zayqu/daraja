@@ -124,12 +124,13 @@
   backdrop-filter: blur(12px);
 }
 
-.toolbar > div:first-child span,
-.toolbar > div:first-child strong {
+.toolbarMeta > span,
+.toolbarMeta > strong,
+.toolbarMeta > small {
   display: block;
 }
 
-.toolbar > div:first-child span {
+.toolbarMeta > span {
   color: var(--color-teal-deep);
   font-size: .62rem;
   font-weight: 800;
@@ -137,16 +138,53 @@
   text-transform: uppercase;
 }
 
-.toolbar > div:first-child strong {
+.toolbarMeta > strong {
   margin-top: .15rem;
   color: var(--color-text-muted);
   font-size: .68rem;
   font-weight: 650;
 }
 
+.saveState {
+  margin-top: .22rem;
+  color: var(--color-text-faint);
+  font-size: .6rem;
+  font-weight: 700;
+}
+
+.saveState[data-state="saving"],
+.saveState[data-state="pending"] {
+  color: var(--color-teal-deep);
+}
+
+.saveState[data-state="error"] {
+  color: var(--color-danger);
+}
+
 .toolbarActions {
   display: flex;
+  align-items: center;
   gap: var(--space-2);
+}
+
+.mobileViewSwitch {
+  display: none;
+  padding: .2rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-button);
+  background: var(--color-surface-muted);
+}
+
+.mobileViewSwitch button {
+  padding: .45rem .7rem;
+  background: transparent;
+  color: var(--color-text-muted);
+}
+
+.mobileViewSwitch .activeView {
+  background: var(--color-surface);
+  color: var(--color-text);
+  box-shadow: var(--shadow-subtle);
 }
 
 .toolbar button,
@@ -678,6 +716,20 @@
 
   .toolbarActions {
     width: 100%;
+    flex-wrap: wrap;
+  }
+
+  .mobileViewSwitch {
+    display: flex;
+    width: 100%;
+  }
+
+  .mobileViewSwitch button {
+    flex: 1;
+  }
+
+  .mobileHidden {
+    display: none;
   }
 
   .designIntro {

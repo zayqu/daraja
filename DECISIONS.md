@@ -420,3 +420,8 @@ ingestion regardless of source. When several sources list the same vacancy,
 one record is kept and the source-precedence order in
 `docs/JOB-SOURCE-POLICY.md` decides which source is canonical. Automated
 ingestion never overrides a moderation decision made by an administrator.
+
+
+### Candidate account home
+
+The user/profile icon opens `/account`, which is the canonical candidate account home. The page follows a compact profile-and-action-list pattern rather than a dashboard hero. Detailed profile editing stays at `/account/profile`, career tools stay under `/account/career`, and privacy/alerts/notifications keep their existing dedicated routes. The account hub must show only real account state and working destinations.

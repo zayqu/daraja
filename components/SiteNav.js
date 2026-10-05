@@ -89,10 +89,10 @@ export default function SiteNav({
             </Link>
             {showCandidateProfile && (
               <Link
-                href="/account/profile"
+                href="/account"
                 className={styles.mobileIconButton}
-                aria-label="Profile"
-                title="Profile"
+                aria-label="Account"
+                title="Account"
               >
                 <NavIcon name="user" />
               </Link>

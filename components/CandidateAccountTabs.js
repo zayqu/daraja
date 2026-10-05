@@ -2,6 +2,7 @@ import WorkspaceTabs from "@/components/ui/WorkspaceTabs";
 
 export default function CandidateAccountTabs({ showCareer = false }) {
   const links = [
+    { href: "/account", label: "Account" },
     ...(showCareer
       ? [
           { href: "/account/profile", label: "Profile" },

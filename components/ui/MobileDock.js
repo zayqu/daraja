@@ -108,6 +108,11 @@ export default function MobileDock({
 
             <nav className={styles.sheetLinks}>
               {showCandidateProfile && (
+                <Link href="/account" onClick={() => setMoreOpen(false)}>
+                  My account
+                </Link>
+              )}
+              {showCandidateProfile && (
                 <Link href="/account/career/cv" onClick={() => setMoreOpen(false)}>
                   CV Builder
                 </Link>

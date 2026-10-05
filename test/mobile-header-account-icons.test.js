@@ -7,7 +7,7 @@ async function read(relativePath) {
   return readFile(path.join(__dirname, "..", relativePath), "utf8");
 }
 
-test("mobile header owns notification and profile icon actions", async () => {
+test("mobile header owns notification and account icon actions", async () => {
   const publicNav = await read("components/PublicSiteNav.js");
   const nav = await read("components/SiteNav.js");
   const styles = await read("components/SiteNav.module.css");
@@ -16,8 +16,8 @@ test("mobile header owns notification and profile icon actions", async () => {
   assert.match(nav, /href="\/account\/notifications"/);
   assert.match(nav, /aria-label="Notifications"/);
   assert.match(nav, /<NavIcon name="bell" \/>/);
-  assert.match(nav, /href="\/account\/profile"/);
-  assert.match(nav, /aria-label="Profile"/);
+  assert.match(nav, /href="\/account"/);
+  assert.match(nav, /aria-label="Account"/);
   assert.match(nav, /<NavIcon name="user" \/>/);
   assert.match(styles, /\.mobileAccountActions/);
   assert.match(styles, /\.mobileIconButton/);

@@ -7,19 +7,33 @@ async function read(relativePath) {
   return readFile(path.join(__dirname, "..", relativePath), "utf8");
 }
 
-test("candidate account pages share the Jobtex-inspired Daraja account navigation", async () => {
+test("candidate account pages share the Daraja account navigation", async () => {
   const tabs = await read("components/CandidateAccountTabs.js");
+  const account = await read("app/account/page.js");
   const career = await read("app/account/career/page.js");
   const alerts = await read("app/account/alerts/page.js");
   const privacy = await read("app/account/privacy/page.js");
   const profile = await read("app/account/profile/page.js");
   const notifications = await read("app/account/notifications/page.js");
 
+  assert.match(tabs, /href: "\/account"/);
   assert.match(tabs, /\/account\/profile/);
   assert.match(tabs, /\/account\/notifications/);
   assert.match(tabs, /\/account\/alerts/);
   assert.match(tabs, /\/account\/privacy/);
   assert.match(tabs, /showCareer/);
+
+  assert.match(account, /My account/);
+  assert.match(account, /Personal information/);
+  assert.match(account, /CV Builder/);
+  assert.match(account, /Career workspace/);
+  assert.match(account, /Job alerts/);
+  assert.match(account, /Notifications/);
+  assert.match(account, /Privacy & data/);
+  assert.match(account, /Sign out/);
+  assert.match(account, /callbackUrl=\/account/);
+  assert.doesNotMatch(account, /<PageHero/);
+
   assert.match(career, /<CandidateAccountTabs showCareer \/>/);
   assert.match(alerts, /<CandidateAccountTabs showCareer=\{candidateCareerEnabled\(\)\} \/>/);
   assert.match(privacy, /<CandidateAccountTabs showCareer=\{candidateCareerEnabled\(\)\} \/>/);

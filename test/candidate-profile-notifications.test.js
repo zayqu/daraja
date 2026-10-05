@@ -33,5 +33,5 @@ test("notification centre is authenticated and does not fabricate unread state",
   assert.match(nav, /notificationCount = 0/);
   assert.match(nav, /notificationCount > 0/);
   assert.match(nav, /\/account\/notifications/);
-  assert.match(nav, /\/account\/profile/);
+  assert.match(nav, /href="\/account"/);
 });

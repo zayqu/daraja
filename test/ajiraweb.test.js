@@ -17,6 +17,10 @@ test("AjiraWeb helpers find company, deadline and official link", () => {
     <a href="https://careers.example.co.tz/jobs/42">Apply here</a>
   `;
   assert.equal(extractCompany("ICT Officer at Example Bank"), "Example Bank");
+  assert.equal(
+    extractCompany("Multiple Job Opportunities at Abdulrahman Al-Sumait University – October 2026"),
+    "Abdulrahman Al-Sumait University"
+  );
   assert.equal(extractDeadline(html), "31 December 2099");
   assert.equal(extractOfficialUrl(html, article), "https://careers.example.co.tz/jobs/42");
 });
@@ -191,5 +195,54 @@ test("email vacancies preserve the employer's required subject format", () => {
   assert.equal(
     new URL(job.applicationUrl).searchParams.get("subject"),
     "VACANCY APPLICATION - Treasury Dealer"
+  );
+});
+
+
+test("multi-position email articles publish real roles instead of group headings", () => {
+  const jobs = extractEmailApplicationJobs(
+    "Multiple Job Opportunities at Abdulrahman Al-Sumait University – October 2026",
+    "https://ajiraweb.com/multiple-job-opportunities-at-abdulrahman-al-sumait-university-october-2026/",
+    `
+      <h3>1. Administrative and Technical Professional Positions – 5 Posts</h3>
+      <table>
+        <thead><tr><th>Position</th><th>Posts</th><th>Minimum Qualification</th></tr></thead>
+        <tbody>
+          <tr><td>Deputy Vice-Chancellor – Administration, Finance & Planning</td><td>1</td><td>Professor/Associate Professor with PhD and relevant management experience</td></tr>
+          <tr><td>Internal Auditor</td><td>1</td><td>CPA(T), ACCA, ACA or equivalent qualification with relevant experience</td></tr>
+          <tr><td>University Bursar</td><td>1</td><td>Bachelor's degree in Accounting or Finance plus CPA(T)/ACCA</td></tr>
+          <tr><td>Planning Officer</td><td>1</td><td>Bachelor's degree in Planning or related field</td></tr>
+          <tr><td>Legal Counsel</td><td>1</td><td>Bachelor's degree in Law and relevant professional qualification</td></tr>
+        </tbody>
+      </table>
+      <h3>2. Academic Positions</h3>
+      <h4>Department of Social Studies – 4 Posts</h4>
+      <p><strong>Assistant Lecturer/Lecturer – History</strong></p>
+      <ul><li>Posts: 1</li><li>Qualification: MA/PhD in History</li></ul>
+      <p><strong>Assistant Lecturer/Lecturer – Geography</strong></p>
+      <ul><li>Posts: 3</li><li>Qualification: MA/PhD in Geography</li></ul>
+      <p><strong>Application Deadline:</strong> 20 October 2026</p>
+      <a href="mailto:recruitment@sumait.ac.tz">Apply by email</a>
+    `
+  );
+
+  assert.equal(jobs.length, 7);
+  assert.equal(jobs[0].company, "Abdulrahman Al-Sumait University");
+  assert.deepEqual(
+    jobs.map((job) => job.title),
+    [
+      "Deputy Vice-Chancellor – Administration, Finance & Planning",
+      "Internal Auditor",
+      "University Bursar",
+      "Planning Officer",
+      "Legal Counsel",
+      "Assistant Lecturer/Lecturer – History",
+      "Assistant Lecturer/Lecturer – Geography",
+    ]
+  );
+  assert.ok(jobs.every((job) => !/Positions\s*[–—-]\s*\d+\s*Posts/i.test(job.title)));
+  assert.equal(
+    new URL(jobs[0].applicationUrl).searchParams.get("subject"),
+    "Application for Deputy Vice-Chancellor – Administration, Finance & Planning"
   );
 });

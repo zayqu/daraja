@@ -565,10 +565,12 @@ async function inspectEmployerPage(
 
 // Follows "Apply" links from a vacancy page to the page where the
 // application actually starts (an apply form, sign-in or registration page),
-// for at most two hops. Returns the original URL when nothing deeper opens.
+// for a small bounded chain of hops. Returns the original URL when nothing
+// deeper opens. Four hops covers recruiter/employer/detail/login/apply flows
+// without turning application resolution into unbounded crawling.
 async function deepenApplicationUrl(
   url,
-  { fetchFn = fetch, render = null, maxHops = 2 } = {}
+  { fetchFn = fetch, render = null, maxHops = 4 } = {}
 ) {
   let current = url;
   for (let hop = 0; hop < maxHops; hop += 1) {

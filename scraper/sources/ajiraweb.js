@@ -18,15 +18,15 @@ const OFFICIAL_PAGE_TIMEOUT_MS = 20000;
 function extractDeadline(text) {
   const value = cleanText(text);
   const patterns = [
-    /(?:application\s+deadline|closing\s+date|deadline)\s*:?\s*(\d{1,2}(?:st|nd|rd|th)?\s+[A-Za-z]+\s+\d{4})/i,
-    /(?:application\s+deadline|closing\s+date|deadline)\s*:?\s*([A-Za-z]+\s+\d{1,2}(?:st|nd|rd|th)?,?\s+\d{4})/i,
-    /(?:application\s+deadline|closing\s+date|deadline)\s*:?\s*(\d{1,2}[./-]\d{1,2}[./-]\d{4})/i,
+    /(?:application\s+deadline|closing\s+date|deadline(?:\s+for\s+(?:submitting\s+)?applications)?)\s*(?:is\s*)?:?\s*(\d{1,2}(?:st|nd|rd|th)?\s+[A-Za-z]+\s+\d{4})/i,
+    /(?:application\s+deadline|closing\s+date|deadline(?:\s+for\s+(?:submitting\s+)?applications)?)\s*(?:is\s*)?:?\s*([A-Za-z]+\s+\d{1,2}(?:st|nd|rd|th)?,?\s+\d{4})/i,
+    /(?:application\s+deadline|closing\s+date|deadline(?:\s+for\s+(?:submitting\s+)?applications)?)\s*(?:is\s*)?:?\s*(\d{1,2}[./-]\d{1,2}[./-]\d{4})/i,
   ];
   return patterns.map((pattern) => value.match(pattern)?.[1]).find(Boolean) || null;
 }
 
 function extractCompany(title, categories = []) {
-  const atCompany = cleanText(title).match(/\bat\s+(.+?)(?:\s*[|–—-]\s*|\s+\d{4}$|$)/i)?.[1];
+  const atCompany = cleanText(title).match(/\bat\s+(.+?)(?:\s+\|\s+|\s+[–—-]\s+|\s+\d{4}$|$)/i)?.[1];
   if (atCompany) return cleanText(atCompany);
 
   const vacancyCompany = cleanText(title)
@@ -142,6 +142,26 @@ function getLabeledValue($, label) {
   return "";
 }
 
+function isGroupedVacancyTitle(value) {
+  const title = cleanText(value).replace(/^\d+\s*[.)-]\s*/, "");
+  return (
+    !title ||
+    /(?:positions?|opportunities|vacancies|jobs?)(?:\s*[–—-]\s*\d+\s*posts?)?$/i.test(title) ||
+    /^department\b/i.test(title) ||
+    /^available\s+(?:positions?|opportunities|vacancies|jobs?)\b/i.test(title)
+  );
+}
+
+function looksLikeRoleTitle(value) {
+  const title = cleanText(value);
+  return (
+    title.length >= 3 &&
+    title.length <= 160 &&
+    !isGroupedVacancyTitle(title) &&
+    /\b(?:lecturer|professor|auditor|bursar|officer|counsel|manager|director|assistant|engineer|accountant|driver|specialist|coordinator|executive|analyst|developer|designer|nurse|doctor|teacher|surveyor|technician|secretary|cashier|supervisor|consultant|advis(?:e|o)r|architect|pharmacist|scientist)\b/i.test(title)
+  );
+}
+
 function extractEmailApplicationJobs(articleTitle, articleUrl, html) {
   const $ = cheerio.load(html || "");
   const emailHref = $('a[href^="mailto:"]').first().attr("href") || "";
@@ -168,37 +188,84 @@ function extractEmailApplicationJobs(articleTitle, articleUrl, html) {
     getLabeledValue($, "Application Deadline") ||
     extractDeadline(htmlToText(html));
   const jobs = [];
+  const seenTitles = new Set();
   const media = extractSourceMedia(html, articleUrl);
   function emailApplicationUrlFor(title) {
     const subject = normalizeEmployerSubject(employerSubject, title);
     return `mailto:${email}?subject=${encodeURIComponent(subject)}`;
   }
+  function addJob(title, description) {
+    const cleanTitle = cleanText(title);
+    const key = cleanTitle.toLowerCase();
+    if (!cleanTitle || isGroupedVacancyTitle(cleanTitle) || seenTitles.has(key)) return;
+    seenTitles.add(key);
+    jobs.push({
+      sourceId: `email-${email.toLowerCase()}-${cleanTitle.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`,
+      title: cleanTitle,
+      company,
+      location,
+      description: cleanText(description) || `Apply for the ${cleanTitle} position at ${company}.`,
+      deadline,
+      sourceUrl: articleUrl,
+      applicationUrl: emailApplicationUrlFor(cleanTitle),
+      companyLogo: media.companyLogo,
+      representativeImage: media.representativeImage,
+    });
+  }
 
-  for (const heading of $("h3").toArray()) {
+  // Multi-position articles often use a table under a group heading. Each row is
+  // a real vacancy and must become its own Daraja job instead of publishing the
+  // group heading as one misleading position.
+  for (const row of $("table tr").toArray()) {
+    const cells = $(row)
+      .find("td")
+      .map((_, cell) => cleanText($(cell).text()))
+      .get();
+    if (cells.length < 2) continue;
+    const [title, posts, qualification] = cells;
+    const details = [
+      posts ? `Posts: ${posts}` : "",
+      qualification ? `Minimum qualification: ${qualification}` : "",
+    ].filter(Boolean);
+    addJob(title, details.join("\n"));
+  }
+
+  // Some articles list individual vacancies as bold role names under department
+  // headings rather than using one heading per vacancy.
+  for (const strong of $("strong").toArray()) {
+    if ($(strong).closest("table").length) continue;
+    const title = cleanText($(strong).text());
+    if (!looksLikeRoleTitle(title)) continue;
+
+    const details = [];
+    let current = $(strong).parent().next();
+    while (current.length && details.length < 3) {
+      const tag = String(current[0]?.tagName || "").toLowerCase();
+      if (/^h[1-6]$/.test(tag)) break;
+      const nextStrong = current.find("strong").first();
+      if (nextStrong.length && looksLikeRoleTitle(cleanText(nextStrong.text()))) break;
+      const text = cleanText(current.text());
+      if (text && !/^(?:application requirements?|how to apply|salary|deadline)\b/i.test(text)) {
+        details.push(text);
+      }
+      current = current.next();
+    }
+    addJob(title, details.join("\n"));
+  }
+
+  for (const heading of $("h3, h4").toArray()) {
     const headingText = cleanText($(heading).text());
     if (!/^\d+\s*[.)-]\s*/.test(headingText)) continue;
     const title = headingText.replace(/^\d+\s*[.)-]\s*/, "").trim();
+    if (isGroupedVacancyTitle(title)) continue;
     const details = [];
     let current = $(heading).next();
-    while (current.length && !/^h[1-3]$/i.test(current[0].tagName)) {
+    while (current.length && !/^h[1-4]$/i.test(current[0].tagName)) {
       const text = cleanText(current.text());
       if (text) details.push(text);
       current = current.next();
     }
-    const instructions = details.join("\n\n");
-
-    jobs.push({
-      sourceId: `email-${email.toLowerCase()}-${title.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`,
-      title,
-      company,
-      location,
-      description: instructions,
-      deadline,
-      sourceUrl: articleUrl,
-      applicationUrl: emailApplicationUrlFor(title),
-      companyLogo: media.companyLogo,
-      representativeImage: media.representativeImage,
-    });
+    addJob(title, details.join("\n\n"));
   }
 
   if (jobs.length) return jobs;

@@ -159,9 +159,11 @@ test("Apply links are followed to the page where the application starts", async 
     "https://employer.co.tz/jobs/1":
       '<body><h1>Accountant</h1><p>Duties and requirements.</p><a href="/jobs/1/details">Apply now</a></body>',
     "https://employer.co.tz/jobs/1/details":
-      '<body><h1>Accountant</h1><p>Full details of the vacancy.</p><a href="https://employer.co.tz/careers/apply?job=1">Apply online</a></body>',
-    "https://employer.co.tz/careers/apply?job=1":
-      '<body><h1>Application</h1><form><input type="email" name="email"></form></body>',
+      '<body><h1>Accountant</h1><p>Full details of the vacancy.</p><a href="/jobs/1/process">Continue to apply</a></body>',
+    "https://employer.co.tz/jobs/1/process":
+      '<body><a href="/auth/login?job=1">Login to apply</a></body>',
+    "https://employer.co.tz/auth/login?job=1":
+      '<body><h1>Sign in</h1><form><input type="email" name="email"></form></body>',
   };
   const fetchFn = async (url) =>
     pages[url]
@@ -170,7 +172,7 @@ test("Apply links are followed to the page where the application starts", async 
 
   assert.equal(
     await deepenApplicationUrl("https://employer.co.tz/jobs/1", { fetchFn }),
-    "https://employer.co.tz/careers/apply?job=1"
+    "https://employer.co.tz/auth/login?job=1"
   );
   assert.equal(
     await deepenApplicationUrl("https://portal.ajira.go.tz/auth", { fetchFn }),

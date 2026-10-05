@@ -1073,3 +1073,12 @@ Every batch must record:
 - Custom colours remain unrestricted, but the preview derives a separate readable text accent when a chosen colour is too light, so design freedom cannot make the name or headings illegible.
 - The preview remains HTML text with semantic headings/lists; no canvas, skill bars, text-in-image or multi-column parsing risks were introduced.
 - The product now explicitly encourages candidates to reach 90+ ATS readiness while keeping job-match scoring separate. Both remain quality/relevance indicators, not promises of shortlisting or interview.
+
+
+## Minimal candidate account hub
+
+- Added protected `/account` as the candidate account home, using the previously supplied job-board profile references as layout inspiration while keeping Daraja's shared typography, colors and spacing.
+- The account hub intentionally avoids the large PageHero/dashboard-card pattern. It uses one compact identity header, a real profile-completion status, and a single list of account actions.
+- Account actions point only to working Daraja features: Personal information, Smart CV Builder, Career workspace, Job alerts, Notifications, Privacy & data and Sign out.
+- CV count and alert status are shown only when backed by current account data; no placeholder metrics or fake activity are displayed.
+- The mobile header user icon now opens `/account`; the mobile More sheet also exposes My account. Existing account subpages include Account as their first shared tab.

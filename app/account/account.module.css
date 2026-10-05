@@ -1,0 +1,306 @@
+.page {
+  min-height: 100vh;
+  background: var(--color-bg);
+  color: var(--color-text);
+}
+
+.main {
+  width: min(680px, calc(100% - (var(--gutter) * 2)));
+  margin: 0 auto;
+  padding: clamp(2rem, 6vw, 4.25rem) 0 5rem;
+}
+
+.accountCard {
+  overflow: hidden;
+  border: 1px solid var(--color-border);
+  border-radius: 24px;
+  background: var(--color-surface);
+  box-shadow: 0 18px 50px rgba(27, 42, 63, .07);
+}
+
+.profileHeader {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1.5rem;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.avatar {
+  width: 64px;
+  height: 64px;
+  flex: 0 0 64px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--color-navy);
+  color: var(--color-on-dark);
+  font-size: 1rem;
+  font-weight: 800;
+  letter-spacing: .04em;
+}
+
+.identity {
+  min-width: 0;
+}
+
+.identity > span {
+  display: block;
+  margin-bottom: .25rem;
+  color: var(--color-teal-deep);
+  font-size: .62rem;
+  font-weight: 800;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+}
+
+.identity h1 {
+  margin: 0;
+  color: var(--color-navy);
+  font-size: clamp(1.12rem, 4vw, 1.45rem);
+  line-height: 1.15;
+}
+
+.identity p,
+.identity small {
+  display: block;
+  overflow: hidden;
+  margin: .3rem 0 0;
+  color: var(--color-text-muted);
+  font-size: .76rem;
+  line-height: 1.4;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.identity small {
+  color: var(--color-text-faint);
+  font-size: .7rem;
+}
+
+.profileStatus {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin: 1rem 1.25rem .35rem;
+  padding: .85rem 1rem;
+  border-radius: 14px;
+  background: var(--color-surface-muted);
+}
+
+.profileStatus div span,
+.profileStatus div strong {
+  display: block;
+}
+
+.profileStatus div span {
+  color: var(--color-text-faint);
+  font-size: .6rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+}
+
+.profileStatus div strong {
+  margin-top: .15rem;
+  color: var(--color-navy);
+  font-size: .74rem;
+}
+
+.profileStatus a {
+  color: var(--color-teal-deep);
+  font-size: .7rem;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.menu {
+  padding: .65rem 1.25rem .5rem;
+}
+
+.item {
+  position: relative;
+  display: grid;
+  grid-template-columns: 42px minmax(0, 1fr) auto 14px;
+  align-items: center;
+  gap: .8rem;
+  min-height: 68px;
+  padding: .72rem .15rem;
+  border-bottom: 1px solid var(--color-border);
+  color: inherit;
+  text-decoration: none;
+}
+
+.item:last-child {
+  border-bottom: 0;
+}
+
+.itemIcon {
+  width: 38px;
+  height: 38px;
+  display: grid;
+  place-items: center;
+  border-radius: 12px;
+  background: var(--color-surface-muted);
+  color: var(--color-navy);
+}
+
+.itemBody {
+  min-width: 0;
+}
+
+.itemBody strong,
+.itemBody span {
+  display: block;
+}
+
+.itemBody strong {
+  color: var(--color-navy);
+  font-size: .78rem;
+  line-height: 1.3;
+}
+
+.itemBody span {
+  margin-top: .2rem;
+  color: var(--color-text-muted);
+  font-size: .67rem;
+  line-height: 1.45;
+}
+
+.itemMeta {
+  color: var(--color-teal-deep);
+  font-size: .62rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.chevron {
+  color: var(--color-text-faint);
+  font-size: 1.15rem;
+  line-height: 1;
+}
+
+.item:hover .itemIcon,
+.item:focus-visible .itemIcon {
+  background: rgba(0, 201, 167, .1);
+  color: var(--color-teal-deep);
+}
+
+.item:focus-visible {
+  outline: 3px solid var(--color-focus);
+  outline-offset: -2px;
+  border-radius: 10px;
+}
+
+.signOutRow {
+  padding: .25rem 1.25rem 1.25rem;
+}
+
+.signOutRow button {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: .8rem;
+  padding: .8rem .15rem;
+  border: 0;
+  border-top: 1px solid var(--color-border);
+  background: transparent;
+  color: var(--color-danger);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.signOutRow button .itemIcon {
+  color: var(--color-danger);
+}
+
+.signOutRow button span:last-child {
+  min-width: 0;
+}
+
+.signOutRow button strong,
+.signOutRow button small {
+  display: block;
+}
+
+.signOutRow button strong {
+  font-size: .76rem;
+}
+
+.signOutRow button small {
+  margin-top: .16rem;
+  color: var(--color-text-muted);
+  font-size: .65rem;
+}
+
+.navSignOut {
+  padding: .52rem .9rem;
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-button);
+  background: var(--color-surface);
+  color: var(--color-text-muted);
+  font: inherit;
+  font-size: .72rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.support {
+  margin: 1rem 0 0;
+  color: var(--color-text-faint);
+  font-size: .68rem;
+  text-align: center;
+}
+
+.support a {
+  color: var(--color-teal-deep);
+  font-weight: 700;
+  text-decoration: none;
+}
+
+@media (max-width: 640px) {
+  .main {
+    width: calc(100% - 1.25rem);
+    padding: 1rem 0 2rem;
+  }
+
+  .accountCard {
+    border-radius: 20px;
+    box-shadow: none;
+  }
+
+  .profileHeader {
+    padding: 1.2rem 1rem;
+  }
+
+  .avatar {
+    width: 56px;
+    height: 56px;
+    flex-basis: 56px;
+  }
+
+  .profileStatus {
+    margin: .85rem .85rem .2rem;
+  }
+
+  .menu,
+  .signOutRow {
+    padding-left: .85rem;
+    padding-right: .85rem;
+  }
+
+  .item {
+    grid-template-columns: 40px minmax(0, 1fr) 12px;
+    gap: .7rem;
+  }
+
+  .itemMeta {
+    display: none;
+  }
+
+  .navSignOut {
+    display: none;
+  }
+}

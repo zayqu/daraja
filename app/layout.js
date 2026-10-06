@@ -10,6 +10,8 @@ import { candidateCareerEnabled, employerPortalEnabled } from "@/lib/features";
 import { auth } from "@/auth";
 import { SITE_ORIGIN } from "@/lib/site-config";
 
+const ADSENSE_CLIENT = "ca-pub-5101856964689063";
+
 const poppins = Poppins({
   variable: "--font-poppins",
   subsets: ["latin"],
@@ -56,7 +58,8 @@ export const metadata = {
 };
 
 export default async function RootLayout({ children }) {
-  const adsenseClient = process.env.NEXT_PUBLIC_GOOGLE_ADSENSE_CLIENT;
+  const adsenseClient =
+    process.env.NEXT_PUBLIC_GOOGLE_ADSENSE_CLIENT || ADSENSE_CLIENT;
   const analyticsId =
     process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS_ID || "G-89Q157X930";
   const showEmployerCta = employerPortalEnabled();
@@ -67,6 +70,9 @@ export default async function RootLayout({ children }) {
 
   return (
     <html lang="en" className={rootFontClass}>
+      <head>
+        <meta name="google-adsense-account" content={ADSENSE_CLIENT} />
+      </head>
       <body className={poppins.className}>
         <a className="skip-link" href="#main-content">
           Skip to main content

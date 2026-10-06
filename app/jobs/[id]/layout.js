@@ -1,32 +1,9 @@
-import prisma from "@/lib/prisma";
 import { permanentRedirect } from "next/navigation";
-import legacySlug from "@/lib/legacy-job-slug";
-
-const { findJobByLegacySlug } = legacySlug;
-
-async function findActiveJob(identifier, select) {
-  const job = await prisma.job.findFirst({
-    where: {
-      active: true,
-      OR: [
-        { id: identifier },
-        { slug: identifier },
-      ],
-    },
-    select,
-  });
-  if (job) return job;
-  return findJobByLegacySlug(prisma, identifier, select);
-}
+import { findPublicJob } from "@/lib/public-job";
 
 export async function generateMetadata({ params }) {
   const { id } = await params;
-  const job = await findActiveJob(id, {
-    slug: true,
-    title: true,
-    company: true,
-    description: true,
-  });
+  const job = await findPublicJob(id);
 
   if (!job) {
     return {
@@ -60,10 +37,7 @@ export async function generateMetadata({ params }) {
 
 export default async function JobDetailLayout({ children, params }) {
   const { id } = await params;
-  const job = await findActiveJob(id, {
-    id: true,
-    slug: true,
-  });
+  const job = await findPublicJob(id);
 
   if (job && id !== job.slug) {
     permanentRedirect(`/jobs/${job.slug}`);

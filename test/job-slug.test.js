@@ -129,10 +129,15 @@ test("legacy job IDs receive a permanent redirect to the canonical slug", async 
     path.join(__dirname, "..", "app/jobs/[id]/layout.js"),
     "utf8"
   );
+  const loader = await readFile(
+    path.join(__dirname, "..", "lib/public-job.js"),
+    "utf8"
+  );
 
   assert.match(layout, /permanentRedirect\(`\/jobs\/\$\{job\.slug\}`\)/);
-  assert.match(layout, /\{ id: identifier \}/);
-  assert.match(layout, /\{ slug: identifier \}/);
+  assert.match(layout, /findPublicJob\(id\)/);
+  assert.match(loader, /OR:\s*\[\{ id: identifier \}, \{ slug: identifier \}\]/);
+  assert.match(loader, /findJobByLegacySlug/);
 });
 
 test("the first readable URL format remains resolvable after normalization", async () => {

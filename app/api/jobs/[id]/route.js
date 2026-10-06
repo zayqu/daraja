@@ -1,11 +1,10 @@
 import { NextResponse } from "next/server";
-import prisma from "@/lib/prisma";
 import { findPublicJob, serializePublicJob } from "@/lib/public-job";
 
 export async function GET(request, context) {
   try {
     const { id } = await context.params;
-    const job = await findPublicJob(prisma, id);
+    const job = await findPublicJob(id);
 
     if (!job) {
       return NextResponse.json({ error: "Job not found" }, { status: 404 });

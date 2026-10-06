@@ -24,38 +24,61 @@ export default function JobDetailPageClient({ initialJob, showEmployerCta }) {
   const [job, setJob] = useState(initialJob || null);
   const [loading, setLoading] = useState(!initialJob);
   const [notFound, setNotFound] = useState(false);
+  const [loadError, setLoadError] = useState(false);
   const [emailFallbackOpen, setEmailFallbackOpen] = useState(false);
   const [copyStatus, setCopyStatus] = useState("");
 
   const fetchJob = useCallback(async function fetchJob() {
-    try {
-      const res = await fetch("/api/jobs/" + id);
-      if (res.status === 404) {
-        setNotFound(true);
-        return;
-      }
+    setLoading(true);
+    setNotFound(false);
+    setLoadError(false);
 
-      const data = await res.json();
-      setJob(data.job);
-      trackEvent("view_item", {
-        items: [{
-          item_id: data.job.id,
-          item_name: data.job.title,
-          item_brand: data.job.company,
-          item_category: data.job.category,
-        }],
-      });
-    } catch (error) {
-      console.error(error);
-      setNotFound(true);
-    } finally {
-      setLoading(false);
+    for (let attempt = 1; attempt <= 3; attempt += 1) {
+      try {
+        const res = await fetch("/api/jobs/" + encodeURIComponent(id), {
+          cache: "no-store",
+        });
+
+        if (res.status === 404) {
+          setNotFound(true);
+          setLoading(false);
+          return;
+        }
+
+        if (!res.ok) {
+          throw new Error(`Job detail request failed with status ${res.status}`);
+        }
+
+        const data = await res.json();
+        if (!data?.job) throw new Error("Job detail response was empty");
+
+        setJob(data.job);
+        setLoading(false);
+        trackEvent("view_item", {
+          items: [{
+            item_id: data.job.id,
+            item_name: data.job.title,
+            item_brand: data.job.company,
+            item_category: data.job.category,
+          }],
+        });
+        return;
+      } catch (error) {
+        console.error(error);
+        if (attempt < 3) {
+          await new Promise((resolve) => setTimeout(resolve, attempt * 400));
+          continue;
+        }
+      }
     }
+
+    setLoadError(true);
+    setLoading(false);
   }, [id]);
 
   useEffect(() => {
     if (initialJob || !id) return;
-    queueMicrotask(fetchJob);
+    void fetchJob();
   }, [id, initialJob, fetchJob]);
 
   function formatDate(value) {
@@ -196,6 +219,16 @@ export default function JobDetailPageClient({ initialJob, showEmployerCta }) {
           <strong>Position not found</strong>
           <p>This job may have been removed, closed or replaced.</p>
           <Link href="/jobs">Browse all jobs →</Link>
+        </main>
+      )}
+
+      {!loading && loadError && !notFound && (
+        <main className={styles.state} id="main-content">
+          <strong>We could not load this position</strong>
+          <p>The connection was interrupted. Please try again.</p>
+          <button type="button" className={styles.primaryAction} onClick={fetchJob}>
+            Try again
+          </button>
         </main>
       )}
 

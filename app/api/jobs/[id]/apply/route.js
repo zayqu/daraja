@@ -66,6 +66,16 @@ export async function GET(_request, context) {
         return jsonError("The application link is not allowed", 400);
       }
 
+      // Older Ajira records may still have the public vacancy-detail page stored
+      // as applicationUrl. Do not send candidates back to another description
+      // page; continue to the official Ajira authentication/application step.
+      if (
+        job.source === "ajira" &&
+        !isLikelyDirectApplicationUrl(job.applicationUrl)
+      ) {
+        return redirectTo(AJIRA_LOGIN_URL);
+      }
+
       // New scraper records store the verified application destination
       // separately from the source job page, so Apply can go there directly.
       return redirectTo(job.applicationUrl);

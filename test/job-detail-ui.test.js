@@ -52,9 +52,13 @@ test("job detail uses the shared Jobtex-inspired Daraja layout without changing 
 });
 
 
-test("job detail is server-seeded so content and Apply do not depend on a client fetch", async () => {
+test("job detail is server-seeded and recovers from transient cPanel database failures", async () => {
   const page = await readFile(
     path.join(__dirname, "..", "app", "jobs", "[id]", "page.js"),
+    "utf8"
+  );
+  const layout = await readFile(
+    path.join(__dirname, "..", "app", "jobs", "[id]", "layout.js"),
     "utf8"
   );
   const component = await readFile(
@@ -67,11 +71,17 @@ test("job detail is server-seeded so content and Apply do not depend on a client
   );
 
   assert.match(page, /findPublicJob\(id\)/);
+  assert.match(page, /loadFailed = false/);
+  assert.match(page, /if \(!job && !loadFailed\) notFound\(\)/);
   assert.match(page, /initialJob=\{serializePublicJob\(job\)\}/);
-  assert.match(page, /if \(!job\) notFound\(\)/);
+  assert.match(layout, /safeFindPublicJob/);
+  assert.match(layout, /catch \(error\)/);
   assert.match(component, /useState\(initialJob \|\| null\)/);
   assert.match(component, /useState\(!initialJob\)/);
-  assert.match(component, /if \(initialJob \|\| !id\) return/);
+  assert.match(component, /attempt <= 3/);
+  assert.match(component, /cache: "no-store"/);
+  assert.match(component, /void fetchJob\(\)/);
+  assert.match(component, /We could not load this position/);
   assert.match(loader, /moderationStatus: "PUBLISHED"/);
   assert.match(loader, /findJobByLegacySlug/);
   assert.match(loader, /unstable_cache/);

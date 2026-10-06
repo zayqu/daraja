@@ -26,6 +26,19 @@ function jsonError(message, status) {
   return response;
 }
 
+function isAjiraVacancyDetailUrl(value) {
+  try {
+    const url = new URL(value);
+    return (
+      url.protocol === "https:" &&
+      url.hostname.toLowerCase().replace(/^www\./, "") === "portal.ajira.go.tz" &&
+      /^\/view-advert(?:\/|$)/i.test(url.pathname)
+    );
+  } catch {
+    return false;
+  }
+}
+
 export async function GET(_request, context) {
   try {
     const { id } = await context.params;
@@ -69,10 +82,7 @@ export async function GET(_request, context) {
       // Older Ajira records may still have the public vacancy-detail page stored
       // as applicationUrl. Do not send candidates back to another description
       // page; continue to the official Ajira authentication/application step.
-      if (
-        job.source === "ajira" &&
-        !isLikelyDirectApplicationUrl(job.applicationUrl)
-      ) {
+      if (isAjiraVacancyDetailUrl(job.applicationUrl)) {
         return redirectTo(AJIRA_LOGIN_URL);
       }
 

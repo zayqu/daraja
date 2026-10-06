@@ -100,6 +100,16 @@ function applicationScore(label, url) {
     score = 90;
   } else if (/email\s+(?:your\s+)?(?:application|cv)|send\s+(?:your\s+)?cv/i.test(text)) {
     score = 100;
+  } else if (
+    /\b(?:log\s*in|login|sign\s*in|signin)\b/i.test(text) &&
+    looksLikeApplicationUrl(url)
+  ) {
+    score = 45;
+  } else if (
+    /\b(?:register|create\s+account)\b/i.test(text) &&
+    looksLikeApplicationUrl(url)
+  ) {
+    score = 30;
   }
 
   if (score > 0 && url.startsWith("mailto:")) score += 35;

@@ -1,4 +1,4 @@
-import { SITE_ORIGIN, absoluteSiteUrl } from "@/lib/site-config";
+import { SITE_ORIGIN, absoluteSiteUrl } from "../lib/site-config.js";
 
 export default function robots() {
   return {

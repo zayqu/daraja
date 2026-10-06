@@ -41,6 +41,8 @@ test("apply route normalizes legacy Ajira vacancy-detail URLs regardless of sour
   assert.match(route, /view-advert/);
   assert.match(route, /if \(isAjiraVacancyDetailUrl\(job\.applicationUrl\)\)/);
   assert.match(route, /return redirectTo\(AJIRA_LOGIN_URL\)/);
+  assert.match(route, /https:\/\/portal\.ajira\.go\.tz\/auth\/login/);
+  assert.doesNotMatch(route, /https:\/\/portal\.ajira\.go\.tz\/auth";/);
 });
 
 

@@ -1,3 +1,4 @@
+const { SCRAPER_USER_AGENT } = require("./runtime-config");
 const cheerio = require("cheerio");
 const {
   extractSourceMedia,
@@ -185,7 +186,7 @@ async function fetchHtml(url, fetchFn, timeoutMs) {
     headers: {
       Accept: "text/html,application/xhtml+xml",
       "Accept-Language": "en",
-      "User-Agent": "DarajaJobsBot/1.0 (+https://www.ajira.daraja.co.tz)",
+      "User-Agent": SCRAPER_USER_AGENT,
     },
     signal: AbortSignal.timeout(timeoutMs || VERIFY_TIMEOUT_MS),
   });

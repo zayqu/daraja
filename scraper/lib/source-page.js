@@ -573,26 +573,49 @@ async function deepenApplicationUrl(
   { fetchFn = fetch, render = null, maxHops = 4 } = {}
 ) {
   let current = url;
+
   for (let hop = 0; hop < maxHops; hop += 1) {
     if (!current || current.startsWith("mailto:") || !isSafePublicHttpUrl(current)) break;
-    if (looksLikeApplicationUrl(current)) break;
+
     const signal = AbortSignal.timeout(SOURCE_PAGE_TIMEOUT_MS);
     const fetched = await fetchPage(current, fetchFn, signal);
     let html = fetched.ok ? fetched.html : "";
     const baseUrl = fetched.url || current;
     let next = html ? extractApplicationDestination(html, baseUrl) : null;
+
     if (!next && render) {
       try {
-        html = renderedPage(await render(current)).html;
+        const rendered = renderedPage(await render(current));
+        html = rendered.html;
         next = html ? extractApplicationDestination(html, baseUrl) : null;
       } catch {
         next = null;
       }
     }
-    if (!next || next === baseUrl || next === current) break;
-    if (!next.startsWith("mailto:") && !(await destinationOpens(next, { fetchFn, render, signal }))) break;
-    current = next;
+
+    if (next && next !== baseUrl && next !== current) {
+      if (
+        next.startsWith("mailto:") ||
+        (await destinationOpens(next, { fetchFn, render, signal }))
+      ) {
+        current = next;
+        continue;
+      }
+    }
+
+    // A URL that merely looks like /auth or /login is not trusted by its path
+    // alone. It is accepted only after the live page opens and exposes no
+    // deeper application/login target.
+    if (
+      looksLikeApplicationUrl(current) &&
+      (await destinationOpens(current, { fetchFn, render, signal }))
+    ) {
+      break;
+    }
+
+    break;
   }
+
   return current;
 }
 

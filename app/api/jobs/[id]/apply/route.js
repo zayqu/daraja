@@ -12,7 +12,7 @@ import {
 export const dynamic = "force-dynamic";
 
 const REQUEST_TIMEOUT_MS = 15_000;
-const AJIRA_LOGIN_URL = "https://portal.ajira.go.tz/auth";
+const AJIRA_LOGIN_URL = "https://portal.ajira.go.tz/auth/login";
 
 function redirectTo(url) {
   const response = NextResponse.redirect(url, { status: 302 });

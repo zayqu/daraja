@@ -23,6 +23,8 @@ export default function SiteFooter() {
           <Link href="/jobs?category=Government">Government</Link>
           <Link href="/jobs?category=NGO%20%26%20Development">NGO & Development</Link>
           <Link href="/jobs?category=Internships%20%26%20Graduate%20Programs">Internships</Link>
+          <Link href="/sectors">Jobs by sector</Link>
+          <Link href="/career-guides">Career guides</Link>
         </div>
 
         <div className={styles.column}>

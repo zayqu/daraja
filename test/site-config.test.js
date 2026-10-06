@@ -85,3 +85,17 @@ test("scraper HTTP identity is centralized", async () => {
     );
   }
 });
+
+
+test("shared WhatsApp config imports use the exported symbol exactly", async () => {
+  for (const relative of [
+    path.join("components", "JobAlerts.js"),
+    path.join("components", "SiteFooter.js"),
+    path.join("components", "ui", "MobileDock.js"),
+    path.join("app", "jobs", "[id]", "JobDetailPageClient.js"),
+  ]) {
+    const source = await readFile(path.join(root, relative), "utf8");
+    assert.doesNotMatch(source, /WHATSAPP_CHANNEL_URL_URL/);
+    assert.match(source, /WHATSAPP_CHANNEL_URL/);
+  }
+});

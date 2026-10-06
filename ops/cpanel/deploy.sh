@@ -226,6 +226,49 @@ terminate_app_scoped_node_workers() {
   done <<< "$pids"
 }
 
+previous_runtime_worker_pids() {
+  local previous_runtime
+  local app_uid
+  local candidate_pids
+  local pid
+  local worker_cwd
+
+  previous_runtime="$(readlink -f "$APP_DIR/runtime.previous" 2>/dev/null || true)"
+  app_uid="$(id -u "$APP_USER")"
+  if [[ -z "$previous_runtime" || ! -d "$previous_runtime" ]] || ! command -v pgrep >/dev/null 2>&1; then
+    return 1
+  fi
+
+  candidate_pids="$(pgrep -u "$app_uid" -f '[n]ext-server' 2>/dev/null || true)"
+  if [[ -z "$candidate_pids" ]]; then
+    return 1
+  fi
+
+  while IFS= read -r pid; do
+    [[ -n "$pid" ]] || continue
+    worker_cwd="$(readlink -f "/proc/$pid/cwd" 2>/dev/null || true)"
+    if [[ "$worker_cwd" == "$previous_runtime" || "$worker_cwd" == "$previous_runtime".* ]]; then
+      printf '%s\n' "$pid"
+    fi
+  done <<< "$candidate_pids"
+}
+
+terminate_previous_runtime_workers() {
+  local pids
+  local pid
+
+  pids="$(previous_runtime_worker_pids || true)"
+  if [[ -z "$pids" ]]; then
+    return 1
+  fi
+
+  printf 'Clearing stale Node worker(s) still attached to runtime.previous.\n' >&2
+  while IFS= read -r pid; do
+    [[ -n "$pid" ]] || continue
+    kill "$pid" 2>/dev/null || true
+  done <<< "$pids"
+}
+
 recover_stale_litespeed_worker() {
   local registered_apps
   local app_uid
@@ -372,6 +415,12 @@ cp "$WORK_DIR/extracted/server.js" server.js
 
 mkdir -p tmp
 restart_application restart
+sleep "$STALE_WORKER_WAIT_SECONDS"
+if terminate_previous_runtime_workers; then
+  sleep 1
+  restart_application start
+  sleep "$STALE_WORKER_WAIT_SECONDS"
+fi
 
 HEALTHCHECK_FAILED=0
 if ! public_release_healthcheck; then

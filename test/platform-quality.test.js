@@ -40,9 +40,15 @@ test("public sitemap includes employer entry points only when enabled", async ()
     const urls = sitemap().map((entry) => entry.url);
 
     const { SITE_ORIGIN } = await import("../lib/site-config.js");
+    const { CAREER_GUIDES } = await import("../lib/career-guides.js");
+    const { SECTOR_GUIDES } = await import("../lib/sector-guides.js");
     assert.deepEqual(urls, [
       SITE_ORIGIN,
       `${SITE_ORIGIN}/jobs`,
+      `${SITE_ORIGIN}/career-guides`,
+      ...CAREER_GUIDES.map((guide) => `${SITE_ORIGIN}/career-guides/${guide.slug}`),
+      `${SITE_ORIGIN}/sectors`,
+      ...SECTOR_GUIDES.map((sector) => `${SITE_ORIGIN}/sectors/${sector.slug}`),
       `${SITE_ORIGIN}/about`,
       `${SITE_ORIGIN}/editorial-policy`,
       `${SITE_ORIGIN}/contact`,
@@ -121,6 +127,10 @@ test("company information pages use the accessible shared content layout", async
     "app/contact/page.js",
     "app/editorial-policy/page.js",
     "app/terms/page.js",
+    "app/career-guides/page.js",
+    "app/career-guides/[slug]/page.js",
+    "app/sectors/page.js",
+    "app/sectors/[slug]/page.js",
   ]) {
     const source = await readFile(path.join(__dirname, "..", page), "utf8");
     assert.match(source, /import ContentPage/);

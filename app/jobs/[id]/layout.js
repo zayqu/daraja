@@ -1,16 +1,25 @@
 import { permanentRedirect } from "next/navigation";
 import { findPublicJob } from "@/lib/public-job";
 
+async function safeFindPublicJob(id) {
+  try {
+    return await findPublicJob(id);
+  } catch (error) {
+    console.error("Job detail layout read failed:", error);
+    return null;
+  }
+}
+
 export async function generateMetadata({ params }) {
   const { id } = await params;
-  const job = await findPublicJob(id);
+  const job = await safeFindPublicJob(id);
 
   if (!job) {
     return {
-      title: "Job Not Found",
+      title: "Job Opportunity | Daraja",
       robots: {
         index: false,
-        follow: false,
+        follow: true,
       },
     };
   }
@@ -37,7 +46,7 @@ export async function generateMetadata({ params }) {
 
 export default async function JobDetailLayout({ children, params }) {
   const { id } = await params;
-  const job = await findPublicJob(id);
+  const job = await safeFindPublicJob(id);
 
   if (job && id !== job.slug) {
     permanentRedirect(`/jobs/${job.slug}`);

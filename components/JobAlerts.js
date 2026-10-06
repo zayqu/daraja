@@ -2,10 +2,9 @@
 
 import Link from "next/link";
 import { trackEvent } from "@/lib/analytics";
+import { WHATSAPP_CHANNEL_URL_URL } from "@/lib/site-config";
 import styles from "./JobAlerts.module.css";
 
-const WHATSAPP_CHANNEL =
-  "https://whatsapp.com/channel/0029Vanw1OQ1CYoYdxl32g3V";
 
 export default function JobAlerts() {
   return (
@@ -43,7 +42,7 @@ export default function JobAlerts() {
           </p>
           <a
             className={styles.whatsappAction}
-            href={WHATSAPP_CHANNEL}
+            href={WHATSAPP_CHANNEL_URL}
             target="_blank"
             rel="noopener noreferrer"
             onClick={() =>

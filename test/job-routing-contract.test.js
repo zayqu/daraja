@@ -33,6 +33,15 @@ test("apply route prefers stored applicationUrl before legacy source-page resolu
   assert.match(route, /return redirectTo\(job\.applicationUrl\)/);
 });
 
+test("apply route normalizes legacy Ajira detail URLs to the official application step", async () => {
+  const route = await read("app/api/jobs/[id]/apply/route.js");
+
+  assert.match(route, /job\.source === "ajira"/);
+  assert.match(route, /!isLikelyDirectApplicationUrl\(job\.applicationUrl\)/);
+  assert.match(route, /return redirectTo\(AJIRA_LOGIN_URL\)/);
+});
+
+
 test("job scraper schema keeps source page and application destination separate", async () => {
   const schema = await read("prisma/schema.prisma");
   const jobs = await read("scraper/lib/jobs.js");

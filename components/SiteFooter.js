@@ -1,7 +1,7 @@
 import Link from "next/link";
 import styles from "./SiteFooter.module.css";
 import TrafficNumbers from "@/components/TrafficNumbers";
-import { WHATSAPP_CHANNEL_URL_URL } from "@/lib/site-config";
+import { WHATSAPP_CHANNEL_URL } from "@/lib/site-config";
 
 
 export default function SiteFooter() {

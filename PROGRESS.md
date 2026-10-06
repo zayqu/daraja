@@ -9,6 +9,14 @@ tested vertical releases. The current priority is Phase 0 security and privacy
 hardening before expanding candidate CV, employer, freelance, payment or AI
 workflows.
 
+## Current batch: server-rendered job detail reliability
+
+- Public job detail pages now load the published vacancy on the server and seed the interactive client with that data, so the position title, employer, content and Apply action do not depend on a second browser fetch after the page appears.
+- The public job API and job page share one `lib/public-job.js` loader for active/published and legacy-slug resolution instead of duplicating the lookup rule.
+- Client-side fetching remains only as a compatibility fallback when no server seed is supplied.
+- This removes the persistent "Loading position..." failure mode seen in live browser verification and improves first render/indexability without changing application ownership or protected data boundaries.
+- Focused job-detail/ingestion tests pass 7/7 and ESLint is clean.
+
 ## Current batch: application, typography and mobile navigation consistency
 
 - External application destinations continue to be resolved at ingestion, with the shared resolver now following a bounded chain of up to four application/detail/login hops so Apply reaches the deepest verified working destination instead of stopping at an intermediate description page.

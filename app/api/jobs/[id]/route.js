@@ -1,77 +1,17 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
-import legacySlug from "@/lib/legacy-job-slug";
-
-const { findJobByLegacySlug } = legacySlug;
+import { findPublicJob, serializePublicJob } from "@/lib/public-job";
 
 export async function GET(request, context) {
   try {
     const { id } = await context.params;
-
-    let job = await prisma.job.findFirst({
-      where: {
-        active: true,
-        moderationStatus: "PUBLISHED",
-        OR: [
-          { id },
-          { slug: id },
-        ],
-      },
-      select: {
-        id: true,
-        slug: true,
-        title: true,
-        company: true,
-        location: true,
-        description: true,
-        category: true,
-        type: true,
-        salary: true,
-        experienceMinYears: true,
-        experienceMaxYears: true,
-        openings: true,
-        deadline: true,
-        sourceUrl: true,
-        applicationUrl: true,
-        companyLogo: true,
-        representativeImage: true,
-        source: true,
-        createdAt: true,
-      },
-    });
-    if (!job) {
-      job = await findJobByLegacySlug(prisma, id, {
-        slug: true,
-        title: true,
-        company: true,
-        location: true,
-        description: true,
-        category: true,
-        type: true,
-        salary: true,
-        experienceMinYears: true,
-        experienceMaxYears: true,
-        openings: true,
-        deadline: true,
-        sourceUrl: true,
-        applicationUrl: true,
-        companyLogo: true,
-        representativeImage: true,
-        source: true,
-        createdAt: true,
-      });
-    }
+    const job = await findPublicJob(prisma, id);
 
     if (!job) {
       return NextResponse.json({ error: "Job not found" }, { status: 404 });
     }
 
-    return NextResponse.json({
-      job: {
-        ...job,
-        featured: false,
-      },
-    });
+    return NextResponse.json({ job: serializePublicJob(job) });
   } catch (error) {
     console.error("API error:", error);
     return NextResponse.json({ error: "Failed to fetch job" }, { status: 500 });

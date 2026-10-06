@@ -19,10 +19,10 @@ function experienceLabel({ experienceMinYears: min, experienceMaxYears: max }) {
   return `${min}–${max} years`;
 }
 
-export default function JobDetailPageClient({ showEmployerCta }) {
+export default function JobDetailPageClient({ initialJob, showEmployerCta }) {
   const { id } = useParams();
-  const [job, setJob] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [job, setJob] = useState(initialJob || null);
+  const [loading, setLoading] = useState(!initialJob);
   const [notFound, setNotFound] = useState(false);
   const [emailFallbackOpen, setEmailFallbackOpen] = useState(false);
   const [copyStatus, setCopyStatus] = useState("");
@@ -54,8 +54,9 @@ export default function JobDetailPageClient({ showEmployerCta }) {
   }, [id]);
 
   useEffect(() => {
-    if (id) queueMicrotask(fetchJob);
-  }, [id, fetchJob]);
+    if (initialJob || !id) return;
+    queueMicrotask(fetchJob);
+  }, [id, initialJob, fetchJob]);
 
   function formatDate(value) {
     if (!value) return null;

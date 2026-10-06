@@ -9,13 +9,16 @@ async function read(relativePath) {
 
 test("job detail API preserves original source URL and returns application media fields", async () => {
   const route = await read("app/api/jobs/[id]/route.js");
+  const loader = await read("lib/public-job.js");
 
-  assert.match(route, /sourceUrl:\s*true/);
-  assert.match(route, /applicationUrl:\s*true/);
-  assert.match(route, /companyLogo:\s*true/);
-  assert.match(route, /representativeImage:\s*true/);
-  assert.doesNotMatch(route, /sourceUrl\s*=\s*job\.sourceUrl/);
-  assert.doesNotMatch(route, /sourceUrl,[\s\S]*\/apply/);
+  assert.match(route, /findPublicJob\(prisma, id\)/);
+  assert.match(route, /serializePublicJob\(job\)/);
+  assert.match(loader, /sourceUrl:\s*true/);
+  assert.match(loader, /applicationUrl:\s*true/);
+  assert.match(loader, /companyLogo:\s*true/);
+  assert.match(loader, /representativeImage:\s*true/);
+  assert.doesNotMatch(loader, /sourceUrl\s*=\s*job\.sourceUrl/);
+  assert.doesNotMatch(loader, /sourceUrl,[\s\S]*\/apply/);
 });
 
 test("apply route prefers stored applicationUrl before legacy source-page resolution", async () => {

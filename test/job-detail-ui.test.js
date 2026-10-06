@@ -50,3 +50,28 @@ test("job detail uses the shared Jobtex-inspired Daraja layout without changing 
   assert.match(styles, /\.detailsCard[\s\S]*position:\s*static/);
   assert.doesNotMatch(styles, /\.detailsCard[\s\S]*position:\s*sticky/);
 });
+
+
+test("job detail is server-seeded so content and Apply do not depend on a client fetch", async () => {
+  const page = await readFile(
+    path.join(__dirname, "..", "app", "jobs", "[id]", "page.js"),
+    "utf8"
+  );
+  const component = await readFile(
+    path.join(__dirname, "..", "app", "jobs", "[id]", "JobDetailPageClient.js"),
+    "utf8"
+  );
+  const loader = await readFile(
+    path.join(__dirname, "..", "lib", "public-job.js"),
+    "utf8"
+  );
+
+  assert.match(page, /findPublicJob\(prisma, id\)/);
+  assert.match(page, /initialJob=\{serializePublicJob\(job\)\}/);
+  assert.match(page, /if \(!job\) notFound\(\)/);
+  assert.match(component, /useState\(initialJob \|\| null\)/);
+  assert.match(component, /useState\(!initialJob\)/);
+  assert.match(component, /if \(initialJob \|\| !id\) return/);
+  assert.match(loader, /moderationStatus: "PUBLISHED"/);
+  assert.match(loader, /findJobByLegacySlug/);
+});

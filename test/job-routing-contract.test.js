@@ -33,16 +33,15 @@ test("apply route prefers stored applicationUrl before legacy source-page resolu
   assert.match(route, /return redirectTo\(job\.applicationUrl\)/);
 });
 
-test("apply route normalizes legacy Ajira vacancy-detail URLs regardless of source label", async () => {
+test("apply route re-resolves trusted stored destinations from the live source", async () => {
   const route = await read("app/api/jobs/[id]/apply/route.js");
 
-  assert.match(route, /function isAjiraVacancyDetailUrl/);
-  assert.match(route, /portal\.ajira\.go\.tz/);
-  assert.match(route, /view-advert/);
-  assert.match(route, /if \(isAjiraVacancyDetailUrl\(job\.applicationUrl\)\)/);
-  assert.match(route, /return redirectTo\(AJIRA_LOGIN_URL\)/);
-  assert.match(route, /https:\/\/portal\.ajira\.go\.tz\/auth\/login/);
-  assert.doesNotMatch(route, /https:\/\/portal\.ajira\.go\.tz\/auth";/);
+  assert.match(route, /isAllowedResolverUrl\(job\.source, job\.applicationUrl\)/);
+  assert.match(route, /fetchAllowedApplicationPage/);
+  assert.match(route, /extractFinalApplicationUrl/);
+  assert.match(route, /finalTarget && finalTarget !== resolvedUrl/);
+  assert.doesNotMatch(route, /AJIRA_LOGIN_URL/);
+  assert.doesNotMatch(route, /portal\.ajira\.go\.tz\/auth/);
 });
 
 

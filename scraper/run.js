@@ -34,11 +34,15 @@ async function deepenApplicationUrls(jobs, { render, concurrency = 4 } = {}) {
     while (next < jobs.length) {
       const job = jobs[next];
       next += 1;
-      if (!job.applicationUrl || job.applicationUrl.startsWith("mailto:")) continue;
+      const seedUrl = job.applicationUrl || job.sourceUrl;
+      if (!seedUrl || seedUrl.startsWith("mailto:")) continue;
       try {
-        job.applicationUrl = await deepenApplicationUrl(job.applicationUrl, { render });
+        const resolvedUrl = await deepenApplicationUrl(seedUrl, { render });
+        if (job.applicationUrl || resolvedUrl !== job.sourceUrl) {
+          job.applicationUrl = resolvedUrl;
+        }
       } catch {
-        // Keep the verified link the adapter found.
+        // Keep the verified link the adapter found, or leave it unresolved.
       }
     }
   };

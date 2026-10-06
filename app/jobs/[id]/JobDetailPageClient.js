@@ -8,6 +8,7 @@ import SiteFooter from "@/components/SiteFooter";
 import JobBrandMedia from "@/components/JobBrandMedia";
 import { trackEvent } from "@/lib/analytics";
 import { structureJobDescription } from "@/lib/job-description";
+import { SITE_ORIGIN, WHATSAPP_CHANNEL_URL } from "@/lib/site-config";
 import styles from "./job-detail.module.css";
 
 function experienceLabel({ experienceMinYears: min, experienceMaxYears: max }) {
@@ -133,10 +134,10 @@ export default function JobDetailPageClient({ initialJob, showEmployerCta }) {
       `Category: ${job.category}`,
       `Deadline: ${deadline}`,
       "",
-      `View details: https://ajira.daraja.co.tz/jobs/${encodeURIComponent(job.slug || job.id)}`,
+      `View details: ${SITE_ORIGIN}/jobs/${encodeURIComponent(job.slug || job.id)}`,
       "",
       "Follow Daraja Jobs on WhatsApp:",
-      "https://whatsapp.com/channel/0029Vanw1OQ1CYoYdxl32g3V",
+      WHATSAPP_CHANNEL_URL,
     ].join("\n");
   }
 

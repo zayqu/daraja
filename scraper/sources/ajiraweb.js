@@ -1,3 +1,4 @@
+const { SCRAPER_USER_AGENT } = require("../lib/runtime-config");
 const cheerio = require("cheerio");
 
 const { normalizeEmployerSubject } = require("../lib/applications");
@@ -384,7 +385,7 @@ async function fetchStructuredJob(sourceUrl, fetchFn) {
   const response = await fetchFn(sourceUrl, {
     headers: {
       Accept: "text/html,application/xhtml+xml",
-      "User-Agent": "DarajaJobsBot/1.0 (+https://www.ajira.daraja.co.tz)",
+      "User-Agent": SCRAPER_USER_AGENT,
     },
     signal: AbortSignal.timeout(OFFICIAL_PAGE_TIMEOUT_MS),
   });
@@ -474,7 +475,7 @@ async function collectAjiraWebJobs({
   const response = await fetchFn(AJIRAWEB_FEED_URL, {
     headers: {
       Accept: "application/rss+xml, application/xml;q=0.9, text/xml;q=0.8",
-      "User-Agent": "DarajaJobsBot/1.0 (+https://www.ajira.daraja.co.tz)",
+      "User-Agent": SCRAPER_USER_AGENT,
     },
     signal,
   });

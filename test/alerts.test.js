@@ -9,6 +9,7 @@ const {
   jobMatchesPreferences,
   sendJobAlertDigests,
 } = require("../scraper/lib/alerts");
+const { SITE_ORIGIN } = require("../scraper/lib/runtime-config");
 
 test("job alert email escapes source text and contains an unsubscribe link", () => {
   const email = buildAlertEmail(
@@ -31,7 +32,7 @@ test("job alert email escapes source text and contains an unsubscribe link", () 
   );
   assert.equal(
     email.headers["List-Unsubscribe"],
-    "<https://www.ajira.daraja.co.tz/api/job-alerts?unsubscribe=11111111-1111-4111-8111-111111111111>"
+    `<${SITE_ORIGIN}/api/job-alerts?unsubscribe=11111111-1111-4111-8111-111111111111>`
   );
   assert.equal(
     email.headers["List-Unsubscribe-Post"],

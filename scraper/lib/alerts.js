@@ -1,6 +1,5 @@
 const crypto = require("node:crypto");
-
-const SITE_URL = "https://www.ajira.daraja.co.tz";
+const { SITE_ORIGIN } = require("./runtime-config");
 const MAX_SUBSCRIBERS_PER_RUN = 50;
 const MAX_JOBS_PER_EMAIL = 12;
 
@@ -47,7 +46,7 @@ function buildAlertEmail(subscriber, jobs) {
     .map(
       (job) => `
         <li style="margin:0 0 18px">
-          <a href="${SITE_URL}/jobs/${encodeURIComponent(job.slug || job.id)}" style="color:#087f6c;font-weight:700;text-decoration:none">
+          <a href="${SITE_ORIGIN}/jobs/${encodeURIComponent(job.slug || job.id)}" style="color:#087f6c;font-weight:700;text-decoration:none">
             ${escapeHtml(job.title)}
           </a><br>
           <span style="color:#344054">${escapeHtml(job.company)} · ${escapeHtml(job.location)}</span>
@@ -55,9 +54,9 @@ function buildAlertEmail(subscriber, jobs) {
     )
     .join("");
   const encodedToken = encodeURIComponent(subscriber.unsubscribeToken);
-  const unsubscribeUrl = `${SITE_URL}/alerts/unsubscribe?token=${encodedToken}`;
+  const unsubscribeUrl = `${SITE_ORIGIN}/alerts/unsubscribe?token=${encodedToken}`;
   const oneClickUnsubscribeUrl =
-    `${SITE_URL}/api/job-alerts?unsubscribe=${encodedToken}`;
+    `${SITE_ORIGIN}/api/job-alerts?unsubscribe=${encodedToken}`;
 
   return {
     subject: `${jobs.length} new matching job${jobs.length === 1 ? "" : "s"} on Daraja`,
@@ -70,7 +69,7 @@ function buildAlertEmail(subscriber, jobs) {
         <h1 style="font-size:24px">New opportunities matching your preferences</h1>
         <p>Here are verified vacancies published since your previous update.</p>
         <ul style="padding-left:22px">${jobRows}</ul>
-        <p><a href="${SITE_URL}/jobs" style="display:inline-block;padding:12px 18px;border-radius:6px;background:#00c9a7;color:#1b2a3f;font-weight:700;text-decoration:none">Browse all jobs</a></p>
+        <p><a href="${SITE_ORIGIN}/jobs" style="display:inline-block;padding:12px 18px;border-radius:6px;background:#00c9a7;color:#1b2a3f;font-weight:700;text-decoration:none">Browse all jobs</a></p>
         <p style="margin-top:32px;font-size:12px;color:#667085">
           You received this because job alerts are enabled in your Daraja candidate account.
           <a href="${unsubscribeUrl}" style="color:#667085">Unsubscribe</a>

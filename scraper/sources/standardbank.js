@@ -1,3 +1,4 @@
+const { SCRAPER_USER_AGENT } = require("../lib/runtime-config");
 const cheerio = require("cheerio");
 
 const {
@@ -17,7 +18,7 @@ function requestOptions() {
   return {
     headers: {
       Accept: "application/json",
-      "User-Agent": "DarajaJobsBot/1.0 (+https://www.ajira.daraja.co.tz)",
+      "User-Agent": SCRAPER_USER_AGENT,
     },
     signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
   };

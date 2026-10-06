@@ -6,10 +6,9 @@ import { usePathname, useSearchParams } from "next/navigation";
 import { mobileDockEnabledPath } from "@/lib/mobile-navigation";
 import NavIcon from "@/components/ui/NavIcon";
 import { PRIVACY_SETTINGS_EVENT } from "@/lib/google-services";
+import { WHATSAPP_CHANNEL_URL_URL } from "@/lib/site-config";
 import styles from "./MobileDock.module.css";
 
-const WHATSAPP_CHANNEL =
-  "https://whatsapp.com/channel/0029Vanw1OQ1CYoYdxl32g3V";
 
 export default function MobileDock({
   showEmployerCta = false,
@@ -152,7 +151,7 @@ export default function MobileDock({
               </Link>
               <Link href="/about" onClick={() => setMoreOpen(false)}>About Daraja</Link>
               <Link href="/contact" onClick={() => setMoreOpen(false)}>Contact</Link>
-              <a href={WHATSAPP_CHANNEL} target="_blank" rel="noopener noreferrer" onClick={() => setMoreOpen(false)}>
+              <a href={WHATSAPP_CHANNEL_URL} target="_blank" rel="noopener noreferrer" onClick={() => setMoreOpen(false)}>
                 WhatsApp Channel
               </a>
               {showEmployerCta && (isEmployer || isAdmin) && (

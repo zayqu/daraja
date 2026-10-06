@@ -440,3 +440,34 @@ ingestion never overrides a moderation decision made by an administrator.
 ### Candidate account home
 
 The user/profile icon opens `/account`, which is the canonical candidate account home. The page follows a compact profile-and-action-list pattern rather than a dashboard hero. Detailed profile editing stays at `/account/profile`, career tools stay under `/account/career`, and privacy/alerts/notifications keep their existing dedicated routes. The account hub must show only real account state and working destinations.
+
+## D-031 - Daraja configuration is centralized; external destinations are discovered
+
+**Status:** accepted
+
+Daraja hardcodes product policy and security boundaries, not changeable source
+destinations or duplicated public-site identity values.
+
+Daraja-owned public settings such as the canonical site origin, shared channel
+links and cookie scope have one environment-backed source of truth. Page,
+component, metadata, sharing and notification code consume that shared
+configuration instead of repeating literals.
+
+External recruitment sources keep their stable entry points and allowlisted
+hosts in the source registry/adapters. Application destinations are discovered
+from the live official source, validated, followed through a bounded
+Apply/Login/Register chain and stored as current source data. A path that merely
+looks like an application path is not trusted without a working live response.
+
+Runtime Apply handling may re-resolve a trusted stored destination when the
+source controls that host. This lets source sites change login or application
+routes without requiring a Daraja code release.
+
+Internal Daraja routes, permissions, security checks, feature gates and product
+workflow rules remain code-owned. "Dynamic" does not mean allowing remote sites
+to control Daraja navigation, authorization or executable behaviour.
+
+New work must modify the existing shared configuration or source registry rather
+than adding page-specific constants, duplicate source URLs, duplicate channel
+links or source-specific redirect patches.
+

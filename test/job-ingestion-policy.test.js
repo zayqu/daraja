@@ -84,18 +84,17 @@ test("source identity wins before legacy cross-source matching", async () => {
   assert.equal(calls[0].sourceId, "vacancy-42");
 });
 
-test("site metadata uses the user-facing ajira.daraja.co.tz origin", async () => {
+test("site metadata uses the centralized site origin", async () => {
   const layout = await readFile(
     path.join(__dirname, "..", "app", "layout.js"),
     "utf8"
   );
+  const config = await readFile(
+    path.join(__dirname, "..", "lib", "site-config.js"),
+    "utf8"
+  );
 
-  assert.match(
-    layout,
-    /metadataBase: new URL\("https:\/\/ajira\.daraja\.co\.tz"\)/
-  );
-  assert.doesNotMatch(
-    layout,
-    /metadataBase: new URL\("https:\/\/www\.ajira\.daraja\.co\.tz"\)/
-  );
+  assert.match(layout, /metadataBase: new URL\(SITE_ORIGIN\)/);
+  assert.match(layout, /from "@\/lib\/site-config"/);
+  assert.match(config, /NEXT_PUBLIC_SITE_ORIGIN/);
 });

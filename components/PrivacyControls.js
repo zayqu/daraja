@@ -11,6 +11,7 @@ import {
   isValidAdSenseClient,
   isValidGoogleAnalyticsId,
 } from "@/lib/google-services";
+import { COOKIE_DOMAIN } from "@/lib/site-config";
 import "./PrivacyControls.css";
 
 function readConsent() {
@@ -73,7 +74,7 @@ export default function PrivacyControls({ analyticsId, adsenseClient }) {
       window.localStorage.setItem(CONSENT_STORAGE_KEY, value);
     } catch {}
 
-    document.cookie = `${CONSENT_STORAGE_KEY}=${value}; Max-Age=31536000; Path=/; Domain=.ajira.daraja.co.tz; SameSite=Lax; Secure`;
+    document.cookie = `${CONSENT_STORAGE_KEY}=${value}; Max-Age=31536000; Path=/; Domain=${COOKIE_DOMAIN}; SameSite=Lax; Secure`;
     if (typeof window.gtag === "function") {
       const permission = value === "accepted" ? "granted" : "denied";
       window.gtag("consent", "update", {

@@ -1,3 +1,5 @@
+import { SITE_ORIGIN, absoluteSiteUrl } from "../lib/site-config.js";
+
 export default function robots() {
   return {
     rules: [{
@@ -5,7 +7,7 @@ export default function robots() {
       allow: "/",
       disallow: ["/api/", "/alerts/"],
     }],
-    sitemap: "https://www.ajira.daraja.co.tz/sitemap.xml",
-    host: "https://www.ajira.daraja.co.tz",
+    sitemap: absoluteSiteUrl("/sitemap.xml"),
+    host: SITE_ORIGIN,
   };
 }

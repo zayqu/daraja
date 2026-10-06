@@ -1,3 +1,4 @@
+const { SCRAPER_USER_AGENT } = require("../lib/runtime-config");
 const cheerio = require("cheerio");
 
 const { cleanText, deduplicateJobs } = require("../lib/jobs");
@@ -93,7 +94,7 @@ async function collectNmbJobs({ fetchFn = fetch, signal = AbortSignal.timeout(RE
   const response = await fetchFn(NMB_CAREERS_URL, {
     headers: {
       Accept: "text/html,application/xhtml+xml",
-      "User-Agent": "DarajaJobsBot/1.0 (+https://www.ajira.daraja.co.tz)",
+      "User-Agent": SCRAPER_USER_AGENT,
     },
     signal,
   });

@@ -8,6 +8,7 @@ import TrafficTracker from "@/components/TrafficTracker";
 import MobileDock from "@/components/ui/MobileDock";
 import { candidateCareerEnabled, employerPortalEnabled } from "@/lib/features";
 import { auth } from "@/auth";
+import { SITE_ORIGIN } from "@/lib/site-config";
 
 const poppins = Poppins({
   variable: "--font-poppins",
@@ -24,7 +25,7 @@ export const viewport = {
 };
 
 export const metadata = {
-  metadataBase: new URL("https://ajira.daraja.co.tz"),
+  metadataBase: new URL(SITE_ORIGIN),
   title: {
     default: "Jobs in Tanzania | Daraja",
     template: "%s | Daraja",

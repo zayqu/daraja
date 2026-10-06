@@ -27,7 +27,8 @@ test("job detail uses the shared Jobtex-inspired Daraja layout without changing 
   assert.match(component, /\/api\/jobs\/\$\{encodeURIComponent\(job\.slug \|\| job\.id\)\}\/apply/);
   assert.match(component, /https:\/\/wa\.me\/\?text=/);
   assert.doesNotMatch(component, /window\.location\.href/);
-  assert.match(component, /https:\/\/ajira\.daraja\.co\.tz\/jobs\//);
+  assert.match(component, /SITE_ORIGIN/);
+  assert.match(component, /View details: \$\{SITE_ORIGIN\}\/jobs\//);
   assert.match(component, /Tailor CV for this job/);
   assert.match(component, /\/account\/career\/cv\?job=/);
   assert.match(component, /trackEvent\("view_item"/);

@@ -27,6 +27,9 @@ jobs:
       NEXT_TELEMETRY_DISABLED: "1"
       NEXT_PUBLIC_GOOGLE_ANALYTICS_ID: G-89Q157X930
       NEXT_PUBLIC_GOOGLE_ADSENSE_CLIENT: ca-pub-5101856964689063
+      NEXT_PUBLIC_SITE_ORIGIN: ${{ vars.NEXT_PUBLIC_SITE_ORIGIN || 'https://ajira.daraja.co.tz' }}
+      NEXT_PUBLIC_WHATSAPP_CHANNEL_URL: ${{ vars.NEXT_PUBLIC_WHATSAPP_CHANNEL_URL || 'https://whatsapp.com/channel/0029Vanw1OQ1CYoYdxl32g3V' }}
+      NEXT_PUBLIC_COOKIE_DOMAIN: ${{ vars.NEXT_PUBLIC_COOKIE_DOMAIN || '.ajira.daraja.co.tz' }}
 
     steps:
       - name: Check out source

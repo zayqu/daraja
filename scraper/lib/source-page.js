@@ -1,3 +1,4 @@
+const { SCRAPER_USER_AGENT } = require("./runtime-config");
 const cheerio = require("cheerio");
 
 const BLOCKED_MEDIA_PATTERNS =
@@ -373,7 +374,7 @@ async function fetchSourcePageMetadata(
     const response = await fetchFn(pageUrl, {
       headers: {
         Accept: "text/html,application/xhtml+xml",
-        "User-Agent": "DarajaJobsBot/1.0 (+https://www.ajira.daraja.co.tz)",
+        "User-Agent": SCRAPER_USER_AGENT,
       },
       signal,
     });
@@ -476,7 +477,7 @@ async function fetchPage(url, fetchFn, signal) {
       redirect: "follow",
       headers: {
         Accept: "text/html,application/xhtml+xml",
-        "User-Agent": "DarajaJobsBot/1.0 (+https://www.ajira.daraja.co.tz)",
+        "User-Agent": SCRAPER_USER_AGENT,
       },
       signal,
     });

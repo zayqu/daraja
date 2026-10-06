@@ -1,6 +1,6 @@
 # Daraja Jobs production-readiness progress
 
-Last updated: 2 October 2026
+Last updated: 6 October 2026
 
 ## Current objective
 
@@ -8,6 +8,14 @@ Build Daraja into a secure Tanzania-first work marketplace through small,
 tested vertical releases. The current priority is Phase 0 security and privacy
 hardening before expanding candidate CV, employer, freelance, payment or AI
 workflows.
+
+## Current batch: original career guides and sector pages (AdSense readiness)
+
+- Added ten original Daraja career guides at `/career-guides` (Ajira Portal applications, CVs, application letters, interviews, job scams, email applications, first jobs, reading adverts, documents/referees, career growth). Each is 350+ words of Daraja-written guidance with a Swahili summary.
+- Added `/sectors` with an editorial introduction, applicant tips and related guides for every public job category except General. Category names still come only from `lib/job-categories.js`; `lib/sector-guides.js` adds editorial copy and slugs and links to the existing `/jobs?category=` filter rather than a parallel listing.
+- Both sections use the shared `ContentPage` layout, are listed in the sitemap and are linked from the footer.
+- Purpose: give Ajira substantial original content beyond aggregated vacancy listings ahead of Google AdSense review.
+- `test/career-content.test.js` enforces unique slugs, minimum length, Swahili summaries, full category coverage and valid guide links; the sitemap test was updated. Career-content and platform-quality tests pass 21/21 and ESLint is clean on changed files.
 
 ## Current batch: resilient cached job-detail reads
 

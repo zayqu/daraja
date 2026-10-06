@@ -62,10 +62,11 @@ export default async function RootLayout({ children }) {
   const showCandidateProfile = candidateCareerEnabled();
   const session = await auth();
   const userRole = session?.user?.role || null;
+  const rootFontClass = `${poppins.variable} ${poppins.className}`;
 
   return (
-    <html lang="en">
-      <body className={poppins.variable}>
+    <html lang="en" className={rootFontClass}>
+      <body className={poppins.className}>
         <a className="skip-link" href="#main-content">
           Skip to main content
         </a>

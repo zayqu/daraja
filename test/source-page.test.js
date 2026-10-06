@@ -164,6 +164,10 @@ test("Apply links are followed to the page where the application starts", async 
       '<body><p>Continue through the employer recruitment process to submit your application.</p><a href="/auth/login?job=1">Login to apply</a></body>',
     "https://employer.co.tz/auth/login?job=1":
       '<body><h1>Sign in</h1><form><input type="email" name="email"></form></body>',
+    "https://portal.ajira.go.tz/auth":
+      '<body><nav><a href="/auth/login">LOGIN</a></nav><main></main></body>',
+    "https://portal.ajira.go.tz/auth/login":
+      '<body><h1>Login</h1><form><input type="email" name="email"><input type="password" name="password"></form></body>',
   };
   const fetchFn = async (url) =>
     pages[url]
@@ -176,7 +180,7 @@ test("Apply links are followed to the page where the application starts", async 
   );
   assert.equal(
     await deepenApplicationUrl("https://portal.ajira.go.tz/auth", { fetchFn }),
-    "https://portal.ajira.go.tz/auth"
+    "https://portal.ajira.go.tz/auth/login"
   );
   assert.equal(
     await deepenApplicationUrl("mailto:hr@employer.co.tz", { fetchFn }),

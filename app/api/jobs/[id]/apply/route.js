@@ -12,8 +12,6 @@ import {
 export const dynamic = "force-dynamic";
 
 const REQUEST_TIMEOUT_MS = 15_000;
-const AJIRA_LOGIN_URL = "https://portal.ajira.go.tz/auth";
-
 function redirectTo(url) {
   const response = NextResponse.redirect(url, { status: 302 });
   response.headers.set("Cache-Control", "private, no-store");
@@ -24,19 +22,6 @@ function jsonError(message, status) {
   const response = NextResponse.json({ error: message }, { status });
   response.headers.set("Cache-Control", "private, no-store");
   return response;
-}
-
-function isAjiraVacancyDetailUrl(value) {
-  try {
-    const url = new URL(value);
-    return (
-      url.protocol === "https:" &&
-      url.hostname.toLowerCase().replace(/^www\./, "") === "portal.ajira.go.tz" &&
-      /^\/view-advert(?:\/|$)/i.test(url.pathname)
-    );
-  } catch {
-    return false;
-  }
 }
 
 export async function GET(_request, context) {
@@ -79,16 +64,32 @@ export async function GET(_request, context) {
         return jsonError("The application link is not allowed", 400);
       }
 
-      // Older Ajira records may still have the public vacancy-detail page stored
-      // as applicationUrl. Do not send candidates back to another description
-      // page; continue to the official Ajira authentication/application step.
-      if (isAjiraVacancyDetailUrl(job.applicationUrl)) {
-        return redirectTo(AJIRA_LOGIN_URL);
-      }
+      // Stored destinations on a trusted source host are re-read live before
+      // redirecting. This lets the source evolve from /auth to /auth/login,
+      // or to a different application route, without Daraja hardcoding it.
+      if (isAllowedResolverUrl(job.source, job.applicationUrl)) {
+        const { response, url: resolvedUrl } = await fetchAllowedApplicationPage({
+          source: job.source,
+          url: job.applicationUrl,
+          signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
+        });
 
-      // New scraper records store the verified application destination
-      // separately from the source job page, so Apply can go there directly.
-      return redirectTo(job.applicationUrl);
+        if (response.ok && response.headers.get("content-type")?.includes("text/html")) {
+          const finalTarget = extractFinalApplicationUrl(
+            await readBoundedApplicationHtml(response),
+            resolvedUrl
+          );
+          if (finalTarget && finalTarget !== resolvedUrl) {
+            return redirectTo(finalTarget);
+          }
+        }
+
+        if (response.ok && isLikelyDirectApplicationUrl(resolvedUrl)) {
+          return redirectTo(resolvedUrl);
+        }
+      } else {
+        return redirectTo(job.applicationUrl);
+      }
     }
 
     // Compatibility path for records created before applicationUrl existed.
@@ -134,10 +135,6 @@ export async function GET(_request, context) {
         resolvedUrl
       );
       if (finalTarget) return redirectTo(finalTarget);
-    }
-
-    if (job.source === "ajira") {
-      return redirectTo(AJIRA_LOGIN_URL);
     }
 
     return jsonError("A direct application link could not be verified", 502);

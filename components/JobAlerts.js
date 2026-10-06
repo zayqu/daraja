@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { trackEvent } from "@/lib/analytics";
-import { WHATSAPP_CHANNEL_URL_URL } from "@/lib/site-config";
+import { WHATSAPP_CHANNEL_URL } from "@/lib/site-config";
 import styles from "./JobAlerts.module.css";
 
 

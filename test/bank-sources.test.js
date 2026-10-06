@@ -57,7 +57,7 @@ test("Ajira rendered Advert Name becomes the published job title", () => {
   assert.equal(job.deadline, "31/08/2026");
   assert.equal(job.numberOfPosts, "2 Posts");
   assert.equal(job.sourceId, "13243");
-  assert.equal(job.applicationUrl, "https://portal.ajira.go.tz/auth");
+  assert.equal(job.applicationUrl, null);
 });
 
 test("NMB official careers page produces named vacancies", () => {

@@ -28,10 +28,8 @@ test("robots rules protect private endpoints and publish the sitemap", async () 
   const result = robots();
 
   assert.deepEqual(result.rules[0].disallow, ["/api/", "/alerts/"]);
-  assert.equal(
-    result.sitemap,
-    "https://www.ajira.daraja.co.tz/sitemap.xml"
-  );
+  const { absoluteSiteUrl } = await import("../lib/site-config.js");
+  assert.equal(result.sitemap, absoluteSiteUrl("/sitemap.xml"));
 });
 
 test("public sitemap includes employer entry points only when enabled", async () => {
@@ -41,20 +39,21 @@ test("public sitemap includes employer entry points only when enabled", async ()
     delete process.env.EMPLOYER_PORTAL_ENABLED;
     const urls = sitemap().map((entry) => entry.url);
 
+    const { SITE_ORIGIN } = await import("../lib/site-config.js");
     assert.deepEqual(urls, [
-      "https://www.ajira.daraja.co.tz",
-      "https://www.ajira.daraja.co.tz/jobs",
-      "https://www.ajira.daraja.co.tz/about",
-      "https://www.ajira.daraja.co.tz/editorial-policy",
-      "https://www.ajira.daraja.co.tz/contact",
-      "https://www.ajira.daraja.co.tz/privacy",
-      "https://www.ajira.daraja.co.tz/terms",
+      SITE_ORIGIN,
+      `${SITE_ORIGIN}/jobs`,
+      `${SITE_ORIGIN}/about`,
+      `${SITE_ORIGIN}/editorial-policy`,
+      `${SITE_ORIGIN}/contact`,
+      `${SITE_ORIGIN}/privacy`,
+      `${SITE_ORIGIN}/terms`,
     ]);
 
     process.env.EMPLOYER_PORTAL_ENABLED = "true";
     assert.ok(
       sitemap().some(
-        (entry) => entry.url === "https://www.ajira.daraja.co.tz/post-job"
+        (entry) => entry.url === `${SITE_ORIGIN}/post-job`
       )
     );
   } finally {

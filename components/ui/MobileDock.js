@@ -6,7 +6,7 @@ import { usePathname, useSearchParams } from "next/navigation";
 import { mobileDockEnabledPath } from "@/lib/mobile-navigation";
 import NavIcon from "@/components/ui/NavIcon";
 import { PRIVACY_SETTINGS_EVENT } from "@/lib/google-services";
-import { WHATSAPP_CHANNEL_URL_URL } from "@/lib/site-config";
+import { WHATSAPP_CHANNEL_URL } from "@/lib/site-config";
 import styles from "./MobileDock.module.css";
 
 

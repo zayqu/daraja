@@ -1,6 +1,10 @@
 @import "tailwindcss";
 @import "../styles/tokens.css";
 
+@theme inline {
+  --font-sans: var(--font-daraja);
+}
+
 * {
   box-sizing: border-box;
   margin: 0;
@@ -9,6 +13,7 @@
 
 html {
   scroll-behavior: smooth;
+  font-family: var(--font-daraja);
 }
 
 body {
@@ -142,4 +147,3 @@ select {
     min-height: 250px;
   }
 }
-

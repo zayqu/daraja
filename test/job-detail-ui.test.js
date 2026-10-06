@@ -66,7 +66,7 @@ test("job detail is server-seeded so content and Apply do not depend on a client
     "utf8"
   );
 
-  assert.match(page, /findPublicJob\\(id\\)/);
+  assert.match(page, /findPublicJob\(id\)/);
   assert.match(page, /initialJob=\{serializePublicJob\(job\)\}/);
   assert.match(page, /if \(!job\) notFound\(\)/);
   assert.match(component, /useState\(initialJob \|\| null\)/);

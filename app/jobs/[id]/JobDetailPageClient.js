@@ -133,7 +133,7 @@ export default function JobDetailPageClient({ initialJob, showEmployerCta }) {
       `Category: ${job.category}`,
       `Deadline: ${deadline}`,
       "",
-      `View details: ${window.location.href}`,
+      `View details: https://ajira.daraja.co.tz/jobs/${encodeURIComponent(job.slug || job.id)}`,
       "",
       "Follow Daraja Jobs on WhatsApp:",
       "https://whatsapp.com/channel/0029Vanw1OQ1CYoYdxl32g3V",

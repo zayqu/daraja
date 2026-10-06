@@ -64,5 +64,12 @@ test("cPanel stale-worker recovery scopes next-server processes to the Daraja ru
   assert.match(deployScript, /runtime_prefix/);
   assert.match(deployScript, /worker_cwd/);
   assert.match(deployScript, /terminate_app_scoped_node_workers/);
+  assert.match(deployScript, /previous_runtime_worker_pids/);
+  assert.match(deployScript, /terminate_previous_runtime_workers/);
+  assert.match(deployScript, /runtime\.previous/);
+  assert.ok(
+    deployScript.indexOf("terminate_previous_runtime_workers") <
+      deployScript.lastIndexOf("HEALTHCHECK_FAILED=0")
+  );
   assert.doesNotMatch(deployScript, /pkill[^\n]+\[n\]ext-server/);
 });

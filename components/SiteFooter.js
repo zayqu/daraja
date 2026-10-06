@@ -1,10 +1,8 @@
 import Link from "next/link";
 import styles from "./SiteFooter.module.css";
 import TrafficNumbers from "@/components/TrafficNumbers";
+import { WHATSAPP_CHANNEL_URL_URL } from "@/lib/site-config";
 
-
-const WHATSAPP_CHANNEL =
-  "https://whatsapp.com/channel/0029Vanw1OQ1CYoYdxl32g3V";
 
 export default function SiteFooter() {
   return (
@@ -29,7 +27,7 @@ export default function SiteFooter() {
 
         <div className={styles.column}>
           <div className={styles.heading}>Stay connected</div>
-          <a href={WHATSAPP_CHANNEL} target="_blank" rel="noopener noreferrer">
+          <a href={WHATSAPP_CHANNEL_URL} target="_blank" rel="noopener noreferrer">
             WhatsApp Channel
           </a>
           <Link href="/account/alerts">Job alerts</Link>

@@ -11,7 +11,7 @@ test("job detail API preserves original source URL and returns application media
   const route = await read("app/api/jobs/[id]/route.js");
   const loader = await read("lib/public-job.js");
 
-  assert.match(route, /findPublicJob\(prisma, id\)/);
+  assert.match(route, /findPublicJob\\(id\\)/);
   assert.match(route, /serializePublicJob\(job\)/);
   assert.match(loader, /sourceUrl:\s*true/);
   assert.match(loader, /applicationUrl:\s*true/);

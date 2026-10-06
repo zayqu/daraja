@@ -66,7 +66,7 @@ test("job detail is server-seeded so content and Apply do not depend on a client
     "utf8"
   );
 
-  assert.match(page, /findPublicJob\(prisma, id\)/);
+  assert.match(page, /findPublicJob\\(id\\)/);
   assert.match(page, /initialJob=\{serializePublicJob\(job\)\}/);
   assert.match(page, /if \(!job\) notFound\(\)/);
   assert.match(component, /useState\(initialJob \|\| null\)/);
@@ -74,4 +74,7 @@ test("job detail is server-seeded so content and Apply do not depend on a client
   assert.match(component, /if \(initialJob \|\| !id\) return/);
   assert.match(loader, /moderationStatus: "PUBLISHED"/);
   assert.match(loader, /findJobByLegacySlug/);
+  assert.match(loader, /unstable_cache/);
+  assert.match(loader, /PUBLIC_JOBS_CACHE_SECONDS/);
+  assert.match(loader, /attempt <= 3/);
 });

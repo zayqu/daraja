@@ -1,3 +1,4 @@
+const { SCRAPER_USER_AGENT } = require("../lib/runtime-config");
 const crypto = require("node:crypto");
 const CryptoJS = require("crypto-js");
 const { chromium } = require("playwright");
@@ -180,7 +181,7 @@ async function fetchRenderedRows({ launch = (options) => chromium.launch(options
   const rows = [];
   try {
     const page = await browser.newPage({
-      userAgent: "DarajaJobsBot/1.0 (+https://www.ajira.daraja.co.tz)",
+      userAgent: SCRAPER_USER_AGENT,
     });
     await page.goto(AJIRA_VACANCIES_URL, {
       waitUntil: "networkidle",

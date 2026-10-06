@@ -9,6 +9,14 @@ tested vertical releases. The current priority is Phase 0 security and privacy
 hardening before expanding candidate CV, employer, freelance, payment or AI
 workflows.
 
+## Current batch: resilient cached job-detail reads
+
+- The job-detail metadata, canonical redirect, page content and public job-detail API now share one short-lived cached public-job read instead of issuing separate Prisma queries for the same vacancy.
+- The shared detail read reuses the existing `public-jobs` cache tag and 30-second cache window, so moderation invalidation and public-list caching remain aligned.
+- Transient Neon database reachability errors are retried a bounded three times before failing; non-retryable database errors still fail immediately.
+- This removes the multiple near-simultaneous database reads that could leave a streamed job page on its loading shell when cPanel temporarily could not reach Neon.
+- Focused job-detail and routing-contract tests pass 5/5 and ESLint is clean.
+
 ## Current batch: server-rendered job detail reliability
 
 - Public job detail pages now load the published vacancy on the server and seed the interactive client with that data, so the position title, employer, content and Apply action do not depend on a second browser fetch after the page appears.

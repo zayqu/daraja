@@ -33,6 +33,7 @@ export const metadata = {
   description:
     "Find current government, NGO, finance, health, education, IT and engineering jobs across Tanzania.",
   applicationName: "Daraja Jobs",
+  other: { "google-adsense-account": "ca-pub-5101856964689063" },
   manifest: "/manifest.webmanifest",
   icons: {
     icon: [{ url: "/icon.png", type: "image/png" }],

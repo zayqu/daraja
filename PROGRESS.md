@@ -9,6 +9,14 @@ tested vertical releases. The current priority is Phase 0 security and privacy
 hardening before expanding candidate CV, employer, freelance, payment or AI
 workflows.
 
+## Current batch: production cron guard and watchdog
+
+- Root cause found on 2026-10-07: on 2026-10-04 the cPanel crontab was replaced wholesale, silently removing the Ajira auto-deploy, MZH scheduler and MZH daily backup jobs. Ajira stopped receiving releases and MZH backups stopped.
+- `ops/cpanel/deploy.sh` (downloaded fresh from each verified release by the installed runner) now runs `ensure_required_cron` on every 5-minute run: it re-adds any missing required line, leaves all other lines untouched, saves the previous crontab as `crontab.before-guard-<UTC>` and never blocks a deployment. MZH lines are only enforced when MZH is installed; the backup line is `0 0 * * *` (server time), matching the job restored in cPanel on 2026-10-07. `touch /home/darajaco/.daraja-deploy/cron-guard.disabled` pauses the guard deliberately.
+- `.github/workflows/production-watchdog.yml` checks every 30 minutes that Ajira runs the latest published release, that both sites respond and that ads.txt and the AdSense meta tag remain; GitHub emails the owner on failure.
+- Limitation: if the deploy line itself is removed, the guard cannot run until it is restored; the watchdog reports that case.
+- `test/cron-guard.test.js` executes the guard against a fake crontab (empty, partial, idempotent, no-MZH and paused cases) and validates the watchdog.
+
 ## Current batch: "Before you apply" guidance on job detail
 
 - Job detail pages now show a Daraja-written "Before you apply" block inside the existing content card: who the role type usually suits, how this vacancy's application route works (Ajira Portal, email or employer page), a deadline reminder, a no-fees warning and links to the relevant career guide and sector page.

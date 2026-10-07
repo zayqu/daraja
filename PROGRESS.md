@@ -1,6 +1,6 @@
 # Daraja Jobs production-readiness progress
 
-Last updated: 6 October 2026
+Last updated: 7 October 2026
 
 ## Current objective
 
@@ -8,6 +8,13 @@ Build Daraja into a secure Tanzania-first work marketplace through small,
 tested vertical releases. The current priority is Phase 0 security and privacy
 hardening before expanding candidate CV, employer, freelance, payment or AI
 workflows.
+
+## Current batch: "Before you apply" guidance on job detail
+
+- Job detail pages now show a Daraja-written "Before you apply" block inside the existing content card: who the role type usually suits, how this vacancy's application route works (Ajira Portal, email or employer page), a deadline reminder, a no-fees warning and links to the relevant career guide and sector page.
+- `lib/job-quick-guide.js` derives the block only from structured job fields (source, application URL, type, experience, category, deadline); it never restates or invents vacancy requirements, which remain owned by `lib/job-description.js`.
+- Styles live in the existing `job-detail.module.css`; no new route, component tree or data access.
+- `test/job-quick-guide.test.js` covers Ajira, email, internship and General routes plus rendering; job-detail and quick-guide tests pass and ESLint is clean on changed files.
 
 ## Current batch: original career guides and sector pages (AdSense readiness)
 

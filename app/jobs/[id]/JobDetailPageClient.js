@@ -8,6 +8,7 @@ import SiteFooter from "@/components/SiteFooter";
 import JobBrandMedia from "@/components/JobBrandMedia";
 import { trackEvent } from "@/lib/analytics";
 import { structureJobDescription } from "@/lib/job-description";
+import { buildJobQuickGuide } from "@/lib/job-quick-guide";
 import { SITE_ORIGIN, WHATSAPP_CHANNEL_URL } from "@/lib/site-config";
 import styles from "./job-detail.module.css";
 
@@ -360,6 +361,36 @@ export default function JobDetailPageClient({ initialJob, showEmployerCta }) {
                   <p>{job.salary}</p>
                 </section>
               )}
+
+              {(() => {
+                const guide = buildJobQuickGuide(job);
+                return (
+                  <section className={styles.quickGuide} aria-labelledby="quick-guide-title">
+                    <h3 id="quick-guide-title">Before you apply</h3>
+                    <p className={styles.quickGuideLead}>Daraja tips for this vacancy</p>
+                    <h4>Who this role suits</h4>
+                    <ul>
+                      {guide.fit.map((item) => (
+                        <li key={item}>{item}</li>
+                      ))}
+                    </ul>
+                    <h4>How to apply</h4>
+                    <ol>
+                      {guide.steps.map((item) => (
+                        <li key={item}>{item}</li>
+                      ))}
+                    </ol>
+                    <h4>Helpful guides</h4>
+                    <ul className={styles.quickGuideLinks}>
+                      {guide.links.map((link) => (
+                        <li key={link.href}>
+                          <Link href={link.href}>{link.label}</Link>
+                        </li>
+                      ))}
+                    </ul>
+                  </section>
+                );
+              })()}
             </article>
 
             <section className={`${styles.card} ${styles.applicationCard}`}>

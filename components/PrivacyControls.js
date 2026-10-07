@@ -10,6 +10,7 @@ import {
   PRIVACY_SETTINGS_EVENT,
   isValidAdSenseClient,
   isValidGoogleAnalyticsId,
+  isValidMonetagZone,
 } from "@/lib/google-services";
 import { COOKIE_DOMAIN } from "@/lib/site-config";
 import "./PrivacyControls.css";
@@ -44,13 +45,16 @@ function AnalyticsPageViews({ measurementId }) {
   return null;
 }
 
-export default function PrivacyControls({ analyticsId, adsenseClient }) {
+export default function PrivacyControls({ analyticsId, adsenseClient, monetagZones = {} }) {
   const [consent, setConsent] = useState(null);
   const [hasLoadedConsent, setHasLoadedConsent] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
   const analyticsEnabled = isValidGoogleAnalyticsId(analyticsId);
   const adsEnabled = isValidAdSenseClient(adsenseClient);
-  const servicesEnabled = analyticsEnabled || adsEnabled;
+  const inPagePushZone = isValidMonetagZone(monetagZones.inPagePush) ? monetagZones.inPagePush : null;
+  const vignetteZone = isValidMonetagZone(monetagZones.vignette) ? monetagZones.vignette : null;
+  const monetagEnabled = Boolean(inPagePushZone || vignetteZone);
+  const servicesEnabled = analyticsEnabled || adsEnabled || monetagEnabled;
 
   useEffect(() => {
     const timer = window.setTimeout(() => {
@@ -143,6 +147,24 @@ export default function PrivacyControls({ analyticsId, adsenseClient }) {
           strategy="afterInteractive"
           crossOrigin="anonymous"
           src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${encodeURIComponent(adsenseClient)}`}
+        />
+      )}
+
+      {consent === "accepted" && inPagePushZone && (
+        <Script
+          id="monetag-in-page-push"
+          strategy="afterInteractive"
+          data-zone={inPagePushZone}
+          src="https://nap5k.com/tag.min.js"
+        />
+      )}
+
+      {consent === "accepted" && vignetteZone && (
+        <Script
+          id="monetag-vignette"
+          strategy="afterInteractive"
+          data-zone={vignetteZone}
+          src="https://n6wxm.com/vignette.min.js"
         />
       )}
 

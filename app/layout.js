@@ -11,6 +11,13 @@ import { auth } from "@/auth";
 import { SITE_ORIGIN } from "@/lib/site-config";
 
 const ADSENSE_CLIENT = "ca-pub-5101856964689063";
+// Monetag zones for ajira.daraja.co.tz (site 3521615). Only AdSense-compatible
+// formats are used: In-Page Push and Vignette. Never add Onclick/Popunder or
+// MultiTag here — AdSense does not allow pop-unders on the same site.
+const MONETAG_ZONES = {
+  inPagePush: process.env.NEXT_PUBLIC_MONETAG_IN_PAGE_PUSH_ZONE || "11974650",
+  vignette: process.env.NEXT_PUBLIC_MONETAG_VIGNETTE_ZONE || "11974652",
+};
 
 const poppins = Poppins({
   variable: "--font-poppins",
@@ -91,7 +98,11 @@ export default async function RootLayout({ children }) {
           <TrafficTracker />
         </Suspense>
         <WebVitals analyticsId={analyticsId} />
-        <PrivacyControls analyticsId={analyticsId} adsenseClient={adsenseClient} />
+        <PrivacyControls
+          analyticsId={analyticsId}
+          adsenseClient={adsenseClient}
+          monetagZones={MONETAG_ZONES}
+        />
       </body>
     </html>
   );

@@ -12,9 +12,9 @@ const nextConfig = {
       "img-src 'self' data: blob: https:",
       "font-src 'self' data: https://fonts.gstatic.com",
       "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
-      "script-src 'self' 'unsafe-inline' https://*.googlesyndication.com https://*.googletagservices.com https://www.googletagmanager.com",
-      "connect-src 'self' https://*.google.com https://*.doubleclick.net https://*.googlesyndication.com https://*.google-analytics.com https://analytics.google.com",
-      "frame-src https://*.google.com https://*.doubleclick.net https://*.googlesyndication.com",
+      "script-src 'self' 'unsafe-inline' https://*.googlesyndication.com https://*.googletagservices.com https://www.googletagmanager.com https://nap5k.com https://n6wxm.com https://3nbf4.com",
+      "connect-src 'self' https://*.google.com https://*.doubleclick.net https://*.googlesyndication.com https://*.google-analytics.com https://analytics.google.com https://nap5k.com https://n6wxm.com https://3nbf4.com",
+      "frame-src https://*.google.com https://*.doubleclick.net https://*.googlesyndication.com https://nap5k.com https://n6wxm.com https://3nbf4.com",
       "worker-src 'self' blob:",
       "upgrade-insecure-requests",
     ].join("; ");

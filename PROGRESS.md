@@ -9,6 +9,13 @@ tested vertical releases. The current priority is Phase 0 security and privacy
 hardening before expanding candidate CV, employer, freelance, payment or AI
 workflows.
 
+## Current batch: Monetag ads (AdSense-safe formats)
+
+- Ajira is verified on Monetag (site 3521615) using `public/sw.js` and the `monetag` meta tag.
+- Added In-Page Push (zone 11974650) and Vignette (zone 11974652), loaded by `PrivacyControls` only after ads consent is accepted. No Onclick/Popunder/MultiTag, per D-032, so AdSense stays compliant.
+- CSP allows only the named Monetag domains for scripts, connections and frames.
+- `test/google-services.test.js` checks the formats stay consent-gated and that no pop-under tag is added.
+
 ## Current batch: production cron guard and watchdog
 
 - Root cause found on 2026-10-07: on 2026-10-04 the cPanel crontab was replaced wholesale, silently removing the Ajira auto-deploy, MZH scheduler and MZH daily backup jobs. Ajira stopped receiving releases and MZH backups stopped.

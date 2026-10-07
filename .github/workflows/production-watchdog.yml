@@ -1,0 +1,59 @@
+name: Production watchdog
+
+# Independent check that production keeps running what GitHub published.
+# GitHub emails the repository owner when a scheduled run fails, so a stopped
+# cPanel deployer, a removed cron job, a missing ads.txt or a site outage is
+# noticed within about 30 minutes instead of days.
+
+on:
+  schedule:
+    - cron: "7,37 * * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: production-watchdog
+  cancel-in-progress: true
+
+jobs:
+  check-production:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      GH_TOKEN: ${{ github.token }}
+      AJIRA_ORIGIN: https://ajira.daraja.co.tz
+      MAIN_ORIGIN: https://daraja.co.tz
+      ADSENSE_PUBLISHER: pub-5101856964689063
+      STALE_AFTER_MINUTES: "45"
+    steps:
+      - name: Ajira runs the latest published release
+        run: |
+          set -euo pipefail
+          expected="$(gh release download cpanel-production --repo "$GITHUB_REPOSITORY" \
+            --pattern daraja-cpanel-build.commit --output - | tr -d '\r\n')"
+          published="$(gh release view cpanel-production --repo "$GITHUB_REPOSITORY" --json assets \
+            --jq '.assets[] | select(.name == "daraja-cpanel-build.commit") | .updatedAt')"
+          live="$(curl -fsS --retry 3 --retry-delay 10 --max-time 30 "$AJIRA_ORIGIN/api/health/release" | jq -r .release)"
+          age_minutes=$(( ( $(date -u +%s) - $(date -u -d "$published" +%s) ) / 60 ))
+          echo "expected=$expected live=$live published=$published age=${age_minutes}m"
+          if [[ "$live" != "$expected" && "$age_minutes" -gt "$STALE_AFTER_MINUTES" ]]; then
+            echo "::error::Ajira is still on $live, ${age_minutes} minutes after $expected was published. Check the cPanel deploy cron and /home/darajaco/.daraja-deploy/cron.log."
+            exit 1
+          fi
+
+      - name: Sites respond
+        run: |
+          set -euo pipefail
+          curl -fsS --retry 3 --retry-delay 10 --max-time 30 -o /dev/null "$AJIRA_ORIGIN/"
+          curl -fsS --retry 3 --retry-delay 10 --max-time 30 -o /dev/null "$AJIRA_ORIGIN/career-guides"
+          curl -fsS --retry 3 --retry-delay 10 --max-time 30 -o /dev/null "$MAIN_ORIGIN/"
+
+      - name: AdSense authorisation stays in place
+        run: |
+          set -euo pipefail
+          curl -fsS --retry 3 --retry-delay 10 --max-time 30 "$MAIN_ORIGIN/ads.txt" | grep -Fq "google.com, $ADSENSE_PUBLISHER, DIRECT" \
+            || { echo "::error::daraja.co.tz/ads.txt is missing the AdSense publisher line."; exit 1; }
+          curl -fsS --retry 3 --retry-delay 10 --max-time 30 "$AJIRA_ORIGIN/" | grep -Fq 'name="google-adsense-account"' \
+            || { echo "::error::Ajira no longer serves the google-adsense-account meta tag."; exit 1; }

@@ -471,3 +471,23 @@ New work must modify the existing shared configuration or source registry rather
 than adding page-specific constants, duplicate source URLs, duplicate channel
 links or source-specific redirect patches.
 
+
+## D-032 - Monetag runs alongside AdSense with non-pop-under formats only
+
+**Status:** accepted
+
+Ajira (`ajira.daraja.co.tz`, Monetag site 3521615) is monetized with Monetag in
+addition to Google AdSense. Only AdSense-compatible formats are used: In-Page
+Push and Vignette banner. Onclick/Popunder and MultiTag (which bundles Onclick)
+must not be added, because AdSense does not allow Google ads on sites that
+trigger pop-unders.
+
+Monetag scripts load through `PrivacyControls` only after the visitor accepts
+optional ads, the same as AdSense. Zone IDs live in `app/layout.js` with
+`NEXT_PUBLIC_MONETAG_*` environment overrides. `public/sw.js` and the
+`monetag` meta tag are required for site verification and must stay in place.
+
+The CSP allows only the named Monetag domains (`nap5k.com`, `n6wxm.com`,
+`3nbf4.com`) in `script-src`, `connect-src` and `frame-src`. If Monetag
+changes domains and ads stop rendering, add the specific new domain rather
+than opening the policy to all HTTPS origins.

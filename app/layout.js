@@ -72,6 +72,7 @@ export default async function RootLayout({ children }) {
     <html lang="en" className={rootFontClass}>
       <head>
         <meta name="google-adsense-account" content={ADSENSE_CLIENT} />
+        <meta name="monetag" content="24ec21c9a26eaee13c92a0b60e24c6c8" />
       </head>
       <body className={poppins.className}>
         <a className="skip-link" href="#main-content">

@@ -1,0 +1,91 @@
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+  margin: 24px 0 16px;
+}
+
+.toolbar form {
+  display: flex;
+  flex: 1 1 280px;
+  gap: 8px;
+}
+
+.toolbar input {
+  flex: 1;
+  min-width: 0;
+  padding: 10px 12px;
+  border: 1px solid #e1e5ea;
+  border-radius: 10px;
+  font: inherit;
+}
+
+.toolbar button,
+.primary {
+  padding: 10px 16px;
+  border: 0;
+  border-radius: 10px;
+  background: #08b99d;
+  color: #fff;
+  font: inherit;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.list {
+  display: grid;
+  gap: 10px;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+
+.item {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 16px;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px;
+  border: 1px solid #e1e5ea;
+  border-radius: 12px;
+  background: #fff;
+}
+
+.item h3 {
+  margin: 0 0 4px;
+  font-size: 1rem;
+}
+
+.item p {
+  margin: 0;
+  color: #5f6b7a;
+  font-size: 0.875rem;
+}
+
+.badge {
+  display: inline-block;
+  margin-left: 6px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: #eef2f5;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.live {
+  background: #dcf5ee;
+  color: #0b6b59;
+}
+
+.links {
+  display: flex;
+  gap: 12px;
+  font-weight: 600;
+}
+
+.empty {
+  color: #5f6b7a;
+}

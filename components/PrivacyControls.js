@@ -150,7 +150,8 @@ export default function PrivacyControls({ analyticsId, adsenseClient, monetagZon
         />
       )}
 
-      {consent === "accepted" && inPagePushZone && (
+      {/* Monetag funds free vacancy posting, so it loads for every visitor (D-032). */}
+      {hasLoadedConsent && inPagePushZone && (
         <Script
           id="monetag-in-page-push"
           strategy="afterInteractive"
@@ -159,7 +160,7 @@ export default function PrivacyControls({ analyticsId, adsenseClient, monetagZon
         />
       )}
 
-      {consent === "accepted" && vignetteZone && (
+      {hasLoadedConsent && vignetteZone && (
         <Script
           id="monetag-vignette"
           strategy="afterInteractive"
@@ -173,8 +174,8 @@ export default function PrivacyControls({ analyticsId, adsenseClient, monetagZon
           <div className="privacy-copy">
             <h2 id="privacy-title">Privacy choices</h2>
             <p>
-              Optional analytics and ads help us improve Daraja. Job search and
-              applications work either way. <Link href="/privacy">Privacy policy</Link>.
+              Ads keep Daraja free for job seekers and employers. Accept to also
+              allow analytics and Google ads. Job search and applications work either way. <Link href="/privacy">Privacy policy</Link>.
             </p>
           </div>
           <div className="privacy-actions">

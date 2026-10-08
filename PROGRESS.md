@@ -1,6 +1,6 @@
 # Daraja Jobs production-readiness progress
 
-Last updated: 7 October 2026
+Last updated: 8 October 2026
 
 ## Current objective
 
@@ -8,6 +8,12 @@ Build Daraja into a secure Tanzania-first work marketplace through small,
 tested vertical releases. The current priority is Phase 0 security and privacy
 hardening before expanding candidate CV, employer, freelance, payment or AI
 workflows.
+
+## Current batch: Monetag for every visitor
+
+- Owner decision (D-032 updated): Monetag In-Page Push and Vignette now load for all visitors, not only after "Accept", because ads fund free vacancy posting. Google Analytics and AdSense stay consent-gated.
+- Banner and privacy policy wording updated to say Monetag ads show to everyone.
+- `test/google-services.test.js` now checks Monetag is not consent-gated while AdSense still is.
 
 ## Current batch: owner-posted vacancies
 
@@ -26,7 +32,7 @@ workflows.
 ## Current batch: Monetag ads (AdSense-safe formats)
 
 - Ajira is verified on Monetag (site 3521615) using `public/sw.js` and the `monetag` meta tag.
-- Added In-Page Push (zone 11974650) and Vignette (zone 11974652), loaded by `PrivacyControls` only after ads consent is accepted. No Onclick/Popunder/MultiTag, per D-032, so AdSense stays compliant.
+- Added In-Page Push (zone 11974650) and Vignette (zone 11974652), loaded by `PrivacyControls` (consent-gated at first; now shown to all visitors, see above). No Onclick/Popunder/MultiTag, per D-032, so AdSense stays compliant.
 - CSP allows only the named Monetag domains for scripts, connections and frames.
 - `test/google-services.test.js` checks the formats stay consent-gated and that no pop-under tag is added.
 

@@ -43,7 +43,7 @@ test("privacy consent does not leave a persistent floating control after a choic
   assert.match(source, /PRIVACY_SETTINGS_EVENT/);
 });
 
-test("Monetag uses only AdSense-compatible, consent-gated formats", async () => {
+test("Monetag uses only AdSense-compatible formats and loads for every visitor", async () => {
   const { readFile } = await import("node:fs/promises");
   const path = await import("node:path");
   const { isValidMonetagZone } = await import("../lib/google-services.js");
@@ -52,8 +52,9 @@ test("Monetag uses only AdSense-compatible, consent-gated formats", async () => 
 
   assert.equal(isValidMonetagZone("11974650"), true);
   assert.equal(isValidMonetagZone("abc"), false);
-  assert.match(controls, /consent === "accepted" && inPagePushZone/);
-  assert.match(controls, /consent === "accepted" && vignetteZone/);
+  assert.match(controls, /hasLoadedConsent && inPagePushZone/);
+  assert.match(controls, /hasLoadedConsent && vignetteZone/);
+  assert.match(controls, /consent === "accepted" && adsEnabled/);
   // Pop-under formats conflict with AdSense policy and must not be loaded.
   for (const source of [controls, layout]) {
     assert.doesNotMatch(source, /apu\.php|src=["'][^"']*(onclick|popunder)/i);

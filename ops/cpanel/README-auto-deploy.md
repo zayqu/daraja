@@ -18,6 +18,8 @@ Do not replace it with manual file copying, direct `node server.js`, pasted secr
 
 When a model asks the operator to perform a cPanel release action, the canonical command above must be present in the handoff so the operator always receives one copy/paste command.
 
+Required cron line (every 5 minutes). This cPanel crontab is shared with MZH and is locked: never replace the whole crontab, change single lines only, and keep all three required lines listed in `AGENTS.md` > "Shared cPanel cron jobs (locked)". The deploy run re-adds any missing required line automatically.
+
 Recommended cron cadence: every 5 minutes. After the bootstrap has succeeded at least once and cPanel outbound DNS is stable, cron may invoke `/home/darajaco/.daraja-deploy/auto-deploy.sh` directly with `flock`.
 
 The cPanel pull path itself does not run Prisma migrations and does not delete production data. Production migrations are applied by the verified GitHub release workflow on non-PR runs before the production bundle is published, so the database schema is ready before cPanel switches runtime.

@@ -9,6 +9,12 @@ tested vertical releases. The current priority is Phase 0 security and privacy
 hardening before expanding candidate CV, employer, freelance, payment or AI
 workflows.
 
+## Current batch: cron lock and guard fix
+
+- 2026-10-08: the Ajira deploy and MZH backup cron lines were missing again (deleted after 06:50 UTC on 2026-10-07, while only the MZH scheduler line survived). Both were restored in cPanel; the release with Monetag deployed at 06:25 UTC.
+- Root cause of the guard not helping: `ensure_required_cron` read its lines through process substitution (`< <(...)`), which fails in cPanel cron shells ("/dev/fd/62: No such file or directory"), so it never restored anything. It now reads a temporary file; `test/cron-guard.test.js` forbids process substitution in `deploy.sh`.
+- `AGENTS.md` now has a locked "Shared cPanel cron jobs" section (also referenced from `CLAUDE.md`, `GEMINI.md` and the auto-deploy README): never replace the whole crontab, keep the three required lines, back up and verify around any change.
+
 ## Current batch: Monetag ads (AdSense-safe formats)
 
 - Ajira is verified on Monetag (site 3521615) using `public/sw.js` and the `monetag` meta tag.

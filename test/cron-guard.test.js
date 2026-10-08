@@ -90,3 +90,11 @@ test("production watchdog checks deploy freshness, uptime and AdSense files on a
   assert.match(workflow, /google-adsense-account/);
   assert.match(workflow, /permissions:\n  contents: read/);
 });
+
+test("deploy script avoids process substitution, which cPanel cron shells cannot run", () => {
+  const code = deployScript
+    .split("\n")
+    .filter((line) => !line.trim().startsWith("#"))
+    .join("\n");
+  assert.doesNotMatch(code, /<\s*<\(/);
+});

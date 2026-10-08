@@ -257,10 +257,13 @@ if (require.main === module) {
   runScrapers({
     dryRun: args.includes("--dry-run"),
     requestedSources: getRequestedSources(args),
-  }).catch((error) => {
-    console.error("Scraper run failed:", error);
-    process.exitCode = 1;
-  });
+  }).then(
+    () => process.exit(0),
+    (error) => {
+      console.error("Scraper run failed:", error);
+      process.exit(1);
+    }
+  );
 }
 
 module.exports = {

@@ -657,8 +657,23 @@ function createPageRenderer({
       }
     },
     async close() {
-      await browser?.close();
+      const activeBrowser = browser;
       browser = null;
+      if (!activeBrowser) return;
+      // A stuck Chromium shutdown must not keep the scheduled runner alive.
+      // The CLI has already completed its database and report work at this point.
+      let timeout;
+      try {
+        await Promise.race([
+          activeBrowser.close(),
+          new Promise((resolve) => {
+            timeout = setTimeout(resolve, 10_000);
+            timeout.unref?.();
+          }),
+        ]);
+      } finally {
+        clearTimeout(timeout);
+      }
     },
   };
 }

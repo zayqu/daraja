@@ -491,3 +491,28 @@ The CSP allows only the named Monetag domains (`nap5k.com`, `n6wxm.com`,
 `3nbf4.com`) in `script-src`, `connect-src` and `frame-src`. If Monetag
 changes domains and ads stop rendering, add the specific new domain rather
 than opening the policy to all HTTPS origins.
+
+## D-033 - Daraja learns new employer sources from discovery boards
+
+**Status:** accepted
+
+Secondary job boards (policy precedence 6) are read as discovery feeds, not as
+publishers. `scraper/sources/discovery-feed.js` follows every lead to the
+employer's own system. A lead becomes a published Daraja job only when that
+system confirms it: an applicant-tracking system's public posting API
+(SmartRecruiters, Greenhouse, Lever) or JobPosting structured data on the
+employer page. Leads that cannot be confirmed are stored as `PENDING_REVIEW`
+with the reason; leads already collected by an enabled source are skipped.
+
+`scraper/lib/source-learning.js` owns applicant-system recognition (hosted
+ATSs by host, self-hosted portals such as Frappe HR by URL shape), catalog
+matching and the per-run learning report (`learning` in the scraper health
+report and "Learned:" lines in the run log). The report lists employers seen
+on discovery boards that Daraja does not yet collect, with the official
+system each uses, so the next source to enable is evidence-led.
+
+Self-hosted employer portals get one reusable adapter per platform
+(`frappe-jobs` for Frappe HR); each employer is its own catalog source.
+Learning never switches a source on by itself in this version: enabling a
+source remains a reviewed catalog change. Persisting learned sources and
+promoting them automatically after repeated clean runs is the next step.

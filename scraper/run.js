@@ -15,6 +15,8 @@ const {
 } = require("./lib/health");
 const { collectAjiraJobs } = require("./sources/ajira");
 const { collectAjiraWebJobs } = require("./sources/ajiraweb");
+const { collectDiscoveryFeedJobs } = require("./sources/discovery-feed");
+const { collectFrappeJobs } = require("./sources/frappe-jobs");
 const { collectNmbJobs } = require("./sources/nmb");
 const { collectReliefWebJobs } = require("./sources/reliefweb");
 const { collectStandardBankJobs } = require("./sources/standardbank");
@@ -55,6 +57,8 @@ const {
 const adapters = {
   ajira: () => collectAjiraJobs(),
   ajiraweb: () => collectAjiraWebJobs(),
+  "discovery-feed": (source) => collectDiscoveryFeedJobs(source),
+  "frappe-jobs": (source) => collectFrappeJobs(source),
   nmb: () => collectNmbJobs(),
   reliefweb: () => collectReliefWebJobs(),
   standardbank: () => collectStandardBankJobs(),

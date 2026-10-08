@@ -160,6 +160,38 @@
       }
     },
     {
+      "id": "fursa-discovery",
+      "name": "Fursa za Ajira Tanzania (discovery)",
+      "url": "https://fursa.co.tz/",
+      "category": "general_tanzania_job_websites",
+      "enabled": true,
+      "adapter": "discovery-feed",
+      "feed": {
+        "url": "https://fursa.co.tz/?feed=job_feed",
+        "format": "wp-job-manager",
+        "maxItems": 30
+      },
+      "publishPolicy": {
+        "autoPublish": true
+      }
+    },
+    {
+      "id": "phillips-distributors",
+      "name": "Phillips Distributors Limited careers",
+      "url": "https://pulse.phillipstanzania.co.tz/jobs",
+      "category": "manufacturing,_fmcg_and_agriculture",
+      "enabled": true,
+      "adapter": "frappe-jobs",
+      "employerName": "Phillips Distributors Limited",
+      "defaultLocation": "Dar es Salaam",
+      "discovery": {
+        "maxJobs": 40
+      },
+      "publishPolicy": {
+        "autoPublish": true
+      }
+    },
+    {
       "id": "careers-mitihani",
       "name": "Careers Mitihani",
       "url": "https://careers.mitihani.co.tz/",

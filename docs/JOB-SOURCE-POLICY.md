@@ -77,6 +77,12 @@ page is itself where the application starts. Daraja never adds an
 intermediate description step. Records managed automatically follow the latest
 evidence (held, rejected or re-published) until an administrator decides.
 
+Discovery boards and source learning: secondary job boards may be enabled as
+`discovery-feed` sources. Their posts are leads only; a lead publishes only when
+the employer's own applicant system confirms an active Tanzania posting, and is
+otherwise held for review. Each run reports employers seen on discovery boards
+that Daraja does not yet collect (`scraper/lib/source-learning.js`, D-033).
+
 ## What Daraja must never auto-publish
 
 - fake or unverifiable jobs;

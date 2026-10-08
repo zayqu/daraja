@@ -482,8 +482,10 @@ Push and Vignette banner. Onclick/Popunder and MultiTag (which bundles Onclick)
 must not be added, because AdSense does not allow Google ads on sites that
 trigger pop-unders.
 
-Monetag scripts load through `PrivacyControls` only after the visitor accepts
-optional ads, the same as AdSense. Zone IDs live in `app/layout.js` with
+Monetag scripts load through `PrivacyControls` for every visitor, whether or
+not they accept the privacy banner, because Monetag revenue pays for free
+vacancy posting (owner decision, 8 October 2026). Google Analytics and AdSense
+still load only after the visitor accepts. The privacy policy states this. Zone IDs live in `app/layout.js` with
 `NEXT_PUBLIC_MONETAG_*` environment overrides. `public/sw.js` and the
 `monetag` meta tag are required for site verification and must stay in place.
 

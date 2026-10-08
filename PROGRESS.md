@@ -9,6 +9,13 @@ tested vertical releases. The current priority is Phase 0 security and privacy
 hardening before expanding candidate CV, employer, freelance, payment or AI
 workflows.
 
+## Current batch: source learning from discovery boards
+
+- New `discovery-feed` adapter reads Fursa za Ajira's job feed as leads only (D-033). Leads confirmed on the employer's applicant system (SmartRecruiters, Greenhouse, Lever APIs or JobPosting data) publish; unconfirmed leads go to the review queue with a reason; leads already collected by an enabled source are skipped.
+- `scraper/lib/source-learning.js` recognises applicant systems, matches leads to the catalog and reports each run which employers Daraja does not yet collect and which system they use.
+- New reusable `frappe-jobs` adapter for Frappe HR portals; Phillips Distributors Limited (`pulse.phillipstanzania.co.tz/jobs`) enabled as the first such source.
+- Motivation: a 7 October check of Daraja's WhatsApp channel against five competing channels found about 20 active Tanzanian employers Daraja did not publish, while 304 of 316 catalog sources were switched off.
+- Tests: `test/discovery-feed.test.js`, `test/frappe-jobs.test.js`.
 ## Current batch: cron lock and guard fix
 
 - 2026-10-08: the Ajira deploy and MZH backup cron lines were missing again (deleted after 06:50 UTC on 2026-10-07, while only the MZH scheduler line survived). Both were restored in cPanel; the release with Monetag deployed at 06:25 UTC.

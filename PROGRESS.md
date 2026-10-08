@@ -9,6 +9,14 @@ tested vertical releases. The current priority is Phase 0 security and privacy
 hardening before expanding candidate CV, employer, freelance, payment or AI
 workflows.
 
+## Current batch: owner-posted vacancies
+
+- The live site had no working way to post a job: `/post-job` and `/admin` sit behind `EMPLOYER_PORTAL_ENABLED`, which is off in production.
+- New `content/vacancies/*.json` (one file per job) published by `scripts/publish-owner-vacancies.js` through the "Publish owner vacancies" workflow on merge to `master`. Jobs are `source: "daraja"`, `PUBLISHED`, keyed by file name (reruns update, never duplicate), audited as `OWNER_VACANCY_PUBLISHED/UPDATED`.
+- First vacancy: Radio Presenter & Content Creator (new radio station, Dar es Salaam), email application, deadline 21 October 2026.
+- Validation in `lib/owner-vacancy.js`; tests in `test/owner-vacancy.test.js`.
+- Next: an owner-only "Post a vacancy" page so posting does not need GitHub.
+
 ## Current batch: cron lock and guard fix
 
 - 2026-10-08: the Ajira deploy and MZH backup cron lines were missing again (deleted after 06:50 UTC on 2026-10-07, while only the MZH scheduler line survived). Both were restored in cPanel; the release with Monetag deployed at 06:25 UTC.

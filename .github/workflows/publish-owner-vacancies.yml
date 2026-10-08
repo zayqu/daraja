@@ -1,0 +1,39 @@
+name: Publish owner vacancies
+
+# Publishes the vacancies in content/vacancies/*.json after they are merged.
+# Each JSON file is one job; editing a file updates that same job.
+
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - "content/vacancies/**"
+      - "lib/owner-vacancy.js"
+      - "scripts/publish-owner-vacancies.js"
+      - ".github/workflows/publish-owner-vacancies.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: publish-owner-vacancies
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: "22"
+          cache: npm
+      - run: npm ci
+      - run: npx prisma generate
+      - name: Publish vacancies from content/vacancies
+        run: node scripts/publish-owner-vacancies.js

@@ -673,6 +673,9 @@ function createPageRenderer({
         ]);
       } finally {
         clearTimeout(timeout);
+        // Chromium may keep its child processes alive after a failed close.
+        // Playwright's process cleanup is triggered by close; avoid forcibly
+        // terminating unrelated browser processes on the shared runner.
       }
     },
   };

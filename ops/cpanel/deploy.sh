@@ -356,7 +356,7 @@ required_cron_lines() {
 }
 
 ensure_required_cron() {
-  local current next line missing=0 stamp
+  local current next required line missing=0 stamp
 
   if [[ -e "$CRON_GUARD_DISABLED_FILE" ]]; then
     printf '[cron-guard] disabled by %s; skipping.\n' "$CRON_GUARD_DISABLED_FILE"
@@ -366,8 +366,12 @@ ensure_required_cron() {
 
   current="$(mktemp "$STATE_DIR/crontab.current.XXXXXX")"
   next="$(mktemp "$STATE_DIR/crontab.next.XXXXXX")"
+  required="$(mktemp "$STATE_DIR/crontab.required.XXXXXX")"
   crontab -l > "$current" 2>/dev/null || : > "$current"
   cp "$current" "$next"
+  # A plain file, not process substitution: cPanel cron shells have no
+  # /dev/fd, so "< <(...)" failed silently and the guard never ran.
+  required_cron_lines > "$required"
 
   while IFS= read -r line; do
     [[ -z "$line" ]] && continue
@@ -376,14 +380,14 @@ ensure_required_cron() {
       printf '[cron-guard] restoring missing cron line: %s\n' "${line%% >>*}"
       missing=1
     fi
-  done < <(required_cron_lines)
+  done < "$required"
 
   if [[ "$missing" -eq 1 ]]; then
     stamp="$(date -u +%Y%m%dT%H%M%SZ)"
     cp "$current" "$STATE_DIR/crontab.before-guard-$stamp"
     crontab "$next"
   fi
-  rm -f "$current" "$next"
+  rm -f "$current" "$next" "$required"
 }
 
 mkdir -p "$STATE_DIR"

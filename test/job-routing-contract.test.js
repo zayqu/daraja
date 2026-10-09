@@ -57,3 +57,13 @@ test("job scraper schema keeps source page and application destination separate"
   assert.match(jobs, /rawJob\.sourceJobUrl \|\| rawJob\.sourceUrl/);
   assert.match(jobs, /rawJob\.applicationUrl/);
 });
+
+test("apply route falls back to recorded official links when live resolution fails", async () => {
+  const route = await read("app/api/jobs/[id]/apply/route.js");
+  assert.match(route, /function officialFallback\(job\)/);
+  assert.match(route, /\[job\?\.applicationUrl, job\?\.sourceUrl\]/);
+  assert.match(route, /isSafePublicHttpUrl\(url\)\) return redirectTo\(url\)/);
+  const failures = route.match(/return officialFallback\(job\) \|\|\s*jsonError\("A direct application link could not be verified", 502\)/g) || [];
+  assert.equal(failures.length, 2);
+  assert.doesNotMatch(route, /portal\.ajira\.go\.tz/);
+});

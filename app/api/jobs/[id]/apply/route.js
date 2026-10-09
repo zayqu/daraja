@@ -18,6 +18,14 @@ function redirectTo(url) {
   return response;
 }
 
+// Use the already recorded official URL if the source cannot be resolved live.
+function officialFallback(job) {
+  for (const url of [job?.applicationUrl, job?.sourceUrl]) {
+    if (url && isSafePublicHttpUrl(url)) return redirectTo(url);
+  }
+  return null;
+}
+
 function jsonError(message, status) {
   const response = NextResponse.json({ error: message }, { status });
   response.headers.set("Cache-Control", "private, no-store");
@@ -25,9 +33,10 @@ function jsonError(message, status) {
 }
 
 export async function GET(_request, context) {
+  let job = null;
   try {
     const { id } = await context.params;
-    const job = await prisma.job.findFirst({
+    job = await prisma.job.findFirst({
       where: {
         active: true,
         moderationStatus: "PUBLISHED",
@@ -116,7 +125,8 @@ export async function GET(_request, context) {
     }
 
     if (!isAllowedResolverUrl(job.source, job.sourceUrl)) {
-      return jsonError("A direct application link could not be verified", 502);
+      return officialFallback(job) ||
+      jsonError("A direct application link could not be verified", 502);
     }
 
     const { response, url: resolvedUrl } = await fetchAllowedApplicationPage({
@@ -137,9 +147,13 @@ export async function GET(_request, context) {
       if (finalTarget) return redirectTo(finalTarget);
     }
 
-    return jsonError("A direct application link could not be verified", 502);
+    return officialFallback(job) ||
+      jsonError("A direct application link could not be verified", 502);
   } catch (error) {
     console.error("Application redirect error:", error);
-    return jsonError("Unable to open the application right now", 502);
+    const fallback = job?.deadline && job.deadline < new Date()
+      ? null
+      : officialFallback(job);
+    return fallback || jsonError("Unable to open the application right now", 502);
   }
 }

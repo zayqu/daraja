@@ -1,6 +1,6 @@
 # Daraja Jobs production-readiness progress
 
-Last updated: 8 October 2026
+Last updated: 9 October 2026
 
 ## Current objective
 
@@ -8,6 +8,15 @@ Build Daraja into a secure Tanzania-first work marketplace through small,
 tested vertical releases. The current priority is Phase 0 security and privacy
 hardening before expanding candidate CV, employer, freelance, payment or AI
 workflows.
+
+## Current batch: employer portal ready to switch on
+
+- Employer vacancy form now asks for a closing date (end of day, Tanzania time) and one application method: email or an https application page. `app/api/employer/jobs/route.js` rejects submissions without them, so employer jobs never reach the site with a broken Apply button. Validation is shared with owner vacancies (`parseApplicationDetails` in `lib/owner-vacancy.js`).
+- `/admin` now has three queues: employers waiting for verification (Verify / Reject with reason, using the existing audited route), vacancies waiting for review, and live vacancies (searchable, "Remove from site" with a reason) so wrong scraped records can be taken down without database access.
+- Publishing an employer-submitted vacancy is refused until that employer is verified.
+- `/employer` lists the signed-in employer's own vacancies with status, closing date and rejection reason.
+- Tests: `test/employer-portal-launch.test.js`.
+- To go live: set `EMPLOYER_PORTAL_ENABLED=true` in the cPanel Node.js app environment and restart. The owner account must already have the ADMIN role to use `/admin`.
 
 ## Current batch: Monetag for every visitor
 

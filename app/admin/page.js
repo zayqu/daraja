@@ -4,6 +4,7 @@ import {
   getActor,
   isAdmin,
 } from "@/lib/employer-access";
+import AdminEmployerQueue from "@/components/AdminEmployerQueue";
 import AdminJobReviewQueue from "@/components/AdminJobReviewQueue";
 import EmployerPortalTabs from "@/components/EmployerPortalTabs";
 import SiteNav from "@/components/SiteNav";
@@ -23,21 +24,45 @@ export default async function AdminPage() {
   if (!actor) redirect("/auth/signin?callbackUrl=/admin");
   if (!isAdmin(actor)) notFound();
 
+  const jobFields = {
+    id: true,
+    title: true,
+    company: true,
+    location: true,
+    source: true,
+    sourceUrl: true,
+    description: true,
+    deadline: true,
+    moderationNote: true,
+  };
+  const [pendingEmployers, liveJobs] = await Promise.all([
+    prisma.employer.findMany({
+      where: { verificationStatus: "PENDING" },
+      orderBy: { createdAt: "asc" },
+      take: 50,
+      select: {
+        id: true,
+        companyName: true,
+        industry: true,
+        website: true,
+        user: { select: { email: true } },
+        _count: { select: { jobs: { where: { moderationStatus: "PENDING_REVIEW" } } } },
+      },
+    }),
+    prisma.job.findMany({
+      where: { moderationStatus: "PUBLISHED", active: true },
+      orderBy: { createdAt: "desc" },
+      take: 200,
+      select: jobFields,
+    }),
+  ]);
+  const serializeJob = (job) => ({ ...job, deadline: job.deadline?.toISOString() ?? null });
+
   const pendingJobs = await prisma.job.findMany({
     where: { moderationStatus: "PENDING_REVIEW" },
     orderBy: { createdAt: "desc" },
     take: 50,
-    select: {
-      id: true,
-      title: true,
-      company: true,
-      location: true,
-      source: true,
-      sourceUrl: true,
-      description: true,
-      deadline: true,
-      moderationNote: true,
-    },
+    select: jobFields,
   });
 
   return (
@@ -65,16 +90,34 @@ export default async function AdminPage() {
             </div>
           </section>
 
+          <section className={styles.reviewQueue} aria-labelledby="employer-queue-title">
+            <h2 id="employer-queue-title" className={styles.sectionTitle}>
+              Employers waiting for verification ({pendingEmployers.length})
+            </h2>
+            <AdminEmployerQueue
+              employers={pendingEmployers.map((employer) => ({
+                id: employer.id,
+                companyName: employer.companyName,
+                industry: employer.industry,
+                website: employer.website,
+                email: employer.user?.email ?? "",
+                pendingJobs: employer._count.jobs,
+              }))}
+            />
+          </section>
+
           <section className={styles.reviewQueue} aria-labelledby="review-queue-title">
             <h2 id="review-queue-title" className={styles.sectionTitle}>
               Vacancies waiting for review ({pendingJobs.length})
             </h2>
-            <AdminJobReviewQueue
-              jobs={pendingJobs.map((job) => ({
-                ...job,
-                deadline: job.deadline?.toISOString() ?? null,
-              }))}
-            />
+            <AdminJobReviewQueue jobs={pendingJobs.map(serializeJob)} />
+          </section>
+
+          <section className={styles.reviewQueue} aria-labelledby="live-jobs-title">
+            <h2 id="live-jobs-title" className={styles.sectionTitle}>
+              Live vacancies ({liveJobs.length})
+            </h2>
+            <AdminJobReviewQueue jobs={liveJobs.map(serializeJob)} live />
           </section>
 
           <section className={styles.grid} aria-label="Administration safeguards">

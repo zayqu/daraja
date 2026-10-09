@@ -24,6 +24,16 @@ export async function PATCH(request, { params }) {
   const note = typeof body.note === "string" ? body.note.trim().slice(0, 1000) : "";
   if (!ALLOWED.has(status)) return NextResponse.json({ error: "Invalid moderation status" }, { status: 400 });
   if (status === "REJECTED" && !note) return NextResponse.json({ error: "A rejection reason is required" }, { status: 400 });
+  if (status === "PUBLISHED") {
+    const pending = await prisma.job.findUnique({
+      where: { id },
+      select: { employer: { select: { verificationStatus: true } } },
+    });
+    // Employer-submitted vacancies go live only for verified employers.
+    if (pending?.employer && pending.employer.verificationStatus !== "VERIFIED") {
+      return NextResponse.json({ error: "Verify this employer before publishing their vacancy" }, { status: 409 });
+    }
+  }
   const job = await prisma.$transaction(async (tx) => {
     const updated = await tx.job.update({
       where: { id },

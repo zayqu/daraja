@@ -11,6 +11,7 @@ import SiteNav from "@/components/SiteNav";
 import PageHero from "@/components/ui/PageHero";
 import WorkspaceShell from "@/components/ui/WorkspaceShell";
 import SurfaceCard from "@/components/ui/SurfaceCard";
+import prisma from "@/lib/prisma";
 import styles from "../portal.module.css";
 
 export const metadata = { title: "Employer workspace | Daraja" };
@@ -27,6 +28,22 @@ export default async function EmployerPage() {
   if (!actor) redirect("/auth/signin?callbackUrl=/employer");
 
   const status = actor.employer?.verificationStatus || "NOT_STARTED";
+  const vacancies = actor.employer
+    ? await prisma.job.findMany({
+      where: { employerId: actor.employer.id },
+      orderBy: { updatedAt: "desc" },
+      take: 50,
+      select: {
+        id: true,
+        slug: true,
+        title: true,
+        deadline: true,
+        moderationStatus: true,
+        moderationNote: true,
+        active: true,
+      },
+    })
+    : [];
   const verified = status === "VERIFIED";
 
   return (
@@ -55,6 +72,41 @@ export default async function EmployerPage() {
               </strong>
             </div>
           </section>
+
+          {actor.employer && (
+            <section className={styles.reviewQueue} aria-labelledby="my-vacancies-title">
+              <h2 id="my-vacancies-title" className={styles.sectionTitle}>
+                Your vacancies ({vacancies.length})
+              </h2>
+              {!verified && (
+                <p>
+                  Daraja checks your company before your first vacancy goes
+                  live. You can submit vacancies now; they are published once
+                  your company is verified.
+                </p>
+              )}
+              {vacancies.length ? (
+                <ul>
+                  {vacancies.map((job) => (
+                    <li key={job.id}>
+                      {job.active && job.moderationStatus === "PUBLISHED" ? (
+                        <Link href={`/jobs/${job.slug || job.id}`}>{job.title}</Link>
+                      ) : (
+                        <strong>{job.title}</strong>
+                      )}
+                      {" "}— {statusLabel(job.moderationStatus)}
+                      {job.deadline && `, closes ${job.deadline.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric", timeZone: "Africa/Dar_es_Salaam" })}`}
+                      {job.moderationNote && job.moderationStatus === "REJECTED" && (
+                        <span className={styles.statusPending}> Reason: {job.moderationNote}</span>
+                      )}
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p>No vacancies yet. <Link href="/post-job">Create your first vacancy →</Link></p>
+              )}
+            </section>
+          )}
 
           <section className={styles.grid} aria-label="Employer workspace">
             <SurfaceCard as="article" className={styles.portalCard}>

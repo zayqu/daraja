@@ -4,9 +4,11 @@ import { randomUUID } from "node:crypto";
 import slugUtils from "@/lib/job-slug";
 import { employerPortalEnabled, getActor, safeAuditMetadata } from "@/lib/employer-access";
 import { JOB_CATEGORIES } from "@/lib/job-categories";
+import ownerVacancy from "@/lib/owner-vacancy";
 import { readProtectedJson } from "@/lib/request-security";
 
 const { createJobWithPositionSlug } = slugUtils;
+const { parseApplicationDetails } = ownerVacancy;
 const clean = (value, max) => typeof value === "string" ? value.trim().slice(0, max) : "";
 const JOB_TYPES = new Set(["FULL_TIME", "PART_TIME", "CONTRACT", "INTERNSHIP", "FREELANCE"]);
 
@@ -48,6 +50,13 @@ export async function POST(request) {
     maxBytes: 16_384,
   });
   if (error) return error;
+  const problems = [];
+  const { deadline, applicationUrl } = parseApplicationDetails(body, problems);
+  if (!deadline) problems.push("closing date is required");
+  else if (deadline.getTime() < Date.now()) problems.push("closing date must be today or later");
+  if (problems.length) {
+    return NextResponse.json({ error: `Check the vacancy: ${problems.join("; ")}.` }, { status: 400 });
+  }
   const data = {
     title: clean(body.title, 160),
     company: actor.employer.companyName,
@@ -55,6 +64,8 @@ export async function POST(request) {
     description: clean(body.description, 10000),
     category: clean(body.category, 100),
     type: clean(body.type, 30) || "FULL_TIME",
+    deadline,
+    applicationUrl,
     source: "daraja",
     language: "en",
     active: false,

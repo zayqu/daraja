@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import CvPreview from "@/components/CvPreview";
 import styles from "./CvBuilder.module.css";
@@ -48,6 +48,25 @@ const SECTION_NAMES = {
   references: "Referees",
 };
 
+const TEMPLATE_OPTIONS = [
+  { value: "modern", label: "Modern", description: "Clean and versatile" },
+  { value: "classic", label: "Classic", description: "Traditional and formal" },
+  { value: "minimal", label: "Minimal", description: "Simple and focused" },
+  { value: "executive", label: "Executive", description: "Stronger hierarchy" },
+  { value: "public", label: "Public Service", description: "Formal Tanzania applications" },
+];
+
+const COLOR_OPTIONS = [
+  "#1b2a3f",
+  "#0f766e",
+  "#31511e",
+  "#4338ca",
+  "#7c2d12",
+  "#374151",
+  "#243447",
+  "#4a1d2f",
+];
+
 const DESIGN_POOLS = {
   general: {
     templates: ["modern", "classic", "minimal", "executive"],
@@ -91,6 +110,19 @@ function clone(value) {
   return JSON.parse(JSON.stringify(value));
 }
 
+function cvPayload(current) {
+  if (!current) return "";
+  return JSON.stringify({
+    name: current.name,
+    mode: current.mode,
+    targetRole: current.targetRole,
+    targetJobId: current.targetJobId,
+    language: current.language,
+    content: current.content,
+    theme: current.theme,
+  });
+}
+
 function Field({ label, value, onChange, type = "text", placeholder = "", ...props }) {
   return (
     <label className={styles.field}>
@@ -131,6 +163,10 @@ export default function CvBuilder() {
   const [status, setStatus] = useState("");
   const [busy, setBusy] = useState(false);
   const [pdfBusy, setPdfBusy] = useState(false);
+  const [mobileView, setMobileView] = useState("edit");
+  const [saveState, setSaveState] = useState("saved");
+  const activeIdRef = useRef("");
+  const lastSavedRef = useRef("");
 
   const loadList = useCallback(async () => {
     const response = await fetch("/api/candidate/cv", { cache: "no-store" });
@@ -143,6 +179,10 @@ export default function CvBuilder() {
   useEffect(() => {
     loadList().catch((error) => setStatus(error.message));
   }, [loadList]);
+
+  useEffect(() => {
+    activeIdRef.current = activeId;
+  }, [activeId]);
 
   useEffect(() => {
     if (!activeId) {
@@ -160,6 +200,8 @@ export default function CvBuilder() {
           setCv(data.cv);
           setJob(data.job || null);
           setEvaluation(data.evaluation || null);
+          lastSavedRef.current = cvPayload(data.cv);
+          setSaveState("saved");
         }
       })
       .catch((error) => active && setStatus(error.message));
@@ -258,38 +300,54 @@ export default function CvBuilder() {
     }
   }
 
-  async function persistCv({ notify = true } = {}) {
+  const persistCv = useCallback(async ({ notify = true, refreshList = true } = {}) => {
     if (!cv) return null;
     const response = await fetch(`/api/candidate/cv/${encodeURIComponent(cv.id)}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        name: cv.name,
-        mode: cv.mode,
-        targetRole: cv.targetRole,
-        targetJobId: cv.targetJobId,
-        language: cv.language,
-        content: cv.content,
-        theme: cv.theme,
-      }),
+      body: cvPayload(cv),
     });
     const data = await response.json();
     if (!response.ok) throw new Error(data.error || "Unable to save CV.");
-    setCv(data.cv);
-    setJob(data.job || null);
-    setEvaluation(data.evaluation || null);
+
+    if (activeIdRef.current === data.cv.id) {
+      lastSavedRef.current = cvPayload(data.cv);
+      setCv(data.cv);
+      setJob(data.job || null);
+      setEvaluation(data.evaluation || null);
+      setSaveState("saved");
+    }
     if (notify) setStatus("Saved.");
-    await loadList();
+    if (refreshList) await loadList();
     return data.cv;
-  }
+  }, [cv, loadList]);
+
+  const saveFingerprint = useMemo(() => cvPayload(cv), [cv]);
+
+  useEffect(() => {
+    if (!cv || !saveFingerprint || saveFingerprint === lastSavedRef.current) return undefined;
+
+    setSaveState("pending");
+    const timer = window.setTimeout(() => {
+      setSaveState("saving");
+      persistCv({ notify: false, refreshList: false }).catch((error) => {
+        setSaveState("error");
+        setStatus(error.message || "Unable to save CV.");
+      });
+    }, 1200);
+
+    return () => window.clearTimeout(timer);
+  }, [cv, persistCv, saveFingerprint]);
 
   async function saveCv() {
     if (!cv) return;
     setBusy(true);
+    setSaveState("saving");
     setStatus("");
     try {
       await persistCv();
     } catch (error) {
+      setSaveState("error");
       setStatus(error.message);
     } finally {
       setBusy(false);
@@ -373,6 +431,13 @@ export default function CvBuilder() {
     return `${cv.theme?.template || "modern"} · ${cv.theme?.accent || "#1b2a3f"} · ${cv.theme?.fontFamily || "Arial"}`;
   }, [cv]);
 
+  const saveLabel = {
+    saved: "Saved automatically",
+    pending: "Changes pending",
+    saving: "Saving…",
+    error: "Save failed",
+  }[saveState];
+
   if (!cvs.length && !activeId) {
     return (
       <section className={styles.empty}>
@@ -434,11 +499,32 @@ export default function CvBuilder() {
 
       <div className={styles.workspace}>
         <div className={styles.toolbar}>
-          <div>
+          <div className={styles.toolbarMeta}>
             <span>Daraja Smart CV</span>
             <strong>{designCount}</strong>
+            <small className={styles.saveState} data-state={saveState} aria-live="polite">
+              {saveLabel}
+            </small>
           </div>
           <div className={styles.toolbarActions}>
+            <div className={styles.mobileViewSwitch} aria-label="Builder view">
+              <button
+                type="button"
+                className={mobileView === "edit" ? styles.activeView : ""}
+                aria-pressed={mobileView === "edit"}
+                onClick={() => setMobileView("edit")}
+              >
+                Edit
+              </button>
+              <button
+                type="button"
+                className={mobileView === "preview" ? styles.activeView : ""}
+                aria-pressed={mobileView === "preview"}
+                onClick={() => setMobileView("preview")}
+              >
+                Preview
+              </button>
+            </div>
             <button type="button" onClick={downloadPdf} disabled={busy || pdfBusy}>
               {pdfBusy ? "Generating PDF…" : "Download PDF"}
             </button>
@@ -454,7 +540,10 @@ export default function CvBuilder() {
         </div>
 
         <div className={styles.columns}>
-          <section className={styles.editor} aria-label="CV editor">
+          <section
+            className={`${styles.editor} ${mobileView === "preview" ? styles.mobileHidden : ""}`}
+            aria-label="CV editor"
+          >
             <details open>
               <summary>CV setup</summary>
               <div className={styles.panel}>
@@ -604,21 +693,47 @@ export default function CvBuilder() {
                     Generate design
                   </button>
                 </div>
-                <label className={styles.field}>
-                  <span>Base personality</span>
-                  <select value={cv.theme.template} onChange={(event) => setCv({ ...cv, theme: { ...cv.theme, template: event.target.value } })}>
-                    <option value="modern">Modern</option>
-                    <option value="classic">Classic</option>
-                    <option value="minimal">Minimal</option>
-                    <option value="executive">Executive</option>
-                    <option value="public">Public Service</option>
-                  </select>
-                </label>
-                <div className={styles.colorRow}>
-                  <label className={styles.field}>
-                    <span>Accent color</span>
-                    <input type="color" value={cv.theme.accent} onChange={(event) => setCv({ ...cv, theme: { ...cv.theme, accent: event.target.value } })} />
-                  </label>
+                <div className={styles.templateChooser}>
+                  <span>Template</span>
+                  <div className={styles.templateGrid}>
+                    {TEMPLATE_OPTIONS.map((option) => (
+                      <button
+                        type="button"
+                        key={option.value}
+                        className={cv.theme.template === option.value ? styles.activeTemplate : ""}
+                        aria-pressed={cv.theme.template === option.value}
+                        onClick={() => setCv({ ...cv, theme: { ...cv.theme, template: option.value } })}
+                      >
+                        <span className={styles.templateMiniature} data-template={option.value} aria-hidden="true">
+                          <i />
+                          <b />
+                          <em />
+                        </span>
+                        <strong>{option.label}</strong>
+                        <small>{option.description}</small>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                <div className={styles.paletteChooser}>
+                  <span>Accent color</span>
+                  <div className={styles.paletteRow}>
+                    {COLOR_OPTIONS.map((color) => (
+                      <button
+                        type="button"
+                        key={color}
+                        className={cv.theme.accent === color ? styles.activeColor : ""}
+                        style={{ "--swatch": color }}
+                        aria-label={`Use ${color} accent`}
+                        aria-pressed={cv.theme.accent === color}
+                        onClick={() => setCv({ ...cv, theme: { ...cv.theme, accent: color } })}
+                      />
+                    ))}
+                    <label className={styles.customColor}>
+                      <span>Custom</span>
+                      <input type="color" value={cv.theme.accent} onChange={(event) => setCv({ ...cv, theme: { ...cv.theme, accent: event.target.value } })} />
+                    </label>
+                  </div>
                   <Field label="Hex color" value={cv.theme.accent} onChange={(value) => setCv({ ...cv, theme: { ...cv.theme, accent: value } })} />
                 </div>
                 <label className={styles.field}>
@@ -736,7 +851,10 @@ export default function CvBuilder() {
             </details>
           </section>
 
-          <section className={styles.previewPane} aria-label="CV preview">
+          <section
+            className={`${styles.previewPane} ${mobileView === "edit" ? styles.mobileHidden : ""}`}
+            aria-label="CV preview"
+          >
             <div className={styles.scoreCard}>
               <div>
                 <span>ATS readiness</span>

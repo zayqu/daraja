@@ -3,7 +3,12 @@ import { SITE_ORIGIN } from "../lib/site-config.js";
 import { CAREER_GUIDES } from "../lib/career-guides.js";
 import { SECTOR_GUIDES } from "../lib/sector-guides.js";
 
-export default function sitemap() {
+// Rebuilt hourly on the server so new and expired jobs stay current.
+export const revalidate = 3600;
+
+const MAX_JOB_URLS = 5000;
+
+export function staticSitemapEntries() {
   const updatedAt = new Date();
 
   const entries = [
@@ -40,4 +45,32 @@ export default function sitemap() {
   }
 
   return entries;
+}
+
+async function jobSitemapEntries() {
+  try {
+    const [{ default: prisma }, { buildPublicJobWhere }] = await Promise.all([
+      import("../lib/prisma.js"),
+      import("../lib/job-query.js"),
+    ]);
+    const jobs = await prisma.job.findMany({
+      where: buildPublicJobWhere("active"),
+      orderBy: { createdAt: "desc" },
+      take: MAX_JOB_URLS,
+      select: { slug: true, updatedAt: true },
+    });
+    return jobs.map((job) => ({
+      url: `${SITE_ORIGIN}/jobs/${job.slug}`,
+      lastModified: job.updatedAt,
+      changeFrequency: "daily",
+      priority: 0.8,
+    }));
+  } catch (error) {
+    console.error("Sitemap job read failed:", error);
+    return [];
+  }
+}
+
+export default async function sitemap() {
+  return [...staticSitemapEntries(), ...(await jobSitemapEntries())];
 }

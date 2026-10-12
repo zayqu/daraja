@@ -14,10 +14,17 @@ const ADSENSE_CLIENT = "ca-pub-5101856964689063";
 // Monetag zones for ajira.daraja.co.tz (site 3521615). Only AdSense-compatible
 // formats are used: In-Page Push and Vignette. Never add Onclick/Popunder or
 // MultiTag here — AdSense does not allow pop-unders on the same site.
-const MONETAG_ZONES = {
-  inPagePush: process.env.NEXT_PUBLIC_MONETAG_IN_PAGE_PUSH_ZONE || "11974650",
-  vignette: process.env.NEXT_PUBLIC_MONETAG_VIGNETTE_ZONE || "11974652",
-};
+// Paused while Google AdSense reviews the site (D-032, 12 October 2026): the
+// Vignette is a full-screen interstitial that can block AdSense approval.
+// Switch back on after approval by setting NEXT_PUBLIC_MONETAG_ENABLED=true.
+// The monetag meta tag and public/sw.js stay in place for site verification.
+const MONETAG_ENABLED = process.env.NEXT_PUBLIC_MONETAG_ENABLED === "true";
+const MONETAG_ZONES = MONETAG_ENABLED
+  ? {
+      inPagePush: process.env.NEXT_PUBLIC_MONETAG_IN_PAGE_PUSH_ZONE || "11974650",
+      vignette: process.env.NEXT_PUBLIC_MONETAG_VIGNETTE_ZONE || "11974652",
+    }
+  : {};
 
 const poppins = Poppins({
   variable: "--font-poppins",

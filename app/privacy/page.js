@@ -35,8 +35,8 @@ export default function PrivacyPage() {
         Daraja may use cookies or similar technologies for security, analytics and
         advertising. If Google advertising is enabled, Google and its partners may
         use cookies to show and measure ads in accordance with Google&apos;s policies.
-        Daraja is free to use, so ads from Monetag are shown to every visitor;
-        Monetag and its partners may use cookies to show and measure those ads.
+        Daraja is free to use, so when ads from Monetag are switched on they are
+        shown to every visitor; Monetag and its partners may use cookies to show and measure those ads.
         Google analytics and Google advertising do not load until a visitor
         accepts them. Separately, Daraja keeps anonymous first-party aggregate traffic
         numbers for service operations: total visits, new visits, returning visits

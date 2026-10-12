@@ -493,3 +493,11 @@ The CSP allows only the named Monetag domains (`nap5k.com`, `n6wxm.com`,
 `3nbf4.com`) in `script-src`, `connect-src` and `frame-src`. If Monetag
 changes domains and ads stop rendering, add the specific new domain rather
 than opening the policy to all HTTPS origins.
+
+**Update 12 October 2026 (owner decision):** AdSense rejected the first
+application with "Meet AdSense program policies". Monetag is paused until
+AdSense approves the site, because the Vignette is a full-screen interstitial
+that can count against approval. `app/layout.js` only passes Monetag zones when
+`NEXT_PUBLIC_MONETAG_ENABLED=true`; set it in the cPanel Node.js environment and
+rebuild to switch Monetag back on after approval. The `monetag` meta tag and
+`public/sw.js` stay in place.

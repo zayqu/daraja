@@ -9,6 +9,13 @@ tested vertical releases. The current priority is Phase 0 security and privacy
 hardening before expanding candidate CV, employer, freelance, payment or AI
 workflows.
 
+## Current batch: Monetag paused for AdSense review
+
+- 2026-10-12: AdSense application returned "Meet AdSense program policies". Monetag In-Page Push and Vignette are paused (D-032 update) so the re-review sees a clean site.
+- `app/layout.js` passes Monetag zones only when `NEXT_PUBLIC_MONETAG_ENABLED=true`; privacy wording adjusted; `test/google-services.test.js` checks the opt-in.
+- Remaining AdSense blockers to fix before resubmitting: thin scraped job descriptions (many say only "View the official ... vacancy") and links to `/jobs/page-<hash>` and `/career-guides/page-<hash>` that return 404.
+- To switch Monetag back on after approval: set `NEXT_PUBLIC_MONETAG_ENABLED=true` in cPanel and rebuild.
+
 ## Current batch: employer portal ready to switch on
 
 - Employer vacancy form now asks for a closing date (end of day, Tanzania time) and one application method: email or an https application page. `app/api/employer/jobs/route.js` rejects submissions without them, so employer jobs never reach the site with a broken Apply button. Validation is shared with owner vacancies (`parseApplicationDetails` in `lib/owner-vacancy.js`).

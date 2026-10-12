@@ -33,7 +33,7 @@ test("robots rules protect private endpoints and publish the sitemap", async () 
 });
 
 test("public sitemap includes employer entry points only when enabled", async () => {
-  const { default: sitemap } = await import("../app/sitemap.js");
+  const { staticSitemapEntries: sitemap } = await import("../app/sitemap.js");
   const previousFlag = process.env.EMPLOYER_PORTAL_ENABLED;
   try {
     delete process.env.EMPLOYER_PORTAL_ENABLED;

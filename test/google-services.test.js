@@ -60,4 +60,6 @@ test("Monetag uses only AdSense-compatible formats and loads for every visitor",
     assert.doesNotMatch(source, /apu\.php|src=["'][^"']*(onclick|popunder)/i);
   }
   assert.match(layout, /<meta name="monetag"/);
+  // Paused during AdSense review; only an explicit opt-in turns Monetag back on.
+  assert.match(layout, /NEXT_PUBLIC_MONETAG_ENABLED === "true"/);
 });

@@ -1,5 +1,6 @@
 import { permanentRedirect } from "next/navigation";
 import { findPublicJob } from "@/lib/public-job";
+import { buildJobSearchTitle } from "@/lib/job-seo";
 
 async function safeFindPublicJob(id) {
   try {
@@ -30,13 +31,14 @@ export async function generateMetadata({ params }) {
     .slice(0, 160);
 
   return {
-    title: job.title,
+    // Absolute so search results show role, employer and location.
+    title: { absolute: buildJobSearchTitle(job) },
     description,
     alternates: {
       canonical: `/jobs/${job.slug}`,
     },
     openGraph: {
-      title: `${job.title} | Daraja`,
+      title: buildJobSearchTitle(job),
       description,
       url: `/jobs/${job.slug}`,
       type: "article",

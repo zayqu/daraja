@@ -9,6 +9,15 @@ tested vertical releases. The current priority is Phase 0 security and privacy
 hardening before expanding candidate CV, employer, freelance, payment or AI
 workflows.
 
+## Current batch: job SEO (Google for Jobs, sitemap, titles)
+
+- 2026-10-12: job pages now emit `JobPosting` JSON-LD (`lib/job-seo.js`) when the vacancy has a full description (250+ characters, not "View the official…"), is not expired and has a posting date. Thin listings get no markup, per Google's job posting guidelines.
+- Job page titles are now "Role at Employer – Location | Daraja Jobs" (absolute title, so the template no longer drops the suffix).
+- `app/sitemap.js` adds every open published job (up to 5,000), regenerated hourly (`revalidate = 3600`); static entries moved to `staticSitemapEntries()`.
+- Tests: `test/job-seo.test.js`; `test/platform-quality.test.js` uses `staticSitemapEntries`.
+- Note: the earlier "broken /jobs/page-<hash>" finding was a false alarm (Next.js chunk file paths in page source, not real links).
+- Next: thin scraped job descriptions still block markup for many jobs; improving descriptions will unlock Google for Jobs for more vacancies.
+
 ## Current batch: Monetag paused for AdSense review
 
 - 2026-10-12: AdSense application returned "Meet AdSense program policies". Monetag In-Page Push and Vignette are paused (D-032 update) so the re-review sees a clean site.

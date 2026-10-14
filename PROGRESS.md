@@ -1,6 +1,6 @@
 # Daraja Jobs production-readiness progress
 
-Last updated: 9 October 2026
+Last updated: 14 October 2026
 
 ## Current objective
 
@@ -8,6 +8,21 @@ Build Daraja into a secure Tanzania-first work marketplace through small,
 tested vertical releases. The current priority is Phase 0 security and privacy
 hardening before expanding candidate CV, employer, freelance, payment or AI
 workflows.
+
+## Current batch: homepage redesign (JobBoard-style layout)
+
+- 2026-10-14: homepage sections restyled after the Colorlib "JobBoard" layout (design only, no template code or images). The existing hero (light canvas, bridge animation, search) is kept unchanged by product-owner decision. New: teal stats band with four big counters; new "Latest jobs" list (6 newest public jobs via `getLatestJobs()` in `lib/home-stats.js`, shared `JobCard`); categories; how-it-works; navy "Looking for a job?" band linking to job alerts.
+- Site font switched from Poppins to Nunito (JobBoard's typeface) through the single `next/font` instance in `app/layout.js` and the `--font-daraja` token; D-025 updated.
+- Phone navigation unchanged: top bar shows logo, notifications and profile only; the bottom dock is the sole menu.
+- Job card titles: max two lines with ellipsis (full title in `title`), phone cards use the h4 step (18px) and the title spans the meta column so long deadlines no longer squeeze it.
+- Not yet verified on production; deploy pending.
+
+## Current batch: homepage category section redesign
+
+- 2026-10-14: "Browse by category" cards now show a line icon on a tinted tile per category (`components/CategoryIcon.js`), the live open-job count, and are ordered busiest first ("General" last). Empty categories read "New roles soon".
+- `lib/home-stats.js` adds `categoryCounts` (one `groupBy` on the public-job filter, inside the existing 5-minute cache).
+- Layout: compact horizontal cards (4 columns desktop, 2 tablet), two-column stacked tiles on phones instead of the horizontal scroller. The unexplained mint "featured" tint was removed.
+- Tests: `test/home-categories.test.js` (every category has an icon; counts wired in).
 
 ## Current batch: job SEO (Google for Jobs, sitemap, titles)
 

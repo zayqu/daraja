@@ -45,13 +45,13 @@ test("homepage keeps platform counters while shared footer owns public traffic n
   const footerStyles = await source("components/SiteFooter.module.css");
   const stats = await source("lib/home-stats.js");
 
-  assert.match(home, /await getHomeStats\(\)/);
+  assert.match(home, /await Promise\.all\(\[getHomeStats\(\), getLatestJobs\(\)\]\)/);
   assert.match(home, /<SiteFooter \/>/);
   assert.match(home, /className="trust"/);
   assert.match(home, /stats\.liveJobs/);
   assert.match(home, /stats\.employers/);
   assert.match(home, /stats\.sources/);
-  assert.match(home, /\.trust \{[\s\S]*background:\s*var\(--color-navy\)/);
+  assert.match(home, /\.trust \{[\s\S]*background:\s*var\(--color-teal-deep\)/);
 
   assert.match(footer, /<TrafficNumbers className=\{styles\.trafficMeta\} \/>/);
   assert.match(trafficNumbers, /fetch\("\/api\/visitors"/);

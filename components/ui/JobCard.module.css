@@ -70,6 +70,13 @@
   font-weight: 700;
   line-height: 1.35;
   letter-spacing: -0.01em;
+  /* Long vacancy titles stop at two lines; the full title is on the detail page. */
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow: hidden;
+  overflow-wrap: break-word;
 }
 
 .card:hover .title {
@@ -168,11 +175,12 @@
 
 @media (max-width: 640px) {
   .card {
-    grid-template-columns: 40px minmax(0, 1fr) auto;
+    /* The title spans the meta column so long deadlines never squeeze it. */
+    grid-template-columns: 40px minmax(0, 1fr) auto 28px;
     grid-template-areas:
-      "brand title save"
-      "brand company location"
-      "tags tags deadline";
+      "brand title title save"
+      "brand company location location"
+      "tags tags deadline deadline";
     column-gap: 0.7rem;
     row-gap: 0.58rem;
     padding: 0.95rem 1rem;
@@ -204,7 +212,8 @@
 
   .title {
     min-width: 0;
-    font-size: var(--ajira-h3);
+    /* Phone cards use the h4 step so two lines hold a typical vacancy title. */
+    font-size: var(--ajira-h4);
     line-height: 1.3;
   }
 

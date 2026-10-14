@@ -22,7 +22,7 @@ test("public job results use one shared hierarchy-first job card", async () => {
   assert.doesNotMatch(jobsPage, /className="job-card"/);
   assert.doesNotMatch(jobsPage, /JobBrandMedia/);
 
-  assert.match(card, /<h3 className=\{styles\.title\}>\{job\.title\}<\/h3>/);
+  assert.match(card, /<h3 className=\{styles\.title\} title=\{job\.title\}>\{job\.title\}<\/h3>/);
   assert.match(card, /className=\{styles\.company\}>\{job\.company\}/);
   assert.match(card, /className=\{styles\.location\}>\{job\.location\}/);
   assert.match(card, /className=\{styles\.tags\}/);
@@ -44,11 +44,11 @@ test("public job results use one shared hierarchy-first job card", async () => {
   );
   assert.match(
     styles,
-    /@media \(max-width: 640px\)[\s\S]*grid-template-columns:\s*40px minmax\(0, 1fr\) auto/
+    /@media \(max-width: 640px\)[\s\S]*grid-template-columns:\s*40px minmax\(0, 1fr\) auto 28px/
   );
   assert.match(
     styles,
-    /grid-template-areas:[\s\S]*"brand title save"[\s\S]*"brand company location"[\s\S]*"tags tags deadline"/
+    /grid-template-areas:[\s\S]*"brand title title save"[\s\S]*"brand company location location"[\s\S]*"tags tags deadline deadline"/
   );
   assert.doesNotMatch(card, /mobileCompanyBrand/);
   assert.doesNotMatch(styles, /mobileCompanyBrand/);
@@ -78,4 +78,15 @@ test("missing employer media uses the Daraja brand placeholder", async () => {
   assert.match(media, /styles\.placeholder/);
   assert.doesNotMatch(media, /sourceType/);
   assert.match(styles, /\.placeholder img/);
+});
+
+test("job card titles are limited to two lines with the full title on hover", () => {
+  const fs = require("node:fs");
+  const path = require("node:path");
+  const css = fs.readFileSync(path.join(__dirname, "..", "components", "ui", "JobCard.module.css"), "utf8");
+  const js = fs.readFileSync(path.join(__dirname, "..", "components", "ui", "JobCard.js"), "utf8");
+  const titleBlock = css.slice(css.indexOf(".title {"), css.indexOf("}", css.indexOf(".title {")));
+  assert.match(titleBlock, /-webkit-line-clamp: 2/);
+  assert.match(titleBlock, /overflow: hidden/);
+  assert.match(js, /className=\{styles\.title\} title=\{job\.title\}/);
 });

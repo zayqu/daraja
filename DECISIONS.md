@@ -306,17 +306,17 @@ second frontend or a new application stack.
 
 ## D-025 - Daraja uses one canonical application typeface
 
-**Status:** accepted, updated 2 October 2026
+**Status:** accepted, updated 14 October 2026
 
 Daraja UI work must preserve one shared application-wide typeface rather than
 allowing individual pages or licensed references to introduce their own fonts.
 
-The canonical Daraja web typeface is **Poppins**, loaded once through
+The canonical Daraja web typeface is **Nunito**, loaded once through
 `next/font/google` in the root layout and exposed through the shared
 `--font-daraja` design token.
 
 All public, candidate, employer, admin and authentication surfaces inherit
-Poppins through that token. Arial/Helvetica remain fallback fonts only.
+Nunito through that token. Arial/Helvetica remain fallback fonts only.
 Licensed templates may influence layout and interaction, but they must not
 replace or override Daraja typography page by page.
 
@@ -325,10 +325,11 @@ This is a non-negotiable platform rule. New page/component CSS must inherit
 exceptions are generated CV document typography chosen by the candidate and
 HTML email markup that requires mail-client-safe fallback fonts.
 
-Typography changes are incomplete until the shared Poppins regression test
+Typography changes are incomplete until the shared Nunito regression test
 passes and the live production release marker is verified to include the change.
 
-This updates the earlier Geist baseline by explicit product-owner decision; the
+Nunito replaced Poppins on 14 October 2026 by explicit product-owner decision
+(matching the JobBoard reference); Poppins earlier replaced Geist. The
 centralized typography rule itself remains unchanged.
 
 
@@ -368,7 +369,7 @@ as the single primary navigation owner rather than duplicating the desktop
 hamburger menu.
 
 The dock is inspired by modern iOS navigation behaviour and the licensed Jobko
-mobile reference, but it is implemented entirely inside Daraja using Poppins,
+mobile reference, but it is implemented entirely inside Daraja using Nunito,
 Daraja brand tokens, existing routes and the shared UI system.
 
 The mobile bottom dock owns primary destinations only: Home, Jobs, Internships

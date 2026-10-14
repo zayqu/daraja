@@ -143,7 +143,7 @@ export default function JobCard({
 
       <div className={styles.content}>
         <div className={styles.titleRow}>
-          <h3 className={styles.title}>{job.title}</h3>
+          <h3 className={styles.title} title={job.title}>{job.title}</h3>
           {job.featured && <span className={styles.featured}>Featured</span>}
         </div>
 

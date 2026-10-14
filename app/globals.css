@@ -155,6 +155,7 @@ select {
  * remains opt-in so existing layouts are not unexpectedly overridden.
  * All sizes use rem and respect the browser's root font-size preference.
  */
+@layer base {
 :root {
   --ajira-h1: 1.75rem;
   --ajira-h2: 1.5rem;
@@ -183,4 +184,5 @@ p { font-size: var(--ajira-body); line-height: 1.6; }
     --ajira-h6: 1rem;
     --ajira-body: 1rem;
   }
+}
 }

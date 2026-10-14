@@ -5,7 +5,9 @@ import { employerPortalEnabled } from "@/lib/features";
 import { JOB_CATEGORIES } from "@/lib/job-categories";
 import SiteFooter from "@/components/SiteFooter";
 import HomeHeroBridge from "@/components/HomeHeroBridge";
-import { getHomeStats } from "@/lib/home-stats";
+import { getHomeStats, getLatestJobs } from "@/lib/home-stats";
+import JobCard from "@/components/ui/JobCard";
+import CategoryIcon, { categoryTone } from "@/components/CategoryIcon";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -19,20 +21,27 @@ const HERO_HEADLINE = [
   { word: "forward.", accent: true, underline: true },
 ];
 
-const FEATURED_CATEGORIES = new Set([
-  "Government",
-  "NGO & Development",
-  "Banking & Finance",
-  "Technology",
-  "Health",
-  "Education",
-  "HR & Administration",
-  "Internships & Graduate Programs",
-]);
+// Busiest categories first so the grid leads with real openings;
+// "General" always closes the list.
+function orderCategories(counts) {
+  return JOB_CATEGORIES
+    .map((name, index) => ({ name, index, count: counts?.[name] || 0 }))
+    .sort((a, b) => {
+      if (a.name === "General") return 1;
+      if (b.name === "General") return -1;
+      return b.count - a.count || a.index - b.index;
+    });
+}
+
+function formatOpenJobs(count) {
+  if (!count) return "New roles soon";
+  return `${count.toLocaleString("en-US")} open ${count === 1 ? "job" : "jobs"}`;
+}
 
 export default async function Home() {
   const employerEnabled = employerPortalEnabled();
-  const stats = await getHomeStats();
+  const [stats, latestJobs] = await Promise.all([getHomeStats(), getLatestJobs()]);
+  const categories = orderCategories(stats.categoryCounts);
 
   return (
     <>
@@ -224,39 +233,136 @@ export default async function Home() {
 
 
         .trust {
-          background: var(--color-navy);
-          border-bottom: 0;
+          background: var(--color-teal-deep);
+          color: var(--color-on-dark);
         }
 
         .trust-inner {
           max-width: var(--content-max);
           margin: 0 auto;
-          padding: 1.5rem var(--gutter);
+          padding: clamp(2.5rem, 5vw, 3.75rem) var(--gutter);
           display: grid;
-          grid-template-columns: repeat(3, 1fr);
-          gap: 1rem;
+          grid-template-columns: repeat(4, 1fr);
+          gap: 1.5rem;
+          text-align: center;
         }
-
-        .trust-item {
-          padding-right: 1rem;
-          border-right: 1px solid rgba(255,255,255,.16);
-        }
-
-        .trust-item:last-child { border-right: 0; }
 
         .trust-item strong {
           display: block;
-          margin-bottom: .12rem;
+          margin-bottom: .3rem;
           color: var(--color-on-dark);
-          font-size: clamp(1.15rem, 2vw, 1.55rem);
+          font-size: var(--ajira-h1);
           font-weight: 800;
-          letter-spacing: -.02em;
+          line-height: 1;
+          letter-spacing: -.03em;
         }
 
         .trust-item span {
-          color: rgba(255,255,255,.72);
-          font-size: .7rem;
+          color: rgba(255,255,255,.8);
+          font-size: .8rem;
           line-height: 1.45;
+        }
+
+        .latest {
+          background: var(--color-surface);
+          border-bottom: 1px solid var(--color-border);
+        }
+
+        .latest-list {
+          display: grid;
+          gap: .75rem;
+        }
+
+        .latest-empty {
+          padding: 2rem;
+          border: 1px dashed var(--color-border-strong);
+          border-radius: 14px;
+          color: var(--color-text-muted);
+          text-align: center;
+        }
+
+        .section-link {
+          display: inline-flex;
+          align-items: center;
+          gap: .4rem;
+          color: var(--color-teal-deep);
+          font-size: .85rem;
+          font-weight: 700;
+          text-decoration: none;
+          white-space: nowrap;
+        }
+
+        .section-link:hover { text-decoration: underline; }
+
+        .latest-more {
+          display: flex;
+          justify-content: center;
+          margin-top: 1.75rem;
+        }
+
+        .btn-outline {
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          min-height: 48px;
+          padding: 0 1.6rem;
+          border: 1.5px solid var(--color-navy);
+          border-radius: 12px;
+          color: var(--color-navy);
+          font-weight: 700;
+          text-decoration: none;
+          transition: background .15s ease, color .15s ease;
+        }
+
+        .btn-outline:hover {
+          background: var(--color-navy);
+          color: var(--color-on-dark);
+        }
+
+        .cta-band {
+          position: relative;
+          overflow: hidden;
+          background:
+            radial-gradient(36rem 20rem at 100% 0%, rgba(0,201,167,.3), transparent 60%),
+            var(--color-navy);
+          color: var(--color-on-dark);
+        }
+
+        .cta-inner {
+          max-width: var(--content-max);
+          margin: 0 auto;
+          padding: clamp(2.75rem, 6vw, 4.25rem) var(--gutter);
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 2rem;
+        }
+
+        .cta-inner h2 {
+          margin: 0 0 .4rem;
+          color: var(--color-on-dark);
+          font-size: var(--ajira-h2);
+          font-weight: 700;
+          letter-spacing: -.02em;
+        }
+
+        .cta-inner p {
+          margin: 0;
+          max-width: 520px;
+          color: rgba(255,255,255,.74);
+        }
+
+        .cta-button {
+          display: inline-flex;
+          align-items: center;
+          min-height: 52px;
+          padding: 0 1.8rem;
+          border-radius: 12px;
+          background: var(--color-teal);
+          color: var(--color-navy);
+          font-weight: 800;
+          text-decoration: none;
+          white-space: nowrap;
         }
 
         .section {
@@ -292,52 +398,83 @@ export default async function Home() {
         .category-grid {
           display: grid;
           grid-template-columns: repeat(4, minmax(0, 1fr));
-          gap: 1rem;
+          gap: .75rem;
         }
 
         .category-card {
-          min-height: 138px;
-          display: flex;
-          flex-direction: column;
-          justify-content: space-between;
-          padding: 1.35rem;
+          display: grid;
+          grid-template-columns: auto minmax(0, 1fr) auto;
+          align-items: center;
+          gap: .85rem;
+          padding: .9rem 1rem;
           border: 1px solid var(--color-border-strong);
-          border-radius: 16px;
+          border-radius: 14px;
           background: var(--color-surface);
           text-decoration: none;
           transition: transform .15s ease, border-color .15s ease, box-shadow .15s ease;
         }
 
-        .category-card:hover {
+        .category-card:hover,
+        .category-card:focus-visible {
           transform: translateY(-2px);
-          border-color: var(--color-teal);
+          border-color: var(--tone-fg);
           box-shadow: var(--shadow-card);
         }
 
-        .category-card.featured {
-          border-color: rgba(0,201,167,.38);
-          background: #f4fffc;
+        .category-icon {
+          width: 44px;
+          height: 44px;
+          display: grid;
+          place-items: center;
+          border-radius: 12px;
+          background: var(--tone-bg);
+          color: var(--tone-fg);
+          transition: transform .15s ease;
+        }
+
+        .category-card:hover .category-icon {
+          transform: scale(1.06);
+        }
+
+        .category-text {
+          display: grid;
+          gap: .2rem;
+          min-width: 0;
         }
 
         .category-card strong {
           color: var(--color-navy);
-          font-size: .9rem;
-          line-height: 1.35;
+          font-size: .86rem;
+          line-height: 1.3;
         }
 
-        .category-card span {
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          gap: .75rem;
-          color: var(--color-text-faint);
-          font-size: .7rem;
-        }
-
-        .category-card span b {
+        .category-count {
           color: var(--color-teal-deep);
-          font-size: 1rem;
+          font-size: .74rem;
+          font-weight: 700;
+        }
+
+        .category-card.empty .category-count {
+          color: var(--color-text-faint);
           font-weight: 500;
+        }
+
+        .category-arrow {
+          color: var(--color-text-faint);
+          font-size: 1rem;
+          transition: transform .15s ease, color .15s ease;
+        }
+
+        .category-card:hover .category-arrow {
+          color: var(--tone-fg);
+          transform: translateX(3px);
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+          .category-card,
+          .category-icon,
+          .category-arrow { transition: none; }
+          .category-card:hover { transform: none; }
         }
 
         .how {
@@ -426,7 +563,8 @@ export default async function Home() {
           .hero-layout { display: block; }
           .hero-search { grid-template-columns: 1fr 1fr; }
           .hero-submit { grid-column: 1 / -1; }
-          .category-grid { grid-template-columns: repeat(3, 1fr); }
+          .trust-inner { grid-template-columns: repeat(2, 1fr); }
+          .category-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
         }
 
         @media (max-width: 640px) {
@@ -522,29 +660,21 @@ export default async function Home() {
 
 
           .trust-inner {
-            grid-template-columns: repeat(3, 1fr);
-            gap: 0;
-            padding-top: .9rem;
-            padding-bottom: .9rem;
+            gap: 1.4rem .75rem;
+            padding-block: 2.25rem;
           }
 
-          .trust-item {
-            min-height: 66px;
-            padding: .75rem .7rem;
-            border-right: 1px solid rgba(255,255,255,.14);
+          .trust-item span { font-size: .72rem; }
+
+          .cta-inner {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 1.25rem;
           }
 
-          .trust-item:last-child {
-            border-right: 0;
-          }
-
-          .trust-item strong {
-            font-size: 1.12rem;
-          }
-
-          .trust-item span {
-            font-size: .66rem;
-            line-height: 1.45;
+          .cta-button {
+            width: 100%;
+            justify-content: center;
           }
 
           .section {
@@ -569,29 +699,33 @@ export default async function Home() {
           }
 
           .category-grid {
-            display: flex;
-            gap: .7rem;
-            margin-right: calc(var(--gutter) * -1);
-            overflow-x: auto;
-            padding-right: var(--gutter);
-            scroll-snap-type: x proximity;
-            scrollbar-width: none;
-          }
-
-          .category-grid::-webkit-scrollbar {
-            display: none;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: .55rem;
           }
 
           .category-card {
-            flex: 0 0 164px;
-            min-height: 106px;
-            padding: .9rem;
-            border-radius: 14px;
-            scroll-snap-align: start;
+            grid-template-columns: 1fr;
+            align-content: start;
+            gap: .55rem;
+            padding: .8rem;
+          }
+
+          .category-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
           }
 
           .category-card strong {
-            font-size: .82rem;
+            font-size: .78rem;
+          }
+
+          .category-count {
+            font-size: .7rem;
+          }
+
+          .category-arrow {
+            display: none;
           }
 
           .how-grid {
@@ -701,14 +835,46 @@ export default async function Home() {
               </div>
               <div className="trust-item">
                 <strong>{stats.employers.toLocaleString()}</strong>
-                <span>Employers & institutions represented</span>
+                <span>Employers & institutions</span>
               </div>
               <div className="trust-item">
                 <strong>{stats.sources.toLocaleString()}</strong>
-                <span>Active verified sources</span>
+                <span>Verified sources</span>
+              </div>
+              <div className="trust-item">
+                <strong>{JOB_CATEGORIES.length}</strong>
+                <span>Job categories</span>
               </div>
             </div>
           </section>
+
+          <div className="latest">
+            <section className="section" aria-labelledby="latest-title">
+              <div className="section-head">
+                <div>
+                  <div className="section-kicker">Fresh opportunities</div>
+                  <h2 className="section-title" id="latest-title">Latest jobs</h2>
+                </div>
+                <Link className="section-link" href="/jobs">
+                  See all {stats.liveJobs.toLocaleString()} jobs <span aria-hidden="true">→</span>
+                </Link>
+              </div>
+
+              {latestJobs.length > 0 ? (
+                <div className="latest-list">
+                  {latestJobs.map((job) => (
+                    <JobCard key={job.id} job={job} listName="Homepage latest jobs" />
+                  ))}
+                </div>
+              ) : (
+                <p className="latest-empty">New vacancies are on the way. Check back shortly.</p>
+              )}
+
+              <div className="latest-more">
+                <Link className="btn-outline" href="/jobs">Browse all jobs</Link>
+              </div>
+            </section>
+          </div>
 
           <section className="section" aria-labelledby="category-title">
             <div className="section-head">
@@ -717,22 +883,32 @@ export default async function Home() {
                 <h2 className="section-title" id="category-title">Browse by category</h2>
               </div>
               <p>
-                Use the same controlled categories across Daraja so browsing,
-                filtering and alerts stay consistent.
+                Pick your field to see open roles across Tanzania, busiest
+                categories first.
               </p>
             </div>
 
             <div className="category-grid">
-              {JOB_CATEGORIES.map((category) => (
-                <Link
-                  key={category}
-                  href={"/jobs?category=" + encodeURIComponent(category)}
-                  className={`category-card ${FEATURED_CATEGORIES.has(category) ? "featured" : ""}`}
-                >
-                  <strong>{category}</strong>
-                  <span>Explore jobs <b>→</b></span>
-                </Link>
-              ))}
+              {categories.map(({ name, index, count }) => {
+                const tone = categoryTone(index);
+                return (
+                  <Link
+                    key={name}
+                    href={"/jobs?category=" + encodeURIComponent(name)}
+                    className={`category-card${count ? "" : " empty"}`}
+                    style={{ "--tone-bg": tone.bg, "--tone-fg": tone.fg }}
+                  >
+                    <span className="category-icon">
+                      <CategoryIcon category={name} />
+                    </span>
+                    <span className="category-text">
+                      <strong>{name}</strong>
+                      <span className="category-count">{formatOpenJobs(count)}</span>
+                    </span>
+                    <span className="category-arrow" aria-hidden="true">→</span>
+                  </Link>
+                );
+              })}
             </div>
           </section>
 
@@ -766,6 +942,19 @@ export default async function Home() {
                   <p>Use the application route attached to the vacancy instead of searching for it again elsewhere.</p>
                 </div>
               </div>
+            </div>
+          </section>
+
+          <section className="cta-band" aria-labelledby="cta-title">
+            <div className="cta-inner">
+              <div>
+                <h2 id="cta-title">Looking for a job?</h2>
+                <p>
+                  Get new vacancies in your field by email, or follow the Daraja
+                  WhatsApp channel for daily openings.
+                </p>
+              </div>
+              <a className="cta-button" href="#job-alerts-title">Get job alerts</a>
             </div>
           </section>
 

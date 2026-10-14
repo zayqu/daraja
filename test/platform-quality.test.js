@@ -256,6 +256,17 @@ test("homepage hero animation is decorative, server-rendered and respects reduce
   assert.doesNotMatch(bridgeCss, /@media \(max-width: 900px\)[\s\S]*display:\s*none/);
 });
 
+test("homepage lists the latest public jobs with the shared job card", async () => {
+  const home = await readFile(path.join(__dirname, "..", "app", "page.js"), "utf8");
+  const stats = await readFile(path.join(__dirname, "..", "lib", "home-stats.js"), "utf8");
+
+  assert.match(stats, /export async function getLatestJobs\(\)/);
+  assert.match(stats, /take: 6/);
+  assert.match(stats, /buildPublicJobWhere\("active", new Date\(\)\)/);
+  assert.match(home, /<JobCard key=\{job\.id\} job=\{job\} listName="Homepage latest jobs" \/>/);
+  assert.match(home, /className="cta-band"/);
+});
+
 
 test("original Daraja browser favicon is provided through Next.js file metadata", async () => {
   const icon = await readFile(path.join(__dirname, "..", "app", "icon.png"));

@@ -1,113 +1,57 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { auth, authProviders, signIn } from "@/auth";
-import PublicSiteNav from "@/components/PublicSiteNav";
-import PageHero from "@/components/ui/PageHero";
-import SurfaceCard from "@/components/ui/SurfaceCard";
+import { auth, authProviders } from "@/auth";
+import AuthLayout from "@/components/auth/AuthLayout";
+import GoogleButton from "@/components/auth/GoogleButton";
+import LoginForm from "@/components/auth/LoginForm";
+import { employerPortalEnabled } from "@/lib/features";
+import { roleHome } from "@/lib/platform-roles";
+import { safeRedirectPath } from "@/lib/password-auth";
 import styles from "../auth.module.css";
 
-function safeCallback(value) {
-  return typeof value === "string" && value.startsWith("/") && !value.startsWith("//")
-    ? value
-    : "/account/alerts";
-}
-
 export const metadata = {
-  title: "Candidate sign in",
-  description: "Sign in securely to manage personalised Daraja job alerts.",
+  title: "Sign in | Daraja",
+  description: "Sign in to your Daraja account.",
+  robots: { index: false, follow: false },
+};
+
+export const dynamic = "force-dynamic";
+
+const ERRORS = {
+  link: "That link has expired or was already used. Sign in, or request a new link.",
+  AccessDenied: "This account cannot sign in. Contact Daraja support if you think this is a mistake.",
+  OAuthAccountNotLinked: "This email already has a Daraja account. Sign in with your password.",
 };
 
 export default async function SignInPage({ searchParams }) {
   const params = await searchParams;
-  const callbackUrl = safeCallback(params?.callbackUrl);
   const session = await auth();
-  if (session?.user) redirect(callbackUrl);
+  const home = roleHome(session?.user?.role, { employerPortal: employerPortalEnabled() });
+  const callbackUrl = safeRedirectPath(params?.callbackUrl, "");
+  if (session?.user) redirect(callbackUrl || home);
 
   const googleEnabled = authProviders.includes("google");
-  const emailEnabled = authProviders.includes("resend");
+  const error = ERRORS[params?.error] || (params?.error ? "Sign-in failed. Please try again." : "");
 
   return (
-    <div className={styles.page}>
-      <PublicSiteNav />
+    <AuthLayout
+      title="Welcome back to Daraja."
+      intro="Sign in to manage your applications, job alerts, vacancies or the Daraja admin panel."
+    >
+      <h2>Sign in</h2>
+      <p className={styles.lead}>Use your email and password, or continue with Google.</p>
 
-      <main id="main-content">
-        <PageHero
-          eyebrow="Candidate account"
-          title="Sign in when you need personalised Daraja tools."
-          description="Browsing and applying for public jobs stays open without an account. Sign in only for alerts and protected account features."
-          maxWidth="narrow"
-          variant="overlap"
-        />
+      {googleEnabled ? <GoogleButton callbackUrl={callbackUrl || "/account"} /> : null}
 
-        <div className={styles.cardWrap}>
-          <SurfaceCard className={styles.card} aria-labelledby="signin-title">
-            <div className={styles.cardHeader}>
-              <Link href="/jobs" className={styles.brand}>DARAJA</Link>
-              <h2 id="signin-title">Access your candidate account</h2>
-              <p>
-                Use Google or a verified one-time email link when the provider
-                is configured.
-              </p>
-            </div>
+      <LoginForm callbackUrl={callbackUrl} initialError={error} />
 
-            {googleEnabled && (
-              <form
-                className={styles.form}
-                action={async () => {
-                  "use server";
-                  await signIn("google", { redirectTo: callbackUrl });
-                }}
-              >
-                <button className={styles.google} type="submit">
-                  Continue with Google
-                </button>
-              </form>
-            )}
-
-            {googleEnabled && emailEnabled && (
-              <div className={styles.divider}><span>or</span></div>
-            )}
-
-            {emailEnabled && (
-              <form
-                className={styles.form}
-                action={async (formData) => {
-                  "use server";
-                  await signIn("resend", formData);
-                }}
-              >
-                <input type="hidden" name="redirectTo" value={callbackUrl} />
-                <label htmlFor="email">Email address</label>
-                <input
-                  id="email"
-                  name="email"
-                  type="email"
-                  inputMode="email"
-                  autoComplete="email"
-                  placeholder="name@example.com"
-                  required
-                />
-                <button className={styles.primary} type="submit">
-                  Email me a secure sign-in link
-                </button>
-              </form>
-            )}
-
-            {!googleEnabled && !emailEnabled && (
-              <p className={styles.notice} role="status">
-                Candidate sign-in is temporarily unavailable while secure
-                providers are being configured.
-              </p>
-            )}
-
-            <p className={styles.terms}>
-              By continuing, you agree to Daraja&apos;s{" "}
-              <Link href="/terms">Terms</Link> and acknowledge the privacy
-              information on our <Link href="/privacy">Privacy page</Link>.
-            </p>
-          </SurfaceCard>
-        </div>
-      </main>
-    </div>
+      <p className={styles.switchRow}>
+        New to Daraja? <Link href="/auth/signup">Create an account</Link>
+      </p>
+      <p className={styles.terms}>
+        By continuing, you agree to Daraja&apos;s <Link href="/terms">Terms</Link> and
+        acknowledge our <Link href="/privacy">Privacy policy</Link>.
+      </p>
+    </AuthLayout>
   );
 }

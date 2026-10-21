@@ -925,6 +925,7 @@ async function parseAgencyDetail(
     baseUrl: source.url,
     location: source.defaultLocation || "Tanzania",
     language: "en",
+    now,
   });
 
   if (!job || !job.active) {

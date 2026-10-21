@@ -9,6 +9,14 @@ tested vertical releases. The current priority is Phase 0 security and privacy
 hardening before expanding candidate CV, employer, freelance, payment or AI
 workflows.
 
+## Current batch: admin dashboard and roles
+
+- 2026-10-21: owner reported landing on the candidate account; the owner user had the default JOB_SEEKER role and `/admin` was hidden behind `EMPLOYER_PORTAL_ENABLED` (off in production).
+- Owner email is now always admin (D-033), granted once and audited in `auth.js`; `lib/platform-roles.js` owns owner emails and role dashboards.
+- `/admin` works without the employer portal (employer queue still gated) and gains "Users and roles": search users, change Candidate/Employer/Admin via `app/api/admin/users/[id]` (admin-only, same-origin, rate-limited, audited; no self or owner changes).
+- `/account` redirects admins to `/admin` and employers to `/employer` when the portal is on.
+- Tests: `test/platform-roles.test.js`; `test/request-security.test.js` covers the new route.
+
 ## Current batch: scraper field-label titles (AjiraWeb)
 
 - 2026-10-21: AjiraWeb email-application posts with a "label | value" summary table (Employer / Position / Location / Deadline) were read as a vacancy list, so each label became a job title (live example: "Employer at Tata Africa Holdings Tanzania", description "Posts: Tata Africa Holdings (Tanzania) Ltd"). `extractEmailApplicationJobs` in `scraper/sources/ajiraweb.js` now recognises summary tables and uses them for title, company, location and deadline instead.

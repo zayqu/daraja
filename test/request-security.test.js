@@ -51,6 +51,7 @@ test("protected account, employer and admin writes use the shared boundary", () 
     "app/api/employer/jobs/[id]/route.js",
     "app/api/admin/employers/[id]/route.js",
     "app/api/admin/jobs/[id]/moderate/route.js",
+    "app/api/admin/users/[id]/route.js",
   ];
 
   for (const file of jsonWriteRoutes) {
@@ -69,6 +70,7 @@ test("admin moderation writes require explicit origin and actor-bound throttling
   const adminRoutes = [
     "app/api/admin/employers/[id]/route.js",
     "app/api/admin/jobs/[id]/moderate/route.js",
+    "app/api/admin/users/[id]/route.js",
   ];
 
   for (const file of adminRoutes) {

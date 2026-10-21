@@ -4,6 +4,8 @@ import { auth, signOut } from "@/auth";
 import PublicSiteNav from "@/components/PublicSiteNav";
 import NavIcon from "@/components/ui/NavIcon";
 import { candidateCareerEnabled } from "@/lib/candidate-access";
+import { employerPortalEnabled } from "@/lib/features";
+import { roleHome } from "@/lib/platform-roles";
 import { candidateProfileSelect } from "@/lib/candidate-profile";
 import prisma from "@/lib/prisma";
 import styles from "./account.module.css";
@@ -62,6 +64,10 @@ export default async function AccountPage() {
   if (!session?.user?.id) {
     redirect("/auth/signin?callbackUrl=/account");
   }
+
+  // Admins and employers have their own dashboards.
+  const home = roleHome(session.user.role, { employerPortal: employerPortalEnabled() });
+  if (home !== "/account") redirect(home);
 
   const careerEnabled = candidateCareerEnabled();
 

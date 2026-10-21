@@ -1,14 +1,13 @@
 import { revalidateTag } from "next/cache";
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
-import { employerPortalEnabled, getActor, isAdmin, safeAuditMetadata } from "@/lib/employer-access";
+import { getActor, isAdmin, safeAuditMetadata } from "@/lib/employer-access";
 import { PUBLIC_JOBS_CACHE_TAG } from "@/lib/public-jobs";
 import { readProtectedJson } from "@/lib/request-security";
 
 const ALLOWED = new Set(["PUBLISHED", "REJECTED", "ARCHIVED"]);
 
 export async function PATCH(request, { params }) {
-  if (!employerPortalEnabled()) return NextResponse.json({ error: "Not found" }, { status: 404 });
   const actor = await getActor();
   if (!isAdmin(actor)) return NextResponse.json({ error: "Admin access required" }, { status: actor ? 403 : 401 });
   const { body, error } = await readProtectedJson(request, {

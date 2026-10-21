@@ -6,20 +6,23 @@ import {
 } from "@/lib/employer-access";
 import AdminEmployerQueue from "@/components/AdminEmployerQueue";
 import AdminJobReviewQueue from "@/components/AdminJobReviewQueue";
+import AdminUserRoles from "@/components/AdminUserRoles";
 import EmployerPortalTabs from "@/components/EmployerPortalTabs";
 import SiteNav from "@/components/SiteNav";
 import PageHero from "@/components/ui/PageHero";
 import WorkspaceShell from "@/components/ui/WorkspaceShell";
 import SurfaceCard from "@/components/ui/SurfaceCard";
 import prisma from "@/lib/prisma";
+import { isOwnerEmail } from "@/lib/platform-roles";
 import styles from "../portal.module.css";
 
 export const metadata = { title: "Moderation | Daraja" };
 export const dynamic = "force-dynamic";
 
-export default async function AdminPage() {
-  if (!employerPortalEnabled()) notFound();
-
+export default async function AdminPage({ searchParams }) {
+  // Moderation of scraped vacancies and user roles must work even while the
+  // employer portal is switched off; only the employer queue depends on it.
+  const employerEnabled = employerPortalEnabled();
   const actor = await getActor();
   if (!actor) redirect("/auth/signin?callbackUrl=/admin");
   if (!isAdmin(actor)) notFound();
@@ -35,8 +38,9 @@ export default async function AdminPage() {
     deadline: true,
     moderationNote: true,
   };
-  const [pendingEmployers, liveJobs] = await Promise.all([
-    prisma.employer.findMany({
+  const userQuery = String((await searchParams)?.user || "").trim().slice(0, 120);
+  const [pendingEmployers, liveJobs, users] = await Promise.all([
+    !employerEnabled ? Promise.resolve([]) : prisma.employer.findMany({
       where: { verificationStatus: "PENDING" },
       orderBy: { createdAt: "asc" },
       take: 50,
@@ -54,6 +58,19 @@ export default async function AdminPage() {
       orderBy: { createdAt: "desc" },
       take: 200,
       select: jobFields,
+    }),
+    prisma.user.findMany({
+      where: userQuery
+        ? {
+            OR: [
+              { email: { contains: userQuery, mode: "insensitive" } },
+              { name: { contains: userQuery, mode: "insensitive" } },
+            ],
+          }
+        : undefined,
+      orderBy: { createdAt: "desc" },
+      take: 50,
+      select: { id: true, name: true, email: true, role: true, createdAt: true },
     }),
   ]);
   const serializeJob = (job) => ({ ...job, deadline: job.deadline?.toISOString() ?? null });
@@ -77,7 +94,7 @@ export default async function AdminPage() {
         />
 
         <WorkspaceShell className={styles.formScope}>
-          <EmployerPortalTabs showAdmin />
+          {employerEnabled ? <EmployerPortalTabs showAdmin /> : null}
 
           <section className={styles.summaryStrip}>
             <div>
@@ -90,21 +107,23 @@ export default async function AdminPage() {
             </div>
           </section>
 
-          <section className={styles.reviewQueue} aria-labelledby="employer-queue-title">
-            <h2 id="employer-queue-title" className={styles.sectionTitle}>
-              Employers waiting for verification ({pendingEmployers.length})
-            </h2>
-            <AdminEmployerQueue
-              employers={pendingEmployers.map((employer) => ({
-                id: employer.id,
-                companyName: employer.companyName,
-                industry: employer.industry,
-                website: employer.website,
-                email: employer.user?.email ?? "",
-                pendingJobs: employer._count.jobs,
-              }))}
-            />
-          </section>
+          {employerEnabled ? (
+            <section className={styles.reviewQueue} aria-labelledby="employer-queue-title">
+              <h2 id="employer-queue-title" className={styles.sectionTitle}>
+                Employers waiting for verification ({pendingEmployers.length})
+              </h2>
+              <AdminEmployerQueue
+                employers={pendingEmployers.map((employer) => ({
+                  id: employer.id,
+                  companyName: employer.companyName,
+                  industry: employer.industry,
+                  website: employer.website,
+                  email: employer.user?.email ?? "",
+                  pendingJobs: employer._count.jobs,
+                }))}
+              />
+            </section>
+          ) : null}
 
           <section className={styles.reviewQueue} aria-labelledby="review-queue-title">
             <h2 id="review-queue-title" className={styles.sectionTitle}>
@@ -118,6 +137,24 @@ export default async function AdminPage() {
               Live vacancies ({liveJobs.length})
             </h2>
             <AdminJobReviewQueue jobs={liveJobs.map(serializeJob)} live />
+          </section>
+
+          <section className={styles.reviewQueue} aria-labelledby="users-title">
+            <h2 id="users-title" className={styles.sectionTitle}>
+              Users and roles
+            </h2>
+            <AdminUserRoles
+              query={userQuery}
+              currentUserId={actor.id}
+              users={users.map((user) => ({
+                id: user.id,
+                name: user.name ?? "",
+                email: user.email ?? "",
+                role: user.role,
+                owner: isOwnerEmail(user.email),
+                createdAt: user.createdAt.toISOString(),
+              }))}
+            />
           </section>
 
           <section className={styles.grid} aria-label="Administration safeguards">

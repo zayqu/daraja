@@ -81,6 +81,15 @@ function messagingOnlyApplication(job) {
   }
 }
 
+// A title that is only a field label ("Employer", "Position", "Deadline") means
+// the source page was mis-read; never publish it as a vacancy.
+const FIELD_LABEL_TITLE =
+  /^(?:employer|company|organi[sz]ation|position|job\s*title|title|post|posts|deadline|application\s+deadline|closing\s+date|location|salary|qualifications?|email|how\s+to\s+apply)\s*:?$/i;
+
+function isFieldLabelTitle(title) {
+  return FIELD_LABEL_TITLE.test(String(title || "").trim());
+}
+
 // Returns { status, note } where status is a JobModerationStatus value.
 function decidePublication(job, sourceId) {
   const text = [job.title, job.description].filter(Boolean).join("\n");
@@ -96,6 +105,9 @@ function decidePublication(job, sourceId) {
   if (!sourcePolicy(sourceId).autoPublish) {
     reasons.push("source has not been approved for automatic publication");
   }
+  if (isFieldLabelTitle(job.title)) {
+    reasons.push(`title "${job.title}" is a field label, not a job position`);
+  }
   if (messagingOnlyApplication(job)) {
     reasons.push("applications go only through a messaging app");
   }
@@ -109,5 +121,6 @@ function decidePublication(job, sourceId) {
 module.exports = {
   decidePublication,
   feeSignal,
+  isFieldLabelTitle,
   sourcePolicy,
 };

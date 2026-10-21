@@ -502,3 +502,19 @@ that can count against approval. `app/layout.js` only passes Monetag zones when
 `NEXT_PUBLIC_MONETAG_ENABLED=true`; set it in the cPanel Node.js environment and
 rebuild to switch Monetag back on after approval. The `monetag` meta tag and
 `public/sw.js` stay in place.
+
+## D-033 - Owner account is always admin; each role has its own dashboard
+
+Owner decision, 21 October 2026. The owner sign-in email (`admin@daraja.co.tz`,
+overridable with `DARAJA_OWNER_EMAILS`) is granted the ADMIN role on its next
+session, once, with an `OWNER_ADMIN_GRANTED` audit event. Email ownership is
+proven by the sign-in itself. Every other role change is made by an
+administrator from `/admin` ("Users and roles") through
+`app/api/admin/users/[id]`, audited as `USER_ROLE_CHANGED`; administrators
+cannot change their own role and the owner account cannot be demoted.
+
+`/admin` (vacancy moderation and user roles) no longer depends on
+`EMPLOYER_PORTAL_ENABLED`; only the employer verification queue and employer
+tabs do. After sign-in, `/account` sends admins to `/admin` and employers to
+`/employer` (when the employer portal is on); candidates stay on `/account`.
+Role rules live in `lib/platform-roles.js`.

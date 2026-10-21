@@ -3,6 +3,7 @@ import Google from "next-auth/providers/google";
 import Resend from "next-auth/providers/resend";
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import prisma from "@/lib/prisma";
+import { isOwnerEmail } from "@/lib/platform-roles";
 
 const providers = [];
 const SESSION_MAX_AGE_SECONDS = 7 * 24 * 60 * 60;
@@ -37,9 +38,26 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     verifyRequest: "/auth/verify-request",
   },
   callbacks: {
-    session({ session, user }) {
+    async session({ session, user }) {
+      let role = user.role;
+      // The owner account always administers Daraja; granted once, audited.
+      if (role !== "ADMIN" && isOwnerEmail(user.email)) {
+        await prisma.$transaction([
+          prisma.user.update({ where: { id: user.id }, data: { role: "ADMIN" } }),
+          prisma.auditEvent.create({
+            data: {
+              actorUserId: user.id,
+              action: "OWNER_ADMIN_GRANTED",
+              entityType: "User",
+              entityId: user.id,
+              metadata: { previousRole: role },
+            },
+          }),
+        ]);
+        role = "ADMIN";
+      }
       session.user.id = user.id;
-      session.user.role = user.role;
+      session.user.role = role;
       return session;
     },
   },

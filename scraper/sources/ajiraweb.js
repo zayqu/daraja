@@ -163,6 +163,39 @@ function looksLikeRoleTitle(value) {
   );
 }
 
+// Labels used in "label | value" job summary tables. These rows describe one
+// vacancy and must never be published as vacancy titles themselves.
+const SUMMARY_FIELDS = [
+  ["title", /^(?:position|job\s*title|job\s*position|post|role|vacancy|title)$/i],
+  ["company", /^(?:employer|company|organi[sz]ation|institution|hiring\s+organi[sz]ation)$/i],
+  ["deadline", /^(?:(?:application\s+)?deadline|closing\s+date|last\s+date)$/i],
+  ["location", /^(?:location|duty\s+station|work\s+station|region)$/i],
+  ["other", /^(?:posts?|no\.?\s+of\s+posts?|number\s+of\s+posts?|salary|qualifications?|minimum\s+qualifications?|education|experience|reports?\s+to|employment\s+type|job\s+type|contract|category|email|how\s+to\s+apply|industry|ref(?:erence)?(?:\s+no\.?)?)$/i],
+];
+
+function summaryFieldFor(label) {
+  const value = cleanText(label).replace(/\s*:\s*$/, "");
+  return SUMMARY_FIELDS.find(([, pattern]) => pattern.test(value))?.[0] || null;
+}
+
+function readSummaryTable($, table) {
+  const rows = $(table)
+    .find("tr")
+    .map((_, row) =>
+      [$(row).find("th, td").map((__, cell) => cleanText($(cell).text())).get()]
+    )
+    .get()
+    .filter((cells) => cells.length === 2);
+  const labelled = rows.filter(([label]) => summaryFieldFor(label));
+  if (!labelled.length || labelled.length < Math.ceil(rows.length / 2)) return null;
+  const fields = {};
+  for (const [label, value] of labelled) {
+    const field = summaryFieldFor(label);
+    if (field !== "other" && value && !fields[field]) fields[field] = value;
+  }
+  return fields;
+}
+
 function extractEmailApplicationJobs(articleTitle, articleUrl, html) {
   const $ = cheerio.load(html || "");
   const emailHref = $('a[href^="mailto:"]').first().attr("href") || "";
@@ -181,12 +214,23 @@ function extractEmailApplicationJobs(articleTitle, articleUrl, html) {
   const email = emailHref.replace(/^mailto:/i, "").split("?")[0].trim();
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return [];
 
+  const summaryTables = new Set();
+  const summary = {};
+  for (const table of $("table").toArray()) {
+    const fields = readSummaryTable($, table);
+    if (!fields) continue;
+    summaryTables.add(table);
+    for (const [key, value] of Object.entries(fields)) summary[key] = summary[key] || value;
+  }
+
   const company =
     getLabeledValue($, "Organization") ||
+    summary.company ||
     extractCompany(articleTitle);
-  const location = getLabeledValue($, "Location") || "Tanzania";
+  const location = getLabeledValue($, "Location") || summary.location || "Tanzania";
   const deadline =
     getLabeledValue($, "Application Deadline") ||
+    extractDeadline(summary.deadline ? `Deadline: ${summary.deadline}` : "") ||
     extractDeadline(htmlToText(html));
   const jobs = [];
   const seenTitles = new Set();
@@ -218,6 +262,7 @@ function extractEmailApplicationJobs(articleTitle, articleUrl, html) {
   // a real vacancy and must become its own Daraja job instead of publishing the
   // group heading as one misleading position.
   for (const row of $("table tr").toArray()) {
+    if (summaryTables.has($(row).closest("table")[0])) continue;
     const cells = $(row)
       .find("td")
       .map((_, cell) => cleanText($(cell).text()))
@@ -268,6 +313,8 @@ function extractEmailApplicationJobs(articleTitle, articleUrl, html) {
     }
     addJob(title, details.join("\n\n"));
   }
+
+  if (!jobs.length && summary.title) addJob(summary.title, "");
 
   if (jobs.length) return jobs;
 

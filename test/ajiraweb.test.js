@@ -246,3 +246,26 @@ test("multi-position email articles publish real roles instead of group headings
     "Application for Deputy Vice-Chancellor – Administration, Finance & Planning"
   );
 });
+
+test("label/value summary tables are read as job details, not published as vacancies", () => {
+  const jobs = extractEmailApplicationJobs(
+    "Job Vacancy at Tata Africa Holdings Tanzania – October 2026",
+    "https://ajiraweb.com/job-vacancy-at-tata-africa-holdings-tanzania/",
+    `
+      <table>
+        <tr><td>Employer</td><td>Tata Africa Holdings (Tanzania) Ltd</td></tr>
+        <tr><td>Position</td><td>Sales Executive</td></tr>
+        <tr><td>Location</td><td>Dar es Salaam</td></tr>
+        <tr><td>Deadline</td><td>23 October 2026</td></tr>
+      </table>
+      <p>Send your CV to <a href="mailto:recruit@example.com">recruit@example.com</a></p>
+    `
+  );
+
+  assert.equal(jobs.length, 1);
+  assert.equal(jobs[0].title, "Sales Executive");
+  assert.equal(jobs[0].company, "Tata Africa Holdings (Tanzania) Ltd");
+  assert.equal(jobs[0].location, "Dar es Salaam");
+  assert.equal(jobs[0].deadline, "23 October 2026");
+  assert.ok(!jobs.some((job) => /^(?:employer|position|deadline|location)$/i.test(job.title)));
+});

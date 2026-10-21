@@ -271,7 +271,7 @@ function normalizeJob(rawJob, defaults = {}) {
     source: cleanText(defaults.source) || AJIRA_SOURCE,
     language: cleanText(rawJob.language) || cleanText(defaults.language) || "en",
     deadline,
-    active: deadline ? deadline.getTime() >= Date.now() : true,
+    active: deadline ? deadline.getTime() >= (defaults.now ? defaults.now.getTime() : Date.now()) : true,
   };
   const reviewReasons = (rawJob.reviewReasons || []).map(cleanText).filter(Boolean);
   if (reviewReasons.length) job.reviewReasons = reviewReasons;

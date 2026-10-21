@@ -1,6 +1,6 @@
 # Daraja Jobs production-readiness progress
 
-Last updated: 14 October 2026
+Last updated: 21 October 2026
 
 ## Current objective
 
@@ -8,6 +8,13 @@ Build Daraja into a secure Tanzania-first work marketplace through small,
 tested vertical releases. The current priority is Phase 0 security and privacy
 hardening before expanding candidate CV, employer, freelance, payment or AI
 workflows.
+
+## Current batch: scraper field-label titles (AjiraWeb)
+
+- 2026-10-21: AjiraWeb email-application posts with a "label | value" summary table (Employer / Position / Location / Deadline) were read as a vacancy list, so each label became a job title (live example: "Employer at Tata Africa Holdings Tanzania", description "Posts: Tata Africa Holdings (Tanzania) Ltd"). `extractEmailApplicationJobs` in `scraper/sources/ajiraweb.js` now recognises summary tables and uses them for title, company, location and deadline instead.
+- Safety net in `scraper/lib/job-policy.js` (`isFieldLabelTitle`): any source producing a bare field-label title is held as PENDING_REVIEW, never auto-published.
+- Tests: new cases in `test/ajiraweb.test.js` (pass) and `test/job-publication-policy.test.js`.
+- Remaining: already-published label-titled jobs ("Employer", "Position", "Deadline" …) need hiding/correcting from the admin panel; not yet deployed.
 
 ## Current batch: homepage redesign (JobBoard-style layout)
 

@@ -203,3 +203,13 @@ test("automatic records follow the latest evidence until an administrator decide
   await saveJobs(decided, [vacancy], "ajiraweb");
   assert.equal(Object.hasOwn(decided.updates[0].data, "moderationStatus"), false);
 });
+
+test("a field-label title like Employer or Deadline is held for review", () => {
+  const { decidePublication, isFieldLabelTitle } = require("../scraper/lib/job-policy");
+  assert.equal(isFieldLabelTitle("Employer"), true);
+  assert.equal(isFieldLabelTitle("Deadline:"), true);
+  assert.equal(isFieldLabelTitle("Sales Executive"), false);
+  const decision = decidePublication({ title: "Employer", description: "" }, "ajiraweb");
+  assert.equal(decision.status, "PENDING_REVIEW");
+  assert.match(decision.note, /field label/);
+});

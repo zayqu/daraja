@@ -1,6 +1,6 @@
 # Daraja Jobs production-readiness progress
 
-Last updated: 21 October 2026
+Last updated: 22 October 2026
 
 ## Current objective
 
@@ -8,6 +8,13 @@ Build Daraja into a secure Tanzania-first work marketplace through small,
 tested vertical releases. The current priority is Phase 0 security and privacy
 hardening before expanding candidate CV, employer, freelance, payment or AI
 workflows.
+
+## Current batch: dynamic admin (D-035)
+
+- 2026-10-22: admin can add / edit / test / remove job websites, manage categories (add, rename, reorder, hide, delete), edit site settings and review rules, trust verified employers, and bulk-moderate jobs. Settings page `/admin/settings`.
+- Mobile clean-up: admin drawer, stacked tables, compact row menus; one-line privacy banner and leaner job details on phones.
+- Migration `20261022090000_dynamic_admin_sources_categories_settings` (additive: Category, SiteSetting, ScraperSourceSetting columns, Employer.autoPublish). Take a Neon restore point before merging.
+- Tests: 376 pass; lint clean; production build passes.
 
 ## Current batch: accounts and admin dashboard
 

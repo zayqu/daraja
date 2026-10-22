@@ -81,7 +81,7 @@ test("navigation and results share canonical search helpers", async () => {
   assert.doesNotMatch(nav, /\/jobs\?q=/);
   assert.match(jobs, /initialFilters\.search/);
   assert.doesNotMatch(jobs, /normalizeJobsSearchParams\(window\.location\.search\)/);
-  assert.match(jobs, /JOB_CATEGORIES\.map/);
+  assert.match(jobs, /categories\.map/);
   assert.doesNotMatch(jobs, /const CATEGORIES =/);
 });
 

@@ -61,5 +61,6 @@ test("Monetag uses only AdSense-compatible formats and loads for every visitor",
   }
   assert.match(layout, /<meta name="monetag"/);
   // Paused during AdSense review; only an explicit opt-in turns Monetag back on.
-  assert.match(layout, /NEXT_PUBLIC_MONETAG_ENABLED === "true"/);
+  assert.match(layout, /monetagEnabled\(\)/);
+  assert.match(await readFile(path.join(process.cwd(), "lib", "features.js"), "utf8"), /NEXT_PUBLIC_MONETAG_ENABLED === "true"/);
 });

@@ -11,6 +11,7 @@ import PageHero from "@/components/ui/PageHero";
 import WorkspaceShell from "@/components/ui/WorkspaceShell";
 import SurfaceCard from "@/components/ui/SurfaceCard";
 import styles from "../portal.module.css";
+import { getCategoryNames } from "@/lib/public-jobs";
 
 export const metadata = {
   title: "Submit a verified vacancy",
@@ -52,7 +53,7 @@ export default async function PostJobPage() {
               </p>
             </div>
 
-            <EmployerVacancyForm companyName={actor.employer.companyName} />
+            <EmployerVacancyForm companyName={actor.employer.companyName} categories={await getCategoryNames()} />
           </SurfaceCard>
         </WorkspaceShell>
       </main>

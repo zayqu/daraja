@@ -36,7 +36,7 @@ function submissionBody(form) {
     : { ...rest, applyUrl: applyUrl.trim() };
 }
 
-export default function EmployerVacancyForm({ companyName }) {
+export default function EmployerVacancyForm({ companyName, categories = JOB_CATEGORIES }) {
   const [form, setForm] = useState(EMPTY_FORM);
   const [status, setStatus] = useState("idle");
   const [message, setMessage] = useState("");
@@ -85,7 +85,7 @@ export default function EmployerVacancyForm({ companyName }) {
         <label htmlFor="vacancy-category">Professional category</label>
         <select id="vacancy-category" required value={form.category} onChange={update("category")}>
           <option value="">Select a category</option>
-          {JOB_CATEGORIES.map((category) => <option key={category} value={category}>{category}</option>)}
+          {categories.map((category) => <option key={category} value={category}>{category}</option>)}
         </select>
       </div>
       <div className="portal-field">

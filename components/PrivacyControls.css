@@ -100,20 +100,25 @@
   }
 }
 
+/* Phones: one compact line above the bottom menu, so the page stays visible. */
 @media (max-width: 480px) {
   .privacy-banner {
-    align-items: flex-end;
+    gap: .5rem;
+    padding: .5rem .55rem .5rem .7rem;
   }
 
-  .privacy-copy {
-    flex: 1 1 auto;
+  .privacy-banner h2,
+  .privacy-more {
+    display: none;
   }
 
   .privacy-banner p {
-    max-width: 19rem;
+    font-size: .66rem;
+    line-height: 1.35;
   }
 
-  .privacy-actions {
-    flex-direction: column-reverse;
+  .privacy-actions button {
+    min-height: 2rem;
+    padding: .3rem .6rem;
   }
 }

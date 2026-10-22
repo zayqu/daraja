@@ -14,7 +14,7 @@ function parseList(value) {
   )];
 }
 
-export default function AlertPreferencesForm({ initialPreferences }) {
+export default function AlertPreferencesForm({ initialPreferences, categoryOptions = JOB_CATEGORIES }) {
   const [categories, setCategories] = useState(initialPreferences?.categories || []);
   const [experienceLevels, setExperienceLevels] = useState(
     initialPreferences?.experienceLevels || []
@@ -123,7 +123,7 @@ export default function AlertPreferencesForm({ initialPreferences }) {
         <legend>Job categories <span>Required</span></legend>
         <p>Select one or more categories. Alerts use these exact categories.</p>
         <div className="choice-grid">
-          {JOB_CATEGORIES.map((category) => (
+          {categoryOptions.map((category) => (
             <label key={category}>
               <input
                 type="checkbox"

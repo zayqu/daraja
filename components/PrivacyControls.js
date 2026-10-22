@@ -174,8 +174,10 @@ export default function PrivacyControls({ analyticsId, adsenseClient, monetagZon
           <div className="privacy-copy">
             <h2 id="privacy-title">Privacy choices</h2>
             <p>
-              Ads keep Daraja free for job seekers and employers. Accept to also
-              allow analytics and Google ads. Job search and applications work either way. <Link href="/privacy">Privacy policy</Link>.
+              <span className="privacy-more">Ads keep Daraja free for job seekers and employers. </span>
+              Accept to also allow analytics and Google ads.
+              <span className="privacy-more"> Job search and applications work either way.</span>{" "}
+              <Link href="/privacy">Privacy policy</Link>.
             </p>
           </div>
           <div className="privacy-actions">

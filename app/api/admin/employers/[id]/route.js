@@ -41,6 +41,25 @@ export async function PATCH(request, { params }) {
     return NextResponse.json({ employer });
   }
 
+  // { autoPublish } marks a verified employer as trusted (no review).
+  if (typeof body.autoPublish === "boolean") {
+    const employer = await prisma.$transaction(async (tx) => {
+      const updated = await tx.employer.update({ where: { id }, data: { autoPublish: body.autoPublish } });
+      await tx.auditEvent.create({
+        data: {
+          actorUserId: actor.id,
+          employerId: id,
+          action: body.autoPublish ? "EMPLOYER_TRUSTED" : "EMPLOYER_UNTRUSTED",
+          entityType: "Employer",
+          entityId: id,
+          metadata: {},
+        },
+      });
+      return updated;
+    });
+    return NextResponse.json({ employer });
+  }
+
   const status = typeof body.status === "string" ? body.status : "";
   const note = typeof body.note === "string" ? body.note.trim().slice(0, 1000) : "";
   if (!ALLOWED.has(status)) return NextResponse.json({ error: "Invalid verification status" }, { status: 400 });

@@ -3,7 +3,7 @@ import JobForm from "@/components/admin/JobForm";
 import { PageHeader, Panel } from "@/components/admin/AdminUi";
 import styles from "@/components/admin/admin.module.css";
 import { requireAdminPage } from "@/lib/admin-guard";
-import { JOB_CATEGORIES } from "@/lib/job-categories";
+import { getCategoryNames } from "@/lib/public-jobs";
 
 export const dynamic = "force-dynamic";
 
@@ -17,7 +17,7 @@ export default async function AdminNewJobPage() {
         actions={<Link className={styles.button} href="/admin/jobs">Back to jobs</Link>}
       />
       <Panel>
-        <JobForm categories={JOB_CATEGORIES} />
+        <JobForm categories={await getCategoryNames()} />
       </Panel>
     </>
   );

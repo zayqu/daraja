@@ -3,9 +3,9 @@ import { auth } from "@/auth";
 import prisma from "@/lib/prisma";
 import {
   EXPERIENCE_LEVELS,
-  JOB_CATEGORIES,
   WORK_ARRANGEMENTS,
 } from "@/lib/job-categories";
+import { getCategoryNames } from "@/lib/public-jobs";
 import { protectMutation, readProtectedJson } from "@/lib/request-security";
 
 const MAX_VALUES = 10;
@@ -95,7 +95,7 @@ export async function POST(request) {
   if (requestError) return requestError;
 
   try {
-    const categories = normalizeList(body.categories, JOB_CATEGORIES);
+    const categories = normalizeList(body.categories, await getCategoryNames());
     if (!categories.length) {
       return NextResponse.json(
         { error: "Choose at least one job category." },

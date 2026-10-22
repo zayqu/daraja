@@ -6,7 +6,7 @@ import { JobStatusBadge, PageHeader, Panel, formatDate } from "@/components/admi
 import styles from "@/components/admin/admin.module.css";
 import { requireAdminPage } from "@/lib/admin-guard";
 import { applicationFields, deadlineInputValue } from "@/lib/admin-job-input";
-import { JOB_CATEGORIES } from "@/lib/job-categories";
+import { getCategoryNames } from "@/lib/public-jobs";
 import prisma from "@/lib/prisma";
 
 export const dynamic = "force-dynamic";
@@ -67,7 +67,7 @@ export default async function AdminEditJobPage({ params, searchParams }) {
 
       <Panel title="Edit job">
         <JobForm
-          categories={JOB_CATEGORIES}
+          categories={await getCategoryNames()}
           job={{
             id: job.id,
             title: job.title,

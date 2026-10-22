@@ -2,13 +2,14 @@ import { NextResponse } from "next/server";
 import { normalizeJobsSearchParams } from "@/lib/job-search";
 import {
   PUBLIC_JOBS_PAGE_SIZE,
+  getCategoryNames,
   readPublicJobs,
 } from "@/lib/public-jobs";
 
 export async function GET(request) {
   try {
     const { searchParams } = new URL(request.url);
-    const filters = normalizeJobsSearchParams(searchParams);
+    const filters = normalizeJobsSearchParams(searchParams, await getCategoryNames());
     const requestedLimit = Number.parseInt(
       searchParams.get("limit") || String(PUBLIC_JOBS_PAGE_SIZE),
       10

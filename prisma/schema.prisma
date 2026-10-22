@@ -14,6 +14,8 @@ model User {
   image         String?
   password      String?
   role          Role      @default(JOB_SEEKER)
+  suspendedAt     DateTime?
+  suspendedReason String?
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 
@@ -216,6 +218,7 @@ model Job {
   submittedById    String?
   moderatedById    String?
   moderatedAt      DateTime?
+  adminEditedAt    DateTime?
   createdAt        DateTime            @default(now())
   updatedAt        DateTime            @updatedAt
 
@@ -401,4 +404,13 @@ model VisitorCounter {
   returningVisitors Int      @default(0)
   pageViews         Int      @default(0)
   updatedAt         DateTime @updatedAt
+}
+
+// Admin on/off switch for a scraper source; overrides the catalogue's
+// "enabled" flag. Absent row = catalogue default.
+model ScraperSourceSetting {
+  sourceId    String   @id
+  enabled     Boolean
+  updatedById String?
+  updatedAt   DateTime @updatedAt
 }

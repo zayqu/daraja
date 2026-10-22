@@ -3,11 +3,13 @@ import { candidateCareerEnabled, employerPortalEnabled } from "@/lib/features";
 import { normalizeJobsSearchParams } from "@/lib/job-search";
 import {
   PUBLIC_JOBS_PAGE_SIZE,
+  getCategoryNames,
   readPublicJobs,
 } from "@/lib/public-jobs";
 
 export default async function JobsPage({ searchParams }) {
-  const filters = normalizeJobsSearchParams(await searchParams);
+  const categories = await getCategoryNames();
+  const filters = normalizeJobsSearchParams(await searchParams, categories);
 
   let initialJobs = [];
   let initialPagination = {
@@ -38,6 +40,7 @@ export default async function JobsPage({ searchParams }) {
       initialPagination={initialPagination}
       initialFilters={filters}
       initialError={initialError}
+      categories={categories}
     />
   );
 }

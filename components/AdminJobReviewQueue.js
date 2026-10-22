@@ -15,7 +15,7 @@ function formatDate(value) {
   });
 }
 
-function ReviewItem({ job, onDone, live = false }) {
+function ReviewItem({ job, onDone }) {
   const [reason, setReason] = useState("");
   const [state, setState] = useState("idle");
   const [error, setError] = useState("");
@@ -71,22 +71,20 @@ function ReviewItem({ job, onDone, live = false }) {
       )}
 
       <div className={styles.actions}>
-        {!live && (
-          <button
-            type="button"
-            className={styles.publish}
-            disabled={state === "saving"}
-            onClick={() => decide("PUBLISHED")}
-          >
-            Publish
-          </button>
-        )}
+        <button
+          type="button"
+          className={styles.publish}
+          disabled={state === "saving"}
+          onClick={() => decide("PUBLISHED")}
+        >
+          Publish
+        </button>
         <input
           type="text"
           value={reason}
           maxLength={300}
           onChange={(event) => setReason(event.target.value)}
-          placeholder={live ? "Reason to remove" : "Reason to reject"}
+          placeholder="Reason to reject"
           aria-label={`Reason to reject ${job.title}`}
         />
         <button
@@ -95,7 +93,7 @@ function ReviewItem({ job, onDone, live = false }) {
           disabled={state === "saving" || !reason.trim()}
           onClick={() => decide("REJECTED")}
         >
-          {live ? "Remove from site" : "Reject"}
+          Reject
         </button>
       </div>
       {error && <p className={styles.error} role="alert">{error}</p>}
@@ -103,42 +101,23 @@ function ReviewItem({ job, onDone, live = false }) {
   );
 }
 
-// `live` lists vacancies already on the site so an administrator can take a
-// wrong one down (rejected with a reason) without database access.
-export default function AdminJobReviewQueue({ jobs, live = false }) {
+// Vacancies waiting for an administrator's decision (overview page).
+export default function AdminJobReviewQueue({ jobs }) {
   const [items, setItems] = useState(jobs);
-  const [query, setQuery] = useState("");
-  const needle = query.trim().toLowerCase();
-  const visible = needle
-    ? items.filter((job) => `${job.title} ${job.company} ${job.source}`.toLowerCase().includes(needle))
-    : items;
 
   if (!items.length) {
-    return <p className={styles.empty}>{live ? "No vacancies are live." : "No vacancies are waiting for review."}</p>;
+    return <p className={styles.empty}>No vacancies are waiting for review.</p>;
   }
 
   return (
-    <>
-      {live && (
-        <input
-          type="search"
-          className={styles.search}
-          value={query}
-          onChange={(event) => setQuery(event.target.value)}
-          placeholder="Search live vacancies by title, employer or source"
-          aria-label="Search live vacancies"
+    <ul className={styles.list}>
+      {items.map((job) => (
+        <ReviewItem
+          key={job.id}
+          job={job}
+          onDone={(id) => setItems((current) => current.filter((item) => item.id !== id))}
         />
-      )}
-      <ul className={styles.list}>
-        {visible.map((job) => (
-          <ReviewItem
-            key={job.id}
-            job={job}
-            live={live}
-            onDone={(id) => setItems((current) => current.filter((item) => item.id !== id))}
-          />
-        ))}
-      </ul>
-    </>
+      ))}
+    </ul>
   );
 }

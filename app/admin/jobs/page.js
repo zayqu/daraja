@@ -1,9 +1,9 @@
 import Link from "next/link";
-import AdminRowActions from "@/components/admin/AdminRowActions";
+import AdminRowActions, { BulkActions } from "@/components/admin/AdminRowActions";
 import { JobStatusBadge, PageHeader, Pagination, Panel, formatDate, pageNumber } from "@/components/admin/AdminUi";
 import styles from "@/components/admin/admin.module.css";
 import { requireAdminPage } from "@/lib/admin-guard";
-import { JOB_CATEGORIES } from "@/lib/job-categories";
+import { getCategoryNames } from "@/lib/public-jobs";
 import prisma from "@/lib/prisma";
 
 export const dynamic = "force-dynamic";
@@ -55,7 +55,8 @@ export default async function AdminJobsPage({ searchParams }) {
   const params = await searchParams;
   const q = String(params?.q || "").trim().slice(0, 120);
   const status = String(params?.status || "");
-  const category = JOB_CATEGORIES.includes(params?.category) ? params.category : "";
+  const categories = await getCategoryNames();
+  const category = String(params?.category || "").slice(0, 100);
   const source = String(params?.source || "").slice(0, 80);
   const page = pageNumber(params?.page);
 
@@ -119,7 +120,7 @@ export default async function AdminJobsPage({ searchParams }) {
             </select>
             <select className={styles.select} name="category" defaultValue={category} aria-label="Category">
               <option value="">All categories</option>
-              {JOB_CATEGORIES.map((value) => (
+              {categories.map((value) => (
                 <option key={value} value={value}>{value}</option>
               ))}
             </select>
@@ -136,44 +137,62 @@ export default async function AdminJobsPage({ searchParams }) {
         }
       >
         {jobs.length ? (
-          <div className={styles.tableWrap}>
-            <table className={styles.table}>
-              <thead>
-                <tr>
-                  <th>Job</th>
-                  <th>Category</th>
-                  <th>Source</th>
-                  <th>Deadline</th>
-                  <th>Status</th>
-                  <th aria-label="Actions" />
-                </tr>
-              </thead>
-              <tbody>
-                {jobs.map((job) => (
-                  <tr key={job.id}>
-                    <td>
-                      <Link className={styles.primaryCell} href={`/admin/jobs/${job.id}`}>{job.title}</Link>
-                      <span className={styles.subtle}>
-                        {job.company} · {job.location}
-                        {job.adminEditedAt ? " · edited by admin" : ""}
-                      </span>
-                    </td>
-                    <td>{job.category}</td>
-                    <td>{job.source}</td>
-                    <td>{formatDate(job.deadline)}</td>
-                    <td><JobStatusBadge status={job.moderationStatus} active={job.active} /></td>
-                    <td>
-                      <div className={styles.rowActions}>
-                        <Link className={styles.button} href={`/admin/jobs/${job.id}`}>Edit</Link>
-                        <a className={styles.buttonGhost} href={`/jobs/${job.slug}`} target="_blank" rel="noreferrer">View</a>
-                      </div>
-                      <AdminRowActions actions={jobActions(job)} />
-                    </td>
+          <>
+            <form id="bulk-jobs" hidden />
+            <BulkActions
+              formId="bulk-jobs"
+              url="/api/admin/jobs"
+              actions={[
+                { label: "Publish", status: "PUBLISHED", tone: "primary" },
+                { label: "Archive", status: "ARCHIVED", askReason: "Why are these jobs being removed from the site?" },
+                { label: "Reject", status: "REJECTED", askReason: "Why are these jobs rejected?" },
+              ]}
+            />
+            <div className={styles.tableWrap}>
+              <table className={`${styles.table} ${styles.stackOnMobile}`}>
+                <thead>
+                  <tr>
+                    <th aria-label="Select" />
+                    <th>Job</th>
+                    <th>Category</th>
+                    <th>Source</th>
+                    <th>Deadline</th>
+                    <th>Status</th>
+                    <th aria-label="Actions" />
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+                <tbody>
+                  {jobs.map((job) => (
+                    <tr key={job.id}>
+                      <td className={styles.selectCell}>
+                        <input type="checkbox" name="ids" value={job.id} form="bulk-jobs" aria-label={`Select ${job.title}`} />
+                      </td>
+                      <td data-label="Job">
+                        <Link className={styles.primaryCell} href={`/admin/jobs/${job.id}`}>{job.title}</Link>
+                        <span className={styles.subtle}>
+                          {job.company} · {job.location}
+                          {job.adminEditedAt ? " · edited by admin" : ""}
+                        </span>
+                      </td>
+                      <td data-label="Category">{job.category}</td>
+                      <td data-label="Source">{job.source}</td>
+                      <td data-label="Deadline">{formatDate(job.deadline)}</td>
+                      <td data-label="Status"><JobStatusBadge status={job.moderationStatus} active={job.active} /></td>
+                      <td>
+                        <AdminRowActions
+                          actions={jobActions(job)}
+                          links={[
+                            { label: "Edit", href: `/admin/jobs/${job.id}` },
+                            { label: "View on site", href: `/jobs/${job.slug}`, external: true },
+                          ]}
+                        />
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </>
         ) : (
           <p className={styles.empty}>No jobs match these filters.</p>
         )}

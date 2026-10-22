@@ -42,10 +42,10 @@ test("the owner admin grant is audited and the account page routes by role", () 
 });
 
 test("admin panel works without the employer portal and still requires ADMIN", () => {
-  const page = read("app/admin/page.js");
-  assert.doesNotMatch(page, /if \(!employerPortalEnabled\(\)\) notFound\(\)/);
-  assert.match(page, /if \(!isAdmin\(actor\)\) notFound\(\)/);
-  assert.match(page, /<AdminUserRoles/);
+  const guard = read("lib/admin-guard.js");
+  assert.doesNotMatch(guard, /employerPortalEnabled/);
+  assert.match(guard, /if \(!isAdmin\(actor\)\) notFound\(\)/);
+  assert.match(read("app/admin/users/page.js"), /<UserRoleSelect/);
   const moderate = read("app/api/admin/jobs/[id]/moderate/route.js");
   assert.doesNotMatch(moderate, /employerPortalEnabled/);
 });

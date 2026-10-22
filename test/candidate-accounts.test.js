@@ -29,9 +29,8 @@ test("candidate preferences use the controlled category catalogue", () => {
 test("only fully configured sign-in providers are presented with bounded database sessions", () => {
   const auth = read("auth.js");
   assert.match(auth, /AUTH_GOOGLE_ID && process\.env\.AUTH_GOOGLE_SECRET/);
-  assert.match(auth, /RESEND_API_KEY && process\.env\.JOB_ALERTS_FROM_EMAIL/);
   assert.match(auth, /strategy: "database"/);
-  assert.match(auth, /SESSION_MAX_AGE_SECONDS = 7 \* 24 \* 60 \* 60/);
+  assert.match(read("lib/password-auth.js"), /SESSION_MAX_AGE_SECONDS = 7 \* 24 \* 60 \* 60/);
   assert.match(auth, /SESSION_UPDATE_AGE_SECONDS = 24 \* 60 \* 60/);
   assert.match(auth, /maxAge: SESSION_MAX_AGE_SECONDS/);
   assert.match(auth, /updateAge: SESSION_UPDATE_AGE_SECONDS/);

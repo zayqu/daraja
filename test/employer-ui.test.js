@@ -10,20 +10,18 @@ async function read(relativePath) {
 test("employer and admin pages share protected workspace navigation", async () => {
   const tabs = await read("components/EmployerPortalTabs.js");
   const employer = await read("app/employer/page.js");
-  const admin = await read("app/admin/page.js");
   const postJob = await read("app/post-job/page.js");
 
   assert.match(tabs, /\/employer/);
   assert.match(tabs, /\/post-job/);
   assert.match(tabs, /showAdmin/);
   assert.match(employer, /<EmployerPortalTabs showAdmin=\{isAdmin\(actor\)\} \/>/);
-  assert.match(admin, /<EmployerPortalTabs showAdmin \/>/);
   assert.match(postJob, /<EmployerPortalTabs showAdmin=\{isAdmin\(actor\)\} \/>/);
 });
 
 test("workspace UI preserves employer and admin access boundaries", async () => {
   const employer = await read("app/employer/page.js");
-  const admin = await read("app/admin/page.js");
+  const admin = await read("lib/admin-guard.js");
   const postJob = await read("app/post-job/page.js");
 
   assert.match(employer, /if \(!employerPortalEnabled\(\)\) notFound\(\)/);

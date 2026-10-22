@@ -99,7 +99,7 @@ export default async function AdminUsersPage({ searchParams }) {
       >
         {users.length ? (
           <div className={styles.tableWrap}>
-            <table className={styles.table}>
+            <table className={`${styles.table} ${styles.stackOnMobile}`}>
               <thead>
                 <tr>
                   <th>User</th>
@@ -121,19 +121,19 @@ export default async function AdminUsersPage({ searchParams }) {
                   const confirmed = Boolean(user.emailVerified) || user.accounts.length > 0;
                   return (
                     <tr key={user.id}>
-                      <td>
+                      <td data-label="User">
                         <span className={styles.primaryCell}>{user.name || user.email}</span>
                         <span className={styles.subtle}>
                           {user.email}
                           {user.employer ? ` · ${user.employer.companyName}` : ""}
                         </span>
                       </td>
-                      <td>
+                      <td data-label="Role">
                         <UserRoleSelect userId={user.id} role={user.role} locked={owner || self} />
                         {owner ? <span className={styles.subtle}>Owner</span> : null}
                       </td>
-                      <td>{methods.join(", ") || "Email link (old)"}</td>
-                      <td>
+                      <td data-label="Signs in with">{methods.join(", ") || "Email link (old)"}</td>
+                      <td data-label="Status">
                         {user.suspendedAt ? (
                           <>
                             <Badge tone="red">Suspended</Badge>
@@ -145,7 +145,7 @@ export default async function AdminUsersPage({ searchParams }) {
                           <Badge tone="amber">Email not confirmed</Badge>
                         )}
                       </td>
-                      <td>{formatDate(user.createdAt)}</td>
+                      <td data-label="Joined">{formatDate(user.createdAt)}</td>
                       <td>
                         {owner || self ? null : (
                           <AdminRowActions

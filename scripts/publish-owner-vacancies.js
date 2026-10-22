@@ -10,7 +10,7 @@ const { parseOwnerVacancy } = require("../lib/owner-vacancy");
 
 const VACANCY_DIR = path.join(__dirname, "..", "content", "vacancies");
 
-function readVacancies(dir = VACANCY_DIR) {
+function readVacancies(dir = VACANCY_DIR, categories) {
   if (!fs.existsSync(dir)) return [];
   return fs
     .readdirSync(dir)
@@ -18,7 +18,7 @@ function readVacancies(dir = VACANCY_DIR) {
     .sort()
     .map((file) => {
       const raw = JSON.parse(fs.readFileSync(path.join(dir, file), "utf8"));
-      return { file, ...parseOwnerVacancy(raw, file) };
+      return { file, ...parseOwnerVacancy(raw, file, categories ? { categories } : {}) };
     });
 }
 
@@ -57,7 +57,6 @@ async function publishOwnerVacancies(prisma, vacancies) {
 
 async function main() {
   if (!process.env.DATABASE_URL) throw new Error("DATABASE_URL is required.");
-  const vacancies = readVacancies();
   // Loaded here so the pure functions above can be tested without a
   // generated Prisma client.
   const { PrismaClient } = require("@prisma/client");
@@ -66,6 +65,9 @@ async function main() {
     adapter: new PrismaPg({ connectionString: process.env.DATABASE_URL }),
   });
   try {
+    const categories = (await prisma.category.findMany({ where: { active: true }, select: { name: true } }))
+      .map((category) => category.name);
+    const vacancies = readVacancies(VACANCY_DIR, categories.length ? categories : undefined);
     for (const result of await publishOwnerVacancies(prisma, vacancies)) {
       console.log(
         `${result.created ? "Published" : "Updated"} ${result.file}: https://ajira.daraja.co.tz/jobs/${result.slug}` +

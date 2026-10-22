@@ -2,6 +2,8 @@
 // (lib/job-categories.js). Every category must have an entry here;
 // test/home-categories.test.js enforces it.
 
+import { categorySlug } from "@/lib/job-categories";
+
 const ICONS = {
   Government: (
     <>
@@ -147,8 +149,14 @@ export function categoryTone(index) {
   return TONES[index % TONES.length];
 }
 
-export default function CategoryIcon({ category, size = 22 }) {
-  const glyph = ICONS[category] || ICONS.General;
+// Icons follow the category's stable slug too, so a category renamed in
+// /admin/categories keeps its icon; new categories use the General icon.
+const ICONS_BY_SLUG = Object.fromEntries(
+  Object.entries(ICONS).map(([name, glyph]) => [categorySlug(name), glyph])
+);
+
+export default function CategoryIcon({ category, slug = categorySlug(category), size = 22 }) {
+  const glyph = ICONS[category] || ICONS_BY_SLUG[slug] || ICONS.General;
   return (
     <svg
       width={size}

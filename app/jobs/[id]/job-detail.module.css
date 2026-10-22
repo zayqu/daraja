@@ -611,3 +611,20 @@
     line-height: 1.75;
   }
 }
+
+/* Phones: the header already shows title and company, so the facts list
+   drops those two rows and uses two compact columns. */
+@media (max-width: 640px) {
+  .repeatsHeader {
+    display: none;
+  }
+
+  .detailsList {
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem 1rem;
+  }
+
+  .detailsList > div {
+    padding-bottom: 0.6rem;
+  }
+}

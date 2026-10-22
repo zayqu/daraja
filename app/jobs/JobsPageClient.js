@@ -29,6 +29,7 @@ export default function JobsPageClient({
   initialPagination,
   initialFilters,
   initialError = "",
+  categories = JOB_CATEGORIES,
 }) {
   const [jobs, setJobs] = useState(initialJobs);
   const [pagination, setPagination] = useState(initialPagination);
@@ -642,7 +643,7 @@ export default function JobsPageClient({
                   }}
                 >
                   <option value="">All categories</option>
-                  {JOB_CATEGORIES.map((item) => (
+                  {categories.map((item) => (
                     <option key={item} value={item}>{item}</option>
                   ))}
                 </select>

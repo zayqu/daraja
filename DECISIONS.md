@@ -541,3 +541,32 @@ deleted (archive instead). User deletion reuses `eraseAccount`. Suspension
 on/off switches live in `ScraperSourceSetting` and only apply to sources with an
 adapter. Categories stay a code-controlled catalogue; admins move jobs between
 them.
+
+## D-035 - Admin manages sources, categories, settings and review rules from the dashboard
+
+Owner decision, 22 October 2026. Nothing an administrator needs to change day to
+day is hard-coded any more; existing owners were edited, no parallel files.
+
+- Sources: admins add, edit, test, switch on/off, set "publish automatically" and
+  remove (soft delete) job websites at `/admin/sources`. New websites use the
+  configurable `verified-agency` adapter, must be public https, start switched
+  off, and are stored in `ScraperSourceSetting` (merged over the catalogue JSON).
+  Sources without an adapter can never be switched on.
+- Categories: the `Category` table (seeded with the 21 built-in categories, stable
+  slugs) is the live list for search, home, alerts, employer and admin forms and
+  the scraper classifier. Admins add, rename (cascades to jobs and alert
+  subscriptions), reorder, hide and delete (jobs move to another category). The
+  fallback category cannot be hidden or deleted. Code list is only the fallback.
+- Site settings (`SiteSetting` table, `/admin/settings`): employer portal, CV
+  tools, Monetag ads, account email sender, and review phrases. Environment
+  variables remain the default; secrets (API keys, database, auth) are never
+  editable or shown.
+- Review rules: admin "block" phrases reject scraped vacancies; "hold" phrases
+  send them to review. Built-in fee/fraud rules always run first. Verified
+  employers can be marked "trusted" (`Employer.autoPublish`) to publish without
+  review. Jobs support bulk publish / archive / reject.
+- Mobile: admin sidebar becomes a drawer, tables stack as cards, row actions
+  collapse into a menu; public privacy banner is one line on phones and job
+  details drop the rows that repeat the header.
+
+Migration `20261022090000_dynamic_admin_sources_categories_settings` is additive.

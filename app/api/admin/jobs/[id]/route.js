@@ -3,7 +3,7 @@ import { NextResponse } from "next/server";
 import { parseAdminJob } from "@/lib/admin-job-input";
 import { getActor, isAdmin, safeAuditMetadata } from "@/lib/employer-access";
 import prisma from "@/lib/prisma";
-import { PUBLIC_JOBS_CACHE_TAG } from "@/lib/public-jobs";
+import { PUBLIC_JOBS_CACHE_TAG, getCategoryNames } from "@/lib/public-jobs";
 import { readProtectedJson } from "@/lib/request-security";
 
 async function adminRequest(request, scope, maxBytes) {
@@ -29,7 +29,7 @@ export async function PATCH(request, { params }) {
   const existing = await prisma.job.findUnique({ where: { id }, select: { id: true, moderationStatus: true } });
   if (!existing) return NextResponse.json({ error: "Job not found" }, { status: 404 });
 
-  const { data, error: invalid } = parseAdminJob(body);
+  const { data, error: invalid } = parseAdminJob(body, await getCategoryNames());
   if (invalid) return NextResponse.json({ error: invalid }, { status: 400 });
 
   const now = new Date();

@@ -8,6 +8,7 @@ import WorkspaceShell from "@/components/ui/WorkspaceShell";
 import { candidateCareerEnabled } from "@/lib/candidate-access";
 import prisma from "@/lib/prisma";
 import styles from "./alerts-account.module.css";
+import { getCategoryNames } from "@/lib/public-jobs";
 
 export const metadata = {
   title: "My job alerts",
@@ -71,7 +72,7 @@ export default async function AlertAccountPage() {
               </p>
             </div>
 
-            <AlertPreferencesForm initialPreferences={subscriber} />
+            <AlertPreferencesForm initialPreferences={subscriber} categoryOptions={await getCategoryNames()} />
           </section>
         </WorkspaceShell>
       </main>

@@ -474,41 +474,343 @@ a.stat:hover {
   transform: translateX(18px);
 }
 
+
+.errorText {
+  display: block;
+  margin: 0.35rem 0 0;
+  color: #b42318;
+  font-size: 0.75rem;
+}
+
+.textareaSmall {
+  min-height: 110px;
+}
+
+.inlineForm {
+  margin-top: var(--space-4);
+  padding: var(--space-4);
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  background: #fafbfc;
+}
+
+.disclosure > summary {
+  list-style: none;
+  width: fit-content;
+}
+
+.disclosure > summary::-webkit-details-marker {
+  display: none;
+}
+
+.testResult {
+  margin-top: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  border-radius: 10px;
+  background: #f0fdf9;
+  font-size: 0.8rem;
+}
+
+.testResult ul {
+  margin: 0.5rem 0;
+  padding-left: 1.1rem;
+}
+
+/* Row action menu ("⋯") */
+.menu {
+  position: relative;
+}
+
+.menuButton {
+  min-width: 36px;
+  min-height: 36px;
+  display: inline-grid;
+  place-items: center;
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-button, 10px);
+  background: #fff;
+  font-weight: 800;
+  list-style: none;
+  cursor: pointer;
+}
+
+.menuButton::-webkit-details-marker {
+  display: none;
+}
+
+.menuList {
+  position: absolute;
+  right: 0;
+  z-index: 20;
+  min-width: 190px;
+  margin-top: 0.3rem;
+  padding: 0.35rem;
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  background: #fff;
+  box-shadow: var(--shadow-raised);
+}
+
+.menuList a,
+.menuList button {
+  display: block;
+  width: 100%;
+  padding: 0.55rem 0.7rem;
+  border: 0;
+  border-radius: 8px;
+  background: none;
+  color: var(--color-navy);
+  font: inherit;
+  font-size: 0.82rem;
+  text-align: left;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.menuList a:hover,
+.menuList button:hover {
+  background: #f2f4f7;
+}
+
+.menuDanger {
+  color: #b42318 !important;
+}
+
+/* Bulk selection */
+.bulkBar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  padding: var(--space-3) var(--space-5);
+  border-bottom: 1px solid var(--color-border);
+  background: #fafbfc;
+}
+
+.bulkAll {
+  margin-right: auto;
+  font-size: 0.8rem;
+}
+
+.selectCell {
+  width: 1%;
+}
+
+/* Categories */
+.categoryList {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.categoryRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: var(--space-3) var(--space-5);
+  border-bottom: 1px solid #f0f2f4;
+}
+
+.categoryRow:last-child {
+  border-bottom: 0;
+}
+
+.categoryRow > form,
+.categoryRow > .errorText {
+  flex-basis: 100%;
+}
+
+.categoryMain {
+  min-width: 0;
+  flex: 1 1 260px;
+}
+
+/* Settings */
+.settingRow {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr);
+  gap: var(--space-4);
+  padding: var(--space-4) 0;
+  border-bottom: 1px solid #f0f2f4;
+}
+
+.settingRow:last-child {
+  border-bottom: 0;
+}
+
+.settingText label {
+  font-weight: 750;
+}
+
+.settingControl {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 0.5rem;
+}
+
+.settingForm {
+  display: grid;
+  gap: 0.5rem;
+  width: 100%;
+}
+
+.settingForm .input,
+.settingForm .textarea {
+  width: 100%;
+}
+
+.settingForm button {
+  justify-self: start;
+}
+
+/* Mobile drawer button (hidden on desktop) */
+.drawerToggle {
+  display: none;
+}
+
 @media (max-width: 960px) {
   .shell {
     grid-template-columns: 1fr;
   }
 
   .sidebar {
-    position: static;
+    position: sticky;
+    z-index: 30;
     height: auto;
-    padding: var(--space-3) var(--space-4);
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.7rem var(--space-4);
   }
 
-  .nav {
-    display: flex;
-    gap: 0.3rem;
-    overflow-x: auto;
+  .drawerToggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.45rem 0.75rem;
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    border-radius: 10px;
+    background: transparent;
+    color: #fff;
+    font: inherit;
+    font-size: 0.8rem;
+    font-weight: 750;
   }
 
-  .navLink {
-    flex: none;
-  }
-
+  .nav,
   .sidebarFoot {
     display: none;
+  }
+
+  .sidebarOpen {
+    flex-wrap: wrap;
+  }
+
+  .sidebarOpen .nav,
+  .sidebarOpen .sidebarFoot {
+    display: grid;
+    flex-basis: 100%;
   }
 
   .main {
     padding: var(--space-4) var(--space-4) 7rem;
   }
 
-  .formGrid {
+  .pageHeader h1 {
+    font-size: 1.3rem;
+  }
+
+  .formGrid,
+  .settingRow {
     grid-template-columns: 1fr;
+  }
+
+  .filters {
+    width: 100%;
+  }
+
+  .filters .input,
+  .filters .select {
+    flex: 1 1 140px;
+    min-width: 0;
   }
 
   .input[type="search"] {
     min-width: 0;
     width: 100%;
+  }
+
+  .panelHead,
+  .panelBody,
+  .bulkBar,
+  .categoryRow {
+    padding-left: var(--space-4);
+    padding-right: var(--space-4);
+  }
+
+  .stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-3);
+  }
+
+  .stat {
+    padding: var(--space-3) var(--space-4);
+  }
+
+  .stat strong {
+    font-size: 1.4rem;
+  }
+}
+
+/* Tables become stacked cards on phones. */
+@media (max-width: 720px) {
+  .stackOnMobile thead {
+    display: none;
+  }
+
+  .stackOnMobile,
+  .stackOnMobile tbody,
+  .stackOnMobile tr,
+  .stackOnMobile td {
+    display: block;
+    width: 100%;
+  }
+
+  .stackOnMobile tr {
+    position: relative;
+    padding: var(--space-3) var(--space-4);
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .stackOnMobile td {
+    padding: 0.2rem 0;
+    border: 0;
+  }
+
+  .stackOnMobile td[data-label]:not([data-label="Job"]):not([data-label="User"]):not([data-label="Company"]):not([data-label="Source"])::before {
+    content: attr(data-label) ": ";
+    color: var(--color-text-muted);
+    font-size: 0.72rem;
+    font-weight: 700;
+  }
+
+  .stackOnMobile .selectCell {
+    position: absolute;
+    top: var(--space-3);
+    right: var(--space-4);
+    width: auto;
+  }
+
+  .stackOnMobile .rowActions {
+    justify-content: flex-start;
+    margin-top: 0.4rem;
+  }
+
+  .menuList {
+    left: 0;
+    right: auto;
   }
 }

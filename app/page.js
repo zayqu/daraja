@@ -2,10 +2,10 @@ import Link from "next/link";
 import JobAlerts from "@/components/JobAlerts";
 import PublicSiteNav from "@/components/PublicSiteNav";
 import { employerPortalEnabled } from "@/lib/features";
-import { JOB_CATEGORIES } from "@/lib/job-categories";
 import SiteFooter from "@/components/SiteFooter";
 import HomeHeroBridge from "@/components/HomeHeroBridge";
 import { getHomeStats, getLatestJobs } from "@/lib/home-stats";
+import { getCategoryList } from "@/lib/public-jobs";
 import JobCard from "@/components/ui/JobCard";
 import CategoryIcon, { categoryTone } from "@/components/CategoryIcon";
 
@@ -23,12 +23,12 @@ const HERO_HEADLINE = [
 
 // Busiest categories first so the grid leads with real openings;
 // "General" always closes the list.
-function orderCategories(counts) {
-  return JOB_CATEGORIES
-    .map((name, index) => ({ name, index, count: counts?.[name] || 0 }))
+function orderCategories(categoryList, counts) {
+  return categoryList
+    .map(({ name, slug, isFallback }, index) => ({ name, slug, isFallback, index, count: counts?.[name] || 0 }))
     .sort((a, b) => {
-      if (a.name === "General") return 1;
-      if (b.name === "General") return -1;
+      if (a.isFallback) return 1;
+      if (b.isFallback) return -1;
       return b.count - a.count || a.index - b.index;
     });
 }
@@ -40,8 +40,13 @@ function formatOpenJobs(count) {
 
 export default async function Home() {
   const employerEnabled = employerPortalEnabled();
-  const [stats, latestJobs] = await Promise.all([getHomeStats(), getLatestJobs()]);
-  const categories = orderCategories(stats.categoryCounts);
+  const [stats, latestJobs, categoryList] = await Promise.all([
+    getHomeStats(),
+    getLatestJobs(),
+    getCategoryList(),
+  ]);
+  const categories = orderCategories(categoryList, stats.categoryCounts);
+  const popular = categories.filter((category) => !category.isFallback && category.count > 0).slice(0, 4);
 
   return (
     <>
@@ -809,8 +814,8 @@ export default async function Home() {
                 <label className="sr-only" htmlFor="home-category">Category</label>
                 <select id="home-category" name="category" className="hero-field" defaultValue="">
                   <option value="">All categories</option>
-                  {JOB_CATEGORIES.map((category) => (
-                    <option key={category} value={category}>{category}</option>
+                  {categoryList.map(({ name }) => (
+                    <option key={name} value={name}>{name}</option>
                   ))}
                 </select>
 
@@ -819,10 +824,11 @@ export default async function Home() {
 
               <div className="quick-links">
                 <span>Popular:</span>
-                <Link href="/jobs?category=Government">Government</Link>
-                <Link href="/jobs?category=NGO%20%26%20Development">NGO</Link>
-                <Link href="/jobs?category=Banking%20%26%20Finance">Banking</Link>
-                <Link href="/jobs?category=Internships%20%26%20Graduate%20Programs">Internships</Link>
+                {popular.map((category) => (
+                  <Link key={category.name} href={`/jobs?category=${encodeURIComponent(category.name)}`}>
+                    {category.name}
+                  </Link>
+                ))}
               </div>
             </div>
           </section>
@@ -842,7 +848,7 @@ export default async function Home() {
                 <span>Verified sources</span>
               </div>
               <div className="trust-item">
-                <strong>{JOB_CATEGORIES.length}</strong>
+                <strong>{categoryList.length}</strong>
                 <span>Job categories</span>
               </div>
             </div>
@@ -889,7 +895,7 @@ export default async function Home() {
             </div>
 
             <div className="category-grid">
-              {categories.map(({ name, index, count }) => {
+              {categories.map(({ name, slug, index, count }) => {
                 const tone = categoryTone(index);
                 return (
                   <Link
@@ -899,7 +905,7 @@ export default async function Home() {
                     style={{ "--tone-bg": tone.bg, "--tone-fg": tone.fg }}
                   >
                     <span className="category-icon">
-                      <CategoryIcon category={name} />
+                      <CategoryIcon category={name} slug={slug} />
                     </span>
                     <span className="category-text">
                       <strong>{name}</strong>

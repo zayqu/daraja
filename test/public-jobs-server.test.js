@@ -12,7 +12,7 @@ test("jobs page server-renders the initial public result set", async () => {
   const client = await read("app/jobs/JobsPageClient.js");
 
   assert.match(page, /export default async function JobsPage\(\{ searchParams \}\)/);
-  assert.match(page, /normalizeJobsSearchParams\(await searchParams\)/);
+  assert.match(page, /normalizeJobsSearchParams\(await searchParams, categories\)/);
   assert.match(page, /await readPublicJobs\(/);
   assert.match(page, /initialJobs=\{initialJobs\}/);
   assert.match(page, /initialPagination=\{initialPagination\}/);

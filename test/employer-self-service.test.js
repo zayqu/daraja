@@ -23,7 +23,7 @@ test("employer identity is server owned and vacancy values are controlled", () =
   const route = read("app/api/employer/jobs/route.js");
   const form = read("components/EmployerVacancyForm.js");
   assert.match(route, /company: actor\.employer\.companyName/);
-  assert.match(route, /JOB_CATEGORIES\.includes\(data\.category\)/);
+  assert.match(route, /\(await getCategoryNames\(\)\)\.includes\(data\.category\)/);
   assert.match(route, /JOB_TYPES\.has\(data\.type\)/);
   assert.doesNotMatch(form, /name="company"/);
 });

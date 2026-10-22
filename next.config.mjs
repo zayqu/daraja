@@ -1,6 +1,9 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   output: "standalone",
+  // The admin "Test source" button reuses the scraper adapters; their optional
+  // browser renderer must stay a runtime dependency, never bundled.
+  serverExternalPackages: ["playwright"],
   reactCompiler: true,
   async headers() {
     const contentSecurityPolicy = [

@@ -3,7 +3,7 @@ import prisma from "@/lib/prisma";
 import { randomUUID } from "node:crypto";
 import slugUtils from "@/lib/job-slug";
 import { employerPortalEnabled, getActor, safeAuditMetadata } from "@/lib/employer-access";
-import { JOB_CATEGORIES } from "@/lib/job-categories";
+import { getCategoryNames } from "@/lib/public-jobs";
 import ownerVacancy from "@/lib/owner-vacancy";
 import { readProtectedJson } from "@/lib/request-security";
 
@@ -68,15 +68,17 @@ export async function POST(request) {
     applicationUrl,
     source: "daraja",
     language: "en",
-    active: false,
     employerId: actor.employer.id,
     submittedById: actor.id,
-    moderationStatus: "PENDING_REVIEW",
+    // Verified employers an administrator trusts publish without review.
+    ...(actor.employer.autoPublish && actor.employer.verificationStatus === "VERIFIED"
+      ? { moderationStatus: "PUBLISHED", active: true, moderationNote: "Published automatically: trusted employer." }
+      : { moderationStatus: "PENDING_REVIEW", active: false }),
   };
   if (!data.title || !data.location || !data.description || !data.category) {
     return NextResponse.json({ error: "Title, location, category and description are required" }, { status: 400 });
   }
-  if (!JOB_CATEGORIES.includes(data.category) || !JOB_TYPES.has(data.type)) {
+  if (!(await getCategoryNames()).includes(data.category) || !JOB_TYPES.has(data.type)) {
     return NextResponse.json({ error: "Choose a supported category and job type" }, { status: 400 });
   }
   const job = await createJobWithPositionSlug(prisma, data, randomUUID());
@@ -84,7 +86,7 @@ export async function POST(request) {
     data: {
       actorUserId: actor.id,
       employerId: actor.employer.id,
-      action: "JOB_SUBMITTED_FOR_REVIEW",
+      action: data.moderationStatus === "PUBLISHED" ? "JOB_PUBLISHED_TRUSTED_EMPLOYER" : "JOB_SUBMITTED_FOR_REVIEW",
       entityType: "Job",
       entityId: job.id,
       metadata: safeAuditMetadata({ category: data.category, type: data.type }),

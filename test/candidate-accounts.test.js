@@ -17,8 +17,8 @@ test("candidate alerts require authentication and never trust a submitted email"
 test("candidate preferences use the controlled category catalogue", () => {
   const route = read("app/api/job-alerts/route.js");
   const form = read("components/AlertPreferencesForm.js");
-  assert.match(route, /normalizeList\(body\.categories, JOB_CATEGORIES\)/);
-  assert.match(form, /JOB_CATEGORIES\.map/);
+  assert.match(route, /normalizeList\(body\.categories, await getCategoryNames\(\)\)/);
+  assert.match(form, /categoryOptions\.map/);
   assert.match(form, /Alerts use these exact categories/);
   assert.match(form, /Can’t find your professional field/);
   assert.match(form, /setCategories\(\[\]\)/);

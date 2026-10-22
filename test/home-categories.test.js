@@ -27,7 +27,7 @@ test("homepage categories show live counts, busiest first", async () => {
   const stats = await source("lib/home-stats.js");
   assert.match(stats, /groupBy\(\{\s*by: \["category"\]/);
   assert.match(stats, /categoryCounts: \{\}/);
-  assert.match(home, /orderCategories\(stats\.categoryCounts\)/);
-  assert.match(home, /<CategoryIcon category=\{name\} \/>/);
+  assert.match(home, /orderCategories\(categoryList, stats\.categoryCounts\)/);
+  assert.match(home, /<CategoryIcon category=\{name\} slug=\{slug\} \/>/);
   assert.match(home, /formatOpenJobs\(count\)/);
 });

@@ -291,11 +291,11 @@ export default function JobDetailPageClient({ initialJob, showEmployerCta }) {
               <h2>Job details</h2>
 
               <dl className={styles.detailsList}>
-                <div>
+                <div className={styles.repeatsHeader}>
                   <dt>Position</dt>
                   <dd>{job.title}</dd>
                 </div>
-                <div>
+                <div className={styles.repeatsHeader}>
                   <dt>Company / Institution</dt>
                   <dd>{job.company}</dd>
                 </div>

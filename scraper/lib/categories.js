@@ -1,3 +1,5 @@
+// Built-in seed. The live list and extra keywords come from the Category table
+// (managed in /admin/categories) via configureCategories() at run start.
 const CATEGORIES = [
   "Government",
   "NGO & Development",
@@ -22,7 +24,7 @@ const CATEGORIES = [
   "General",
 ];
 
-const RULES = [
+const BUILT_IN_RULES = [
   ["Internships & Graduate Programs", /\b(intern(ship)?|graduate trainee|management trainee|volunteer|mafunzo kwa vitendo)\b/i],
   ["Creative, Design & Media", /\b(graphic|designer|creative|art director|copywriter|content creator|photograph|videograph|animator|illustrator|media|journalist|editor|broadcast|ubunifu|mwandishi|mpiga picha)\w*/i],
   ["Technology", /\b(software|developer|programmer|data scientist|data analyst|cyber|information technology|\bit\b|ict|tehama|network|systems? administrator|digital|programu|mifumo ya kompyuta)\b/i],
@@ -44,6 +46,68 @@ const RULES = [
   ["NGO & Development", /\b(ngo|non-government|humanitarian|development|united nations|\bun\b|foundation|charity|relief|programme officer|maendeleo|kibinadamu|hisani)\b/i],
   ["Government", /\b(government|ministry|municipal|council|authority|public service|taasisi|halmashauri|wizara|serikali|manispaa)\b/i],
 ];
+
+function slugOf(name) {
+  return String(name || "")
+    .toLowerCase()
+    .replace(/&/g, " and ")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+}
+
+function escapeRegExp(value) {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+// Live state; starts as the built-in seed.
+let RULES = BUILT_IN_RULES;
+let FALLBACK = "General";
+let ACTIVE = new Set(CATEGORIES);
+
+// Apply the admin-managed categories: built-in keyword rules follow a renamed
+// category through its stable slug, inactive categories stop matching, and
+// each category's own keywords become an extra rule (checked first).
+function configureCategories(rows = []) {
+  const live = rows.filter((row) => row && row.name && row.active !== false);
+  if (!live.length) {
+    RULES = BUILT_IN_RULES;
+    FALLBACK = "General";
+    ACTIVE = new Set(CATEGORIES);
+    return;
+  }
+  const bySlug = new Map(live.map((row) => [row.slug || slugOf(row.name), row.name]));
+  const keywordRules = live
+    .filter((row) => !row.isFallback && Array.isArray(row.keywords) && row.keywords.length)
+    .map((row) => [
+      row.name,
+      new RegExp(
+        `\\b(${row.keywords
+          .map((keyword) => escapeRegExp(String(keyword).trim()))
+          .filter(Boolean)
+          .join("|")})\\w*`,
+        "i"
+      ),
+    ]);
+  const builtIn = BUILT_IN_RULES.map(([name, pattern]) => [bySlug.get(slugOf(name)), pattern]).filter(
+    ([name]) => name
+  );
+  RULES = [...keywordRules, ...builtIn];
+  FALLBACK = (live.find((row) => row.isFallback) || {}).name || "General";
+  ACTIVE = new Set(live.map((row) => row.name));
+}
+
+async function loadCategories(prisma) {
+  if (!prisma?.category) return;
+  try {
+    configureCategories(
+      await prisma.category.findMany({
+        select: { name: true, slug: true, keywords: true, active: true, isFallback: true },
+      })
+    );
+  } catch (error) {
+    console.error("Categories unavailable; using the built-in list:", error.message);
+  }
+}
 
 function classifyJob(job = {}) {
   const title = job.title || "";
@@ -81,7 +145,7 @@ function classifyJob(job = {}) {
       evidence: "context",
     };
   }
-  return { category: "General", confidence: 0.2, evidence: "fallback" };
+  return { category: FALLBACK, confidence: 0.2, evidence: "fallback" };
 }
 
 function categorizeJob(job = {}) {
@@ -92,9 +156,9 @@ function acceptAssistedClassification(deterministic, suggestion = {}) {
   const category = String(suggestion.category || "").trim();
   const confidence = Number(suggestion.confidence);
   if (
-    deterministic.category !== "General" ||
-    !CATEGORIES.includes(category) ||
-    category === "General" ||
+    deterministic.category !== FALLBACK ||
+    !ACTIVE.has(category) ||
+    category === FALLBACK ||
     !Number.isFinite(confidence) ||
     confidence < 0.9
   ) {
@@ -133,6 +197,8 @@ function summarizeClassifications(jobs = []) {
 module.exports = {
   CATEGORIES,
   acceptAssistedClassification,
+  configureCategories,
+  loadCategories,
   categorizeJob,
   classifyJob,
   summarizeClassifications,

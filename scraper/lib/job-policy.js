@@ -5,9 +5,37 @@ const bankCatalog = require("../config/bank-source-catalog.json");
 // docs/JOB-SOURCE-POLICY.md: which scraped vacancies publish automatically,
 // which wait for an administrator, and which are blocked outright.
 
-const SOURCE_CONFIG = new Map(
+let SOURCE_CONFIG = new Map(
   [...catalog.sources, ...bankCatalog.sources].map((source) => [source.id, source])
 );
+
+// Admin-managed rules (Site settings): phrases that block a vacancy outright
+// and phrases that hold it for review. They add to the built-in rules below,
+// which cannot be switched off.
+let EXTRA_BLOCK = [];
+let EXTRA_HOLD = [];
+
+function cleanPhrases(list) {
+  return (Array.isArray(list) ? list : [])
+    .map((phrase) => String(phrase || "").trim().toLowerCase())
+    .filter((phrase) => phrase.length >= 3)
+    .slice(0, 200);
+}
+
+// Called at the start of a scraper run with the merged source catalogue
+// (files + /admin/sources) and the review rules from /admin/settings.
+function configurePolicy({ sources, blockPhrases, holdPhrases } = {}) {
+  if (Array.isArray(sources) && sources.length) {
+    SOURCE_CONFIG = new Map(sources.map((source) => [source.id, source]));
+  }
+  EXTRA_BLOCK = cleanPhrases(blockPhrases);
+  EXTRA_HOLD = cleanPhrases(holdPhrases);
+}
+
+function matchedPhrase(text, phrases) {
+  const lower = text.toLowerCase();
+  return phrases.find((phrase) => lower.includes(phrase)) || null;
+}
 
 // Lower number = more authoritative (policy "Source precedence").
 const PRECEDENCE = {
@@ -101,7 +129,14 @@ function decidePublication(job, sourceId) {
     };
   }
 
+  const blocked = matchedPhrase(text, EXTRA_BLOCK);
+  if (blocked) {
+    return { status: "REJECTED", note: `Automatically blocked by an admin rule ("${blocked}").` };
+  }
+
   const reasons = [];
+  const held = matchedPhrase(text, EXTRA_HOLD);
+  if (held) reasons.push(`it mentions "${held}" (admin review rule)`);
   if (!sourcePolicy(sourceId).autoPublish) {
     reasons.push("source has not been approved for automatic publication");
   }
@@ -119,6 +154,7 @@ function decidePublication(job, sourceId) {
 }
 
 module.exports = {
+  configurePolicy,
   decidePublication,
   feeSignal,
   isFieldLabelTitle,

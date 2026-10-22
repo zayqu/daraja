@@ -24,6 +24,23 @@ const {
   getSourceCatalog,
   loadSourceSettings,
 } = require("./lib/source-settings");
+const { loadCategories } = require("./lib/categories");
+const { configurePolicy } = require("./lib/job-policy");
+
+// Admin review rules from /admin/settings (SiteSetting rows).
+async function loadReviewRules(prisma) {
+  if (!prisma?.siteSetting) return {};
+  try {
+    const rows = await prisma.siteSetting.findMany({
+      where: { key: { in: ["review.blockPhrases", "review.holdPhrases"] } },
+    });
+    const value = (key) => rows.find((row) => row.key === key)?.value;
+    return { blockPhrases: value("review.blockPhrases"), holdPhrases: value("review.holdPhrases") };
+  } catch (error) {
+    console.error("Review rules unavailable; using built-in rules only:", error.message);
+    return {};
+  }
+}
 const {
   createPageRenderer,
   deepenApplicationUrl,
@@ -92,7 +109,10 @@ async function runScrapers({ dryRun = false, requestedSources = new Set() } = {}
   const startedAt = new Date();
   const prisma = dryRun ? null : createPrismaClient();
   const settings = await loadSourceSettings(prisma);
-  const enabledSources = applySourceSettings(getSourceCatalog(), settings).filter(
+  const catalogue = applySourceSettings(getSourceCatalog(), settings);
+  await loadCategories(prisma);
+  configurePolicy({ sources: catalogue, ...(await loadReviewRules(prisma)) });
+  const enabledSources = catalogue.filter(
     (source) =>
       source.enabled &&
       source.adapter &&

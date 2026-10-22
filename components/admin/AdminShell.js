@@ -1,0 +1,52 @@
+"use client";
+
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import styles from "./admin.module.css";
+
+const NAV = [
+  { href: "/admin", label: "Overview", exact: true },
+  { href: "/admin/jobs", label: "Jobs", count: "pendingJobs" },
+  { href: "/admin/users", label: "Users" },
+  { href: "/admin/employers", label: "Employers", count: "pendingEmployers" },
+  { href: "/admin/categories", label: "Categories" },
+  { href: "/admin/sources", label: "Sources" },
+];
+
+export default function AdminShell({ email, counts = {}, signOut, children }) {
+  const pathname = usePathname();
+  return (
+    <div className={styles.shell}>
+      <aside className={styles.sidebar} aria-label="Admin navigation">
+        <Link href="/admin" className={styles.brand}>
+          DARAJA <small>ADMIN</small>
+        </Link>
+        <nav className={styles.nav}>
+          {NAV.map((item) => {
+            const active = item.exact ? pathname === item.href : pathname.startsWith(item.href);
+            const count = item.count ? counts[item.count] : 0;
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                className={`${styles.navLink} ${active ? styles.navActive : ""}`}
+                aria-current={active ? "page" : undefined}
+              >
+                {item.label}
+                {count ? <span className={styles.navCount}>{count > 99 ? "99+" : count}</span> : null}
+              </Link>
+            );
+          })}
+        </nav>
+        <div className={styles.sidebarFoot}>
+          <span>{email}</span>
+          <Link href="/">View the site</Link>
+          {signOut}
+        </div>
+      </aside>
+      <main id="main-content" className={styles.main}>
+        {children}
+      </main>
+    </div>
+  );
+}

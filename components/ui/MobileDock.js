@@ -106,6 +106,16 @@ export default function MobileDock({
             </div>
 
             <nav className={styles.sheetLinks}>
+              {!userRole && (
+                <Link href="/auth/signin" onClick={() => setMoreOpen(false)}>
+                  Sign in
+                </Link>
+              )}
+              {!userRole && (
+                <Link href="/auth/signup" onClick={() => setMoreOpen(false)}>
+                  Create account
+                </Link>
+              )}
               {showCandidateProfile && (
                 <Link href="/account" onClick={() => setMoreOpen(false)}>
                   My account

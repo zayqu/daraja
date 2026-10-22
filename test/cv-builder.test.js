@@ -77,7 +77,7 @@ test("CV builder supports flexible ATS-safe presentation combinations", () => {
 
   for (const template of ["modern", "classic", "minimal", "executive", "public"]) {
     assert.match(engine, new RegExp(`"${template}"`));
-    assert.match(builder, new RegExp(`value="${template}"`));
+    assert.match(builder, new RegExp(`value: "${template}"`));
   }
 
   assert.match(builder, /fontFamily/);
@@ -229,4 +229,40 @@ test("CV PDF export is protected, direct and text based", async () => {
   assert.match(raw, /Asha Mushi/);
   assert.match(raw, /Finance Officer/);
   assert.match(raw, /Example Tanzania Ltd/);
+});
+
+
+test("CV builder workspace autosaves drafts and keeps mobile edit/preview focused", () => {
+  const builder = read("components/CvBuilder.js");
+  const styles = read("components/CvBuilder.module.css");
+
+  assert.match(builder, /Saved automatically/);
+  assert.match(builder, /Changes pending/);
+  assert.match(builder, /Saving…/);
+  assert.match(builder, /window\.setTimeout\(\(\) => \{/);
+  assert.match(builder, /persistCv\(\{ notify: false, refreshList: false \}\)/);
+  assert.match(builder, /activeIdRef\.current === data\.cv\.id/);
+  assert.match(builder, /aria-label="Builder view"/);
+  assert.match(builder, /aria-pressed=\{mobileView === "edit"\}/);
+  assert.match(builder, /aria-pressed=\{mobileView === "preview"\}/);
+  assert.match(styles, /\.mobileViewSwitch/);
+  assert.match(styles, /\.mobileHidden/);
+  assert.match(styles, /@media \(max-width: 640px\)/);
+});
+
+
+test("CV design studio offers visual templates and simple color choices", () => {
+  const builder = read("components/CvBuilder.js");
+  const styles = read("components/CvBuilder.module.css");
+
+  assert.match(builder, /TEMPLATE_OPTIONS/);
+  assert.match(builder, /COLOR_OPTIONS/);
+  assert.match(builder, /templateMiniature/);
+  assert.match(builder, /aria-label=\{\`Use \${color} accent\`\}/);
+  assert.match(builder, /type="color"/);
+  assert.match(builder, /Hex color/);
+  assert.match(styles, /\.templateGrid/);
+  assert.match(styles, /\.paletteRow/);
+  assert.match(styles, /\.activeTemplate/);
+  assert.match(styles, /\.activeColor/);
 });

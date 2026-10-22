@@ -1,12 +1,12 @@
 export const metadata = {
-  title: "Jobs in Tanzania",
+  title: { absolute: "Daraja | Kazi na Fursa Tanzania" },
   description:
     "Browse current government, NGO, finance, health, education, IT and engineering jobs across Tanzania.",
   alternates: {
     canonical: "/jobs",
   },
   openGraph: {
-    title: "Jobs in Tanzania | Daraja",
+    title: "Daraja | Kazi na Fursa Tanzania",
     description:
       "Browse current jobs and career opportunities across Tanzania.",
     url: "/jobs",

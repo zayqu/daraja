@@ -43,7 +43,6 @@ test("protected workspaces use shared hero and shell primitives", async () => {
     read("app/account/alerts/page.js"),
     read("app/account/privacy/page.js"),
     read("app/employer/page.js"),
-    read("app/admin/page.js"),
     read("app/post-job/page.js"),
   ]);
 
@@ -57,7 +56,7 @@ test("shared surface cards own common card chrome", async () => {
   const card = await read("components/ui/SurfaceCard.module.css");
   const privacy = await read("app/account/privacy/page.js");
   const employer = await read("app/employer/page.js");
-  const auth = await read("app/auth/signin/page.js");
+  const auth = await read("components/auth/AuthLayout.js");
 
   assert.match(card, /border: 1px solid var\(--color-border-strong\)/);
   assert.match(card, /border-radius: var\(--radius-card\)/);

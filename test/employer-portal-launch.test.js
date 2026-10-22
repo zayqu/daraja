@@ -49,16 +49,18 @@ test("only verified employers' vacancies can be published", async () => {
   assert.match(route, /status: 409/);
 });
 
-test("admin page shows employer verification, review queue and live vacancies", async () => {
-  const page = await read("app/admin/page.js");
-  assert.match(page, /verificationStatus: "PENDING"/);
-  assert.match(page, /<AdminEmployerQueue/);
-  assert.match(page, /moderationStatus: "PUBLISHED", active: true/);
-  assert.match(page, /<AdminJobReviewQueue jobs=\{liveJobs\.map\(serializeJob\)\} live \/>/);
-  assert.match(page, /if \(!isAdmin\(actor\)\) notFound\(\)/);
-
-  const queue = await read("components/AdminEmployerQueue.js");
-  assert.match(queue, /\/api\/admin\/employers\/\$\{employer\.id\}/);
+test("admin panel shows employer verification, review queue and all jobs", async () => {
+  const overview = await read("app/admin/page.js");
+  assert.match(overview, /moderationStatus: "PENDING_REVIEW"/);
+  assert.match(overview, /<AdminJobReviewQueue/);
+  const employers = await read("app/admin/employers/page.js");
+  assert.match(employers, /verificationStatus/);
+  assert.match(employers, /employerActions\(employer\)/);
+  const actions = await read("lib/admin-actions.js");
+  assert.match(actions, /\/api\/admin\/employers\/\$\{employer\.id\}/);
+  const jobs = await read("app/admin/jobs/page.js");
+  assert.match(jobs, /moderationStatus: "PUBLISHED", active: true/);
+  assert.match(await read("lib/admin-guard.js"), /if \(!isAdmin\(actor\)\) notFound\(\)/);
 });
 
 test("employer workspace lists only the signed-in employer's vacancies", async () => {

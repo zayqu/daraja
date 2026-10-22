@@ -1,205 +1,121 @@
-import { notFound, redirect } from "next/navigation";
-import {
-  employerPortalEnabled,
-  getActor,
-  isAdmin,
-} from "@/lib/employer-access";
-import AdminEmployerQueue from "@/components/AdminEmployerQueue";
+import Link from "next/link";
 import AdminJobReviewQueue from "@/components/AdminJobReviewQueue";
-import AdminUserRoles from "@/components/AdminUserRoles";
-import EmployerPortalTabs from "@/components/EmployerPortalTabs";
-import SiteNav from "@/components/SiteNav";
-import PageHero from "@/components/ui/PageHero";
-import WorkspaceShell from "@/components/ui/WorkspaceShell";
-import SurfaceCard from "@/components/ui/SurfaceCard";
+import { Badge, PageHeader, Panel, StatCard, formatDate } from "@/components/admin/AdminUi";
+import styles from "@/components/admin/admin.module.css";
+import { requireAdminPage } from "@/lib/admin-guard";
 import prisma from "@/lib/prisma";
-import { isOwnerEmail } from "@/lib/platform-roles";
-import styles from "../portal.module.css";
 
-export const metadata = { title: "Moderation | Daraja" };
 export const dynamic = "force-dynamic";
 
-export default async function AdminPage({ searchParams }) {
-  // Moderation of scraped vacancies and user roles must work even while the
-  // employer portal is switched off; only the employer queue depends on it.
-  const employerEnabled = employerPortalEnabled();
-  const actor = await getActor();
-  if (!actor) redirect("/auth/signin?callbackUrl=/admin");
-  if (!isAdmin(actor)) notFound();
+const ACTION_LABELS = {
+  JOB_PUBLISHED: "Published a job",
+  JOB_REJECTED: "Rejected a job",
+  JOB_ARCHIVED: "Archived a job",
+  JOB_CREATED_BY_ADMIN: "Posted a job",
+  JOB_EDITED_BY_ADMIN: "Edited a job",
+  JOB_DELETED_BY_ADMIN: "Deleted a job",
+  USER_ROLE_CHANGED: "Changed a user's role",
+  USER_SUSPENDED: "Suspended a user",
+  USER_REINSTATED: "Reinstated a user",
+  USER_DELETED_BY_ADMIN: "Deleted a user",
+  OWNER_ADMIN_GRANTED: "Owner admin access granted",
+  EMPLOYER_VERIFIED: "Verified an employer",
+  EMPLOYER_REJECTED: "Rejected an employer",
+  EMPLOYER_SUSPENDED: "Suspended an employer",
+  EMPLOYER_CREATED_BY_ADMIN: "Added an employer",
+  EMPLOYER_EDITED_BY_ADMIN: "Edited an employer",
+  CATEGORY_JOBS_MOVED: "Moved jobs between categories",
+  SOURCE_ENABLED: "Turned a source on",
+  SOURCE_DISABLED: "Turned a source off",
+  JOB_SUBMITTED_FOR_REVIEW: "Employer submitted a job",
+};
 
-  const jobFields = {
-    id: true,
-    title: true,
-    company: true,
-    location: true,
-    source: true,
-    sourceUrl: true,
-    description: true,
-    deadline: true,
-    moderationNote: true,
-  };
-  const userQuery = String((await searchParams)?.user || "").trim().slice(0, 120);
-  const [pendingEmployers, liveJobs, users] = await Promise.all([
-    !employerEnabled ? Promise.resolve([]) : prisma.employer.findMany({
-      where: { verificationStatus: "PENDING" },
-      orderBy: { createdAt: "asc" },
-      take: 50,
-      select: {
-        id: true,
-        companyName: true,
-        industry: true,
-        website: true,
-        user: { select: { email: true } },
-        _count: { select: { jobs: { where: { moderationStatus: "PENDING_REVIEW" } } } },
-      },
-    }),
-    prisma.job.findMany({
-      where: { moderationStatus: "PUBLISHED", active: true },
-      orderBy: { createdAt: "desc" },
-      take: 200,
-      select: jobFields,
-    }),
-    prisma.user.findMany({
-      where: userQuery
-        ? {
-            OR: [
-              { email: { contains: userQuery, mode: "insensitive" } },
-              { name: { contains: userQuery, mode: "insensitive" } },
-            ],
-          }
-        : undefined,
-      orderBy: { createdAt: "desc" },
-      take: 50,
-      select: { id: true, name: true, email: true, role: true, createdAt: true },
-    }),
-  ]);
-  const serializeJob = (job) => ({ ...job, deadline: job.deadline?.toISOString() ?? null });
+export default async function AdminOverviewPage() {
+  await requireAdminPage("/admin");
+  const now = new Date();
+  const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
 
-  const pendingJobs = await prisma.job.findMany({
-    where: { moderationStatus: "PENDING_REVIEW" },
-    orderBy: { createdAt: "desc" },
-    take: 50,
-    select: jobFields,
-  });
+  const [liveJobs, pendingCount, newJobs, users, newUsers, employers, pendingEmployers, pendingJobs, activity] =
+    await Promise.all([
+      prisma.job.count({ where: { moderationStatus: "PUBLISHED", active: true } }),
+      prisma.job.count({ where: { moderationStatus: "PENDING_REVIEW" } }),
+      prisma.job.count({ where: { createdAt: { gte: weekAgo } } }),
+      prisma.user.count(),
+      prisma.user.count({ where: { createdAt: { gte: weekAgo } } }),
+      prisma.employer.count(),
+      prisma.employer.count({ where: { verificationStatus: "PENDING" } }),
+      prisma.job.findMany({
+        where: { moderationStatus: "PENDING_REVIEW" },
+        orderBy: { createdAt: "desc" },
+        take: 10,
+        select: {
+          id: true,
+          title: true,
+          company: true,
+          location: true,
+          source: true,
+          sourceUrl: true,
+          description: true,
+          deadline: true,
+          moderationNote: true,
+        },
+      }),
+      prisma.auditEvent.findMany({
+        orderBy: { createdAt: "desc" },
+        take: 12,
+        select: { id: true, action: true, entityType: true, createdAt: true, actor: { select: { email: true } } },
+      }),
+    ]);
 
   return (
-    <div className={styles.page}>
-      <SiteNav />
+    <>
+      <PageHeader
+        title="Overview"
+        description="What needs your attention on Daraja today."
+        actions={
+          <>
+            <Link className={styles.buttonPrimary} href="/admin/jobs/new">Post a job</Link>
+            <Link className={styles.button} href="/admin/users">Manage users</Link>
+          </>
+        }
+      />
 
-      <main id="main-content">
-        <PageHero
-          eyebrow="Protected administration"
-          title="Verification and vacancy moderation."
-          description="Review employer trust, make publication decisions and preserve an auditable moderation trail."
+      <div className={styles.stats}>
+        <StatCard label="Live jobs" value={liveJobs} note={`${newJobs} added this week`} href="/admin/jobs?status=live" />
+        <StatCard label="Needs review" value={pendingCount} note="Jobs held before going live" href="/admin/jobs?status=PENDING_REVIEW" />
+        <StatCard label="Users" value={users} note={`${newUsers} joined this week`} href="/admin/users" />
+        <StatCard label="Employers" value={employers} note={`${pendingEmployers} waiting for verification`} href="/admin/employers" />
+      </div>
+
+      <Panel
+        title={`Jobs waiting for review (${pendingCount})`}
+        actions={<Link className={styles.button} href="/admin/jobs?status=PENDING_REVIEW">See all</Link>}
+      >
+        <AdminJobReviewQueue
+          jobs={pendingJobs.map((job) => ({ ...job, deadline: job.deadline?.toISOString() ?? null }))}
         />
+      </Panel>
 
-        <WorkspaceShell className={styles.formScope}>
-          {employerEnabled ? <EmployerPortalTabs showAdmin /> : null}
-
-          <section className={styles.summaryStrip}>
-            <div>
-              <span>Administrator</span>
-              <strong>{actor.email}</strong>
-            </div>
-            <div>
-              <span>Access level</span>
-              <strong className={styles.statusVerified}>admin</strong>
-            </div>
-          </section>
-
-          {employerEnabled ? (
-            <section className={styles.reviewQueue} aria-labelledby="employer-queue-title">
-              <h2 id="employer-queue-title" className={styles.sectionTitle}>
-                Employers waiting for verification ({pendingEmployers.length})
-              </h2>
-              <AdminEmployerQueue
-                employers={pendingEmployers.map((employer) => ({
-                  id: employer.id,
-                  companyName: employer.companyName,
-                  industry: employer.industry,
-                  website: employer.website,
-                  email: employer.user?.email ?? "",
-                  pendingJobs: employer._count.jobs,
-                }))}
-              />
-            </section>
-          ) : null}
-
-          <section className={styles.reviewQueue} aria-labelledby="review-queue-title">
-            <h2 id="review-queue-title" className={styles.sectionTitle}>
-              Vacancies waiting for review ({pendingJobs.length})
-            </h2>
-            <AdminJobReviewQueue jobs={pendingJobs.map(serializeJob)} />
-          </section>
-
-          <section className={styles.reviewQueue} aria-labelledby="live-jobs-title">
-            <h2 id="live-jobs-title" className={styles.sectionTitle}>
-              Live vacancies ({liveJobs.length})
-            </h2>
-            <AdminJobReviewQueue jobs={liveJobs.map(serializeJob)} live />
-          </section>
-
-          <section className={styles.reviewQueue} aria-labelledby="users-title">
-            <h2 id="users-title" className={styles.sectionTitle}>
-              Users and roles
-            </h2>
-            <AdminUserRoles
-              query={userQuery}
-              currentUserId={actor.id}
-              users={users.map((user) => ({
-                id: user.id,
-                name: user.name ?? "",
-                email: user.email ?? "",
-                role: user.role,
-                owner: isOwnerEmail(user.email),
-                createdAt: user.createdAt.toISOString(),
-              }))}
-            />
-          </section>
-
-          <section className={styles.grid} aria-label="Administration safeguards">
-            <SurfaceCard as="article" className={styles.portalCard}>
-              <span className={styles.cardLabel}>Employer trust</span>
-              <h2>Verification decisions</h2>
-              <p>
-                Employer identity is reviewed before publication access is
-                granted. Verification changes remain server-authorised and
-                auditable.
-              </p>
-            </SurfaceCard>
-
-            <SurfaceCard as="article" className={styles.portalCard}>
-              <span className={styles.cardLabel}>Vacancy trust</span>
-              <h2>Moderation decisions</h2>
-              <p>
-                Publish, reject or archive reviewable vacancies. Rejections
-                require a reason and every decision records the authenticated
-                administrator.
-              </p>
-            </SurfaceCard>
-
-            <SurfaceCard as="article" className={styles.portalCard}>
-              <span className={styles.cardLabel}>Security boundary</span>
-              <h2>Protected writes</h2>
-              <ul>
-                <li>Database-backed ADMIN role checks remain mandatory.</li>
-                <li>Same-origin mutation protection remains active.</li>
-                <li>Privileged changes retain durable audit evidence.</li>
-              </ul>
-            </SurfaceCard>
-
-            <SurfaceCard as="article" className={styles.portalCard}>
-              <span className={styles.cardLabel}>Human control</span>
-              <h2>Consequential decisions</h2>
-              <p>
-                Employer verification and vacancy moderation remain explicit
-                human administrative actions. Automated assistance cannot grant
-                privileged access by itself.
-              </p>
-            </SurfaceCard>
-          </section>
-        </WorkspaceShell>
-      </main>
-    </div>
+      <Panel title="Recent admin activity" flush>
+        {activity.length ? (
+          <ul className={styles.activity}>
+            {activity.map((event) => (
+              <li key={event.id}>
+                <span>
+                  <strong>{ACTION_LABELS[event.action] || event.action}</strong>
+                  <span className={styles.subtle}>{event.actor?.email || "System"}</span>
+                </span>
+                <span>
+                  <Badge>{event.entityType}</Badge>
+                  <span className={styles.subtle}>{formatDate(event.createdAt)}</span>
+                </span>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p className={styles.empty}>No admin activity yet.</p>
+        )}
+      </Panel>
+    </>
   );
 }

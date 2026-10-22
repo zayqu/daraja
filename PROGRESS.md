@@ -9,6 +9,15 @@ tested vertical releases. The current priority is Phase 0 security and privacy
 hardening before expanding candidate CV, employer, freelance, payment or AI
 workflows.
 
+## Current batch: accounts and admin dashboard
+
+- 2026-10-21 (D-034): new `/auth/signin` and `/auth/signup` (Candidate / Employer tabs), `/auth/check-email`, `/auth/forgot-password`, `/auth/reset-password`; API in `app/api/account/*`. Email-link sign-in removed; existing email-link users set a password via "Forgot password".
+- Header shows Sign in / Create account (or My account / Admin panel); mobile "More" sheet too.
+- `/admin` rebuilt as a sidebar dashboard: Overview (stats, review queue, activity), Jobs (search/filter/paginate, post, edit, publish, archive, delete), Users (role, suspend, reinstate, delete), Employers (add, edit, verify, reject, suspend), Categories (counts, move jobs), Sources (on/off per scraper).
+- Migration `20261021120000_admin_suspension_and_source_settings` (additive): `User.suspendedAt/suspendedReason`, `Job.adminEditedAt`, `ScraperSourceSetting`. Take a Neon restore point before merging; the release workflow applies it.
+- Email: `RESEND_API_KEY` plus `ACCOUNT_EMAIL_FROM` (falls back to `JOB_ALERTS_FROM_EMAIL`) must be set in cPanel for sign-up confirmation and password reset; without them sign-up asks people to use Google.
+- Tests: `test/password-accounts.test.js`, `test/admin-dashboard.test.js`, updated auth/admin UI tests; 370 pass locally; production build passes.
+
 ## Current batch: admin dashboard and roles
 
 - 2026-10-21: owner reported landing on the candidate account; the owner user had the default JOB_SEEKER role and `/admin` was hidden behind `EMPLOYER_PORTAL_ENABLED` (off in production).

@@ -518,3 +518,26 @@ cannot change their own role and the owner account cannot be demoted.
 tabs do. After sign-in, `/account` sends admins to `/admin` and employers to
 `/employer` (when the employer portal is on); candidates stay on `/account`.
 Role rules live in `lib/platform-roles.js`.
+
+## D-034 - Email + password accounts beside Google; admin dashboard with CRUD
+
+Owner decision, 21 October 2026. Sign-in offers email + password and Google;
+the one-time email-link (Resend provider) sign-in is retired. Password accounts
+are scrypt-hashed (`lib/password-crypto.js`), must confirm their email before
+signing in, and reset by emailed one-time links stored hashed in
+`VerificationToken`. Password sign-in creates the same revocable database
+Session row and Auth.js cookie (`lib/password-auth.js`), so sessions stay
+`strategy: "database"`. Google may join an existing account with the same
+email; an unconfirmed password sign-up is taken over (password cleared).
+Sign-up offers Candidate or Employer (employer only when the employer portal is
+on); nobody can sign up as an admin.
+
+`/admin` is a sidebar dashboard (Overview, Jobs, Users, Employers, Categories,
+Sources). Every page calls `requireAdminPage()`; every write is admin-only,
+same-origin, throttled and audited. Admin job edits set `Job.adminEditedAt` and
+the scraper never overwrites those jobs. Jobs with Daraja applications cannot be
+deleted (archive instead). User deletion reuses `eraseAccount`. Suspension
+(`User.suspendedAt`) signs the user out and blocks both sign-in paths. Source
+on/off switches live in `ScraperSourceSetting` and only apply to sources with an
+adapter. Categories stay a code-controlled catalogue; admins move jobs between
+them.

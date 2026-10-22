@@ -23,7 +23,7 @@ export default function JobAlerts() {
           <div className={styles.kicker}>Email alerts</div>
           <h3>Control what reaches your inbox</h3>
           <p>
-            Sign in with Google or a verified email link. You can update or stop
+            Sign in with your email and password or with Google. You can update or stop
             alerts at any time.
           </p>
           <Link

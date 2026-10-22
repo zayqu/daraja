@@ -213,3 +213,18 @@ test("a field-label title like Employer or Deadline is held for review", () => {
   assert.equal(decision.status, "PENDING_REVIEW");
   assert.match(decision.note, /field label/);
 });
+
+test("a vacancy an administrator edited is never overwritten by a scrape", async () => {
+  const prisma = fakePrisma({
+    existing: {
+      id: "row",
+      source: "ajiraweb",
+      moderationStatus: "PUBLISHED",
+      moderatedById: "admin",
+      adminEditedAt: new Date("2026-10-21T08:00:00Z"),
+    },
+  });
+  const summary = await saveJobs(prisma, [{ ...vacancy, title: "Employer" }], "ajiraweb");
+  assert.equal(prisma.updates.length, 0);
+  assert.equal(summary.updated, 1);
+});

@@ -7,28 +7,39 @@ async function read(relativePath) {
   return readFile(path.join(__dirname, "..", relativePath), "utf8");
 }
 
-test("candidate authentication uses the shared Daraja UI without changing provider logic", async () => {
+test("sign in and create account share one Daraja auth layout", async () => {
   const signIn = await read("app/auth/signin/page.js");
-  const verify = await read("app/auth/verify-request/page.js");
+  const signUp = await read("app/auth/signup/page.js");
+  const layout = await read("components/auth/AuthLayout.js");
   const styles = await read("app/auth/auth.module.css");
 
-  assert.match(signIn, /authProviders\.includes\("google"\)/);
-  assert.match(signIn, /authProviders\.includes\("resend"\)/);
-  assert.match(signIn, /signIn\("google"/);
-  assert.match(signIn, /signIn\("resend"/);
-  assert.match(signIn, /safeCallback/);
-  assert.match(signIn, /<PublicSiteNav \/>/);
-  assert.match(signIn, /import styles from "\.\.\/auth\.module\.css"/);
-  assert.doesNotMatch(signIn, /<style>/);
+  for (const page of [signIn, signUp]) {
+    assert.match(page, /<AuthLayout/);
+    assert.match(page, /authProviders\.includes\("google"\)/);
+    assert.match(page, /<GoogleButton/);
+    assert.doesNotMatch(page, /<style>/);
+  }
+  assert.match(signIn, /<LoginForm/);
+  assert.match(signIn, /safeRedirectPath/);
+  assert.match(signUp, /<SignupForm/);
+  assert.match(layout, /<PublicSiteNav \/>/);
+  assert.match(layout, /SurfaceCard/);
+  assert.match(styles, /\.split/);
+});
 
-  assert.match(verify, /<PublicSiteNav \/>/);
-  assert.match(verify, /one-time sign-in link/i);
-  assert.match(verify, /import styles from "\.\.\/auth\.module\.css"/);
-  assert.doesNotMatch(verify, /<style>/);
+test("password pages exist and the email-link sign-in is retired", async () => {
+  for (const page of ["check-email", "forgot-password", "reset-password"]) {
+    const source = await read(`app/auth/${page}/page.js`);
+    assert.match(source, /<AuthLayout/);
+  }
+  const auth = await read("auth.js");
+  assert.doesNotMatch(auth, /providers\/resend/);
+  assert.doesNotMatch(auth, /verifyRequest/);
+});
 
-  assert.match(signIn, /PageHero/);
-  assert.match(verify, /PageHero/);
-  assert.match(styles, /\.cardWrap/);
-  assert.match(signIn, /SurfaceCard/);
-  assert.match(verify, /SurfaceCard/);
+test("sign-up offers employer accounts only when the employer portal is on", async () => {
+  const signUp = await read("app/auth/signup/page.js");
+  const form = await read("components/auth/SignupForm.js");
+  assert.match(signUp, /employerEnabled = employerPortalEnabled\(\)/);
+  assert.match(form, /\{employerEnabled \? \(/);
 });

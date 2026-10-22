@@ -127,6 +127,7 @@ const EXISTING_SELECT = {
   source: true,
   moderationStatus: true,
   moderatedById: true,
+  adminEditedAt: true,
 };
 
 function getCandidateSources(source) {
@@ -237,6 +238,12 @@ async function saveJobs(
   const ownPrecedence = sourcePolicy(source).precedence;
 
   const write = async (existing, job, decision) => {
+    // An administrator's corrections to a vacancy are never overwritten by a
+    // later scrape of the same source page.
+    if (existing.adminEditedAt) {
+      counts.updated += 1;
+      return;
+    }
     const data = { ...job, ...moderationData(decision, existing) };
     await prisma.job.update({
       where: { id: existing.id },

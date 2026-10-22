@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { buildJobsUrl } from "@/lib/job-search";
@@ -41,6 +41,26 @@ export default function SiteNav({
   const router = useRouter();
   const pathname = usePathname();
   const dockManaged = mobileDockEnabledPath(pathname);
+  // Read the session in the browser so public pages stay cacheable.
+  const [account, setAccount] = useState(null);
+  useEffect(() => {
+    let cancelled = false;
+    fetch("/api/auth/session", { credentials: "same-origin" })
+      .then((response) => (response.ok ? response.json() : null))
+      .then((session) => {
+        if (cancelled) return;
+        const role = session?.user?.role;
+        setAccount(
+          session?.user
+            ? { signedIn: true, href: role === "ADMIN" ? "/admin" : role === "EMPLOYER" ? "/employer" : "/account", label: role === "ADMIN" ? "Admin panel" : "My account" }
+            : { signedIn: false }
+        );
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   function handleSearch(event) {
     event.preventDefault();
@@ -128,6 +148,20 @@ export default function SiteNav({
             </Link>
           ))}
           <div className={styles.right}>
+            {account ? (
+              <Link
+                href={account.signedIn ? account.href : "/auth/signin"}
+                className={styles.link}
+                onClick={() => setOpen(false)}
+              >
+                {account.signedIn ? account.label : "Sign in"}
+              </Link>
+            ) : null}
+            {account && !account.signedIn && !right ? (
+              <Link href="/auth/signup" className={styles.cta} onClick={() => setOpen(false)}>
+                Create account
+              </Link>
+            ) : null}
             {right ??
               (showEmployerCta ? (
                 <Link

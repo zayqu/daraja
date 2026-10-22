@@ -47,6 +47,7 @@ export default async function AdminEmployersPage({ searchParams }) {
         industry: true,
         website: true,
         verificationStatus: true,
+        autoPublish: true,
         verificationNote: true,
         createdAt: true,
         user: { select: { email: true } },
@@ -82,7 +83,7 @@ export default async function AdminEmployersPage({ searchParams }) {
       >
         {employers.length ? (
           <div className={styles.tableWrap}>
-            <table className={styles.table}>
+            <table className={`${styles.table} ${styles.stackOnMobile}`}>
               <thead>
                 <tr>
                   <th>Company</th>
@@ -98,25 +99,25 @@ export default async function AdminEmployersPage({ searchParams }) {
                   const [tone, label] = STATUS[employer.verificationStatus] || ["gray", employer.verificationStatus];
                   return (
                     <tr key={employer.id}>
-                      <td>
+                      <td data-label="Company">
                         <Link className={styles.primaryCell} href={`/admin/employers/${employer.id}`}>{employer.companyName}</Link>
                         <span className={styles.subtle}>{employer.user?.email}</span>
                       </td>
-                      <td>{employer.industry || "—"}</td>
-                      <td>{employer._count.jobs}</td>
-                      <td>
-                        <Badge tone={tone}>{label}</Badge>
+                      <td data-label="Industry">{employer.industry || "—"}</td>
+                      <td data-label="Jobs">{employer._count.jobs}</td>
+                      <td data-label="Status">
+                        <Badge tone={tone}>{label}</Badge>{employer.autoPublish ? <> <Badge tone="blue">Trusted</Badge></> : null}
                         {employer.verificationNote ? <span className={styles.subtle}>{employer.verificationNote}</span> : null}
                       </td>
-                      <td>{formatDate(employer.createdAt)}</td>
+                      <td data-label="Added">{formatDate(employer.createdAt)}</td>
                       <td>
-                        <div className={styles.rowActions}>
-                          <Link className={styles.button} href={`/admin/employers/${employer.id}`}>Edit</Link>
-                          {employer.website ? (
-                            <a className={styles.buttonGhost} href={employer.website} target="_blank" rel="noreferrer nofollow">Website</a>
-                          ) : null}
-                        </div>
-                        <AdminRowActions actions={employerActions(employer)} />
+                        <AdminRowActions
+                          actions={employerActions(employer)}
+                          links={[
+                            { label: "Edit company", href: `/admin/employers/${employer.id}` },
+                            ...(employer.website ? [{ label: "Website", href: employer.website, external: true }] : []),
+                          ]}
+                        />
                       </td>
                     </tr>
                   );

@@ -6,7 +6,12 @@ import SiteFooterLinks from "@/components/SiteFooterLinks";
 import WebVitals from "@/components/WebVitals";
 import TrafficTracker from "@/components/TrafficTracker";
 import MobileDock from "@/components/ui/MobileDock";
-import { candidateCareerEnabled, employerPortalEnabled } from "@/lib/features";
+import {
+  candidateCareerEnabled,
+  employerPortalEnabled,
+  loadSiteSettings,
+  monetagEnabled,
+} from "@/lib/features";
 import { auth } from "@/auth";
 import { SITE_ORIGIN } from "@/lib/site-config";
 
@@ -16,15 +21,17 @@ const ADSENSE_CLIENT = "ca-pub-5101856964689063";
 // MultiTag here — AdSense does not allow pop-unders on the same site.
 // Paused while Google AdSense reviews the site (D-032, 12 October 2026): the
 // Vignette is a full-screen interstitial that can block AdSense approval.
-// Switch back on after approval by setting NEXT_PUBLIC_MONETAG_ENABLED=true.
+// Switch back on after approval in /admin/settings ("Monetag ads"); the
+// NEXT_PUBLIC_MONETAG_ENABLED === "true" environment value is only the default.
 // The monetag meta tag and public/sw.js stay in place for site verification.
-const MONETAG_ENABLED = process.env.NEXT_PUBLIC_MONETAG_ENABLED === "true";
-const MONETAG_ZONES = MONETAG_ENABLED
-  ? {
-      inPagePush: process.env.NEXT_PUBLIC_MONETAG_IN_PAGE_PUSH_ZONE || "11974650",
-      vignette: process.env.NEXT_PUBLIC_MONETAG_VIGNETTE_ZONE || "11974652",
-    }
-  : {};
+function monetagZones() {
+  return monetagEnabled()
+    ? {
+        inPagePush: process.env.NEXT_PUBLIC_MONETAG_IN_PAGE_PUSH_ZONE || "11974650",
+        vignette: process.env.NEXT_PUBLIC_MONETAG_VIGNETTE_ZONE || "11974652",
+      }
+    : {};
+}
 
 const nunito = Nunito({
   variable: "--font-nunito",
@@ -76,6 +83,7 @@ export default async function RootLayout({ children }) {
     process.env.NEXT_PUBLIC_GOOGLE_ADSENSE_CLIENT || ADSENSE_CLIENT;
   const analyticsId =
     process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS_ID || "G-89Q157X930";
+  await loadSiteSettings();
   const showEmployerCta = employerPortalEnabled();
   const showCandidateProfile = candidateCareerEnabled();
   const session = await auth();
@@ -108,7 +116,7 @@ export default async function RootLayout({ children }) {
         <PrivacyControls
           analyticsId={analyticsId}
           adsenseClient={adsenseClient}
-          monetagZones={MONETAG_ZONES}
+          monetagZones={monetagZones()}
         />
       </body>
     </html>

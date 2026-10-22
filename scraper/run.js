@@ -1,7 +1,5 @@
 require("dotenv").config();
 
-const catalog = require("./config/source-catalog.json");
-const bankCatalog = require("./config/bank-source-catalog.json");
 const { sendJobAlertDigests } = require("./lib/alerts");
 const {
   archiveExpiredJobs,
@@ -21,6 +19,11 @@ const { collectReliefWebJobs } = require("./sources/reliefweb");
 const { collectStandardBankJobs } = require("./sources/standardbank");
 const { collectVerifiedAgencyJobs } = require("./sources/verified-agency");
 const { summarizeClassifications } = require("./lib/categories");
+const {
+  applySourceSettings,
+  getSourceCatalog,
+  loadSourceSettings,
+} = require("./lib/source-settings");
 const {
   createPageRenderer,
   deepenApplicationUrl,
@@ -64,14 +67,6 @@ const adapters = {
     collectVerifiedAgencyJobs(source, { render: renderer.render }),
 };
 
-function getSourceCatalog() {
-  const sources = new Map();
-  for (const source of [...catalog.sources, ...bankCatalog.sources]) {
-    sources.set(source.id, source);
-  }
-  return [...sources.values()];
-}
-
 function getRequestedSources(args) {
   const requested = args
     .filter((argument) => argument.startsWith("--source="))
@@ -95,17 +90,19 @@ function assertRunHealth(summaries, failures) {
 
 async function runScrapers({ dryRun = false, requestedSources = new Set() } = {}) {
   const startedAt = new Date();
-  const enabledSources = getSourceCatalog().filter(
+  const prisma = dryRun ? null : createPrismaClient();
+  const settings = await loadSourceSettings(prisma);
+  const enabledSources = applySourceSettings(getSourceCatalog(), settings).filter(
     (source) =>
       source.enabled &&
       source.adapter &&
       (!requestedSources.size || requestedSources.has(source.id))
   );
   if (!enabledSources.length) {
+    await prisma?.$disconnect?.();
     throw new Error("No enabled scraper source matched the request.");
   }
 
-  const prisma = dryRun ? null : createPrismaClient();
   const renderer = createPageRenderer();
   const summaries = [];
   const failures = [];

@@ -50,7 +50,7 @@ export const viewport = {
 export const metadata = {
   metadataBase: new URL(SITE_ORIGIN),
   title: {
-    default: "Jobs in Tanzania | Daraja",
+    default: "Daraja | Kazi na Fursa Tanzania",
     template: "%s | Daraja",
   },
   description:
@@ -67,7 +67,7 @@ export const metadata = {
     type: "website",
     locale: "en_TZ",
     siteName: "Daraja Jobs",
-    title: "Jobs in Tanzania | Daraja",
+    title: "Daraja | Kazi na Fursa Tanzania",
     description:
       "Find current jobs and career opportunities across Tanzania.",
     url: "/",

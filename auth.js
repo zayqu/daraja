@@ -56,11 +56,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         select: { id: true, suspendedAt: true, emailVerified: true },
       });
       if (existing?.suspendedAt) return false;
-      if (
-        existing &&
-        account?.provider === "linkedin" &&
-        profile?.email_verified !== true
-      ) {
+      if (account?.provider === "linkedin" && profile?.email_verified !== true) {
         return false;
       }
       // An unconfirmed password sign-up may have been made by someone else;

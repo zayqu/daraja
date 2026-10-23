@@ -166,6 +166,12 @@ export default async function AccountPage() {
               description="Account and career updates"
             />
             <AccountLink
+              href="/account/linkedin"
+              icon="more"
+              title="LinkedIn"
+              description="Connect LinkedIn for deliberate sharing"
+            />
+            <AccountLink
               href="/account/privacy"
               icon="privacy"
               title="Privacy & data"

@@ -1,5 +1,5 @@
 .footer {
-  background: var(--color-navy);
+  background: #1b2a3f;
   border-top: 1px solid rgba(255, 255, 255, 0.06);
   padding: 3.25rem var(--gutter) 1.5rem;
 }
@@ -60,6 +60,58 @@
   color: var(--color-teal);
 }
 
+.insights {
+  max-width: var(--content-max);
+  margin: 1.25rem auto 0;
+  padding: 1.5rem 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  background: #1b2a3f;
+}
+
+.platformInsights {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.platformInsights > div {
+  display: grid;
+  gap: .28rem;
+}
+
+.platformInsights strong {
+  color: #fff;
+  font-size: 1.2rem;
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -.02em;
+}
+
+.platformInsights span {
+  color: rgba(255, 255, 255, 0.56);
+  font-size: .7rem;
+  line-height: 1.4;
+}
+
+.visitorInsights {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-top: 1.25rem;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.insightLabel {
+  color: rgba(255, 255, 255, 0.42);
+  font-size: .64rem;
+  font-weight: 800;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
 .bottom {
   max-width: var(--content-max);
   margin: 2.5rem auto 0;
@@ -81,10 +133,11 @@
 }
 
 .trafficMeta {
-  display: inline-flex;
+  display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  gap: .75rem;
-  white-space: nowrap;
+  justify-content: flex-end;
+  gap: .55rem 1rem;
 }
 
 .trafficMeta > span {
@@ -110,6 +163,21 @@
 
   .brand {
     grid-column: 1 / -1;
+  }
+
+  .platformInsights {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1rem .75rem;
+  }
+
+  .visitorInsights {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: .65rem;
+  }
+
+  .trafficMeta {
+    justify-content: flex-start;
   }
 
   .bottom {

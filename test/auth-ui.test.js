@@ -16,7 +16,9 @@ test("sign in and create account share one Daraja auth layout", async () => {
   for (const page of [signIn, signUp]) {
     assert.match(page, /<AuthLayout/);
     assert.match(page, /authProviders\.includes\("google"\)/);
+    assert.match(page, /authProviders\.includes\("linkedin"\)/);
     assert.match(page, /<GoogleButton/);
+    assert.match(page, /<LinkedInButton/);
     assert.doesNotMatch(page, /<style>/);
   }
   assert.match(signIn, /<LoginForm/);
@@ -42,4 +44,14 @@ test("sign-up offers employer accounts only when the employer portal is on", asy
   const form = await read("components/auth/SignupForm.js");
   assert.match(signUp, /employerEnabled = employerPortalEnabled\(\)/);
   assert.match(form, /\{employerEnabled \? \(/);
+});
+
+
+test("LinkedIn sign-in is identity-only and does not request posting permission", async () => {
+  const auth = await read("auth.js");
+  const button = await read("components/auth/LinkedInButton.js");
+  assert.match(auth, /scope: "openid profile email"/);
+  assert.doesNotMatch(auth, /w_member_social/);
+  assert.match(button, /signIn\("linkedin"/);
+  assert.match(button, /Continue with LinkedIn/);
 });

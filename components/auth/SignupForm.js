@@ -6,7 +6,7 @@ import styles from "@/app/auth/auth.module.css";
 import PasswordField from "./PasswordField";
 import { postJson } from "./postJson";
 
-export default function SignupForm({ employerEnabled, initialType = "candidate", googleCandidate = null, googleEmployer = null }) {
+export default function SignupForm({ employerEnabled, initialType = "candidate", socialCandidate = null, socialEmployer = null }) {
   const router = useRouter();
   const [accountType, setAccountType] = useState(
     employerEnabled && initialType === "employer" ? "employer" : "candidate"
@@ -54,7 +54,7 @@ export default function SignupForm({ employerEnabled, initialType = "candidate",
         </div>
       ) : null}
 
-      {accountType === "employer" ? googleEmployer : googleCandidate}
+      {accountType === "employer" ? socialEmployer : socialCandidate}
 
       <form className={styles.form} onSubmit={submit}>
         <div className={styles.field}>

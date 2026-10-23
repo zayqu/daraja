@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { auth, authProviders } from "@/auth";
 import AuthLayout from "@/components/auth/AuthLayout";
 import GoogleButton from "@/components/auth/GoogleButton";
+import LinkedInButton from "@/components/auth/LinkedInButton";
 import SignupForm from "@/components/auth/SignupForm";
 import { employerPortalEnabled } from "@/lib/features";
 import { roleHome } from "@/lib/platform-roles";
@@ -23,6 +24,7 @@ export default async function SignUpPage({ searchParams }) {
   if (session?.user) redirect(roleHome(session.user.role, { employerPortal: employerEnabled }));
 
   const googleEnabled = authProviders.includes("google");
+  const linkedinEnabled = authProviders.includes("linkedin");
 
   return (
     <AuthLayout
@@ -35,8 +37,21 @@ export default async function SignUpPage({ searchParams }) {
       <SignupForm
         employerEnabled={employerEnabled}
         initialType={params?.type === "employer" ? "employer" : "candidate"}
-        googleCandidate={googleEnabled ? <GoogleButton callbackUrl="/account" label="Sign up with Google" /> : null}
-        googleEmployer={googleEnabled ? <GoogleButton callbackUrl="/employer" label="Sign up with Google" /> : null}
+        socialCandidate={
+          <>
+            {linkedinEnabled ? (
+              <LinkedInButton
+                callbackUrl="/account"
+                label="Sign up with LinkedIn"
+                withDivider={!googleEnabled}
+              />
+            ) : null}
+            {googleEnabled ? <GoogleButton callbackUrl="/account" label="Sign up with Google" /> : null}
+          </>
+        }
+        socialEmployer={
+          googleEnabled ? <GoogleButton callbackUrl="/employer" label="Sign up with Google" /> : null
+        }
       />
 
       <p className={styles.switchRow}>

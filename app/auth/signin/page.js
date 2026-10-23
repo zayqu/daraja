@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { auth, authProviders } from "@/auth";
 import AuthLayout from "@/components/auth/AuthLayout";
 import GoogleButton from "@/components/auth/GoogleButton";
+import LinkedInButton from "@/components/auth/LinkedInButton";
 import LoginForm from "@/components/auth/LoginForm";
 import { employerPortalEnabled } from "@/lib/features";
 import { roleHome } from "@/lib/platform-roles";
@@ -31,6 +32,7 @@ export default async function SignInPage({ searchParams }) {
   if (session?.user) redirect(callbackUrl || home);
 
   const googleEnabled = authProviders.includes("google");
+  const linkedinEnabled = authProviders.includes("linkedin");
   const error = ERRORS[params?.error] || (params?.error ? "Sign-in failed. Please try again." : "");
 
   return (
@@ -39,8 +41,14 @@ export default async function SignInPage({ searchParams }) {
       intro="Sign in to manage your applications, job alerts, vacancies or the Daraja admin panel."
     >
       <h2>Sign in</h2>
-      <p className={styles.lead}>Use your email and password, or continue with Google.</p>
+      <p className={styles.lead}>Use your email and password, or continue with Google or LinkedIn.</p>
 
+      {linkedinEnabled ? (
+        <LinkedInButton
+          callbackUrl={callbackUrl || "/account"}
+          withDivider={!googleEnabled}
+        />
+      ) : null}
       {googleEnabled ? <GoogleButton callbackUrl={callbackUrl || "/account"} /> : null}
 
       <LoginForm callbackUrl={callbackUrl} initialError={error} />

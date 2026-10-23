@@ -4,7 +4,7 @@ import TrafficNumbers from "@/components/TrafficNumbers";
 import { WHATSAPP_CHANNEL_URL } from "@/lib/site-config";
 
 
-export default function SiteFooter() {
+export default function SiteFooter({ platformStats = null }) {
   return (
     <footer className={styles.footer}>
       <div className={styles.inner}>
@@ -37,11 +37,37 @@ export default function SiteFooter() {
         </div>
       </div>
 
+      <section className={styles.insights} aria-label="Daraja platform and visitor insights">
+        {platformStats && (
+          <div className={styles.platformInsights}>
+            <div>
+              <strong>{platformStats.liveJobs.toLocaleString()}</strong>
+              <span>Live opportunities</span>
+            </div>
+            <div>
+              <strong>{platformStats.employers.toLocaleString()}</strong>
+              <span>Employers & institutions</span>
+            </div>
+            <div>
+              <strong>{platformStats.sources.toLocaleString()}</strong>
+              <span>Verified sources</span>
+            </div>
+            <div>
+              <strong>{platformStats.categories.toLocaleString()}</strong>
+              <span>Job categories</span>
+            </div>
+          </div>
+        )}
+        <div className={styles.visitorInsights}>
+          <span className={styles.insightLabel}>Visitor insights</span>
+          <TrafficNumbers className={styles.trafficMeta} />
+        </div>
+      </section>
+
       <div className={styles.bottom}>
         <span>{new Date().getFullYear()} Daraja. All rights reserved.</span>
         <div className={styles.bottomMeta}>
           <span>Jobs and opportunities across Tanzania.</span>
-          <TrafficNumbers className={styles.trafficMeta} />
         </div>
       </div>
     </footer>

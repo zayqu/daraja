@@ -236,38 +236,6 @@ export default async function Home() {
 
         .quick-links a:hover { color: var(--color-teal); }
 
-
-        .trust {
-          background: var(--color-teal-deep);
-          color: var(--color-on-dark);
-        }
-
-        .trust-inner {
-          max-width: var(--content-max);
-          margin: 0 auto;
-          padding: clamp(2.5rem, 5vw, 3.75rem) var(--gutter);
-          display: grid;
-          grid-template-columns: repeat(4, 1fr);
-          gap: 1.5rem;
-          text-align: center;
-        }
-
-        .trust-item strong {
-          display: block;
-          margin-bottom: .3rem;
-          color: var(--color-on-dark);
-          font-size: var(--ajira-h1);
-          font-weight: 800;
-          line-height: 1;
-          letter-spacing: -.03em;
-        }
-
-        .trust-item span {
-          color: rgba(255,255,255,.8);
-          font-size: .8rem;
-          line-height: 1.45;
-        }
-
         .latest {
           background: var(--color-surface);
           border-bottom: 1px solid var(--color-border);
@@ -568,7 +536,6 @@ export default async function Home() {
           .hero-layout { display: block; }
           .hero-search { grid-template-columns: 1fr 1fr; }
           .hero-submit { grid-column: 1 / -1; }
-          .trust-inner { grid-template-columns: repeat(2, 1fr); }
           .category-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
         }
 
@@ -662,14 +629,6 @@ export default async function Home() {
           .quick-links a {
             flex: 0 0 auto;
           }
-
-
-          .trust-inner {
-            gap: 1.4rem .75rem;
-            padding-block: 2.25rem;
-          }
-
-          .trust-item span { font-size: .72rem; }
 
           .cta-inner {
             flex-direction: column;
@@ -832,28 +791,6 @@ export default async function Home() {
               </div>
             </div>
           </section>
-
-          <section className="trust" aria-label="Daraja live platform counters">
-            <div className="trust-inner">
-              <div className="trust-item">
-                <strong>{stats.liveJobs.toLocaleString()}</strong>
-                <span>Live opportunities</span>
-              </div>
-              <div className="trust-item">
-                <strong>{stats.employers.toLocaleString()}</strong>
-                <span>Employers & institutions</span>
-              </div>
-              <div className="trust-item">
-                <strong>{stats.sources.toLocaleString()}</strong>
-                <span>Verified sources</span>
-              </div>
-              <div className="trust-item">
-                <strong>{categoryList.length}</strong>
-                <span>Job categories</span>
-              </div>
-            </div>
-          </section>
-
           <div className="latest">
             <section className="section" aria-labelledby="latest-title">
               <div className="section-head">
@@ -979,7 +916,14 @@ export default async function Home() {
           )}
         </main>
 
-        <SiteFooter />
+        <SiteFooter
+          platformStats={{
+            liveJobs: stats.liveJobs,
+            employers: stats.employers,
+            sources: stats.sources,
+            categories: categoryList.length,
+          }}
+        />
       </div>
     </>
   );

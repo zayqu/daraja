@@ -1199,7 +1199,7 @@ Every batch must record:
 - Compact number formatting moved to one shared helper instead of living inside the footer.
 - Public navigation links moved to one shared source used by the default SiteNav, PublicSiteNav and Jobs page; mobile dock navigation remains deliberately separate because it has a different approved information architecture.
 - Generic content pages now compose the existing shared PageHero, WorkspaceShell and SurfaceCard primitives rather than maintaining a parallel hero/card shell.
-- Homepage live opportunity counters remain in their approved #1b2a3f navy band. Footer traffic remains compact and separate.
+- Homepage live platform counters no longer render in a separate strip. Live opportunities, represented employers/institutions, verified sources and category count are passed into the shared footer beside the existing privacy-safe visitor insights; that footer insight surface uses Daraja navy `#1b2a3f`.
 - Shared semantic tokens now include warm public hero surfaces/borders, on-dark text and focus color. Public home/jobs/job-detail/alerts/navigation components use shared design tokens instead of repeating Daraja brand hex values.
 - Email scraper templates remain self-contained intentionally because CSS custom properties are not reliable across email clients.
 - No job ingestion, Apply routing, authentication, permissions, schema, payment, scraper or candidate-data behavior is changed by this cleanup batch.

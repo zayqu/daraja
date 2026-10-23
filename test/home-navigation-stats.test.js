@@ -37,7 +37,7 @@ test("public navigation uses one shared source of truth", async () => {
   assert.match(mobileDock, />\s*Employer workspace\s*</);
 });
 
-test("homepage keeps platform counters while shared footer owns public traffic numbers", async () => {
+test("homepage sends live platform counters to the shared navy footer", async () => {
   const home = await source("app/page.js");
   const footer = await source("components/SiteFooter.js");
   const trafficNumbers = await source("components/TrafficNumbers.js");
@@ -46,13 +46,20 @@ test("homepage keeps platform counters while shared footer owns public traffic n
   const stats = await source("lib/home-stats.js");
 
   assert.match(home, /await Promise\.all\(\[\s*getHomeStats\(\),\s*getLatestJobs\(\),\s*getCategoryList\(\),\s*\]\)/);
-  assert.match(home, /<SiteFooter \/>/);
-  assert.match(home, /className="trust"/);
-  assert.match(home, /stats\.liveJobs/);
-  assert.match(home, /stats\.employers/);
-  assert.match(home, /stats\.sources/);
-  assert.match(home, /\.trust \{[\s\S]*background:\s*var\(--color-teal-deep\)/);
+  assert.match(home, /<SiteFooter[\s\S]*platformStats=\{\{/);
+  assert.match(home, /liveJobs: stats\.liveJobs/);
+  assert.match(home, /employers: stats\.employers/);
+  assert.match(home, /sources: stats\.sources/);
+  assert.match(home, /categories: categoryList\.length/);
+  assert.doesNotMatch(home, /className="trust"/);
+  assert.doesNotMatch(home, /\.trust \{/);
 
+  assert.match(footer, /platformStats = null/);
+  assert.match(footer, /Daraja platform and visitor insights/);
+  assert.match(footer, /platformStats\.liveJobs/);
+  assert.match(footer, /platformStats\.employers/);
+  assert.match(footer, /platformStats\.sources/);
+  assert.match(footer, /platformStats\.categories/);
   assert.match(footer, /<TrafficNumbers className=\{styles\.trafficMeta\} \/>/);
   assert.match(trafficNumbers, /fetch\("\/api\/visitors"/);
   assert.match(trafficNumbers, /traffic\.totalVisits/);
@@ -61,6 +68,9 @@ test("homepage keeps platform counters while shared footer owns public traffic n
   assert.match(trafficNumbers, /traffic\.pageViews/);
   assert.match(formatter, /suffix: "K"/);
   assert.match(formatter, /suffix: "M"/);
+  assert.match(footerStyles, /\.insights \{[\s\S]*background:\s*#1b2a3f/);
+  assert.match(footerStyles, /\.platformInsights/);
+  assert.match(footerStyles, /\.visitorInsights/);
   assert.match(footerStyles, /\.trafficMeta/);
 
   assert.match(stats, /buildPublicJobWhere\("active"/);

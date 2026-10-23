@@ -117,6 +117,8 @@ Configure the following Vercel variables for Preview and Production:
 - `AUTH_SECRET`
 - `AUTH_GOOGLE_ID`
 - `AUTH_GOOGLE_SECRET`
+- `AUTH_LINKEDIN_ID`
+- `AUTH_LINKEDIN_SECRET`
 - `RESEND_API_KEY`
 - `JOB_ALERTS_FROM_EMAIL`, using a sender on a domain verified by Resend
 

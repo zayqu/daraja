@@ -1238,3 +1238,12 @@ Every batch must record:
 - Account actions point only to working Daraja features: Personal information, Smart CV Builder, Career workspace, Job alerts, Notifications, Privacy & data and Sign out.
 - CV count and alert status are shown only when backed by current account data; no placeholder metrics or fake activity are displayed.
 - The mobile header user icon now opens `/account`; the mobile More sheet also exposes My account. Existing account subpages include Account as their first shared tab.
+
+
+## Current batch: Next.js 16.4.1 critical security patch
+
+- The production dependency gate detected newly reviewed Next.js advisories on 23 October 2026 while Daraja was on Next.js 16.4.0.
+- Next.js is patched to 16.4.1, including matching runtime `@next/env` and platform SWC lockfile entries. The existing `sharp >= 0.35.5` override remains in place.
+- This responds to GitHub-reviewed advisories `GHSA-2464-fhr4-w9xw`, `GHSA-p3m5-59mp-jv5r` and `GHSA-673q-mjm6-r5xr`, all of which list 16.4.1 as the patched Next.js 16 release.
+- The focused PR changes no schema, production data, provider configuration, DNS, payment behavior or feature flag.
+- Validation on PR #203: production dependency audit, full tests, ESLint, Prisma validation, production build, self-contained cPanel runtime smoke and packaging passed before the final documentation commit; the final head is revalidated before merge.

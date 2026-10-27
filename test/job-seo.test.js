@@ -81,3 +81,21 @@ test("job pages render JobPosting markup and the sitemap lists open jobs", async
   assert.match(sitemap, /buildPublicJobWhere\("active"\)/);
   assert.match(sitemap, /export const revalidate/);
 });
+
+test("JobPosting includes only explicitly supported region and salary", async () => {
+  const { buildJobPostingJsonLd } = await import("../lib/job-seo.js");
+  const url = "https://ajira.daraja.co.tz/jobs/example";
+  const clear = buildJobPostingJsonLd({ ...baseJob, salary: "TZS 1,200,000 per month" }, url);
+  assert.equal(clear.jobLocation.address.addressRegion, "Dar es Salaam");
+  assert.equal(clear.baseSalary.currency, "TZS");
+  assert.equal(clear.baseSalary.value.value, 1200000);
+  assert.equal(clear.baseSalary.value.unitText, "MONTH");
+  assert.equal(clear.jobLocation.address.postalCode, undefined);
+  assert.equal(clear.jobLocation.address.streetAddress, undefined);
+
+  const unclear = buildJobPostingJsonLd({
+    ...baseJob, location: "Moshi", salary: "Negotiable",
+  }, url);
+  assert.equal(unclear.jobLocation.address.addressRegion, undefined);
+  assert.equal(unclear.baseSalary, undefined);
+});

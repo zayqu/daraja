@@ -119,6 +119,7 @@ Configure the following Vercel variables for Preview and Production:
 - `AUTH_GOOGLE_SECRET`
 - `AUTH_LINKEDIN_ID`
 - `AUTH_LINKEDIN_SECRET`
+- `LINKEDIN_TOKEN_ENCRYPTION_KEY` (64 hex characters / 32 bytes; used only to encrypt LinkedIn sharing access tokens at rest)
 - `RESEND_API_KEY`
 - `JOB_ALERTS_FROM_EMAIL`, using a sender on a domain verified by Resend
 
@@ -190,3 +191,13 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+
+
+### LinkedIn OAuth
+
+Production LinkedIn redirect URLs:
+
+- `https://ajira.daraja.co.tz/api/auth/callback/linkedin` for Sign in with LinkedIn.
+- `https://ajira.daraja.co.tz/api/linkedin/callback` for the separate LinkedIn sharing connection.
+
+Generate `LINKEDIN_TOKEN_ENCRYPTION_KEY` outside the repository (for example with a cryptographically secure 32-byte generator) and keep it only in the deployment environment. Never commit the LinkedIn client secret or token-encryption key.

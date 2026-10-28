@@ -65,8 +65,12 @@ async function main() {
     adapter: new PrismaPg({ connectionString: process.env.DATABASE_URL }),
   });
   try {
-    const categories = (await prisma.category.findMany({ where: { active: true }, select: { name: true } }))
-      .map((category) => category.name);
+    // Falls back to the built-in list if the Category table is not there yet
+    // (this workflow can run before the release applies the migration).
+    const categories = await prisma.category
+      .findMany({ where: { active: true }, select: { name: true } })
+      .then((rows) => rows.map((category) => category.name))
+      .catch(() => []);
     const vacancies = readVacancies(VACANCY_DIR, categories.length ? categories : undefined);
     for (const result of await publishOwnerVacancies(prisma, vacancies)) {
       console.log(

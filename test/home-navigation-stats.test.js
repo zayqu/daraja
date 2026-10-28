@@ -37,12 +37,9 @@ test("public navigation uses one shared source of truth", async () => {
   assert.match(mobileDock, />\s*Employer workspace\s*</);
 });
 
-test("homepage keeps platform counters while shared footer owns public traffic numbers", async () => {
+test("homepage keeps platform counters; no per-visit database counter", async () => {
   const home = await source("app/page.js");
   const footer = await source("components/SiteFooter.js");
-  const trafficNumbers = await source("components/TrafficNumbers.js");
-  const formatter = await source("lib/format-number.js");
-  const footerStyles = await source("components/SiteFooter.module.css");
   const stats = await source("lib/home-stats.js");
 
   assert.match(home, /await Promise\.all\(\[\s*getHomeStats\(\),\s*getLatestJobs\(\),\s*getCategoryList\(\),\s*\]\)/);
@@ -53,15 +50,7 @@ test("homepage keeps platform counters while shared footer owns public traffic n
   assert.match(home, /stats\.sources/);
   assert.match(home, /\.trust \{[\s\S]*background:\s*var\(--color-teal-deep\)/);
 
-  assert.match(footer, /<TrafficNumbers className=\{styles\.trafficMeta\} \/>/);
-  assert.match(trafficNumbers, /fetch\("\/api\/visitors"/);
-  assert.match(trafficNumbers, /traffic\.totalVisits/);
-  assert.match(trafficNumbers, /traffic\.newVisitors/);
-  assert.match(trafficNumbers, /traffic\.returningVisitors/);
-  assert.match(trafficNumbers, /traffic\.pageViews/);
-  assert.match(formatter, /suffix: "K"/);
-  assert.match(formatter, /suffix: "M"/);
-  assert.match(footerStyles, /\.trafficMeta/);
+  assert.doesNotMatch(footer, /TrafficNumbers|\/api\/visitors/);
 
   assert.match(stats, /buildPublicJobWhere\("active"/);
   assert.match(stats, /prisma\.job\.count/);

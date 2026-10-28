@@ -1,6 +1,5 @@
 import Link from "next/link";
 import styles from "./SiteFooter.module.css";
-import TrafficNumbers from "@/components/TrafficNumbers";
 import { WHATSAPP_CHANNEL_URL } from "@/lib/site-config";
 
 
@@ -41,7 +40,6 @@ export default function SiteFooter() {
         <span>{new Date().getFullYear()} Daraja. All rights reserved.</span>
         <div className={styles.bottomMeta}>
           <span>Jobs and opportunities across Tanzania.</span>
-          <TrafficNumbers className={styles.trafficMeta} />
         </div>
       </div>
     </footer>

@@ -2,7 +2,7 @@ name: Daraja Job Scrapers
 
 on:
   schedule:
-    - cron: "17 * * * *"
+    - cron: "17 */3 * * *"
   push:
     branches:
       - master

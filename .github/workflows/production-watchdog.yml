@@ -3,11 +3,11 @@ name: Production watchdog
 # Independent check that production keeps running what GitHub published.
 # GitHub emails the repository owner when a scheduled run fails, so a stopped
 # cPanel deployer, a removed cron job, a missing ads.txt or a site outage is
-# noticed within about 30 minutes instead of days.
+# noticed within about an hour instead of days.
 
 on:
   schedule:
-    - cron: "7,37 * * * *"
+    - cron: "7 * * * *"
   workflow_dispatch:
 
 permissions:

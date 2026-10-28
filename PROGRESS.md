@@ -1,6 +1,6 @@
 # Daraja Jobs production-readiness progress
 
-Last updated: 22 October 2026
+Last updated: 28 October 2026
 
 ## Current objective
 
@@ -8,6 +8,14 @@ Build Daraja into a secure Tanzania-first work marketplace through small,
 tested vertical releases. The current priority is Phase 0 security and privacy
 hardening before expanding candidate CV, employer, freelance, payment or AI
 workflows.
+
+## Current batch: database quota outage
+
+- 2026-10-28: Neon returned "exceeded the quota" (code 53000) on every query; job search, sign-in and the scraper stopped (scraper runs failing since about 22 Oct). Homepage still showed cached data.
+- Owner action: restore Neon (upgrade plan or wait for the monthly reset) and delete unused branches with their own compute.
+- Usage cut: scraper every 3 hours (was hourly); production watchdog hourly (was every 30 minutes); public job and site-setting caches 5 minutes (were 30 seconds).
+- Visit counter removed (it wrote to the database on every page view; Google Analytics already counts visits). The VisitorCounter table is left in place (additive-only rule).
+- Also seen in the same run: AjiraWeb feed HTTP 403, ReliefWeb HTTP 406; three agency sources found 0 vacancies.
 
 ## Current batch: dynamic admin (D-035)
 

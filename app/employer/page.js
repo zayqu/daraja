@@ -14,7 +14,7 @@ import SurfaceCard from "@/components/ui/SurfaceCard";
 import prisma from "@/lib/prisma";
 import styles from "../portal.module.css";
 
-export const metadata = { title: "Employer workspace | Daraja" };
+export const metadata = { title: "Employer workspace" };
 export const dynamic = "force-dynamic";
 
 function statusLabel(value) {

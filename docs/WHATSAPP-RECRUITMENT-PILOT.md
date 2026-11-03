@@ -16,9 +16,10 @@ Test whether verified vacancy distribution can drive useful candidate action, no
 ## Before recruitment outreach
 1. Verify that the intended enquiry mailbox **jobs@alerts.daraja.co.tz** accepts incoming mail (it may currently be an outbound-only alert sender). If it cannot receive enquiries, replace the landing-page link with a verified contact method *before deployment*.
 2. Review live employer portal availability and authentication; a repository feature alone is not proof that production has it enabled.
-3. Confirm legal/privacy notices cover operational employer contact and campaign reporting; use minimum fields and authorised access.
-4. Establish a private campaign ledger accessible only to authorised DARAJA staff, not a public repository. Never store candidate names, email addresses or CVs in analytics.
-5. Agree pilot acceptance, publishing dates, approved vacancy URL, follow-up contact and employer permission to quote results.
+3. Confirm Google Analytics is configured, consented and actually receiving a test campaign event in **preview**; otherwise report site sessions and Apply clicks as unavailable rather than zero. Do not send test notifications to users.
+4. Confirm legal/privacy notices cover operational employer contact and campaign reporting; use minimum fields and authorised access.
+5. Establish a private campaign ledger accessible only to authorised DARAJA staff, not a public repository. Never store candidate names, email addresses or CVs in analytics.
+6. Agree pilot acceptance, publishing dates, approved vacancy URL, follow-up contact and employer permission to quote results.
 
 ## Pilot intake / verification
 Required: organisation name; official website; identifiable work contact; role title; location; complete vacancy; closing date; safe official apply URL; confirmation the employer authorises promotion. Check identity against the company site or credible independent evidence. Verify the destination does not request applicant payment. Reject expired, misleading, unverifiable or fee-based vacancies. Record verification and moderator decision through existing protected workflows.
@@ -35,7 +36,7 @@ For each pilot vacancy, record:
 
 Use a campaign link of the form:
 `https://ajira.daraja.co.tz/jobs/<verified-job-slug>?utm_source=whatsapp&utm_medium=channel&utm_campaign=daraja_pilot_<opaque-id>`.
-The UTM parameter identifies referral campaigns when the analytics platform records it. It does **not** prove an applicant completed an employer-hosted application. The existing Apply event is a click intent, not a completed application.
+The UTM parameter identifies referral campaigns when the analytics platform records it. It does **not** prove an applicant completed an employer-hosted application. The existing Apply event is a click intent, not a completed application. On this branch, job-detail Apply clicks carry `campaign_id` and `distribution_channel=whatsapp` in the `apply_job` analytics event only when the URL contains `utm_source=whatsapp&utm_medium=channel` and a valid `daraja_pilot_` identifier (4–40 lowercase letters, digits, underscores or hyphens after the prefix). The client analytics helper emits events only when the configured consent-aware `gtag` is available. This attribution is **not server-side durable tracking** and must never be reported as a complete click count. GA4 campaign landing sessions should be queried separately, subject to consent.
 
 When consent prevents analytics, record the metric as unavailable; never replace missing measurements with estimates. Do not use open redirects or accept arbitrary destination URLs for campaign links.
 
@@ -59,7 +60,7 @@ Do not put the private ledger in the public GitHub repository. Ensure access res
 ## Exit criteria
 - Three verified employer campaigns delivered or documented reason for fewer.
 - All campaign views reported with actual timestamp or marked unavailable.
-- Source-specific referral links tested and functioning.
+- Source-specific referral links tested and functioning; `apply_job` carries the validated campaign parameter in consenting preview analytics, or reporting explicitly marks analytics unavailable.
 - No fraudulent or expired vacancy, no candidate-data leak, no unapproved payment collection.
 - Employer feedback collected and clearly separated from platform-measured data.
 - Commercial price reconsidered only after results support a value proposition.

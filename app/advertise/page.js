@@ -1,8 +1,8 @@
 import Link from "next/link";
 import ContentPage from "@/components/ContentPage";
 import { loadSiteSettings, employerPortalEnabled } from "@/lib/features";
+import { WHATSAPP_CHANNEL_URL } from "@/lib/site-config";
 
-const channelUrl = "https://whatsapp.com/channel/0029Vanw1OQ1CYoYdxl32g3V";
 export const metadata = {
   title: "Recruitment advertising pilot | DARAJA",
   description:
@@ -26,7 +26,7 @@ export default async function AdvertisePage() {
         historical channel figures, not a forecast for your vacancy.
       </p>
       <p>
-        <a href={channelUrl} target="_blank" rel="noopener noreferrer">
+        <a href={WHATSAPP_CHANNEL_URL} target="_blank" rel="noopener noreferrer">
           View the DARAJA WhatsApp Channel
         </a>
       </p>

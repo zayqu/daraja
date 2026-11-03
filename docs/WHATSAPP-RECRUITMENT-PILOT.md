@@ -14,8 +14,8 @@ Test whether verified vacancy distribution can drive useful candidate action, no
 - Use the existing admin audit trail. No second verification system or payment integration.
 
 ## Before recruitment outreach
-1. Verify that the intended enquiry mailbox **jobs@alerts.daraja.co.tz** accepts incoming mail (it may currently be an outbound-only alert sender). If it cannot receive enquiries, replace the landing-page link with a verified contact method *before deployment*.
-2. Review live employer portal availability and authentication; a repository feature alone is not proof that production has it enabled.
+1. The public pilot page routes employers into the existing authenticated `/employer` workspace only when its site setting enables that portal; otherwise it displays enrolment-not-open messaging. **There is no unverified email contact CTA or unprotected submission form.**
+2. Verify the employer portal is enabled and works on the intended deployed environment. An enabled source-code route alone is not proof that production is enabled.
 3. Confirm Google Analytics is configured, consented and actually receiving a test campaign event in **preview**; otherwise report site sessions and Apply clicks as unavailable rather than zero. Do not send test notifications to users.
 4. Confirm legal/privacy notices cover operational employer contact and campaign reporting; use minimum fields and authorised access.
 5. Establish a private campaign ledger accessible only to authorised DARAJA staff, not a public repository. Never store candidate names, email addresses or CVs in analytics.
@@ -69,4 +69,9 @@ Do not put the private ledger in the public GitHub repository. Ensure access res
 Consider a protected campaign model, campaign-specific server metrics and a minimal advertiser report only when manual pilots establish demand. Any Prisma change requires reviewed additive migration and production restore point. Never treat WhatsApp Channel as having an automatic posting API without independently validating Meta's supported capabilities.
 
 ## Release gate
-This pilot page does not collect submitted form data or touch the schema. Before releasing, verify the receiving mailbox, mobile rendering and relevant links; run tests, lint and production build in CI; review preview deployment; obtain explicit owner approval for production deployment. The intended environment remains cPanel production, Neon PostgreSQL, GitHub source and Vercel preview.
+This pilot page does not collect submitted form data or touch the schema. Before releasing, verify the server-controlled employer portal flag and that authenticated employer registration, verification, vacancy submission and the pilot CTA work together; test mobile rendering and links; run tests, lint and production build in CI; review preview deployment; obtain explicit owner approval for production deployment. If the portal is disabled, the CTA intentionally shows that enrolment is closed. The intended environment remains cPanel production, Neon PostgreSQL, GitHub source and Vercel preview.
+
+## First-phase intake decision (2026-11-03)
+Pilot interest is assessed manually from verified employer submissions in the existing admin verification/job review queue. The `/advertise` page does not create a second unauthenticated employer form, email inbox, marketing lead list or new schema. Staff contact the employer only through their recorded account email with a legitimate pilot invitation and confirmation. The pilot is limited to three accepted employers; an employer account or vacancy does not automatically reserve a slot.
+
+This avoids reliance on the unverified inbound address `jobs@alerts.daraja.co.tz`. A dedicated commercial mailbox or campaign intake form should be added only when its delivery, rate limits, privacy notice and authorised access are verified. This is not a prerequisite for the verified-employer pilot.

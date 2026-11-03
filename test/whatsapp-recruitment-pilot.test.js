@@ -12,6 +12,9 @@ test("pilot page makes no outcome guarantees and keeps candidate applications wi
   assert.match(page, /none is guaranteed/);
   assert.match(page, /official application route/);
   assert.doesNotMatch(page, /<form/);
+  assert.doesNotMatch(page, /mailto:/);
+  assert.match(page, /employerPortalEnabled/);
+  assert.match(page, /href="\/employer"/);
 });
 
 test("pilot attribution uses a validated WhatsApp campaign and does not fake applications", async () => {

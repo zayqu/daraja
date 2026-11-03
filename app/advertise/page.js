@@ -69,7 +69,7 @@ export default async function AdvertisePage() {
       <h2>Important for candidates</h2>
       <p>
         DARAJA does not charge jobseekers to view or apply for vacancies.
-        Candidates apply through the employer's official application route.
+        Candidates apply through the employer&apos;s official application route.
         Do not submit CVs or identity documents through an employer enquiry.
       </p>
     </ContentPage>

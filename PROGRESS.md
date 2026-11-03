@@ -1247,3 +1247,16 @@ Every batch must record:
 - This responds to GitHub-reviewed advisories `GHSA-2464-fhr4-w9xw`, `GHSA-p3m5-59mp-jv5r` and `GHSA-673q-mjm6-r5xr`, all of which list 16.4.1 as the patched Next.js 16 release.
 - The focused PR changes no schema, production data, provider configuration, DNS, payment behavior or feature flag.
 - Validation on PR #203: production dependency audit, full tests, ESLint, Prisma validation, production build, self-contained cPanel runtime smoke and packaging passed before the final documentation commit; the final head is revalidated before merge.
+
+
+## Recruitment distribution pilot foundation (3 November 2026; PR #208, unmerged)
+
+- Introduced an employer-facing `/advertise` pilot page with verified WhatsApp channel insights and no promises of applications or hires. The page uses the canonical `WHATSAPP_CHANNEL_URL` rather than a duplicate hardcoded identifier.
+- Pilot enrolment reuses the authenticated, administrator-verifiable employer profile and vacancy-moderation flow. The call to action appears only when `feature.employerPortal` is enabled; otherwise a transparent closed-enrolment message appears. No unverified incoming email or unauthenticated lead-form dependency remains.
+- The existing job Apply event can include a strictly validated `daraja_pilot_*` WhatsApp campaign identifier for GA4 attribution, subject to analytics consent. Apply clicks do **not** represent completed applications.
+- Added `docs/WHATSAPP-RECRUITMENT-PILOT.md` with consent, manual reporting, employer verification and release gates, plus focused contract tests.
+- Patched the lockfile to `follow-redirects@1.16.2` after the new Oct 2026 redirect-header security advisory blocked the production dependency audit. Kept the enforced audit unchanged.
+- No schema or production data migration, payment integrations, real employer outreach, changes to cron or live cPanel deployment were performed.
+- Vercel reported the preview build READY, but browser inspection was blocked by its existing Vercel Authentication; no release/UI verification should be claimed based on a protected preview alone. Production and preview employer-portal runtime settings have not been independently inspected.
+- The pilot's private campaign workbook was prepared separately as an owner-facing artefact; it has not been uploaded to a shared or public repository. Owner-approved access/retention controls and actual employer/campaign records remain prerequisites to use.
+- **Release gate:** CI tests, ESLint, Prisma validation and production build on the final PR SHA; protected preview review by an authorised Vercel identity; verified employer account and application flow; owner approval before merge or cPanel deployment.

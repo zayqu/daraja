@@ -1,12 +1,8 @@
+import Link from "next/link";
 import ContentPage from "@/components/ContentPage";
+import { loadSiteSettings, employerPortalEnabled } from "@/lib/features";
 
 const channelUrl = "https://whatsapp.com/channel/0029Vanw1OQ1CYoYdxl32g3V";
-const subject = encodeURIComponent("DARAJA recruitment advertising pilot enquiry");
-const body = encodeURIComponent(
-  "Hello DARAJA,\n\nOrganisation:\nOfficial website:\nContact person and work email:\nVacancy title:\nOfficial vacancy URL:\nApplication deadline:\n\nWe would like to discuss the employer pilot.\n"
-);
-const enquiryHref = `mailto:jobs@alerts.daraja.co.tz?subject=${subject}&body=${body}`;
-
 export const metadata = {
   title: "Recruitment advertising pilot | DARAJA",
   description:
@@ -14,7 +10,9 @@ export const metadata = {
   alternates: { canonical: "/advertise" },
 };
 
-export default function AdvertisePage() {
+export default async function AdvertisePage() {
+  await loadSiteSettings();
+  const employerEnabled = employerPortalEnabled();
   return (
     <ContentPage
       title="Your vacancy deserves the right audience."
@@ -49,20 +47,30 @@ export default function AdvertisePage() {
       </p>
 
       <h2>How to participate</h2>
-      <p>
-        Send your organisation name, official website, vacancy title, official
-        vacancy link, deadline and work email. We will review eligibility
-        before confirming a placement.
-      </p>
-      <p>
-        <a href={enquiryHref}>Request a recruitment pilot placement</a>
-      </p>
+      {employerEnabled ? (
+        <>
+          <p>
+            Register through the secure employer workspace, provide your organisation
+            details and submit an active vacancy for verification. Our team will
+            review eligible submissions and confirm pilot placements individually.
+            Submitting does not guarantee a pilot slot.
+          </p>
+          <p>
+            <Link href="/employer">Open employer workspace to submit a vacancy</Link>
+          </p>
+        </>
+      ) : (
+        <p>
+          Pilot enrolment is not open yet. Employer submissions are currently
+          disabled; please check back once the verified employer workspace is available.
+        </p>
+      )}
 
       <h2>Important for candidates</h2>
       <p>
         DARAJA does not charge jobseekers to view or apply for vacancies.
         Candidates apply through the employer's official application route.
-        Please do not send CVs or identity documents to the pilot enquiry email.
+        Do not submit CVs or identity documents through an employer enquiry.
       </p>
     </ContentPage>
   );

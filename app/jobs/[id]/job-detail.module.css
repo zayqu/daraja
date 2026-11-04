@@ -712,9 +712,8 @@
 .detailsCard, .applicationCard, .browseCard { padding: 1.35rem; }
 .detailsCard { position: static; }
 .applicationCard {
-  position: sticky;
-  top: calc(var(--nav-height) + 1rem);
-  z-index: 2;
+  position: static;
+  align-self: start;
 }
 .applicationCard h2 { font-size: 1.15rem; }
 .primaryAction {

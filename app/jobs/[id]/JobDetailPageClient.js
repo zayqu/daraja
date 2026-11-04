@@ -238,22 +238,24 @@ export default function JobDetailPageClient({ initialJob, showEmployerCta }) {
         <>
           <section className={styles.summary}>
             <div className={styles.summaryInner}>
-              <JobBrandMedia
-                company={job.company}
-                companyLogo={job.companyLogo}
-                representativeImage={job.representativeImage}
-                className={styles.companyMark}
-                sizes="64px"
-              />
-
               <div className={styles.summaryMain}>
-                <p className={styles.company}>{job.company}</p>
                 <h1>{job.title}</h1>
-
-                <div className={styles.summaryMeta}>
-                  <span>{job.location}</span>
-                  <span>{formatJobType(job.type)}</span>
-                  <span>{job.category}</span>
+                <div className={styles.employerLine}>
+                  <JobBrandMedia
+                    company={job.company}
+                    companyLogo={job.companyLogo}
+                    representativeImage={job.representativeImage}
+                    className={styles.companyMark}
+                    sizes="48px"
+                  />
+                  <div>
+                    <p className={styles.company}>{job.company}</p>
+                    <div className={styles.summaryMeta}>
+                      {job.location && <span>{job.location}</span>}
+                      {job.type && <span>{formatJobType(job.type)}</span>}
+                      {job.category && <span>{job.category}</span>}
+                    </div>
+                  </div>
                 </div>
               </div>
 
@@ -288,7 +290,7 @@ export default function JobDetailPageClient({ initialJob, showEmployerCta }) {
           <main className={styles.layout} id="main-content">
             <aside className={`${styles.card} ${styles.detailsCard}`}>
               <div className={styles.cardEyebrow}>Opportunity overview</div>
-              <h2>Job details</h2>
+              <h2>At a glance</h2>
 
               <dl className={styles.detailsList}>
                 <div className={styles.repeatsHeader}>
@@ -336,7 +338,7 @@ export default function JobDetailPageClient({ initialJob, showEmployerCta }) {
 
             <article className={`${styles.card} ${styles.contentCard}`}>
               <div className={styles.cardEyebrow}>About the role</div>
-              <h2>Position description</h2>
+              <h2>About this opportunity</h2>
               <div className={styles.description}>
                 {structureJobDescription(job.description, { company: job.company }).map((section) => (
                   <section key={section.id} className={styles.descriptionSection}>
@@ -395,7 +397,7 @@ export default function JobDetailPageClient({ initialJob, showEmployerCta }) {
 
             <section className={`${styles.card} ${styles.applicationCard}`}>
               <div className={styles.cardEyebrow}>Next step</div>
-              <h2>Apply for this role</h2>
+              <h2>Ready to apply?</h2>
 
               {(job.applicationUrl || job.sourceUrl) && !isExpired(job.deadline) ? (
                 <a

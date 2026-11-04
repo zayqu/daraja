@@ -1,5 +1,5 @@
 import { permanentRedirect } from "next/navigation";
-import { findPublicJob } from "@/lib/public-job";
+import { findClosedPublicJob, findPublicJob } from "@/lib/public-job";
 import { buildJobSearchTitle } from "@/lib/job-seo";
 
 async function safeFindPublicJob(id) {
@@ -16,6 +16,13 @@ export async function generateMetadata({ params }) {
   const job = await safeFindPublicJob(id);
 
   if (!job) {
+    const closedJob = await findClosedPublicJob(id);
+    if (closedJob) {
+      return {
+        title: { absolute: `Closed: ${closedJob.title} at ${closedJob.company} | Daraja` },
+        robots: { index: false, follow: true },
+      };
+    }
     return {
       title: "Job Opportunity | Daraja",
       robots: {
@@ -52,6 +59,13 @@ export default async function JobDetailLayout({ children, params }) {
 
   if (job && id !== job.slug) {
     permanentRedirect(`/jobs/${job.slug}`);
+  }
+
+  if (!job) {
+    const closedJob = await findClosedPublicJob(id);
+    if (closedJob && id !== closedJob.slug) {
+      permanentRedirect(`/jobs/${closedJob.slug}`);
+    }
   }
 
   return children;

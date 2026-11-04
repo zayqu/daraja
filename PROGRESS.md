@@ -1,6 +1,6 @@
 # Daraja Jobs production-readiness progress
 
-Last updated: 22 October 2026
+Last updated: 4 November 2026
 
 ## Current objective
 
@@ -8,6 +8,14 @@ Build Daraja into a secure Tanzania-first work marketplace through small,
 tested vertical releases. The current priority is Phase 0 security and privacy
 hardening before expanding candidate CV, employer, freelance, payment or AI
 workflows.
+
+## Current batch: closed-job links and branded 404
+
+- Google Analytics (8 Oct - 4 Nov 2026) showed 45 views of the bare "404: This page could not be found" page. Cause: expired vacancies are archived (`active: false`) and `findPublicJob` only reads active jobs, so job links shared on WhatsApp, search results and bookmarks returned Next.js's default 404 once a job closed.
+- `lib/public-job.js` now also owns `findClosedPublicJob` (published, archived jobs, minimal fields, same cache tag). `app/jobs/[id]/page.js` renders `components/ClosedJobNotice.js` for those URLs: job title, employer, closing date and links to current jobs in the same category, all jobs, the sector guide, career guides, WhatsApp and alerts. No application link is shown. Old/legacy ids redirect to the closed job's slug.
+- Closed job pages are `noindex, follow` with a "Closed: ..." title, so they do not count as thin indexed content; no JobPosting JSON-LD is emitted for them.
+- `app/not-found.js` replaces the framework default 404 with a branded `ContentPage` (noindex) linking to jobs, sectors, career guides and contact.
+- `test/closed-job-links.test.js` added; `test/job-detail-ui.test.js` updated for the new not-found branch. Related job tests pass 15/15 and ESLint is clean on changed files. (The sitemap test needs a generated Prisma client and fails only in environments without one.)
 
 ## Current batch: dynamic admin (D-035)
 

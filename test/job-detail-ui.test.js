@@ -75,7 +75,7 @@ test("job detail is server-seeded and recovers from transient cPanel database fa
 
   assert.match(page, /findPublicJob\(id\)/);
   assert.match(page, /loadFailed = false/);
-  assert.match(page, /if \(!job && !loadFailed\) notFound\(\)/);
+  assert.match(page, /if \(!job && !loadFailed\) \{[\s\S]*?findClosedPublicJob\(id\)[\s\S]*?notFound\(\);/);
   assert.match(page, /initialJob=\{serializePublicJob\(job\)\}/);
   assert.match(layout, /safeFindPublicJob/);
   assert.match(layout, /catch \(error\)/);

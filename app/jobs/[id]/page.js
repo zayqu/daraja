@@ -1,7 +1,12 @@
 import { notFound } from "next/navigation";
 import JobDetailPageClient from "./JobDetailPageClient";
 import { employerPortalEnabled } from "@/lib/features";
-import { findPublicJob, serializePublicJob } from "@/lib/public-job";
+import ClosedJobNotice from "@/components/ClosedJobNotice";
+import {
+  findClosedPublicJob,
+  findPublicJob,
+  serializePublicJob,
+} from "@/lib/public-job";
 import { absoluteSiteUrl } from "@/lib/site-config";
 import { buildJobPostingJsonLd, serializeJsonLd } from "@/lib/job-seo";
 
@@ -17,7 +22,11 @@ export default async function JobDetailPage({ params }) {
     console.error("Job detail initial read failed:", error);
   }
 
-  if (!job && !loadFailed) notFound();
+  if (!job && !loadFailed) {
+    const closedJob = await findClosedPublicJob(id);
+    if (closedJob) return <ClosedJobNotice job={closedJob} />;
+    notFound();
+  }
 
   const jobPosting = job
     ? buildJobPostingJsonLd(job, absoluteSiteUrl(`/jobs/${job.slug}`))

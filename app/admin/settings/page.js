@@ -9,6 +9,7 @@ export const dynamic = "force-dynamic";
 const GROUPS = [
   { title: "Features", keys: ["feature.employerPortal", "feature.candidateCareer"] },
   { title: "Advertising", keys: ["ads.monetag"] },
+  { title: "WhatsApp Channel audience", keys: ["channel.followers"] },
   { title: "Email", keys: ["email.accountFrom"] },
   {
     title: "Review rules for scraped vacancies",

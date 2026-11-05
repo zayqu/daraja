@@ -78,6 +78,10 @@ export default function SettingField({ setting }) {
               <input
                 id={`setting-${setting.key}`}
                 className={styles.input}
+                type={setting.type === "number" ? "number" : "text"}
+                min={setting.type === "number" ? 0 : undefined}
+                max={setting.type === "number" ? 100000000 : undefined}
+                step={setting.type === "number" ? 1 : undefined}
                 value={value}
                 onChange={(event) => setValue(event.target.value)}
               />

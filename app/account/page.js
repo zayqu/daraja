@@ -4,6 +4,7 @@ import { auth, signOut } from "@/auth";
 import PublicSiteNav from "@/components/PublicSiteNav";
 import NavIcon from "@/components/ui/NavIcon";
 import { candidateCareerEnabled } from "@/lib/candidate-access";
+import { employerPortalEnabled } from "@/lib/features";
 import { candidateProfileSelect } from "@/lib/candidate-profile";
 import prisma from "@/lib/prisma";
 import styles from "./account.module.css";
@@ -126,7 +127,7 @@ export default async function AccountPage() {
           <nav className={styles.menu} aria-label="Account">
             {session.user.role === "ADMIN" ? (
               <AccountLink href="/admin" icon="user" title="Admin panel" description="Manage Daraja operations" />
-            ) : session.user.role === "EMPLOYER" ? (
+            ) : session.user.role === "EMPLOYER" && employerPortalEnabled() ? (
               <AccountLink href="/employer" icon="user" title="Employer workspace" description="Manage your organisation and vacancies" />
             ) : null}
             {careerEnabled ? (

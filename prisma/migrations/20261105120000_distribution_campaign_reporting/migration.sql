@@ -25,8 +25,8 @@ CREATE TABLE "DistributionCampaign" (
   "updatedAt" TIMESTAMP(3) NOT NULL,
   "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
   CONSTRAINT "DistributionCampaign_pkey" PRIMARY KEY ("id"),
-  CONSTRAINT "DistributionCampaign_employerId_fkey" FOREIGN KEY ("employerId") REFERENCES "Employer"("id") ON DELETE RESTRICT ON UPDATE CASCADE,
-  CONSTRAINT "DistributionCampaign_jobId_fkey" FOREIGN KEY ("jobId") REFERENCES "Job"("id") ON DELETE RESTRICT ON UPDATE CASCADE
+  CONSTRAINT "DistributionCampaign_employerId_fkey" FOREIGN KEY ("employerId") REFERENCES "Employer"("id") ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT "DistributionCampaign_jobId_fkey" FOREIGN KEY ("jobId") REFERENCES "Job"("id") ON DELETE SET NULL ON UPDATE CASCADE
 );
 CREATE UNIQUE INDEX "DistributionCampaign_campaignKey_key" ON "DistributionCampaign"("campaignKey");
 CREATE UNIQUE INDEX "DistributionCampaign_employerId_jobId_key" ON "DistributionCampaign"("employerId", "jobId");

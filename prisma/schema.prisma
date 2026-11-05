@@ -251,6 +251,8 @@ model DistributionCampaign {
   employerId           String
   jobId                String
   partnerType          String
+  destinationMode      String    @default("PARTNER_DIRECT")
+  destinationUrl       String
   approvedByPartnerAt  DateTime
   status               String    @default("DRAFT")
   whatsappPostUrl      String?

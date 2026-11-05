@@ -108,6 +108,9 @@ export default async function EmployerPage() {
             </section>
           )}
 
+          {actor.employer?.verificationStatus === "VERIFIED" ? (
+            <p><Link href="/employer/campaigns">View your private distribution campaign reports</Link></p>
+          ) : null}
           <section className={styles.grid} aria-label="Employer workspace">
             <SurfaceCard as="article" className={styles.portalCard}>
               <span className={styles.cardLabel}>Trust & verification</span>

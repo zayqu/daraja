@@ -181,7 +181,20 @@ export default function JobDetailPageClient({ initialJob, showEmployerCta }) {
     }
   }
 
+  function pilotCampaignId() {
+    // Only recognise Daraja-issued identifiers; never forward arbitrary URL text
+    // or candidate data to analytics.
+    if (typeof window === "undefined") return null;
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("utm_source") !== "whatsapp" || params.get("utm_medium") !== "channel") {
+      return null;
+    }
+    const campaign = params.get("utm_campaign") || "";
+    return /^daraja_pilot_[a-z0-9_-]{4,40}$/.test(campaign) ? campaign : null;
+  }
+
   function trackApplication() {
+    const campaignId = pilotCampaignId();
     trackEvent("apply_job", {
       job_id: job.id,
       job_title: job.title,
@@ -189,6 +202,7 @@ export default function JobDetailPageClient({ initialJob, showEmployerCta }) {
       category: job.category,
       application_method: applicationEmail ? "email" : "resolved_external",
       source: job.source,
+      ...(campaignId ? { campaign_id: campaignId, distribution_channel: "whatsapp" } : {}),
     });
     if (applicationEmail) setEmailFallbackOpen(true);
   }

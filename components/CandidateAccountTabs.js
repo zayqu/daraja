@@ -15,5 +15,5 @@ export default function CandidateAccountTabs({ showCareer = false }) {
     { href: "/account/privacy", label: "Privacy & data" },
   ];
 
-  return <WorkspaceTabs links={links} label="Candidate account" />;
+  return <WorkspaceTabs links={links} label="Account navigation" />;
 }

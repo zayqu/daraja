@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import styles from "./admin.module.css";
+import { formatDeadline } from "@/lib/job-deadline";
 
 async function send(url, method, body) {
   try {
@@ -91,22 +92,29 @@ export function SourceForm({ source = null, onDone }) {
   );
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
+  const [existingSourceId, setExistingSourceId] = useState("");
   const set = (key) => (event) => setValues((current) => ({ ...current, [key]: event.target.value }));
 
   async function submit(event) {
     event.preventDefault();
     setBusy(true);
     setError("");
+    setSuccess("");
+    setExistingSourceId("");
     const { ok, payload } = editing
       ? await send(`/api/admin/sources/${source.id}`, "PATCH", { source: values })
       : await send("/api/admin/sources", "POST", values);
     setBusy(false);
     if (!ok) {
       setError(payload.error || "The source was not saved.");
+      setExistingSourceId(payload.existingSourceId || "");
       return;
     }
     if (!editing) setValues(EMPTY);
-    onDone?.();
+    setSuccess(editing ? "Source updated successfully." : "Source added successfully. It is off until tested and enabled.");
+    // Keep the form open so the admin can read the confirmation after saving.
+    // The separate Cancel/Close control still calls onDone when requested.
     router.refresh();
   }
 
@@ -139,6 +147,10 @@ export function SourceForm({ source = null, onDone }) {
   return (
     <form onSubmit={submit}>
       {error ? <p className={styles.alert} role="alert">{error}</p> : null}
+      {existingSourceId ? (
+        <p><a href={`/admin/sources#source-${encodeURIComponent(existingSourceId)}`}>Open existing source</a></p>
+      ) : null}
+      {success ? <p role="status">{success}</p> : null}
       <div className={styles.formGrid}>
         {field("name", "Name", { required: true, placeholder: "e.g. Acme Recruitment" })}
         {field("url", "Website jobs page", { required: true, type: "url", placeholder: "https://" })}
@@ -218,7 +230,7 @@ export function SourceActions({ source }) {
               {result.sample.map((job, index) => (
                 <li key={index}>
                   {job.title} — {job.company}
-                  {job.deadline ? `, closes ${new Date(job.deadline).toLocaleDateString("en-GB")}` : ""}
+                  {job.deadline ? `, closes ${formatDeadline(job.deadline)}` : ""}
                 </li>
               ))}
             </ul>

@@ -32,13 +32,13 @@ test("each role opens its own dashboard", () => {
   assert.equal(roleHome(undefined), "/account");
 });
 
-test("the owner admin grant is audited and the account page routes by role", () => {
+test("the owner admin grant is audited and all roles can access account settings", () => {
   const auth = read("auth.js");
   assert.match(auth, /isOwnerEmail\(user\.email\)/);
   assert.match(auth, /OWNER_ADMIN_GRANTED/);
   const account = read("app/account/page.js");
-  assert.match(account, /roleHome\(session\.user\.role/);
-  assert.match(account, /if \(home !== "\/account"\) redirect\(home\)/);
+  assert.match(account, /Every signed-in role can manage its account/);
+  assert.match(account, /signOut/);
 });
 
 test("admin panel works without the employer portal and still requires ADMIN", () => {

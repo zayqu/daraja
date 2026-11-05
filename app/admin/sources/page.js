@@ -38,6 +38,11 @@ export default async function AdminSourcesPage() {
     .filter((source) => source.adapter)
     .sort((a, b) => Number(Boolean(b.enabled)) - Number(Boolean(a.enabled)) || a.name.localeCompare(b.name));
   const planned = catalog.filter((source) => !source.adapter);
+  const registeredIds = new Set(catalog.map((source) => source.id));
+  // Jobs can outlive a removed/renamed catalogue entry; never hide their source.
+  const unregistered = latest
+    .filter((entry) => entry.source && !registeredIds.has(entry.source))
+    .sort((a, b) => a.source.localeCompare(b.source));
 
   return (
     <>
@@ -59,7 +64,7 @@ export default async function AdminSourcesPage() {
         </details>
       </Panel>
 
-      <Panel title={`Sources (${runnable.length})`} flush>
+      <Panel title={`Runnable sources (${runnable.length} of ${catalog.length})`} flush>
         <div className={styles.tableWrap}>
           <table className={`${styles.table} ${styles.stackOnMobile}`}>
             <thead>
@@ -74,7 +79,7 @@ export default async function AdminSourcesPage() {
             </thead>
             <tbody>
               {runnable.map((source) => (
-                <tr key={source.id}>
+                <tr key={source.id} id={`source-${source.id}`}>
                   <td data-label="Source">
                     <Link className={styles.primaryCell} href={`/admin/jobs?source=${encodeURIComponent(source.id)}`}>
                       {source.name}
@@ -113,12 +118,38 @@ export default async function AdminSourcesPage() {
         </div>
       </Panel>
 
+      {unregistered.length > 0 ? (
+        <Panel title={`Sources found in existing jobs (${unregistered.length})`}>
+          <p className={styles.help}>
+            These source IDs have job records but no active source configuration.
+            They are shown for reconciliation, not enabled for automatic collection.
+          </p>
+          <ul>
+            {unregistered.map(({ source }) => (
+              <li key={source} id={`source-${source}`}>
+                <Link href={`/admin/jobs?source=${encodeURIComponent(source)}`}>{source}</Link>
+                {` — ${liveBySource[source] || 0} live jobs; last update ${formatDate(lastSeen[source])}`}
+              </li>
+            ))}
+          </ul>
+        </Panel>
+      ) : null}
+
       <Panel title={`Planned websites (${planned.length})`}>
         <p className={styles.help} style={{ marginTop: 0 }}>
           These are in Daraja&apos;s list of websites to cover but have no reader yet. Recruiter and careers sites can
           usually be added above with &quot;Add source&quot;; sites with a completely different layout need a
           development change.
         </p>
+        {planned.length ? (
+          <ul>
+            {planned.map((source) => (
+              <li key={source.id} id={`source-${source.id}`}>
+                <strong>{source.name}</strong> ({source.id}) — reader not configured; collection unavailable
+              </li>
+            ))}
+          </ul>
+        ) : <p className={styles.help}>No planned sources.</p>}
       </Panel>
     </>
   );

@@ -24,11 +24,13 @@ export function CategoryCreateForm() {
   const [keywords, setKeywords] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
 
   async function submit(event) {
     event.preventDefault();
     setBusy(true);
     setError("");
+    setSuccess("");
     const { ok, payload } = await send("POST", { action: "create", name, keywords });
     setBusy(false);
     if (!ok) {
@@ -37,12 +39,14 @@ export function CategoryCreateForm() {
     }
     setName("");
     setKeywords("");
+    setSuccess(`Category "${name.trim()}" added successfully.`);
     router.refresh();
   }
 
   return (
     <form onSubmit={submit}>
       {error ? <p className={styles.alert} role="alert">{error}</p> : null}
+      {success ? <p className={styles.notice} role="status">{success}</p> : null}
       <div className={styles.formGrid}>
         <div className={styles.field}>
           <label htmlFor="new-category-name">Category name</label>

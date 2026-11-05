@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { signOut } from "next-auth/react";
 import { usePathname, useRouter } from "next/navigation";
 import { buildJobsUrl } from "@/lib/job-search";
 import { mobileDockEnabledPath } from "@/lib/mobile-navigation";
@@ -52,7 +53,7 @@ export default function SiteNav({
         const role = session?.user?.role;
         setAccount(
           session?.user
-            ? { signedIn: true, href: role === "ADMIN" ? "/admin" : role === "EMPLOYER" ? "/employer" : "/account", label: role === "ADMIN" ? "Admin panel" : "My account" }
+            ? { signedIn: true, href: "/account", label: "My account" }
             : { signedIn: false }
         );
       })
@@ -93,7 +94,7 @@ export default function SiteNav({
         )}
 
         {dockManaged && (
-          <div className={styles.mobileAccountActions} aria-label="Candidate account">
+          <div className={styles.mobileAccountActions} aria-label="Account and notifications">
             <Link
               href="/account/notifications"
               className={styles.mobileIconButton}
@@ -107,7 +108,7 @@ export default function SiteNav({
                 </span>
               ) : null}
             </Link>
-            {showCandidateProfile && (
+            {(showCandidateProfile || account?.signedIn) && (
               <Link
                 href="/account"
                 className={styles.mobileIconButton}
@@ -156,6 +157,16 @@ export default function SiteNav({
               >
                 {account.signedIn ? account.label : "Sign in"}
               </Link>
+            ) : null}
+            {account?.signedIn ? (
+              <button
+                type="button"
+                className={styles.link}
+                style={{ border: 0, background: "none", cursor: "pointer", font: "inherit" }}
+                onClick={() => void signOut({ redirectTo: "/" })}
+              >
+                Sign out
+              </button>
             ) : null}
             {account && !account.signedIn && !right ? (
               <Link href="/auth/signup" className={styles.cta} onClick={() => setOpen(false)}>

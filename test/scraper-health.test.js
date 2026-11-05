@@ -26,9 +26,23 @@ test("expired vacancies are archived independently of source availability", asyn
 
   assert.equal(await archiveExpiredJobs(prisma, now), 3);
   assert.deepEqual(calls[0], {
-    where: { active: true, deadline: { lt: now } },
+    where: { active: true, deadline: { lt: new Date("2026-07-28T00:00:00.000Z") } },
     data: { active: false },
   });
+});
+
+test("scraper archives UTC-encoded jobs after the Tanzania date changes", async () => {
+  let where;
+  const prisma = {
+    job: {
+      updateMany: async (query) => {
+        where = query.where;
+        return { count: 1 };
+      },
+    },
+  };
+  await archiveExpiredJobs(prisma, new Date("2026-11-17T21:01:00.000Z"));
+  assert.equal(where.deadline.lt.toISOString(), "2026-11-18T00:00:00.000Z");
 });
 
 test("health reports expose partial failure without leaking credentials", () => {

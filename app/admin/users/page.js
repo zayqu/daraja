@@ -129,7 +129,7 @@ export default async function AdminUsersPage({ searchParams }) {
                         </span>
                       </td>
                       <td data-label="Role">
-                        <UserRoleSelect userId={user.id} role={user.role} locked={owner || self} />
+                        <UserRoleSelect userId={user.id} userName={user.name || user.email} role={user.role} locked={owner || self} />
                         {owner ? <span className={styles.subtle}>Owner</span> : null}
                       </td>
                       <td data-label="Signs in with">{methods.join(", ") || "Email link (old)"}</td>

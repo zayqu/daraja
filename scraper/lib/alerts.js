@@ -107,6 +107,9 @@ async function sendJobAlertDigests(prisma, fetchFn = fetch) {
     return { sent: 0, skipped: true };
   }
 
+  const { deadlineQueryCutoff } = await import("../../lib/job-deadline.js");
+  const deadlineCutoff = deadlineQueryCutoff();
+
   const subscribers = await prisma.jobAlertSubscriber.findMany({
     where: { active: true, userId: { not: null } },
     orderBy: { lastNotifiedAt: "asc" },
@@ -118,8 +121,9 @@ async function sendJobAlertDigests(prisma, fetchFn = fetch) {
     const candidates = await prisma.job.findMany({
       where: {
         active: true,
+        moderationStatus: "PUBLISHED",
         createdAt: { gt: subscriber.lastNotifiedAt },
-        OR: [{ deadline: null }, { deadline: { gte: new Date() } }],
+        OR: [{ deadline: null }, { deadline: { gte: deadlineCutoff } }],
       },
       orderBy: { createdAt: "asc" },
       take: 100,

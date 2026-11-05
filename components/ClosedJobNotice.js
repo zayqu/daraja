@@ -1,20 +1,13 @@
 import Link from "next/link";
+import { formatDeadline } from "@/lib/job-deadline";
 import ContentPage from "@/components/ContentPage";
 import { sectorGuideForCategory } from "@/lib/sector-guides";
 import { WHATSAPP_CHANNEL_URL } from "@/lib/site-config";
 
-function formatDate(value) {
-  if (!value) return null;
-  return new Date(value).toLocaleDateString("en-GB", {
-    day: "numeric",
-    month: "long",
-    year: "numeric",
-    timeZone: "Africa/Dar_es_Salaam",
-  });
-}
+
 
 export default function ClosedJobNotice({ job }) {
-  const closedOn = formatDate(job.deadline);
+  const closedOn = formatDeadline(job.deadline, { month: "long" });
   const sector = sectorGuideForCategory(job.category);
   const categoryHref = job.category
     ? `/jobs?category=${encodeURIComponent(job.category)}`

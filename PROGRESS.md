@@ -1,6 +1,6 @@
 # Daraja Jobs production-readiness progress
 
-Last updated: 4 November 2026
+Last updated: 5 November 2026
 
 ## Current objective
 
@@ -8,6 +8,18 @@ Build Daraja into a secure Tanzania-first work marketplace through small,
 tested vertical releases. The current priority is Phase 0 security and privacy
 hardening before expanding candidate CV, employer, freelance, payment or AI
 workflows.
+
+## Current batch: Phase 1 candidate and admin reliability (draft PR #213)
+
+- 2026-11-05: Phase 1 reliability changes remain on the dedicated PR branch, **not merged or deployed**. User-role updates now require Save and confirmation for all role transitions; original admin-only authorization, self/owner restrictions and audited updates remain.
+- Admin source management shows configured reader sources, planned catalog entries without readers and orphaned source IDs still present on job records. Duplicate source submissions offer a link to the existing source. Source creation provides explicit success feedback.
+- Signed-in admins and employers can open the personal account view to sign out, and the shared header/mobile account access offers a sign-out route; candidate-only career tooling remains role-restricted.
+- 2026-11-05 follow-up review: notifications, alerts and privacy subpages now pass role-aware candidate navigation flags; shared account tabs and mobile account toolbar use role-neutral accessibility labels. Tests added. Latest CI required after these changes.
+- `lib/job-deadline.js` owns formatting/countdown for calendar-day deadlines, including UTC and Tanzania end-of-day stored timestamps. Job cards/details, closed notices, admin/review/employer views and source test results reuse it; admin editing no longer adds a fixed +3 hours to stored dates.
+- Public Open/Expired filters, scraper archival, external Apply endpoint, notification digest filtering and SEO JobPosting expiration now use the Tanzania **calendar day**, not raw timestamp comparison. Alert digests also filter `moderationStatus: PUBLISHED`.
+- Regression coverage added/updated in `test/job-deadline.test.js`, `test/public-job-status.test.js`, `test/job-seo.test.js`, `test/phase1-admin-controls.test.js`, `test/alerts.test.js` and existing job-card/role tests.
+- Evidence: CI successfully passed on earlier commit `795a221` after fixing date-only regex validation; newer commits (cutoff, alerts, SEO and extra tests) passed workflow at commit `6ecb3fe`; the latest scraper archival change and documentation need a fresh CI run. Vercel preview is not a substitute for manual browser validation.
+- Pending: audit remaining raw deadline comparisons, check all save flows manually, confirm real existing database deadline records before standardizing persistent storage, and perform full interactive mobile/auth/preview checks. No schema/data migration is part of this PR. Production changes require separate approval.
 
 ## Current batch: closed-job links and branded 404
 

@@ -7,6 +7,7 @@ import SiteNav from "@/components/SiteNav";
 import SiteFooter from "@/components/SiteFooter";
 import JobBrandMedia from "@/components/JobBrandMedia";
 import { trackEvent } from "@/lib/analytics";
+import { formatDeadline, daysUntilDeadline } from "@/lib/job-deadline";
 import { structureJobDescription } from "@/lib/job-description";
 import { buildJobQuickGuide } from "@/lib/job-quick-guide";
 import { SITE_ORIGIN, WHATSAPP_CHANNEL_URL } from "@/lib/site-config";
@@ -83,15 +84,6 @@ export default function JobDetailPageClient({ initialJob, showEmployerCta }) {
     void fetchJob();
   }, [id, initialJob, fetchJob]);
 
-  function formatDate(value) {
-    if (!value) return null;
-    return new Date(value).toLocaleDateString("en-GB", {
-      day: "numeric",
-      month: "long",
-      year: "numeric",
-    });
-  }
-
   function formatJobType(value) {
     if (!value) return "Not specified";
     return value
@@ -103,18 +95,17 @@ export default function JobDetailPageClient({ initialJob, showEmployerCta }) {
   }
 
   function isExpired(value) {
-    return value && new Date(value) < new Date();
+    const days = daysUntilDeadline(value);
+    return days !== null && days < 0;
   }
 
   function isExpiringSoon(value) {
-    if (!value) return false;
-    const days = (new Date(value) - new Date()) / 86400000;
-    return days <= 7 && days > 0;
+    const days = daysUntilDeadline(value);
+    return days !== null && days >= 0 && days <= 7;
   }
 
   function daysLeft(value) {
-    if (!value) return null;
-    return Math.ceil((new Date(value) - new Date()) / 86400000);
+    return daysUntilDeadline(value);
   }
 
   function getDeadlineClass(value) {
@@ -124,7 +115,7 @@ export default function JobDetailPageClient({ initialJob, showEmployerCta }) {
   }
 
   function getShareMessage() {
-    const deadline = job.deadline ? formatDate(job.deadline) : "Not specified";
+    const deadline = job.deadline ? formatDeadline(job.deadline, { month: "long" }) : "Not specified";
 
     return [
       "📢 New Job Opportunity",

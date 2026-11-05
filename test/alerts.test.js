@@ -100,6 +100,7 @@ test("job alert delivery forwards native one-click unsubscribe headers", async (
   process.env.JOB_ALERTS_FROM_EMAIL = "Daraja Jobs <test@example.com>";
 
   let requestBody;
+  let queryWhere;
   const createdAt = new Date("2026-07-28T08:00:00.000Z");
   const prisma = {
     jobAlertSubscriber: {
@@ -124,7 +125,9 @@ test("job alert delivery forwards native one-click unsubscribe headers", async (
       update: async () => ({}),
     },
     job: {
-      findMany: async () => [{
+      findMany: async ({ where }) => {
+        queryWhere = where;
+        return [{
         id: "job-1",
         slug: "software-engineer-at-example-ltd-123456789abc",
         title: "Software Engineer",
@@ -133,7 +136,8 @@ test("job alert delivery forwards native one-click unsubscribe headers", async (
         category: "Technology",
         description: "Build reliable services.",
         createdAt,
-      }],
+      }];
+      },
     },
     $transaction: async (operations) => Promise.all(operations),
   };
@@ -153,6 +157,8 @@ test("job alert delivery forwards native one-click unsubscribe headers", async (
     );
     assert.match(requestBody.headers["List-Unsubscribe"], /^<https:\/\/.+>$/);
     assert.match(requestBody.html, /software-engineer-at-example-ltd/);
+    assert.equal(queryWhere.moderationStatus, "PUBLISHED");
+    assert.ok(queryWhere.OR[1].deadline.gte instanceof Date);
   } finally {
     if (previousKey === undefined) delete process.env.RESEND_API_KEY;
     else process.env.RESEND_API_KEY = previousKey;

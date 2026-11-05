@@ -79,7 +79,7 @@ export default async function AdminSourcesPage() {
             </thead>
             <tbody>
               {runnable.map((source) => (
-                <tr key={source.id}>
+                <tr key={source.id} id={`source-${source.id}`}>
                   <td data-label="Source">
                     <Link className={styles.primaryCell} href={`/admin/jobs?source=${encodeURIComponent(source.id)}`}>
                       {source.name}
@@ -126,7 +126,7 @@ export default async function AdminSourcesPage() {
           </p>
           <ul>
             {unregistered.map(({ source }) => (
-              <li key={source}>
+              <li key={source} id={`source-${source}`}>
                 <Link href={`/admin/jobs?source=${encodeURIComponent(source)}`}>{source}</Link>
                 {` — ${liveBySource[source] || 0} live jobs; last update ${formatDate(lastSeen[source])}`}
               </li>
@@ -144,7 +144,7 @@ export default async function AdminSourcesPage() {
         {planned.length ? (
           <ul>
             {planned.map((source) => (
-              <li key={source.id}>
+              <li key={source.id} id={`source-${source.id}`}>
                 <strong>{source.name}</strong> ({source.id}) — reader not configured; collection unavailable
               </li>
             ))}

@@ -29,3 +29,26 @@ test("source form provides saved feedback while preventing duplicate in-flight s
   assert.match(form, /disabled=\{busy\}/);
   assert.match(form, /setValues\(EMPTY\)/);
 });
+
+test("sources from existing jobs remain discoverable even without catalog registration", () => {
+  const page = read("app/admin/sources/page.js");
+  assert.match(page, /registeredIds/);
+  assert.match(page, /unregistered\.map/);
+  assert.match(page, /Sources found in existing jobs/);
+});
+
+test("duplicate source creation offers a link to the existing record", () => {
+  const route = read("app/api/admin/sources/route.js");
+  const form = read("components/admin/SourceControls.js");
+  const page = read("app/admin/sources/page.js");
+  assert.match(route, /existingSourceId/);
+  assert.match(form, /Open existing source/);
+  assert.match(page, /source-\$\{source\.id\}/);
+});
+
+test("mobile account access is available regardless of role", () => {
+  const nav = read("components/SiteNav.js");
+  const account = read("app/account/page.js");
+  assert.match(nav, /showCandidateProfile \|\| account\?\.signedIn/);
+  assert.match(account, /signOut/);
+});

@@ -74,10 +74,12 @@ async function archiveGenericJobTitles(prisma) {
 }
 
 async function archiveExpiredJobs(prisma, now = new Date()) {
+  const { deadlineQueryCutoff } = await import("../../lib/job-deadline.js");
+  const cutoff = deadlineQueryCutoff(now);
   const result = await prisma.job.updateMany({
     where: {
       active: true,
-      deadline: { lt: now },
+      deadline: { lt: cutoff },
     },
     data: { active: false },
   });

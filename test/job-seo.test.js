@@ -64,6 +64,14 @@ test("JobPosting markup is skipped for thin, expired or undated vacancies", asyn
   assert.equal(buildJobPostingJsonLd({ ...baseJob, createdAt: null }, url), null);
 });
 
+test("JobPosting stays valid for the stated Tanzania closing day", async () => {
+  const { buildJobPostingJsonLd } = await import("../lib/job-seo.js");
+  const url = "https://ajira.daraja.co.tz/jobs/example";
+  const scraped = { ...baseJob, deadline: "2026-11-18T23:59:59.000Z" };
+  assert.ok(buildJobPostingJsonLd(scraped, url, new Date("2026-11-18T20:30:00.000Z")));
+  assert.equal(buildJobPostingJsonLd(scraped, url, new Date("2026-11-18T21:00:00.000Z")), null);
+});
+
 test("JSON-LD output cannot close its script tag", async () => {
   const { serializeJsonLd } = await import("../lib/job-seo.js");
   assert.doesNotMatch(serializeJsonLd({ description: "</script><script>alert(1)</script>" }), /</);

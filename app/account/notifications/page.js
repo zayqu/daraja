@@ -24,7 +24,7 @@ export default async function NotificationsPage() {
     redirect("/auth/signin?callbackUrl=/account/notifications");
   }
 
-  const careerEnabled = candidateCareerEnabled();
+  const careerEnabled = candidateCareerEnabled() && session.user.role === "JOB_SEEKER";
 
   const [profile, alerts] = await Promise.all([
     careerEnabled
@@ -48,7 +48,7 @@ export default async function NotificationsPage() {
       <PublicSiteNav />
       <main id="main-content">
         <PageHero
-          eyebrow="Candidate account"
+          eyebrow="My account"
           title="Notifications"
           description="This is your Daraja notification centre. We will use it for real account and career updates as those workflows are enabled."
           maxWidth="narrow"

@@ -23,7 +23,7 @@ export default async function DistributionReport({ params }) {
     <main id="main-content" style={{maxWidth:820,margin:"30px auto",padding:24}}>
       <h1>DARAJA — Recruitment distribution report</h1>
       <p><strong>{c.employer.companyName}</strong> | {c.job.title}</p>
-      <p>Campaign: {c.campaignKey} | Status: {c.status}</p>
+      <p>Campaign: {c.campaignKey} | Status: {c.status} | Destination: {c.destinationMode === "PARTNER_DIRECT" ? "Partner website / ATS" : "Ajira job page"}</p>
       <p>Published: {c.publishedAt?.toLocaleString("en-GB",{timeZone:"Africa/Dar_es_Salaam"}) || "Not yet published"}</p>
       <table style={{width:"100%",borderCollapse:"collapse"}}>
         <tbody>

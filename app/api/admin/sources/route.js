@@ -23,7 +23,14 @@ export async function POST(request) {
   const rows = await prisma.scraperSourceSetting.findMany({ select: { sourceId: true } });
   const existingIds = [...getSourceCatalog().map((source) => source.id), ...rows.map((row) => row.sourceId)];
   const { row, error: invalid } = parseSourceInput({ ...body, enabled: false, autoPublish: false }, { isNew: true, existingIds });
-  if (invalid) return NextResponse.json({ error: invalid }, { status: 400 });
+  if (invalid) {
+    const duplicate = /a source with id "([a-z0-9-]+)" already exists/.exec(invalid);
+    return NextResponse.json({
+      error: invalid,
+      ...(duplicate && existingIds.includes(duplicate[1])
+        ? { existingSourceId: duplicate[1] } : {}),
+    }, { status: duplicate ? 409 : 400 });
+  }
 
   const setting = await prisma.$transaction(async (tx) => {
     const created = await tx.scraperSourceSetting.create({

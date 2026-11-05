@@ -38,6 +38,11 @@ export default async function AdminSourcesPage() {
     .filter((source) => source.adapter)
     .sort((a, b) => Number(Boolean(b.enabled)) - Number(Boolean(a.enabled)) || a.name.localeCompare(b.name));
   const planned = catalog.filter((source) => !source.adapter);
+  const registeredIds = new Set(catalog.map((source) => source.id));
+  // Jobs can outlive a removed/renamed catalogue entry; never hide their source.
+  const unregistered = latest
+    .filter((entry) => entry.source && !registeredIds.has(entry.source))
+    .sort((a, b) => a.source.localeCompare(b.source));
 
   return (
     <>
@@ -112,6 +117,23 @@ export default async function AdminSourcesPage() {
           </table>
         </div>
       </Panel>
+
+      {unregistered.length > 0 ? (
+        <Panel title={`Sources found in existing jobs (${unregistered.length})`}>
+          <p className={styles.help}>
+            These source IDs have job records but no active source configuration.
+            They are shown for reconciliation, not enabled for automatic collection.
+          </p>
+          <ul>
+            {unregistered.map(({ source }) => (
+              <li key={source}>
+                <Link href={`/admin/jobs?source=${encodeURIComponent(source)}`}>{source}</Link>
+                {` — ${liveBySource[source] || 0} live jobs; last update ${formatDate(lastSeen[source])}`}
+              </li>
+            ))}
+          </ul>
+        </Panel>
+      ) : null}
 
       <Panel title={`Planned websites (${planned.length})`}>
         <p className={styles.help} style={{ marginTop: 0 }}>

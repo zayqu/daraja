@@ -1265,3 +1265,12 @@ Every batch must record:
 - Built partner-owned read-only reporting pages and a printable seven-day reporting view. Default agency route directs candidates to the partner's own HTTPS application website, with optional Ajira landing page when agreed.
 - Missing analytics/outcome figures show unavailable; GA4 cannot be entered as unverified manual numbers and a GA4 Data API integration is not claimed.
 - **NOT deployed.** Migration requires nonproduction validation, restore-point approval and explicit owner consent before production; existing production traffic and data remain untouched. CI and preview results will be recorded in PR before merge.
+
+
+### PR #215 security review — 5 November 2026
+
+- Final GitHub validation for pre-review commit 90c0b734 passed all tests, Prisma validation, ESLint and packaged build; final security changes require a fresh CI run.
+- Neon Daraja project currently exposes only the production branch, so no isolation-tested schema migration has been applied; the next gate is a separately approved, clean staging database without applicant records.
+- Removed the original restrictive foreign keys that would have blocked employer account erasure. Distribution campaigns now cascade when their employer is erased; optional Ajira Job association becomes null when a job is deleted. Regression coverage added.
+- Employer report pages now explicitly require a VERIFIED employer account in addition to ownership filtering; suspended or unverified employers cannot read campaign reporting.
+- **Production remains unchanged**. PR must stay draft until isolated migration tests, approved restore point, and end-to-end employer workflow verification. No email or WhatsApp outreach sent.

@@ -1,7 +1,9 @@
 import Link from "next/link";
 import ContentPage from "@/components/ContentPage";
-import { loadSiteSettings, employerPortalEnabled } from "@/lib/features";
+import { loadSiteSettings, employerPortalEnabled, siteSetting } from "@/lib/features";
 import { WHATSAPP_CHANNEL_URL } from "@/lib/site-config";
+
+export const dynamic = "force-dynamic";
 
 export const metadata = {
   title: "Recruitment advertising pilot | DARAJA",
@@ -13,6 +15,12 @@ export const metadata = {
 export default async function AdvertisePage() {
   await loadSiteSettings();
   const employerEnabled = employerPortalEnabled();
+  const followers = siteSetting("channel.followers");
+  const followersLabel = Number.isSafeInteger(followers) && followers >= 1000
+    ? `${Math.floor(followers / 1000)}k+`
+    : Number.isSafeInteger(followers) && followers >= 0
+      ? followers.toLocaleString("en-GB")
+      : "11k+";
   return (
     <ContentPage
       title="Your vacancy deserves the right audience."
@@ -20,10 +28,10 @@ export default async function AdvertisePage() {
     >
       <h2>Why try DARAJA?</h2>
       <p>
-        Our WhatsApp Channel had 10,166 followers as at 2 November 2026, with
-        99.7% of followers based in Tanzania. A typical job post receives
-        approximately 1,000–3,000 views in its first 24 hours. These are
-        historical channel figures, not a forecast for your vacancy.
+        Our WhatsApp Channel has {followersLabel} followers, 99.7% of whom
+        are based in Tanzania. A typical job post receives approximately
+        1,000–3,000 views in its first 24 hours. These figures come from
+        historical Channel insights, not a forecast for your vacancy.
       </p>
       <p>
         <a href={WHATSAPP_CHANNEL_URL} target="_blank" rel="noopener noreferrer">

@@ -35,8 +35,10 @@ test("candidate account pages share the Daraja account navigation", async () => 
   assert.doesNotMatch(account, /<PageHero/);
 
   assert.match(career, /<CandidateAccountTabs showCareer \/>/);
-  assert.match(alerts, /<CandidateAccountTabs showCareer=\{candidateCareerEnabled\(\)\} \/>/);
-  assert.match(privacy, /<CandidateAccountTabs showCareer=\{candidateCareerEnabled\(\)\} \/>/);
+  for (const page of [alerts, privacy, notifications]) {
+    assert.match(page, /candidateCareerEnabled\(\) && session\.user\.role === "JOB_SEEKER"/);
+    assert.match(page, /<CandidateAccountTabs showCareer=\{careerEnabled\} \/>/);
+  }
   assert.match(profile, /CandidateProfileForm/);
   assert.match(profile, /candidateProfileSelect/);
   assert.match(notifications, /You are all caught up/);

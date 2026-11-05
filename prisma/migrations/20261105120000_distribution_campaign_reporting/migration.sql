@@ -15,6 +15,8 @@ CREATE TABLE "DistributionCampaign" (
   "views24h" INTEGER,
   "views7d" INTEGER,
   "viewsRecordedAt" TIMESTAMP(3),
+  "outboundRedirects" INTEGER NOT NULL DEFAULT 0,
+  "redirectsRecordedAt" TIMESTAMP(3),
   "ga4Sessions" INTEGER,
   "ga4ApplyClicks" INTEGER,
   "analyticsRecordedAt" TIMESTAMP(3),

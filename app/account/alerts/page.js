@@ -22,6 +22,8 @@ export default async function AlertAccountPage() {
     redirect("/auth/signin?callbackUrl=/account/alerts");
   }
 
+  const careerEnabled = candidateCareerEnabled() && session.user.role === "JOB_SEEKER";
+
   const subscriber = await prisma.jobAlertSubscriber.findUnique({
     where: { userId: session.user.id },
     select: {
@@ -53,14 +55,14 @@ export default async function AlertAccountPage() {
 
       <main id="main-content">
         <PageHero
-          eyebrow="Candidate account"
+          eyebrow="My account"
           title="Alerts built around the work you want."
           description="Select your core job categories, add optional refinements and keep full control over whether Daraja sends you email alerts."
           maxWidth="narrow"
         />
 
         <WorkspaceShell width="narrow">
-          <CandidateAccountTabs showCareer={candidateCareerEnabled()} />
+          <CandidateAccountTabs showCareer={careerEnabled} />
 
           <section className={styles.accountCard}>
             <div className={styles.accountStatus}>

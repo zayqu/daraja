@@ -44,36 +44,47 @@ async function adminRequest(request) {
 export async function POST(request) {
   const { actor, body, error } = await adminRequest(request);
   if (error) return error;
-  if (typeof body.employerId !== "string" || typeof body.jobId !== "string" ||
-      !allowedTypes.has(body.partnerType) || !allowedModes.has(body.destinationMode) || body.partnerApproved !== true ||
-      typeof body.approvalReference !== "string" ||
+  const vacancyTitle = typeof body.vacancyTitle === "string" ? body.vacancyTitle.trim() : "";
+  if (typeof body.employerId !== "string" || vacancyTitle.length < 5 || vacancyTitle.length > 160 ||
+      !allowedTypes.has(body.partnerType) || !allowedModes.has(body.destinationMode) ||
+      body.partnerApproved !== true || typeof body.approvalReference !== "string" ||
       body.approvalReference.trim().length < 10 || body.approvalReference.length > 300) {
-    return errorResponse("Verified partner, owned vacancy, partner permission and permission reference are required.");
+    return errorResponse("Verified partner, vacancy title, documented permission and application mode are required.");
   }
-  const [employer, job] = await Promise.all([
-    prisma.employer.findUnique({ where: { id: body.employerId }, select: { verificationStatus: true } }),
-    prisma.job.findUnique({ where: { id: body.jobId }, select: {
-      employerId: true, active: true, moderationStatus: true, deadline: true, applicationUrl: true,
-    } }),
-  ]);
+  const employer = await prisma.employer.findUnique({
+    where: { id: body.employerId },
+    select: { verificationStatus: true, website: true },
+  });
   if (!employer || employer.verificationStatus !== "VERIFIED") return errorResponse("Verify the partner first.", 409);
-  if (!job || job.employerId !== body.employerId || !job.active ||
-      job.moderationStatus !== "PUBLISHED" || (job.deadline && job.deadline < new Date())) {
-    return errorResponse("Use a currently published vacancy owned by this verified partner.", 409);
+  const jobId = typeof body.jobId === "string" && body.jobId ? body.jobId : null;
+  if (body.destinationMode === "AJIRA_LANDING" && !jobId) {
+    return errorResponse("An approved Ajira vacancy is required only for the optional Ajira landing route.");
   }
-  // Distribution-only campaign must lead to the partner's official external application system.
+  let job = null;
+  if (jobId) {
+    job = await prisma.job.findUnique({ where: { id: jobId },
+      select: { employerId: true, active: true, moderationStatus: true, deadline: true, applicationUrl: true } });
+    if (!job || job.employerId !== body.employerId || !job.active ||
+        job.moderationStatus !== "PUBLISHED" || (job.deadline && job.deadline < new Date())) {
+      return errorResponse("Optional Ajira vacancy must be live and belong to this verified partner.", 409);
+    }
+  }
+  // Independent partner ATS is the primary source of truth; no Ajira listing is required.
   let destination;
-  try { destination = new URL(job.applicationUrl); }
-  catch { return errorResponse("An official HTTPS application link is required.", 409); }
+  try { destination = new URL(body.destinationUrl); }
+  catch { return errorResponse("Provide the partner's official HTTPS vacancy application URL.", 409); }
   if (destination.protocol !== "https:" || destination.username || destination.password ||
-      !destination.hostname.includes(".") || destination.hostname.endsWith(".daraja.co.tz")) {
-    return errorResponse("An external official HTTPS application link is required.", 409);
+      !destination.hostname.includes(".") || destination.hostname.endsWith(".daraja.co.tz") ||
+      destination.href.length > 2000) {
+    return errorResponse("An external official HTTPS vacancy application URL is required.", 409);
   }
+  // The administrator must separately verify agency/ATS domain ownership and permission.
+  // We intentionally do not fetch third-party destinations from this API.
   const campaignKey = `daraja_pilot_${randomBytes(8).toString("hex")}`;
   const campaign = await prisma.$transaction(async (tx) => {
     const created = await tx.distributionCampaign.create({
       data: {
-        campaignKey, employerId: body.employerId, jobId: body.jobId,
+        campaignKey, employerId: body.employerId, jobId, vacancyTitle,
         partnerType: body.partnerType, destinationMode: body.destinationMode,
         destinationUrl: destination.toString(), approvedByPartnerAt: new Date(),
       },
@@ -101,7 +112,7 @@ export async function PATCH(request) {
   if (!current) return errorResponse("Campaign not found.", 404);
   if (!allowedStatuses.has(body.status)) return errorResponse("Invalid campaign status.");
   if (current.status === "CLOSED" && body.status !== "CLOSED") return errorResponse("Closed campaigns cannot reopen.", 409);
-  if (body.status === "LIVE" && (!current.job.active || current.job.moderationStatus !== "PUBLISHED" ||
+  if (body.status === "LIVE" && current.job && (!current.job.active || current.job.moderationStatus !== "PUBLISHED" ||
       (current.job.deadline && current.job.deadline < new Date()))) {
     return errorResponse("Cannot run a campaign for a closed vacancy.", 409);
   }

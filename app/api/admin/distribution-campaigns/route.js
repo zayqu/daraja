@@ -5,6 +5,7 @@ import { getActor, isAdmin } from "@/lib/employer-access";
 import { readProtectedJson } from "@/lib/request-security";
 
 const allowedTypes = new Set(["RECRUITMENT_AGENCY", "DIRECT_EMPLOYER", "BANK"]);
+const allowedModes = new Set(["PARTNER_DIRECT", "AJIRA_LANDING"]);
 const allowedStatuses = new Set(["DRAFT", "LIVE", "CLOSED"]);
 const errorResponse = (message, status = 400) => NextResponse.json({ error: message }, { status });
 
@@ -44,7 +45,7 @@ export async function POST(request) {
   const { actor, body, error } = await adminRequest(request);
   if (error) return error;
   if (typeof body.employerId !== "string" || typeof body.jobId !== "string" ||
-      !allowedTypes.has(body.partnerType) || body.partnerApproved !== true ||
+      !allowedTypes.has(body.partnerType) || !allowedModes.has(body.destinationMode) || body.partnerApproved !== true ||
       typeof body.approvalReference !== "string" ||
       body.approvalReference.trim().length < 10 || body.approvalReference.length > 300) {
     return errorResponse("Verified partner, owned vacancy, partner permission and permission reference are required.");
@@ -61,13 +62,20 @@ export async function POST(request) {
     return errorResponse("Use a currently published vacancy owned by this verified partner.", 409);
   }
   // Distribution-only campaign must lead to the partner's official external application system.
-  if (!job.applicationUrl?.startsWith("https://")) return errorResponse("An official HTTPS application link is required.", 409);
+  let destination;
+  try { destination = new URL(job.applicationUrl); }
+  catch { return errorResponse("An official HTTPS application link is required.", 409); }
+  if (destination.protocol !== "https:" || destination.username || destination.password ||
+      !destination.hostname.includes(".") || destination.hostname.endsWith(".daraja.co.tz")) {
+    return errorResponse("An external official HTTPS application link is required.", 409);
+  }
   const campaignKey = `daraja_pilot_${randomBytes(8).toString("hex")}`;
   const campaign = await prisma.$transaction(async (tx) => {
     const created = await tx.distributionCampaign.create({
       data: {
         campaignKey, employerId: body.employerId, jobId: body.jobId,
-        partnerType: body.partnerType, approvedByPartnerAt: new Date(),
+        partnerType: body.partnerType, destinationMode: body.destinationMode,
+        destinationUrl: destination.toString(), approvedByPartnerAt: new Date(),
       },
     });
     await tx.auditEvent.create({ data: {

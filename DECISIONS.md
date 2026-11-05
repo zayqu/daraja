@@ -570,3 +570,8 @@ day is hard-coded any more; existing owners were edited, no parallel files.
   details drop the rows that repeat the header.
 
 Migration `20261022090000_dynamic_admin_sources_categories_settings` is additive.
+
+
+## D-036 — Recruitment distribution is not a recruitment agency (development decision, 5 November 2026)
+
+DARAJA may promote approved, current vacancies on its WhatsApp Channel and report reach/traffic. It does not solicit CVs, screen applicants, own candidates, shortlist, employ people, charge applicant fees or represent itself as a placement firm. Partners, including recruiting agencies with their own ATS, retain the application journey and hiring decisions. The default partner campaign destination is direct to the approved external HTTPS website; an Ajira landing page is optional only with partner permission. DARAJA cannot independently count visits/clicks on third-party sites. All partner reporting must distinguish manually checked WhatsApp views, consented website analytics and employer-reported hiring outcomes. Private campaign records are scoped to a verified employer account, with explicit approval evidence and audited edits. Additive database changes remain behind a separate migration review and restore-point gate.

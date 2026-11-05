@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import styles from "./admin.module.css";
+import { formatDeadline } from "@/lib/job-deadline";
 
 async function send(url, method, body) {
   try {
@@ -228,7 +229,7 @@ export function SourceActions({ source }) {
               {result.sample.map((job, index) => (
                 <li key={index}>
                   {job.title} — {job.company}
-                  {job.deadline ? `, closes ${new Date(job.deadline).toLocaleDateString("en-GB")}` : ""}
+                  {job.deadline ? `, closes ${formatDeadline(job.deadline)}` : ""}
                 </li>
               ))}
             </ul>

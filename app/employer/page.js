@@ -1,3 +1,4 @@
+import { formatDeadline } from "@/lib/job-deadline";
 import Link from "next/link";
 import { redirect, notFound } from "next/navigation";
 import {
@@ -95,7 +96,7 @@ export default async function EmployerPage() {
                         <strong>{job.title}</strong>
                       )}
                       {" "}— {statusLabel(job.moderationStatus)}
-                      {job.deadline && `, closes ${job.deadline.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric", timeZone: "Africa/Dar_es_Salaam" })}`}
+                      {job.deadline && `, closes ${formatDeadline(job.deadline)}`}
                       {job.moderationNote && job.moderationStatus === "REJECTED" && (
                         <span className={styles.statusPending}> Reason: {job.moderationNote}</span>
                       )}

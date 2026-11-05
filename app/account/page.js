@@ -4,15 +4,13 @@ import { auth, signOut } from "@/auth";
 import PublicSiteNav from "@/components/PublicSiteNav";
 import NavIcon from "@/components/ui/NavIcon";
 import { candidateCareerEnabled } from "@/lib/candidate-access";
-import { employerPortalEnabled } from "@/lib/features";
-import { roleHome } from "@/lib/platform-roles";
 import { candidateProfileSelect } from "@/lib/candidate-profile";
 import prisma from "@/lib/prisma";
 import styles from "./account.module.css";
 
 export const metadata = {
   title: "My account | Daraja",
-  description: "Manage your Daraja candidate account and career tools.",
+  description: "Manage your Daraja account and personal settings.",
   robots: { index: false, follow: false },
 };
 
@@ -65,11 +63,9 @@ export default async function AccountPage() {
     redirect("/auth/signin?callbackUrl=/account");
   }
 
-  // Admins and employers have their own dashboards.
-  const home = roleHome(session.user.role, { employerPortal: employerPortalEnabled() });
-  if (home !== "/account") redirect(home);
+  // Every signed-in role can manage its account and sign out here.
 
-  const careerEnabled = candidateCareerEnabled();
+  const careerEnabled = candidateCareerEnabled() && session.user.role === "JOB_SEEKER";
 
   const [profile, cvCount, alert] = await Promise.all([
     careerEnabled
@@ -128,6 +124,11 @@ export default async function AccountPage() {
           ) : null}
 
           <nav className={styles.menu} aria-label="Account">
+            {session.user.role === "ADMIN" ? (
+              <AccountLink href="/admin" icon="user" title="Admin panel" description="Manage Daraja operations" />
+            ) : session.user.role === "EMPLOYER" ? (
+              <AccountLink href="/employer" icon="user" title="Employer workspace" description="Manage your organisation and vacancies" />
+            ) : null}
             {careerEnabled ? (
               <>
                 <AccountLink

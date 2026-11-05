@@ -1274,3 +1274,11 @@ Every batch must record:
 - Removed the original restrictive foreign keys that would have blocked employer account erasure. Distribution campaigns now cascade when their employer is erased; optional Ajira Job association becomes null when a job is deleted. Regression coverage added.
 - Employer report pages now explicitly require a VERIFIED employer account in addition to ownership filtering; suspended or unverified employers cannot read campaign reporting.
 - **Production remains unchanged**. PR must stay draft until isolated migration tests, approved restore point, and end-to-end employer workflow verification. No email or WhatsApp outreach sent.
+
+
+### Campaign referral count and disposable migration CI — 5 November 2026
+
+- Added partner-direct `/r/[campaignKey]` redirect route using a server-side, approved campaign lookup. Records aggregate outbound redirect requests, blocks drafts and unverified partner access, excludes obvious bots/prefetch, and redirects immediately to the partner's official ATS without saving personal applicant data. Not a unique-visitor counter.
+- Added source-labelled outbound redirect totals to private dashboards and printable reports. No GA4 or WhatsApp real-time API is claimed.
+- Added separate PR-only GitHub Actions PostgreSQL 17 migration validation, isolated from production credentials and records; check executes all migrations on empty disposable DB and verifies expected campaign columns/foreign-key deletion actions.
+- Retained PR #215 in draft. No production schema release or outreach performed.

@@ -1,25 +1,16 @@
 "use client";
 
 import { useState } from "react";
+import { formatDeadline } from "@/lib/job-deadline";
 import styles from "./AdminJobReviewQueue.module.css";
 
-function formatDate(value) {
-  if (!value) return null;
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return null;
-  return date.toLocaleDateString("en-GB", {
-    day: "numeric",
-    month: "short",
-    year: "numeric",
-    timeZone: "UTC",
-  });
-}
+
 
 function ReviewItem({ job, onDone }) {
   const [reason, setReason] = useState("");
   const [state, setState] = useState("idle");
   const [error, setError] = useState("");
-  const deadline = formatDate(job.deadline);
+  const deadline = formatDeadline(job.deadline);
 
   async function decide(status) {
     setState("saving");

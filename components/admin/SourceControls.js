@@ -91,12 +91,14 @@ export function SourceForm({ source = null, onDone }) {
   );
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
   const set = (key) => (event) => setValues((current) => ({ ...current, [key]: event.target.value }));
 
   async function submit(event) {
     event.preventDefault();
     setBusy(true);
     setError("");
+    setSuccess("");
     const { ok, payload } = editing
       ? await send(`/api/admin/sources/${source.id}`, "PATCH", { source: values })
       : await send("/api/admin/sources", "POST", values);
@@ -106,6 +108,7 @@ export function SourceForm({ source = null, onDone }) {
       return;
     }
     if (!editing) setValues(EMPTY);
+    setSuccess(editing ? "Source updated successfully." : "Source added successfully. It is off until tested and enabled.");
     onDone?.();
     router.refresh();
   }
@@ -139,6 +142,7 @@ export function SourceForm({ source = null, onDone }) {
   return (
     <form onSubmit={submit}>
       {error ? <p className={styles.alert} role="alert">{error}</p> : null}
+      {success ? <p role="status">{success}</p> : null}
       <div className={styles.formGrid}>
         {field("name", "Name", { required: true, placeholder: "e.g. Acme Recruitment" })}
         {field("url", "Website jobs page", { required: true, type: "url", placeholder: "https://" })}

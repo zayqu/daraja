@@ -11,7 +11,7 @@ export default async function DistributionReport({ params }) {
   if (!employerPortalEnabled()) notFound();
   const actor = await getActor();
   if (!actor) redirect("/auth/signin?callbackUrl=/employer/campaigns");
-  if (!actor.employer) notFound();
+  if (!actor.employer || actor.employer.verificationStatus !== "VERIFIED") notFound();
   const { id } = await params;
   const c = await prisma.distributionCampaign.findFirst({
     where: { id, employerId: actor.employer.id },

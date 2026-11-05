@@ -16,7 +16,7 @@ test("campaign mutations require admin, consent, verified partner and official a
   assert.match(route, /body\.destinationMode === "AJIRA_LANDING" && !jobId/);
   assert.match(route, /new URL\(body\.destinationUrl\)/);
   assert.match(route, /moderationStatus !== "PUBLISHED"/);
-  assert.match(route, /destination\.protocol !== "https:"/);
+  assert.match(route, /url\.protocol !== "https:"/);
   assert.match(route, /auditEvent\.create/);
 });
 

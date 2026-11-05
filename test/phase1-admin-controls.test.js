@@ -79,3 +79,10 @@ test("all account subpages use role-aware candidate career navigation", () => {
     assert.match(source, /showCareer=\{careerEnabled\}/);
   }
 });
+
+test("shared account tabs and mobile account toolbar are role-neutral", () => {
+  const tabs = read("components/CandidateAccountTabs.js");
+  const nav = read("components/SiteNav.js");
+  assert.match(tabs, /label="Account navigation"/);
+  assert.match(nav, /aria-label="Account and notifications"/);
+});

@@ -26,8 +26,10 @@ test("public job results use one shared hierarchy-first job card", async () => {
   assert.match(card, /className=\{styles\.company\}>\{job\.company\}/);
   assert.match(card, /className=\{styles\.location\}>\{job\.location\}/);
   assert.match(card, /className=\{styles\.tags\}/);
-  assert.match(card, /Deadline:/);
-  assert.match(card, /Closes in \$\{days\} days/);
+  const deadline = await readFile(path.join(__dirname, "..", "lib", "job-deadline.js"), "utf8");
+  assert.match(card, /deadlineStatus\(job\.deadline\)/);
+  assert.match(deadline, /Deadline:/);
+  assert.match(deadline, /Closes in \$\{days\} days/);
   assert.match(card, /styles\.deadline/);
   assert.match(card, /styles\.saveVisual/);
   assert.match(card, /styles\.calendarIcon/);

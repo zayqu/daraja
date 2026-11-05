@@ -29,7 +29,7 @@ export default function ClosedJobNotice({ job }) {
       <p>
         {job.company}
         {job.location ? ` · ${job.location}` : ""}
-        {closedOn ? ` · Closed ${closedOn}` : ""}
+        {closedOn ? ` · Application deadline: ${closedOn}` : ""}
       </p>
       <p>
         This vacancy is no longer open, so Daraja has removed the application

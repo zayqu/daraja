@@ -47,7 +47,8 @@ export async function GET(request, { params }) {
       job: { select: { active: true, moderationStatus: true, deadline: true } },
     },
   });
-  if (!campaign || campaign.status !== "LIVE" || !campaign.publishedAt ||
+  if (!campaign || campaign.destinationMode !== "PARTNER_DIRECT" ||
+      campaign.status !== "LIVE" || !campaign.publishedAt ||
       campaign.employer.verificationStatus !== "VERIFIED") return INVALID();
 
   if (campaign.destinationMode === "AJIRA_LANDING" &&
@@ -62,7 +63,7 @@ export async function GET(request, { params }) {
   destination.searchParams.set("utm_medium", "whatsapp_channel");
   destination.searchParams.set("utm_campaign", campaignKey);
 
-  if (isLikelyHumanNavigation(request)) {
+  if (request.method === "GET" && isLikelyHumanNavigation(request)) {
     try {
       await prisma.distributionCampaign.update({
         where: { campaignKey },

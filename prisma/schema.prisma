@@ -261,6 +261,8 @@ model DistributionCampaign {
   views24h             Int?
   views7d              Int?
   viewsRecordedAt      DateTime?
+  outboundRedirects    Int       @default(0)
+  redirectsRecordedAt  DateTime?
   ga4Sessions          Int?
   ga4ApplyClicks       Int?
   analyticsRecordedAt  DateTime?

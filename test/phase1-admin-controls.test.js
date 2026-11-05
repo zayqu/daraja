@@ -67,3 +67,15 @@ test("source edit does not dismiss its confirmation message immediately", () => 
   assert.match(form, /Source updated successfully/);
   assert.doesNotMatch(form, /^\s*onDone\?\.\(\);/m);
 });
+
+test("all account subpages use role-aware candidate career navigation", () => {
+  for (const path of [
+    "app/account/notifications/page.js",
+    "app/account/alerts/page.js",
+    "app/account/privacy/page.js",
+  ]) {
+    const source = read(path);
+    assert.match(source, /candidateCareerEnabled\(\) && session\.user\.role === "JOB_SEEKER"/);
+    assert.match(source, /showCareer=\{careerEnabled\}/);
+  }
+});

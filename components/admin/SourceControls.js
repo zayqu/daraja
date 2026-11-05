@@ -92,6 +92,7 @@ export function SourceForm({ source = null, onDone }) {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const [existingSourceId, setExistingSourceId] = useState("");
   const set = (key) => (event) => setValues((current) => ({ ...current, [key]: event.target.value }));
 
   async function submit(event) {
@@ -99,12 +100,14 @@ export function SourceForm({ source = null, onDone }) {
     setBusy(true);
     setError("");
     setSuccess("");
+    setExistingSourceId("");
     const { ok, payload } = editing
       ? await send(`/api/admin/sources/${source.id}`, "PATCH", { source: values })
       : await send("/api/admin/sources", "POST", values);
     setBusy(false);
     if (!ok) {
       setError(payload.error || "The source was not saved.");
+      setExistingSourceId(payload.existingSourceId || "");
       return;
     }
     if (!editing) setValues(EMPTY);
@@ -142,6 +145,9 @@ export function SourceForm({ source = null, onDone }) {
   return (
     <form onSubmit={submit}>
       {error ? <p className={styles.alert} role="alert">{error}</p> : null}
+      {existingSourceId ? (
+        <p><a href={`/admin/sources#source-${encodeURIComponent(existingSourceId)}`}>Open existing source</a></p>
+      ) : null}
       {success ? <p role="status">{success}</p> : null}
       <div className={styles.formGrid}>
         {field("name", "Name", { required: true, placeholder: "e.g. Acme Recruitment" })}

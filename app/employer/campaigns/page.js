@@ -35,9 +35,9 @@ export default async function EmployerDistributionReports() {
           <p><Link href="/employer">Back to employer workspace</Link></p>
           {campaigns.length ? campaigns.map((c) => (
             <SurfaceCard key={c.id} as="article">
-              <p><strong>{c.job.title}</strong> · {c.status.toLowerCase()}</p>
+              <p><strong>{c.vacancyTitle}</strong> · {c.status.toLowerCase()}</p>
               <p>Campaign ID: {c.campaignKey}</p>
-              <p>Approved application journey: {c.destinationMode === "PARTNER_DIRECT" ? "Direct to your official website / ATS" : "Via the Ajira vacancy page"}. <Link href={`/jobs/${c.job.slug}`}>View published vacancy</Link></p>
+              <p>Approved application journey: {c.destinationMode === "PARTNER_DIRECT" ? "Direct to your official website / ATS" : "Via the Ajira vacancy page"}. {c.job ? <Link href={`/jobs/${c.job.slug}`}>View optional Ajira listing</Link> : null}</p>
               <p>WhatsApp Channel views (24 hours): <strong>{metric(c.views24h)}</strong></p>
               <p>WhatsApp Channel views (7 days): <strong>{metric(c.views7d)}</strong></p>
               <p>Attributed sessions: <strong>{metric(c.ga4Sessions)}</strong></p>

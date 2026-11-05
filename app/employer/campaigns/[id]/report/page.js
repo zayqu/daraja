@@ -28,6 +28,7 @@ export default async function DistributionReport({ params }) {
       <table style={{width:"100%",borderCollapse:"collapse"}}>
         <tbody>
           {[
+            ["Outbound partner redirects (not unique applicants)", c.status === "DRAFT" ? "Unavailable" : display(c.outboundRedirects)],
             ["WhatsApp post views at 24 hours", display(c.views24h)],
             ["WhatsApp post views at seven days", display(c.views7d)],
             ["Attributed website sessions", display(c.ga4Sessions)],
@@ -39,7 +40,7 @@ export default async function DistributionReport({ params }) {
             <td style={{padding:10,borderBottom:"1px solid #ddd"}}>{value}</td></tr>)}
         </tbody>
       </table>
-      <p>Channel view figures are entered from WhatsApp insights by DARAJA. Partner outcomes are supplied by the partner. Website analytics are displayed only when independently verified; unavailable figures are not zero. Apply clicks are not completed applications.</p>
+      <p>Channel view figures are entered from WhatsApp insights by DARAJA. Partner outcomes are supplied by the partner. Website analytics are displayed only when independently verified; unavailable figures are not zero. Redirect requests and Apply clicks are not completed applications.</p>
       <p>Updated: {c.updatedAt.toLocaleString("en-GB",{timeZone:"Africa/Dar_es_Salaam"})} EAT.</p>
       <p>DARAJA is a vacancy distribution and reporting service, not a recruitment agent. The partner retains candidate relationships, applications and hiring decisions.</p>
       <PrintCampaignReport />

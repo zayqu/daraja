@@ -30,7 +30,7 @@ function isLikelyHumanNavigation(request) {
     request.headers.get("x-purpose"),
   ].filter(Boolean).join(" ");
   if (/prefetch|prerender/i.test(purpose)) return false;
-  if (/bot|crawler|spider|preview|facebookexternalhit|WhatsApp|Google-InspectionTool|headless|monitor/i.test(userAgent)) return false;
+  if (/bot|crawler|spider|preview|facebookexternalhit|Google-InspectionTool|headless|monitor/i.test(userAgent)) return false;
   // A count describes redirect requests, never unique people or completed applications.
   return true;
 }

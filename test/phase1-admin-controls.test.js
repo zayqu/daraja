@@ -52,3 +52,18 @@ test("mobile account access is available regardless of role", () => {
   assert.match(nav, /showCandidateProfile \|\| account\?\.signedIn/);
   assert.match(account, /signOut/);
 });
+
+test("successful category creation clears fields and shows a status message", () => {
+  const create = read("components/admin/CategoryControls.js").split("// One row of the category list")[0];
+  assert.match(create, /setName\(""\)/);
+  assert.match(create, /setKeywords\(""\)/);
+  assert.match(create, /added successfully/);
+  assert.match(create, /role="status"/);
+});
+
+test("source edit does not dismiss its confirmation message immediately", () => {
+  const source = read("components/admin/SourceControls.js");
+  const form = source.split("// Test / Edit / Delete")[0];
+  assert.match(form, /Source updated successfully/);
+  assert.doesNotMatch(form, /^\s*onDone\?\.\(\);/m);
+});

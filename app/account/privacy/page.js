@@ -18,6 +18,8 @@ export default async function PrivacyPage() {
     redirect("/auth/signin?callbackUrl=/account/privacy");
   }
 
+  const careerEnabled = candidateCareerEnabled() && session.user.role === "JOB_SEEKER";
+
   return (
     <div className={styles.page}>
       <PublicSiteNav />
@@ -31,7 +33,7 @@ export default async function PrivacyPage() {
         />
 
         <WorkspaceShell width="narrow">
-          <CandidateAccountTabs showCareer={candidateCareerEnabled()} />
+          <CandidateAccountTabs showCareer={careerEnabled} />
 
           <section className={styles.stack} aria-label="Privacy controls">
             <SurfaceCard as="article" className={styles.privacyCard}>

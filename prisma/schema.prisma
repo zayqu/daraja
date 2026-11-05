@@ -94,6 +94,7 @@ model Employer {
   user        User         @relation(fields: [userId], references: [id])
   jobs        Job[]
   auditEvents AuditEvent[]
+  distributionCampaigns DistributionCampaign[]
 }
 
 enum EmployerVerificationStatus {
@@ -226,6 +227,7 @@ model Job {
   employer     Employer?     @relation(fields: [employerId], references: [id])
   moderatedBy  User?         @relation("JobModerator", fields: [moderatedById], references: [id])
   applications Application[]
+  distributionCampaigns DistributionCampaign[]
   savedBy      SavedJob[]
 
   @@unique([source, sourceId])
@@ -239,6 +241,39 @@ enum JobModerationStatus {
   PUBLISHED
   REJECTED
   ARCHIVED
+}
+
+// Distribution-only partnerships. DARAJA never receives agency applications or CVs.
+// All optional counters are null until their source has actually been verified.
+model DistributionCampaign {
+  id                   String    @id @default(cuid())
+  campaignKey          String    @unique
+  employerId           String
+  jobId                String
+  partnerType          String
+  approvedByPartnerAt  DateTime
+  status               String    @default("DRAFT")
+  whatsappPostUrl      String?
+  publishedAt          DateTime?
+  views24h             Int?
+  views7d              Int?
+  viewsRecordedAt      DateTime?
+  ga4Sessions          Int?
+  ga4ApplyClicks       Int?
+  analyticsRecordedAt  DateTime?
+  reportedApplications Int?
+  reportedInterviews   Int?
+  reportedHires        Int?
+  outcomesRecordedAt   DateTime?
+  updatedAt            DateTime  @updatedAt
+  createdAt            DateTime  @default(now())
+
+  employer Employer @relation(fields: [employerId], references: [id], onDelete: Restrict)
+  job      Job      @relation(fields: [jobId], references: [id], onDelete: Restrict)
+
+  @@unique([employerId, jobId])
+  @@index([employerId, createdAt])
+  @@index([status, createdAt])
 }
 
 model AuditEvent {

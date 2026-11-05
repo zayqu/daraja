@@ -25,6 +25,8 @@ export default function DistributionCampaignManager({ employers, jobs, campaigns
   const router = useRouter();
   const [employerId, setEmployerId] = useState("");
   const [jobId, setJobId] = useState("");
+  const [vacancyTitle, setVacancyTitle] = useState("");
+  const [destinationUrl, setDestinationUrl] = useState("");
   const [partnerType, setPartnerType] = useState("RECRUITMENT_AGENCY");
   const [destinationMode, setDestinationMode] = useState("PARTNER_DIRECT");
   const [approvalReference, setApprovalReference] = useState("");
@@ -38,9 +40,10 @@ export default function DistributionCampaignManager({ employers, jobs, campaigns
     event.preventDefault();
     setSaving(true); setErrors(""); setMessage("");
     try {
-      const result = await send("POST", { employerId, jobId, partnerType, partnerApproved: approved, destinationMode, approvalReference });
+      const result = await send("POST", { employerId, jobId: destinationMode === "AJIRA_LANDING" ? jobId : null,
+        vacancyTitle, destinationUrl, partnerType, partnerApproved: approved, destinationMode, approvalReference });
       setMessage(`Created campaign ${result.campaignKey}; no WhatsApp post has been sent.`);
-      setJobId(""); setApproved(false); setApprovalReference("");
+      setJobId(""); setVacancyTitle(""); setDestinationUrl(""); setApproved(false); setApprovalReference("");
       router.refresh();
     } catch (error) {
       setErrors(error.message);
@@ -72,18 +75,29 @@ export default function DistributionCampaignManager({ employers, jobs, campaigns
     <>
       <form className={styles.settingForm} onSubmit={create}>
         <h2>Create a partner-approved campaign</h2>
-        <p>Only verified partners and their own published vacancies are eligible. DARAJA distributes; the partner receives all applications on its own system.</p>
+        <p>Only verified partners can join. Agency vacancies can go directly to their official ATS without being republished on Ajira.</p>
         <label htmlFor="campaign-partner">Verified partner</label>
         <select className={styles.input} id="campaign-partner" required value={employerId}
           onChange={(event) => { setEmployerId(event.target.value); setJobId(""); }}>
           <option value="">Select a verified partner</option>
           {employers.map((employer) => <option key={employer.id} value={employer.id}>{employer.companyName}</option>)}
         </select>
-        <label htmlFor="campaign-job">Partner-owned vacancy</label>
-        <select className={styles.input} id="campaign-job" required value={jobId} onChange={(event) => setJobId(event.target.value)}>
-          <option value="">Select published vacancy</option>
-          {eligibleJobs.map((job) => <option key={job.id} value={job.id}>{job.title}</option>)}
-        </select>
+        <label htmlFor="campaign-title">Approved vacancy title</label>
+        <input className={styles.input} id="campaign-title" required minLength={5} maxLength={160}
+          value={vacancyTitle} onChange={(event) => setVacancyTitle(event.target.value)} />
+        <label htmlFor="campaign-url">Official partner application URL (https)</label>
+        <input className={styles.input} id="campaign-url" type="url" required pattern="https://.*"
+          maxLength={2000} value={destinationUrl} placeholder="https://agency.example/careers/role"
+          onChange={(event) => setDestinationUrl(event.target.value)} />
+        {destinationMode === "AJIRA_LANDING" ? (
+          <>
+            <label htmlFor="campaign-job">Partner-owned published Ajira vacancy</label>
+            <select className={styles.input} id="campaign-job" required value={jobId} onChange={(event) => setJobId(event.target.value)}>
+              <option value="">Select Ajira vacancy</option>
+              {eligibleJobs.map((job) => <option key={job.id} value={job.id}>{job.title}</option>)}
+            </select>
+          </>
+        ) : null}
         <label htmlFor="campaign-type">Partner type</label>
         <select className={styles.input} id="campaign-type" value={partnerType} onChange={(event) => setPartnerType(event.target.value)}>
           {TYPES.map(([value, label]) => <option key={value} value={value}>{label}</option>)}
@@ -99,7 +113,7 @@ export default function DistributionCampaignManager({ employers, jobs, campaigns
           onChange={(event) => setApprovalReference(event.target.value)}/>
         <label><input type="checkbox" checked={approved} onChange={(event) => setApproved(event.target.checked)} required/>
           {" "}The authorised partner approved this vacancy distribution and reporting.</label>
-        <button className={styles.buttonPrimary} type="submit" disabled={saving || !eligibleJobs.length}>
+        <button className={styles.buttonPrimary} type="submit" disabled={saving || (destinationMode === "AJIRA_LANDING" && !eligibleJobs.length)}>
           Create draft campaign
         </button>
       </form>
@@ -108,7 +122,7 @@ export default function DistributionCampaignManager({ employers, jobs, campaigns
       <h2>Campaigns</h2>
       {campaigns.length ? campaigns.map((c) => (
         <form className={styles.settingForm} key={c.id} onSubmit={(event) => update(event, c.id)}>
-          <h3>{c.employer.companyName} — {c.job.title}</h3>
+          <h3>{c.employer.companyName} — {c.vacancyTitle}</h3>
           <p><strong>{c.campaignKey}</strong> · {c.partnerType.replaceAll("_", " ")}</p>
           <p>Application route: {c.destinationMode === "PARTNER_DIRECT" ? "Direct to partner website / ATS" : "Ajira job page"}</p>
           <p>Campaign link: <a href={c.destinationMode === "PARTNER_DIRECT"

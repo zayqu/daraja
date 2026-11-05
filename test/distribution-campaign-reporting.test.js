@@ -62,3 +62,20 @@ test("public advertising copy does not compete with recruitment agency ATS", () 
   assert.match(page, /directly to your official careers website or ATS/);
   assert.match(page, /We do not collect candidates or act as a recruiter/);
 });
+
+test("campaign deletion cannot block employer account erasure", () => {
+  const schema = read("prisma/schema.prisma");
+  const sql = read("prisma/migrations/20261105120000_distribution_campaign_reporting/migration.sql");
+  const deletion = read("lib/account-deletion.js");
+  assert.match(schema, /employer Employer @relation\(fields: \[employerId\], references: \[id\], onDelete: Cascade\)/);
+  assert.match(schema, /job\s+Job\?\s+@relation\(fields: \[jobId\], references: \[id\], onDelete: SetNull\)/);
+  assert.match(sql, /REFERENCES "Employer"\("id"\) ON DELETE CASCADE/);
+  assert.match(sql, /REFERENCES "Job"\("id"\) ON DELETE SET NULL/);
+  assert.match(deletion, /await tx\.employer\.delete/);
+});
+
+test("suspended or unverified partners cannot see private reporting", () => {
+  for (const p of ["app/employer/campaigns/page.js", "app/employer/campaigns/[id]/report/page.js"]) {
+    assert.match(read(p), /actor\.employer\.verificationStatus !== "VERIFIED"/);
+  }
+});

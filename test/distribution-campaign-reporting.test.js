@@ -48,3 +48,10 @@ test("schema migration adds a separate private campaign table without touching a
   assert.match(sql, /FOREIGN KEY \("employerId"\)/);
   assert.doesNotMatch(sql, /DROP TABLE|TRUNCATE|DELETE FROM|ALTER TABLE "Application"/);
 });
+
+test("public advertising copy does not compete with recruitment agency ATS", () => {
+  const page = read("app/advertise/page.js");
+  assert.match(page, /Recruitment agencies and employers retain their own application websites/);
+  assert.match(page, /directly to your official careers website or ATS/);
+  assert.match(page, /We do not collect candidates or act as a recruiter/);
+});

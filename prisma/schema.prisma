@@ -249,7 +249,8 @@ model DistributionCampaign {
   id                   String    @id @default(cuid())
   campaignKey          String    @unique
   employerId           String
-  jobId                String
+  jobId                String?
+  vacancyTitle         String
   partnerType          String
   destinationMode      String    @default("PARTNER_DIRECT")
   destinationUrl       String
@@ -271,7 +272,7 @@ model DistributionCampaign {
   createdAt            DateTime  @default(now())
 
   employer Employer @relation(fields: [employerId], references: [id], onDelete: Restrict)
-  job      Job      @relation(fields: [jobId], references: [id], onDelete: Restrict)
+  job      Job?     @relation(fields: [jobId], references: [id], onDelete: Restrict)
 
   @@unique([employerId, jobId])
   @@index([employerId, createdAt])

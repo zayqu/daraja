@@ -42,3 +42,11 @@ test("Tanzania midnight closes yesterday's postings in both stored formats", asy
   assert.equal(new Date("2026-11-18T20:59:59.000Z") >= cutoff, true);
   assert.equal(new Date("2026-11-18T23:59:59.000Z") >= cutoff, true);
 });
+
+test("Apply redirects use the same date-only closing check as public jobs", () => {
+  const fs = require("node:fs");
+  const route = fs.readFileSync(require("node:path").join(__dirname, "..", "app", "api", "jobs", "[id]", "apply", "route.js"), "utf8");
+  assert.match(route, /isDeadlinePast\(job\.deadline\)/);
+  assert.match(route, /isDeadlinePast\(job\?\.deadline\)/);
+  assert.doesNotMatch(route, /job\.deadline < new Date\(\)/);
+});

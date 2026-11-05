@@ -59,7 +59,7 @@ export default async function AdminSourcesPage() {
         </details>
       </Panel>
 
-      <Panel title={`Sources (${runnable.length})`} flush>
+      <Panel title={`Runnable sources (${runnable.length} of ${catalog.length})`} flush>
         <div className={styles.tableWrap}>
           <table className={`${styles.table} ${styles.stackOnMobile}`}>
             <thead>
@@ -119,6 +119,15 @@ export default async function AdminSourcesPage() {
           usually be added above with &quot;Add source&quot;; sites with a completely different layout need a
           development change.
         </p>
+        {planned.length ? (
+          <ul>
+            {planned.map((source) => (
+              <li key={source.id}>
+                <strong>{source.name}</strong> ({source.id}) — reader not configured; collection unavailable
+              </li>
+            ))}
+          </ul>
+        ) : <p className={styles.help}>No planned sources.</p>}
       </Panel>
     </>
   );

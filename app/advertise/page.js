@@ -24,7 +24,7 @@ export default async function AdvertisePage() {
   return (
     <ContentPage
       title="Your vacancy deserves the right audience."
-      description="DARAJA helps Tanzanian employers distribute real vacancies to people who follow employment opportunities. We are inviting three employers to test the service before our paid launch."
+      description="DARAJA distributes approved vacancies to its audience. Recruitment agencies and employers retain their own application websites, candidate relationships and hiring decisions."
     >
       <h2>Why try DARAJA?</h2>
       <p>
@@ -43,9 +43,9 @@ export default async function AdvertisePage() {
       <ul>
         <li>Review of your organisation, vacancy and official application destination.</li>
         <li>Preparation and publication of one approved vacancy on the channel.</li>
-        <li>A tracked link to the Daraja vacancy page where available.</li>
+        <li>An approved link directly to your official careers website or ATS; an Ajira information page is optional.</li>
         <li>A summary of channel views after 24 hours and seven days.</li>
-        <li>A request for voluntary employer feedback on applications and relevance.</li>
+        <li>A request for voluntary partner feedback on applications and relevance. We do not collect candidates or act as a recruiter.</li>
       </ul>
       <p>
         <strong>Pilot fee: TZS 0.</strong> No long-term commitment. Participation
@@ -77,7 +77,7 @@ export default async function AdvertisePage() {
       <h2>Important for candidates</h2>
       <p>
         DARAJA does not charge jobseekers to view or apply for vacancies.
-        Candidates apply through the employer&apos;s official application route.
+        Candidates apply through the authorised employer or recruitment agency&apos;s official application route.
         Do not submit CVs or identity documents through an employer enquiry.
       </p>
     </ContentPage>

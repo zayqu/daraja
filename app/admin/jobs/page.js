@@ -1,6 +1,6 @@
 import Link from "next/link";
 import AdminRowActions, { BulkActions } from "@/components/admin/AdminRowActions";
-import { JobStatusBadge, PageHeader, Pagination, Panel, formatDate, pageNumber } from "@/components/admin/AdminUi";
+import { JobStatusBadge, PageHeader, Pagination, Panel, pageNumber } from "@/components/admin/AdminUi";
 import styles from "@/components/admin/admin.module.css";
 import { requireAdminPage } from "@/lib/admin-guard";
 import { getCategoryNames } from "@/lib/public-jobs";

@@ -5,6 +5,8 @@ CREATE TABLE "DistributionCampaign" (
   "employerId" TEXT NOT NULL,
   "jobId" TEXT NOT NULL,
   "partnerType" TEXT NOT NULL,
+  "destinationMode" TEXT NOT NULL DEFAULT 'PARTNER_DIRECT',
+  "destinationUrl" TEXT NOT NULL,
   "approvedByPartnerAt" TIMESTAMP(3) NOT NULL,
   "status" TEXT NOT NULL DEFAULT 'DRAFT',
   "whatsappPostUrl" TEXT,

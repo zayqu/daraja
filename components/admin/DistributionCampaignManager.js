@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import styles from "./admin.module.css";
+import { absoluteSiteUrl } from "@/lib/site-config";
 
 const TYPES = [
   ["RECRUITMENT_AGENCY", "Recruitment agency"],
@@ -125,14 +126,14 @@ export default function DistributionCampaignManager({ employers, jobs, campaigns
           <h3>{c.employer.companyName} — {c.vacancyTitle}</h3>
           <p><strong>{c.campaignKey}</strong> · {c.partnerType.replaceAll("_", " ")}</p>
           <p>Application route: {c.destinationMode === "PARTNER_DIRECT" ? "Direct to partner website / ATS" : "Ajira job page"}</p>
-          <p>Share only after actual publication: <code>{`https://ajira.daraja.co.tz/r/${c.campaignKey}`}</code></p>
+          <p>Share only after actual publication: <code>{absoluteSiteUrl(`/r/${c.campaignKey}`)}</code></p>
           <p>
             {c.destinationMode === "PARTNER_DIRECT"
               ? "This redirect will count aggregate outbound requests and immediately forward candidates to the approved partner ATS. Draft campaigns are not accessible via this link."
               : "For an optional Ajira landing, use the existing tagged Ajira vacancy URL instead; the redirect counter does not measure Ajira landing visits."}
           </p>
           {c.destinationMode === "AJIRA_LANDING" && c.job ? <p>
-            <code>{`https://ajira.daraja.co.tz/jobs/${c.job.slug}?utm_source=whatsapp&utm_medium=channel&utm_campaign=${c.campaignKey}`}</code>
+            <code>{absoluteSiteUrl(`/jobs/${c.job.slug}?utm_source=whatsapp&utm_medium=channel&utm_campaign=${c.campaignKey}`)}</code>
           </p> : null}
           <p>Outbound redirect requests (not unique visitors or applications):
             <strong> {c.status === "DRAFT" ? "Unavailable before publication" : c.outboundRedirects.toLocaleString("en-GB")}</strong>

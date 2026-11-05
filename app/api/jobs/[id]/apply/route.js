@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
+import { isDeadlinePast } from "@/lib/job-deadline";
 import {
   extractFinalApplicationUrl,
   fetchAllowedApplicationPage,
@@ -55,7 +56,7 @@ export async function GET(_request, context) {
     if (!job) {
       return jsonError("Job not found", 404);
     }
-    if (job.deadline && job.deadline < new Date()) {
+    if (isDeadlinePast(job.deadline)) {
       return jsonError("Applications are closed", 410);
     }
     if (job.applicationUrl) {
@@ -151,7 +152,7 @@ export async function GET(_request, context) {
       jsonError("A direct application link could not be verified", 502);
   } catch (error) {
     console.error("Application redirect error:", error);
-    const fallback = job?.deadline && job.deadline < new Date()
+    const fallback = isDeadlinePast(job?.deadline)
       ? null
       : officialFallback(job);
     return fallback || jsonError("Unable to open the application right now", 502);

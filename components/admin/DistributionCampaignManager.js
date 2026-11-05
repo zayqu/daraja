@@ -26,6 +26,7 @@ export default function DistributionCampaignManager({ employers, jobs, campaigns
   const [employerId, setEmployerId] = useState("");
   const [jobId, setJobId] = useState("");
   const [partnerType, setPartnerType] = useState("RECRUITMENT_AGENCY");
+  const [destinationMode, setDestinationMode] = useState("PARTNER_DIRECT");
   const [approvalReference, setApprovalReference] = useState("");
   const [approved, setApproved] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -37,7 +38,7 @@ export default function DistributionCampaignManager({ employers, jobs, campaigns
     event.preventDefault();
     setSaving(true); setErrors(""); setMessage("");
     try {
-      const result = await send("POST", { employerId, jobId, partnerType, partnerApproved: approved, approvalReference });
+      const result = await send("POST", { employerId, jobId, partnerType, partnerApproved: approved, destinationMode, approvalReference });
       setMessage(`Created campaign ${result.campaignKey}; no WhatsApp post has been sent.`);
       setJobId(""); setApproved(false); setApprovalReference("");
       router.refresh();
@@ -87,6 +88,11 @@ export default function DistributionCampaignManager({ employers, jobs, campaigns
         <select className={styles.input} id="campaign-type" value={partnerType} onChange={(event) => setPartnerType(event.target.value)}>
           {TYPES.map(([value, label]) => <option key={value} value={value}>{label}</option>)}
         </select>
+        <label htmlFor="destination-mode">Application journey</label>
+        <select className={styles.input} id="destination-mode" value={destinationMode} onChange={(e) => setDestinationMode(e.target.value)}>
+          <option value="PARTNER_DIRECT">Direct to partner website / ATS (no DARAJA website analytics)</option>
+          <option value="AJIRA_LANDING">Ajira job details first (consented GA4 possible)</option>
+        </select>
         <label htmlFor="campaign-reference">Partner approval reference (internal, no applicant data)</label>
         <input className={styles.input} id="campaign-reference" required minLength={10} maxLength={300}
           placeholder="Approved correspondence reference / date" value={approvalReference}
@@ -104,7 +110,11 @@ export default function DistributionCampaignManager({ employers, jobs, campaigns
         <form className={styles.settingForm} key={c.id} onSubmit={(event) => update(event, c.id)}>
           <h3>{c.employer.companyName} — {c.job.title}</h3>
           <p><strong>{c.campaignKey}</strong> · {c.partnerType.replaceAll("_", " ")}</p>
-          <p>Tagged vacancy: <a href={`/jobs/${c.job.slug}?utm_source=whatsapp&utm_medium=channel&utm_campaign=${c.campaignKey}`} target="_blank" rel="noopener noreferrer">Preview referral URL</a></p>
+          <p>Application route: {c.destinationMode === "PARTNER_DIRECT" ? "Direct to partner website / ATS" : "Ajira job page"}</p>
+          <p>Campaign link: <a href={c.destinationMode === "PARTNER_DIRECT"
+            ? (function () { const u = new URL(c.destinationUrl); u.searchParams.set("utm_source","daraja"); u.searchParams.set("utm_medium","whatsapp_channel"); u.searchParams.set("utm_campaign",c.campaignKey); return u.toString(); })()
+            : `/jobs/${c.job.slug}?utm_source=whatsapp&utm_medium=channel&utm_campaign=${c.campaignKey}`}
+            target="_blank" rel="noopener noreferrer">Preview referral destination</a></p>
           <label>Status <select className={styles.input} name="status" defaultValue={c.status}>
             <option value="DRAFT">Draft</option><option value="LIVE">Live (only after actual posting)</option><option value="CLOSED">Closed</option>
           </select></label>

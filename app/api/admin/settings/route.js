@@ -13,6 +13,13 @@ function parseValue(definition, value) {
   if (definition.type === "boolean") {
     return typeof value === "boolean" ? { value } : { error: "Choose on or off" };
   }
+  if (definition.type === "number") {
+    const parsed = typeof value === "string" && value.trim() !== "" ? Number(value.trim()) : value;
+    if (!Number.isSafeInteger(parsed) || parsed < 0 || parsed > 100000000) {
+      return { error: "Enter a valid whole-number follower count" };
+    }
+    return { value: parsed };
+  }
   if (definition.type === "list") {
     const list = (Array.isArray(value) ? value : String(value || "").split("\n"))
       .map((item) => String(item).trim())

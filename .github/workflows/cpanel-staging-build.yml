@@ -233,4 +233,4 @@ jobs:
           NODE
 
       - name: Verify synthetic campaign tenancy and account erasure
-        run: node test/distribution-campaign-db-integration.mjs
+        run: node ops/ci/distribution-campaign-db-integration.mjs

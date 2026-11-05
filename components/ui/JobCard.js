@@ -3,6 +3,7 @@
 import Link from "next/link";
 import JobBrandMedia from "@/components/JobBrandMedia";
 import { trackEvent } from "@/lib/analytics";
+import { daysUntilDeadline, deadlineStatus } from "@/lib/job-deadline";
 import styles from "./JobCard.module.css";
 
 const JOB_TYPE_LABELS = {
@@ -30,40 +31,6 @@ function formatDate(value) {
   });
 }
 
-const DAY_MS = 86400000;
-const EAST_AFRICA_OFFSET_MS = 3 * 60 * 60 * 1000;
-
-// Deadlines are stored as the stated calendar day (end of day, UTC), so compare
-// that day with today's date in East Africa rather than raw hours remaining.
-function daysUntil(value) {
-  const date = safeDate(value);
-  if (!date) return null;
-  const deadlineDay = Math.floor(date.getTime() / DAY_MS);
-  const today = Math.floor((Date.now() + EAST_AFRICA_OFFSET_MS) / DAY_MS);
-  return deadlineDay - today;
-}
-
-function formatDeadlineDate(value) {
-  const date = safeDate(value);
-  if (!date) return null;
-  return date.toLocaleDateString("en-GB", {
-    day: "numeric",
-    month: "short",
-    year: "numeric",
-    timeZone: "UTC",
-  });
-}
-
-function deadlineLabel(value) {
-  const days = daysUntil(value);
-  if (days === null) return null;
-  if (days < 0) return "Closed";
-  if (days === 0) return "Closes today";
-  if (days === 1) return "Closes tomorrow";
-  if (days <= 7) return `Closes in ${days} days`;
-  return `Deadline: ${formatDeadlineDate(value)}`;
-}
-
 function experienceLabel(min, max) {
   if (!Number.isInteger(min)) return null;
   if (min === 0 && max === 0) return "No experience needed";
@@ -85,7 +52,7 @@ function factTags(job) {
 }
 
 function deadlineTone(value) {
-  const days = daysUntil(value);
+  const days = daysUntilDeadline(value);
   if (days === null) return "";
   if (days < 0) return styles.expired;
   if (days <= 3) return styles.soon;
@@ -107,7 +74,7 @@ export default function JobCard({
   job,
   listName = "Job opportunities",
 }) {
-  const deadline = deadlineLabel(job.deadline);
+  const deadline = deadlineStatus(job.deadline);
   const posted = postedLabel(job.createdAt);
   const tags = factTags(job);
 

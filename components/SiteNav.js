@@ -108,7 +108,7 @@ export default function SiteNav({
                 </span>
               ) : null}
             </Link>
-            {showCandidateProfile && (
+            {(showCandidateProfile || account?.signedIn) && (
               <Link
                 href="/account"
                 className={styles.mobileIconButton}

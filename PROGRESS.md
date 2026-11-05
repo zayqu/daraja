@@ -1255,3 +1255,13 @@ Every batch must record:
 - This responds to GitHub-reviewed advisories `GHSA-2464-fhr4-w9xw`, `GHSA-p3m5-59mp-jv5r` and `GHSA-673q-mjm6-r5xr`, all of which list 16.4.1 as the patched Next.js 16 release.
 - The focused PR changes no schema, production data, provider configuration, DNS, payment behavior or feature flag.
 - Validation on PR #203: production dependency audit, full tests, ESLint, Prisma validation, production build, self-contained cPanel runtime smoke and packaging passed before the final documentation commit; the final head is revalidated before merge.
+
+
+## Recruitment distribution reporting (development only, 5 November 2026)
+
+- Started `feature/recruitment-distribution-reporting` to implement agency-safe pilot campaign infrastructure, separate from the live advertising landing page.
+- Added an additive campaign registry proposal and SQL migration, constrained to one verified employer and its own published vacancy; no candidate data is stored.
+- Developed a protected admin campaign form and update route with source-specific metrics and audit trail; no automated WhatsApp posts or outbound emails.
+- Built partner-owned read-only reporting pages and a printable seven-day reporting view. Default agency route directs candidates to the partner's own HTTPS application website, with optional Ajira landing page when agreed.
+- Missing analytics/outcome figures show unavailable; GA4 cannot be entered as unverified manual numbers and a GA4 Data API integration is not claimed.
+- **NOT deployed.** Migration requires nonproduction validation, restore-point approval and explicit owner consent before production; existing production traffic and data remain untouched. CI and preview results will be recorded in PR before merge.

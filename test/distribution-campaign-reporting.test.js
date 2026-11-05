@@ -30,8 +30,8 @@ test("agency campaign can send applicants directly to their own ATS", () => {
   assert.match(schema, /destinationMode\s+String/);
   assert.match(editor, /PARTNER_DIRECT/);
   assert.match(editor, /AJIRA_LANDING/);
-  assert.match(editor, /utm_campaign/);
-  assert.match(editor, /whatsapp_channel/);
+  assert.match(read("app/r/[campaignKey]/route.js"), /"utm_campaign"/);
+  assert.match(read("app/r/[campaignKey]/route.js"), /"whatsapp_channel"/);
   assert.match(editor, /Direct to partner website \/ ATS/);
   assert.match(editor, /destinationMode === "AJIRA_LANDING" \?/);
 });
@@ -78,4 +78,28 @@ test("suspended or unverified partners cannot see private reporting", () => {
   for (const p of ["app/employer/campaigns/page.js", "app/employer/campaigns/[id]/report/page.js"]) {
     assert.match(read(p), /actor\.employer\.verificationStatus !== "VERIFIED"/);
   }
+});
+
+test("partner outbound redirect is approved, non-indexable, bot-aware and free of applicant data", () => {
+  const route = read("app/r/[campaignKey]/route.js");
+  assert.match(route, /CAMPAIGN_KEY\.test\(campaignKey\)/);
+  assert.match(route, /campaign\.destinationMode !== "PARTNER_DIRECT"/);
+  assert.match(route, /campaign\.status !== "LIVE"/);
+  assert.match(route, /verificationStatus !== "VERIFIED"/);
+  assert.match(route, /destination\.protocol !== "https:"/);
+  assert.match(route, /outboundRedirects: \{ increment: 1 \}/);
+  assert.match(route, /request\.method === "GET"/);
+  assert.match(route, /isLikelyHumanNavigation/);
+  assert.match(route, /"Cache-Control", "private, no-store"/);
+  assert.match(route, /"Referrer-Policy", "no-referrer"/);
+  assert.match(route, /"X-Robots-Tag", "noindex, nofollow"/);
+  assert.doesNotMatch(route, /cookies\(\)|request\.headers\.get\("cookie"\)|request\.headers\.get\("x-forwarded-for"\)/);
+});
+
+test("isolated CI migration check never uses the production database secret", () => {
+  const workflow = read(".github/workflows/cpanel-staging-build.yml");
+  assert.match(workflow, /validate-isolated-migrations:/);
+  assert.match(workflow, /postgres:17/);
+  assert.match(workflow, /DATABASE_URL: postgresql:\/\/migration_ci:/);
+  assert.match(workflow, /Apply all migrations to empty, isolated PostgreSQL/);
 });

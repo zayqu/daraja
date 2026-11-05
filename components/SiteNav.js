@@ -94,7 +94,7 @@ export default function SiteNav({
         )}
 
         {dockManaged && (
-          <div className={styles.mobileAccountActions} aria-label="Candidate account">
+          <div className={styles.mobileAccountActions} aria-label="Account and notifications">
             <Link
               href="/account/notifications"
               className={styles.mobileIconButton}

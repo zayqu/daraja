@@ -1260,7 +1260,7 @@ Every batch must record:
 ## Recruitment distribution reporting (development only, 5 November 2026)
 
 - Started `feature/recruitment-distribution-reporting` to implement agency-safe pilot campaign infrastructure, separate from the live advertising landing page.
-- Added an additive campaign registry proposal and SQL migration, constrained to one verified employer and its own published vacancy; no candidate data is stored.
+- Added an additive campaign registry proposal and SQL migration, constrained to one verified partner, with partner-owned vacancy title and official destination URL; Ajira listing optional; no candidate data is stored.
 - Developed a protected admin campaign form and update route with source-specific metrics and audit trail; no automated WhatsApp posts or outbound emails.
 - Built partner-owned read-only reporting pages and a printable seven-day reporting view. Default agency route directs candidates to the partner's own HTTPS application website, with optional Ajira landing page when agreed.
 - Missing analytics/outcome figures show unavailable; GA4 cannot be entered as unverified manual numbers and a GA4 Data API integration is not claimed.

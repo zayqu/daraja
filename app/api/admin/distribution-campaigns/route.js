@@ -78,6 +78,10 @@ export async function POST(request) {
       destination.href.length > 2000) {
     return errorResponse("An external official HTTPS vacancy application URL is required.", 409);
   }
+  if (body.destinationMode === "AJIRA_LANDING" &&
+      job?.applicationUrl !== destination.toString()) {
+    return errorResponse("The Ajira listing must use the partner-approved application destination.", 409);
+  }
   // The administrator must separately verify agency/ATS domain ownership and permission.
   // We intentionally do not fetch third-party destinations from this API.
   const campaignKey = `daraja_pilot_${randomBytes(8).toString("hex")}`;

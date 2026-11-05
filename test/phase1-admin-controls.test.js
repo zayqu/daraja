@@ -1,0 +1,31 @@
+import assert from "node:assert/strict";
+import fs from "node:fs";
+import test from "node:test";
+
+const read = (path) => fs.readFileSync(new URL(`../${path}`, import.meta.url), "utf8");
+
+test("role changes require a labelled explicit Save and confirmation for every role", () => {
+  const control = read("components/admin/UserRoleSelect.js");
+  const page = read("app/admin/users/page.js");
+  assert.match(control, /Save role/);
+  assert.match(control, /window\.confirm\(/);
+  assert.match(control, /selectedRole !== savedRole/);
+  assert.match(control, /onClick=\{save\}/);
+  assert.doesNotMatch(control, /onChange=\{\(event\) => change\(/);
+  assert.match(page, /userName=\{user\.name \|\| user\.email\}/);
+});
+
+test("sources without a configured adapter are listed as planned", () => {
+  const page = read("app/admin/sources/page.js");
+  assert.match(page, /planned\.map\(\(source\) =>/);
+  assert.match(page, /reader not configured/);
+  assert.match(page, /catalog\.length/);
+});
+
+test("source form provides saved feedback while preventing duplicate in-flight submits", () => {
+  const form = read("components/admin/SourceControls.js");
+  assert.match(form, /Source added successfully/);
+  assert.match(form, /role="status"/);
+  assert.match(form, /disabled=\{busy\}/);
+  assert.match(form, /setValues\(EMPTY\)/);
+});

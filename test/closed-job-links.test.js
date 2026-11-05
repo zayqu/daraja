@@ -19,6 +19,8 @@ test("closed vacancies keep their URL and show alternatives instead of a bare 40
   assert.match(layout, /Closed: \$\{closedJob\.title\}/);
   assert.match(layout, /robots: \{ index: false, follow: true \}/);
   assert.match(notice, /This job has closed/);
+  assert.match(notice, /Application deadline: \$\{closedOn\}/);
+  assert.doesNotMatch(notice, /Closed \$\{closedOn\}/);
   assert.match(notice, /\/jobs\?category=/);
   assert.doesNotMatch(notice, /applicationUrl|sourceUrl/);
 });

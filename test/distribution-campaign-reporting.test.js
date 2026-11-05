@@ -4,7 +4,7 @@ const { readFileSync } = require("node:fs");
 const path = require("node:path");
 const read = (p) => readFileSync(path.join(__dirname, "..", p), "utf8");
 
-test("campaign mutations require admin, consent, verified partner and official owned vacancy", () => {
+test("campaign mutations require admin, consent, verified partner and official approved destination", () => {
   const route = read("app/api/admin/distribution-campaigns/route.js");
   assert.match(route, /isAdmin\(actor\)/);
   assert.match(route, /requireOrigin: true/);
@@ -12,6 +12,9 @@ test("campaign mutations require admin, consent, verified partner and official o
   assert.match(route, /approvalReference/);
   assert.match(route, /verificationStatus !== "VERIFIED"/);
   assert.match(route, /job\.employerId !== body\.employerId/);
+  assert.match(route, /const jobId = typeof body\.jobId/);
+  assert.match(route, /body\.destinationMode === "AJIRA_LANDING" && !jobId/);
+  assert.match(route, /new URL\(body\.destinationUrl\)/);
   assert.match(route, /moderationStatus !== "PUBLISHED"/);
   assert.match(route, /destination\.protocol !== "https:"/);
   assert.match(route, /auditEvent\.create/);
@@ -22,11 +25,15 @@ test("agency campaign can send applicants directly to their own ATS", () => {
   const editor = read("components/admin/DistributionCampaignManager.js");
   assert.match(schema, /model DistributionCampaign/);
   assert.match(schema, /destinationUrl\s+String/);
+  assert.match(schema, /vacancyTitle\s+String/);
+  assert.match(schema, /jobId\s+String\?/);
   assert.match(schema, /destinationMode\s+String/);
   assert.match(editor, /PARTNER_DIRECT/);
   assert.match(editor, /AJIRA_LANDING/);
   assert.match(editor, /utm_campaign/);
   assert.match(editor, /whatsapp_channel/);
+  assert.match(editor, /Direct to partner website \/ ATS/);
+  assert.match(editor, /destinationMode === "AJIRA_LANDING" \?/);
 });
 
 test("reports are tenant-isolated, missing values are unavailable, and GA4 cannot be invented", () => {

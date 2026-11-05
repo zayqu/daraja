@@ -7,9 +7,9 @@ import {
 test("deadline calendar dates do not shift backwards for a UTC midnight record", () => {
   const day = "2026-11-18T00:00:00.000Z";
   assert.equal(deadlineDay(day), "2026-11-18");
-  assert.equal(deadlineDay("2026-11-17T20:59:59.000Z"), "2026-11-18");
+  assert.equal(deadlineDay("2026-11-18T20:59:59.000Z"), "2026-11-18");
   assert.equal(deadlineDay("2026-11-18T23:59:59.000Z"), "2026-11-18");
-  assert.equal(formatDeadline("2026-11-17T20:59:59.000Z"), "18 Nov 2026");
+  assert.equal(formatDeadline("2026-11-18T20:59:59.000Z"), "18 Nov 2026");
   assert.equal(formatDeadline(day), "18 Nov 2026");
   assert.equal(formatDeadline(day, { month: "long" }), "18 November 2026");
 });

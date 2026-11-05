@@ -113,7 +113,8 @@ export function SourceForm({ source = null, onDone }) {
     }
     if (!editing) setValues(EMPTY);
     setSuccess(editing ? "Source updated successfully." : "Source added successfully. It is off until tested and enabled.");
-    onDone?.();
+    // Keep the form open so the admin can read the confirmation after saving.
+    // The separate Cancel/Close control still calls onDone when requested.
     router.refresh();
   }
 

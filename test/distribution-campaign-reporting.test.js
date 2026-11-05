@@ -86,7 +86,7 @@ test("partner outbound redirect is approved, non-indexable, bot-aware and free o
   assert.match(route, /campaign\.destinationMode !== "PARTNER_DIRECT"/);
   assert.match(route, /campaign\.status !== "LIVE"/);
   assert.match(route, /verificationStatus !== "VERIFIED"/);
-  assert.match(route, /destination\.protocol !== "https:"/);
+  assert.match(route, /url\.protocol !== "https:"/);
   assert.match(route, /outboundRedirects: \{ increment: 1 \}/);
   assert.match(route, /request\.method === "GET"/);
   assert.match(route, /isLikelyHumanNavigation/);

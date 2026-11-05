@@ -88,3 +88,9 @@ First-party implementation under review in branch `feature/recruitment-distribut
 - No CVs, candidate names, applicants, conversion pixels, cookies, scraped private ATS records or automatically posted WhatsApp campaigns are included.
 
 **Release gate:** verify migration against nonproduction database, record a fresh production restore point, review ownership and CSRF tests, run full CI/preview, test with authorised employer accounts, and obtain separate production schema/release approval. No outreach until direct-to-partner URLs and reporting limitations are approved by each partner.
+
+### Aggregate partner-redirect measurement (development review)
+
+The shareable link for a PARTNER_DIRECT campaign is `https://ajira.daraja.co.tz/r/<campaignKey>`. A short-lived 302 response forwards candidates to the pre-approved HTTPS agency/ATS URL with campaign UTMs and no Ajira job-description page. Only existing, LIVE, verified partner campaigns resolve; unknown/draft/suspended campaigns are unavailable. This link does not collect applicant identity, IP, cookies or CVs in the campaign database. A bot/prefetch heuristic excludes obvious crawlers; it is not proof that counted requests came from unique human users. Counts are called **outbound redirect requests**, not visitors, applications or hires. The response is no-store, no-referrer and non-indexable. External ATS application completions remain partner-reported and can never be inferred from the redirect count.
+
+GitHub PR checks now test the complete migration history on disposable PostgreSQL 17 with only ephemeral test credentials. No Neon branch, production-data copy or paid environment was created. This verifies DDL compatibility; authenticated employer workflows and production restore-point verification remain separately gated.

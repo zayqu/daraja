@@ -1,0 +1,169 @@
+.page {
+  min-height: 100vh;
+  background: var(--color-bg);
+  color: var(--color-text);
+}
+
+.main {
+  width: min(760px, calc(100% - 2rem));
+  margin: 0 auto;
+  padding: 2rem 0 5rem;
+}
+
+.back {
+  color: var(--color-teal-deep);
+  font-size: 0.8rem;
+  font-weight: 800;
+  text-decoration: none;
+}
+
+.heading {
+  margin: 1.5rem 0;
+}
+
+.heading > span,
+.connection span {
+  color: var(--color-teal-deep);
+  font-size: 0.72rem;
+  font-weight: 850;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.heading h1 {
+  margin: 0.35rem 0 0.55rem;
+  font-size: clamp(1.8rem, 4vw, 2.6rem);
+}
+
+.heading p,
+.connectBox p {
+  color: var(--color-text-muted);
+  line-height: 1.7;
+}
+
+.stack {
+  display: grid;
+  gap: 1.4rem;
+}
+
+.connection {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.connection div {
+  display: grid;
+  gap: 0.25rem;
+}
+
+.connection strong {
+  font-size: 1rem;
+}
+
+.connection small {
+  color: var(--color-text-muted);
+}
+
+.shareForm {
+  display: grid;
+  gap: 0.55rem;
+}
+
+.shareForm label {
+  font-size: 0.8rem;
+  font-weight: 800;
+}
+
+.shareForm textarea {
+  width: 100%;
+  resize: vertical;
+  min-height: 180px;
+  padding: 0.9rem;
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  background: #fff;
+  color: var(--color-text);
+  font: inherit;
+  line-height: 1.6;
+}
+
+.formMeta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.formMeta span {
+  color: var(--color-text-muted);
+  font-size: 0.72rem;
+}
+
+.primary,
+.secondary {
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.7rem 1rem;
+  border-radius: 10px;
+  font: inherit;
+  font-size: 0.78rem;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.primary {
+  border: 0;
+  background: var(--color-navy);
+  color: #fff;
+  text-decoration: none;
+}
+
+.secondary {
+  border: 1px solid var(--color-border);
+  background: #fff;
+  color: var(--color-text);
+}
+
+.primary:disabled,
+.secondary:disabled {
+  opacity: 0.55;
+  cursor: progress;
+}
+
+.success,
+.error {
+  margin: 1rem 0;
+  padding: 0.85rem 1rem;
+  border-radius: 10px;
+  font-size: 0.8rem;
+  line-height: 1.5;
+}
+
+.success {
+  background: #ecfdf3;
+  color: #027a48;
+}
+
+.error {
+  background: #fef3f2;
+  color: #b42318;
+}
+
+@media (max-width: 640px) {
+  .connection,
+  .formMeta {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .primary,
+  .secondary {
+    width: 100%;
+  }
+}

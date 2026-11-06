@@ -1255,3 +1255,30 @@ Every batch must record:
 - This responds to GitHub-reviewed advisories `GHSA-2464-fhr4-w9xw`, `GHSA-p3m5-59mp-jv5r` and `GHSA-673q-mjm6-r5xr`, all of which list 16.4.1 as the patched Next.js 16 release.
 - The focused PR changes no schema, production data, provider configuration, DNS, payment behavior or feature flag.
 - Validation on PR #203: production dependency audit, full tests, ESLint, Prisma validation, production build, self-contained cPanel runtime smoke and packaging passed before the final documentation commit; the final head is revalidated before merge.
+
+
+## Recruitment distribution reporting (development only, 5 November 2026)
+
+- Started `feature/recruitment-distribution-reporting` to implement agency-safe pilot campaign infrastructure, separate from the live advertising landing page.
+- Added an additive campaign registry proposal and SQL migration, constrained to one verified partner, with partner-owned vacancy title and official destination URL; Ajira listing optional; no candidate data is stored.
+- Developed a protected admin campaign form and update route with source-specific metrics and audit trail; no automated WhatsApp posts or outbound emails.
+- Built partner-owned read-only reporting pages and a printable seven-day reporting view. Default agency route directs candidates to the partner's own HTTPS application website, with optional Ajira landing page when agreed.
+- Missing analytics/outcome figures show unavailable; GA4 cannot be entered as unverified manual numbers and a GA4 Data API integration is not claimed.
+- **NOT deployed.** Migration requires nonproduction validation, restore-point approval and explicit owner consent before production; existing production traffic and data remain untouched. CI and preview results will be recorded in PR before merge.
+
+
+### PR #215 security review — 5 November 2026
+
+- Final GitHub validation for pre-review commit 90c0b734 passed all tests, Prisma validation, ESLint and packaged build; final security changes require a fresh CI run.
+- Neon Daraja project currently exposes only the production branch, so no isolation-tested schema migration has been applied; the next gate is a separately approved, clean staging database without applicant records.
+- Removed the original restrictive foreign keys that would have blocked employer account erasure. Distribution campaigns now cascade when their employer is erased; optional Ajira Job association becomes null when a job is deleted. Regression coverage added.
+- Employer report pages now explicitly require a VERIFIED employer account in addition to ownership filtering; suspended or unverified employers cannot read campaign reporting.
+- **Production remains unchanged**. PR must stay draft until isolated migration tests, approved restore point, and end-to-end employer workflow verification. No email or WhatsApp outreach sent.
+
+
+### Campaign referral count and disposable migration CI — 5 November 2026
+
+- Added partner-direct `/r/[campaignKey]` redirect route using a server-side, approved campaign lookup. Records aggregate outbound redirect requests, blocks drafts and unverified partner access, excludes obvious bots/prefetch, and redirects immediately to the partner's official ATS without saving personal applicant data. Not a unique-visitor counter.
+- Added source-labelled outbound redirect totals to private dashboards and printable reports. No GA4 or WhatsApp real-time API is claimed.
+- Added separate PR-only GitHub Actions PostgreSQL 17 migration validation, isolated from production credentials and records; check executes all migrations on empty disposable DB and verifies expected campaign columns/foreign-key deletion actions.
+- Retained PR #215 in draft. No production schema release or outreach performed.

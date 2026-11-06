@@ -160,3 +160,83 @@ jobs:
         run: |
           echo "Verified cPanel release published for $GITHUB_SHA."
           echo "The cPanel pull deployer will fetch and install it outbound; inbound SSH is not required."
+
+  validate-isolated-migrations:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    # No production database secrets are passed to this job.
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_USER: migration_ci
+          POSTGRES_PASSWORD: ephemeral_migration_ci_only
+          POSTGRES_DB: daraja_migration_ci
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U migration_ci -d daraja_migration_ci"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    env:
+      DATABASE_URL: postgresql://migration_ci:ephemeral_migration_ci_only@127.0.0.1:5432/daraja_migration_ci?schema=public
+      NEXT_TELEMETRY_DISABLED: "1"
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Use Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+
+      - name: Install locked dependencies
+        run: npm ci --include=dev
+
+      - name: Generate Prisma Client for isolated HTTP runtime
+        run: npx prisma generate
+
+      - name: Apply all migrations to empty, isolated PostgreSQL
+        run: |
+          npx prisma migrate deploy
+          npx prisma migrate status
+
+      - name: Verify reporting schema and erasure-safe foreign keys
+        run: |
+          node --input-type=module <<'NODE'
+          import { Client } from "pg";
+          import assert from "node:assert/strict";
+          const db = new Client({ connectionString: process.env.DATABASE_URL });
+          await db.connect();
+          try {
+            const { rows } = await db.query(
+              "SELECT column_name FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'DistributionCampaign'"
+            );
+            const fields = new Set(rows.map((row) => row.column_name));
+            for (const name of ["campaignKey", "employerId", "jobId", "vacancyTitle",
+              "destinationUrl", "outboundRedirects", "redirectsRecordedAt"]) {
+              assert(fields.has(name), "Missing reporting column: " + name);
+            }
+            const fk = await db.query(`
+              SELECT confrelid::regclass::text AS target, confdeltype
+              FROM pg_constraint
+              WHERE conrelid = '"DistributionCampaign"'::regclass AND contype = 'f'
+            `);
+            const actions = new Map(fk.rows.map((x) => [x.target.replaceAll('"', ''), x.confdeltype]));
+            assert.equal(actions.get("Employer"), "c", "Employer deletion must cascade");
+            assert.equal(actions.get("Job"), "n", "Job deletion must null optional association");
+          } finally {
+            await db.end();
+          }
+          NODE
+
+      - name: Verify synthetic campaign tenancy and account erasure
+        run: node ops/ci/distribution-campaign-db-integration.mjs
+
+      - name: Verify synthetic HTTP campaign routing and sign-in gates
+        run: node ops/ci/distribution-campaign-http-e2e.mjs

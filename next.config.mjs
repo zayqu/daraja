@@ -33,6 +33,11 @@ const nextConfig = {
         { key: "X-Content-Type-Options", value: "nosniff" },
         { key: "X-Frame-Options", value: "DENY" },
       ],
+    }, {
+      // Partner recruitment campaign URLs can include applicant-referral context.
+      // Never disclose the source campaign URL to third-party application sites.
+      source: "/r/:campaignKey",
+      headers: [{ key: "Referrer-Policy", value: "no-referrer" }],
     }];
   },
 };

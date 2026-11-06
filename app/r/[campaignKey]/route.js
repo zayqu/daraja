@@ -39,14 +39,29 @@ export async function GET(request, { params }) {
   const { campaignKey } = await params;
   if (typeof campaignKey !== "string" || !CAMPAIGN_KEY.test(campaignKey)) return INVALID();
 
-  const campaign = await prisma.distributionCampaign.findUnique({
-    where: { campaignKey },
-    select: {
-      status: true, publishedAt: true, destinationMode: true, destinationUrl: true,
-      employer: { select: { verificationStatus: true } },
-      job: { select: { active: true, moderationStatus: true, deadline: true } },
-    },
-  });
+  let campaign;
+  try {
+    campaign = await prisma.distributionCampaign.findUnique({
+      where: { campaignKey },
+      select: {
+        status: true, publishedAt: true, destinationMode: true, destinationUrl: true,
+        employer: { select: { verificationStatus: true } },
+        job: { select: { active: true, moderationStatus: true, deadline: true } },
+      },
+    });
+  } catch {
+    // The reporting table may not exist in an unmigrated preview. Do not expose
+    // database details or redirect to an unverified destination.
+    console.error("Campaign destination unavailable");
+    return new Response("Campaign service temporarily unavailable", {
+      status: 503,
+      headers: {
+        "Cache-Control": "private, no-store",
+        "Retry-After": "60",
+        "X-Robots-Tag": "noindex, nofollow",
+      },
+    });
+  }
   if (!campaign || campaign.destinationMode !== "PARTNER_DIRECT" ||
       campaign.status !== "LIVE" || !campaign.publishedAt ||
       campaign.employer.verificationStatus !== "VERIFIED") return INVALID();

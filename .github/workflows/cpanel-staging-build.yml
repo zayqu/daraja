@@ -198,6 +198,9 @@ jobs:
       - name: Install locked dependencies
         run: npm ci --include=dev
 
+      - name: Generate Prisma Client for isolated HTTP runtime
+        run: npx prisma generate
+
       - name: Apply all migrations to empty, isolated PostgreSQL
         run: |
           npx prisma migrate deploy

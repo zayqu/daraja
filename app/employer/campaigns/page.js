@@ -6,6 +6,7 @@ import SiteNav from "@/components/SiteNav";
 import PageHero from "@/components/ui/PageHero";
 import WorkspaceShell from "@/components/ui/WorkspaceShell";
 import SurfaceCard from "@/components/ui/SurfaceCard";
+import CampaignAutoRefresh from "@/components/CampaignAutoRefresh";
 
 export const dynamic = "force-dynamic";
 export const metadata = {
@@ -33,6 +34,7 @@ export default async function EmployerDistributionReports() {
           description="Your vacancies remain yours. DARAJA distributes approved posts and reports what can be verified."/>
         <WorkspaceShell>
           <p><Link href="/employer">Back to employer workspace</Link></p>
+          <CampaignAutoRefresh/>
           {campaigns.length ? campaigns.map((c) => (
             <SurfaceCard key={c.id} as="article">
               <p><strong>{c.vacancyTitle}</strong> · {c.status.toLowerCase()}</p>

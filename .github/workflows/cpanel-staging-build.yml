@@ -234,3 +234,6 @@ jobs:
 
       - name: Verify synthetic campaign tenancy and account erasure
         run: node ops/ci/distribution-campaign-db-integration.mjs
+
+      - name: Verify synthetic HTTP campaign routing and sign-in gates
+        run: node ops/ci/distribution-campaign-http-e2e.mjs

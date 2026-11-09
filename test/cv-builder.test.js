@@ -230,3 +230,24 @@ test("CV PDF export is protected, direct and text based", async () => {
   assert.match(raw, /Finance Officer/);
   assert.match(raw, /Example Tanzania Ltd/);
 });
+
+
+test("CV Builder uses focused workspace modes instead of one endless settings page", () => {
+  const builder = read("components/CvBuilder.js");
+  const styles = read("components/CvBuilder.module.css");
+  const page = read("app/account/career/cv/page.js");
+  const hero = read("components/ui/PageHero.js");
+
+  assert.match(builder, /workspaceView/);
+  assert.match(builder, /\["content", "Content"\]/);
+  assert.match(builder, /\["design", "Design"\]/);
+  assert.match(builder, /\["preview", "Preview"\]/);
+  assert.match(builder, /data-view=\{workspaceView\}/);
+  assert.match(builder, /className=\{styles\.designDetails\}/);
+  assert.match(styles, /\.builder\[data-view="content"\] \.designDetails/);
+  assert.match(styles, /\.builder\[data-view="design"\] \.editor details:not\(\.designDetails\)/);
+  assert.match(styles, /\.builder\[data-view="preview"\] \.editor/);
+  assert.match(styles, /\.sidebar\s*\{[\s\S]*grid-template-columns:/);
+  assert.match(page, /variant="compact"/);
+  assert.match(hero, /variant === "compact"/);
+});

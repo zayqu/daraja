@@ -233,11 +233,31 @@ async function runScrapers({ dryRun = false, requestedSources = new Set() } = {}
         }
         console.log(JSON.stringify(summary));
       } catch (error) {
-        failures.push({
-          source: source.id,
-          error: sanitizeError(error.message),
-        });
-        console.error(`${source.name} failed:`, error);
+        // ReliefWeb sometimes rejects the hosted runner with HTTP 406.
+        // Preserve its last known vacancies and report degraded health without
+        // failing successful imports from independent sources.
+        if (source.id === "reliefweb" && /ReliefWeb returned HTTP 406\b/.test(String(error.message))) {
+          warnings.push({
+            source: source.id,
+            warning: "ReliefWeb denied this run (HTTP 406); existing jobs preserved, retry on next schedule",
+          });
+          summaries.push({
+            source: source.id,
+            found: 0,
+            created: 0,
+            updated: 0,
+            archived: 0,
+            preserved: true,
+            durationMs: Date.now() - sourceStartedAt,
+          });
+          console.warn(`${source.name}: HTTP 406, preserving existing records.`);
+        } else {
+          failures.push({
+            source: source.id,
+            error: sanitizeError(error.message),
+          });
+          console.error(`${source.name} failed:`, error);
+        }
       }
     }
     if (!dryRun && summaries.length) {

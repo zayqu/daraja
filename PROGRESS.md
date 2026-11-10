@@ -1,5 +1,13 @@
 # Daraja Jobs production-readiness progress
 
+## AzamPay callback signature primitive (draft, no production activation)
+
+- 2026-11-10: added `lib/payments/provider-signature.mjs` with strict RSA-SHA256 verification against caller-supplied trusted public key and exact canonical message. No signature accepted if missing, invalid or altered. Official callback canonical fields, public key trust and rotation, callback handler, authoritative collection status query and transaction writes are **not implemented**.
+- Added `test/provider-signature.test.mjs`: **39/39 targeted isolated mock/static tests passed** (all five AzamPay-related files). No real AzamPay signed callback was used; existing API assumptions remain third-party-derived until AzamPay confirms them.
+- Checked connected cPanel host and separate container for ephemeral PostgreSQL tools. `postgres`, `initdb`, `pg_ctl`, `psql`, Docker and Podman are unavailable, so a genuine disposable Postgres migration/concurrency test **was not performed**. Explicitly avoided production Neon and any potentially billable database branch.
+- Work remains on draft PR #226. No DB migration, production deployment, real customer payment or live billing API was invoked.
+
+
 ## AzamPay approved-booking payment preparation (draft, not deployed)
 
 - 2026-11-10: added `lib/payments/promotion-attempt.mjs` as the isolated server-side booking-to-attempt transaction owner. It requires authenticated employer/admin context, booking ownership, approved Featured Job booking, eligible published/unexpired vacancy, verified employer and correct vacancy ownership. It creates only PENDING records, reuses outstanding PENDING/UNKNOWN attempts and rejects completed or mismatched attempts. Database transaction requests SERIALIZABLE isolation with bounded serialization-conflict retries. **No AzamPay outbound request, billing endpoint or fulfillment** is implemented.

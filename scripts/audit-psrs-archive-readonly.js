@@ -18,7 +18,7 @@ async function auditArchive() {
       } catch {}
     });
     await page.goto(ARCHIVE, { waitUntil: "domcontentloaded", timeout: 45_000 });
-    await page.getByText(/TANGAZO LA NAFASI ZA KAZI/i).first().waitFor({ timeout: 30_000 });
+    await page.getByText(/TANGAZO LA NAFASI ZA KAZI/i).first().waitFor({ state: "attached", timeout: 30_000 });
     const excerpt = await page.evaluate(() => {
       const candidates = [...document.querySelectorAll("a,button")];
       return candidates

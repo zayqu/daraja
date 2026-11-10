@@ -9,6 +9,13 @@ tested vertical releases. The current priority is Phase 0 security and privacy
 hardening before expanding candidate CV, employer, freelance, payment or AI
 workflows.
 
+## Current batch: cron guard aligned with manual deploys (SERVER_RULES Rule 1)
+
+- Conflict fixed: `SERVER_RULES.md` Rule 1 forbids timed deploy cron jobs, but the October cron guard in `ops/cpanel/deploy.sh` still listed the 5-minute `auto-deploy.sh` line as required and would have re-added it during any manual deploy.
+- `required_cron_lines` now enforces only the MZH scheduler and MZH backup lines; a test asserts the guard never mentions `auto-deploy.sh`.
+- `AGENTS.md`, `CLAUDE.md` and `ops/cpanel/README-auto-deploy.md` now list two locked MZH lines and state that Ajira deploys are run manually once per release.
+- `test/cron-guard.test.js` and `test/cpanel-deploy.test.js` pass 17/17.
+
 ## Current batch: paid featured jobs (D-036)
 
 - `/advertise` now sells a paid "Featured job" package (WhatsApp Channel post + Featured on Ajira) instead of the TZS 0 pilot. Price, days, bookings WhatsApp number, Lipa Namba and account name are admin settings under "Paid job promotion"; empty WhatsApp/Lipa values hide those details.

@@ -43,10 +43,10 @@ test("guard restores every required job into an empty crontab", async () => {
   const box = await sandbox(null);
   box.run();
   const lines = (await box.read()).trim().split("\n");
-  assert.equal(lines.length, 3);
-  assert.match(lines[0], /\*\/5 \* \* \* \* \/bin\/bash .*auto-deploy\.sh/);
-  assert.match(lines[1], /php artisan schedule:run/);
-  assert.match(lines[2], /^0 0 \* \* \* .*mzh-backup-local\.sh/);
+  assert.equal(lines.length, 2);
+  assert.match(lines[0], /php artisan schedule:run/);
+  assert.match(lines[1], /^0 0 \* \* \* .*mzh-backup-local\.sh/);
+  assert.doesNotMatch(lines.join("\n"), /auto-deploy\.sh/);
 });
 
 test("guard keeps unrelated jobs, backs up, and is idempotent", async () => {
@@ -58,15 +58,13 @@ test("guard keeps unrelated jobs, backs up, and is idempotent", async () => {
   assert.ok((await readdir(box.state)).some((name) => name.startsWith("crontab.before-guard-")));
   box.run();
   assert.equal(await box.read(), once);
-  assert.equal((once.match(/auto-deploy\.sh/g) || []).length, 1);
+  assert.equal((once.match(/mzh-backup-local\.sh/g) || []).length, 1);
 });
 
 test("guard skips MZH jobs when MZH is not installed and honours the off switch", async () => {
   const box = await sandbox("", { withMzh: false });
   box.run();
-  const content = await box.read();
-  assert.match(content, /auto-deploy\.sh/);
-  assert.doesNotMatch(content, /mzh/);
+  assert.equal(await box.read(), "");
 
   const paused = await sandbox("");
   await writeFile(path.join(paused.state, "cron-guard.disabled"), "");
@@ -76,6 +74,10 @@ test("guard skips MZH jobs when MZH is not installed and honours the off switch"
 
 test("deploy runs the guard without letting it block a release", () => {
   assert.match(deployScript, /ensure_required_cron \|\| printf/);
+});
+
+test("guard never re-enables automatic deploys (SERVER_RULES Rule 1)", () => {
+  assert.doesNotMatch(guard, /auto-deploy\.sh/);
 });
 
 test("production watchdog checks deploy freshness, uptime and AdSense files on a schedule", async () => {

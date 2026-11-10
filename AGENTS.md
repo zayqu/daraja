@@ -152,10 +152,9 @@ long-lived choices.
 ## Shared cPanel cron jobs (locked)
 
 The `darajaco` cPanel account is shared by Daraja Ajira and MZH. Its crontab
-must always contain these three lines, exactly:
+must always contain these two lines, exactly:
 
 ```cron
-*/5 * * * * /bin/bash /home/darajaco/.daraja-deploy/auto-deploy.sh >> /home/darajaco/.daraja-deploy/cron.log 2>&1
 * * * * * cd /home/darajaco/mzh && /usr/local/bin/php artisan schedule:run >> /home/darajaco/mzh/storage/logs/scheduler.log 2>&1
 0 0 * * * /home/darajaco/mzh/ops/cpanel/mzh-backup-local.sh >> /home/darajaco/mzh-backups/logs/cron.log 2>&1
 ```
@@ -168,18 +167,21 @@ Rules for every model and every person:
   backup jobs; Ajira stopped receiving releases until it was noticed.
 - Add, change or remove only single lines, through cPanel > Cron Jobs or by
   editing one line of `crontab -l` output and keeping every other line.
-- Never remove or edit the three lines above unless the owner explicitly asks
+- Never remove or edit the two lines above unless the owner explicitly asks
   for that specific change in the current task.
+- Do not add an automatic Ajira deploy line (`auto-deploy.sh` on a timer).
+  Deploys are manual and owner-approved (`SERVER_RULES.md` Rule 1): run the
+  canonical command in `ops/cpanel/README-auto-deploy.md` once per release.
 - Before any cron change, save `crontab -l` to
   `/home/darajaco/.daraja-deploy/crontab.manual-backup-<UTC timestamp>`; after
-  it, run `crontab -l` again and confirm all three lines are still present.
+  it, run `crontab -l` again and confirm both lines are still present.
 - Every handoff that touched cron must list the final `crontab -l` output.
 
-Safety nets (do not disable): `ops/cpanel/deploy.sh` re-adds any missing line
-on every 5-minute deploy run and saves the previous crontab as
-`crontab.before-guard-<UTC>`; `.github/workflows/production-watchdog.yml`
-emails the owner when Ajira is not on the latest release. The guard cannot run
-if its own deploy line is deleted, so the rules above still apply.
+Safety nets (do not disable): `ops/cpanel/deploy.sh` re-adds a missing MZH line
+whenever a deploy runs and saves the previous crontab as
+`crontab.before-guard-<UTC>`; it never adds a deploy line.
+`.github/workflows/production-watchdog.yml` emails the owner when Ajira is not
+on the latest release, which is also the reminder to run a manual deploy.
 
 ## Production topology
 

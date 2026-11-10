@@ -110,6 +110,11 @@ function mapCrdbPost(summary, detail) {
       ? openings + " Post" + (openings === 1 ? "" : "s")
       : "",
     sourceUrl: CRDB_CAREERS_URL,
+    originalEvidence: {
+      verified: true,
+      deadlineVerified: Boolean(detail.deadline || summary.deadline),
+      originalUrl: CRDB_CAREERS_URL,
+    },
     applicationUrl: CRDB_APPLY_URL,
     companyLogo: CRDB_LOGO_URL,
   };

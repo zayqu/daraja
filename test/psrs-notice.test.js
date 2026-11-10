@@ -8,6 +8,7 @@ const NANYUMBU = "https://www.ajira.go.tz/api/v1/vacancies/attachment/token/0e70
 const sourceLines = [
   "Kumb.Na.NDC/L10/1/VOL IX/3 Tarehe 06.11.2026",
   "TANGAZO LA NAFASI ZA KAZI",
+  "Mkurugenzi wa Halmashauri ya Wilaya ya Nanyumbu anawatangazia watanzania",
   "1.0 MWANDISHI MWENDESHA OFISI DARAJA LA II – NAFASI 4",
   "1.1.1 MAJUKUMU YA KAZI",
   "Kuchapa barua, taarifa na nyaraka za kawaida na siri,",

@@ -204,7 +204,17 @@ async function fetchRenderedRows({ launch = (options) => chromium.launch(options
       waitUntil: "networkidle",
       timeout: REQUEST_TIMEOUT_MS,
     });
-    await page.waitForSelector("table tbody tr", { timeout: REQUEST_TIMEOUT_MS });
+    await page.waitForFunction(() => {
+      // Angular draws a placeholder row before vacancy data arrives.
+      // A <tr> alone is not evidence that a vacancy has loaded.
+      const rows = [...document.querySelectorAll("table tbody tr")];
+      return rows.some((row) => {
+        const cells = row.querySelectorAll("td");
+        return cells.length >= 4 &&
+          (cells[1]?.textContent || "").trim().length >= 5 &&
+          (cells[2]?.textContent || "").trim().length >= 4;
+      });
+    }, { timeout: REQUEST_TIMEOUT_MS });
 
     const pageSize = page.locator("select").first();
     if (await pageSize.count()) {

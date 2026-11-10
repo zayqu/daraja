@@ -910,7 +910,10 @@ async function parseAgencyDetail(
           "Type",
         ])
     ),
-    sourceUrl: discovery.sourceUrl,
+    // Prefer the verified employer vacancy as the source of record rather
+    // than republishing the recruiter's intermediary article link.
+    sourceUrl: employerDescription.length >= 80 && applicationUrl && !applicationUrl.startsWith("mailto:")
+      ? applicationUrl : discovery.sourceUrl,
     applicationUrl: finalApplicationUrl,
     originalEvidence: {
       verified: Boolean(employerDescription.length >= 80 && Object.keys(official).length),

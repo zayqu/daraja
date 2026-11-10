@@ -1,5 +1,13 @@
 # Daraja Jobs production-readiness progress
 
+## Current branch: AzamPay payment safety foundation (not deployed)
+
+- 2026-11-10, workstream E, draft PR #226: added `lib/payments/azampay-core.mjs` with fail-closed sandbox/production activation guard, integer-safe TZS amount validation, opaque payment references, approved-booking payment intent checks and a pure function that assesses **already independently verified** payment statuses against a server-supplied merchant ID, amount, reference, booking and currency.
+- Added `test/azampay-core.test.mjs`: seven local Node test cases passed for gating, amount safety, references, approval, duplicate status, mismatches and reversal review. Unit tests were executed in a standalone matching local working copy; full repository lint, build and CI are **not yet verified**.
+- There is **no AzamPay token HTTP client, checkout API route, webhook authentication, booking persistence, migration, production environment change or customer-visible checkout** in this batch. Existing WhatsApp/Lipa Namba flow is untouched.
+- Blockers: official endpoint/authentication/callback verification contract, merchant credentials and approval, approved booking ownership model, schema review and sandbox tests. No production release authorized by this branch.
+
+
 Last updated: 10 November 2026
 
 ## Current objective

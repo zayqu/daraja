@@ -449,3 +449,81 @@ model SiteSetting {
   updatedById String?
   updatedAt   DateTime @updatedAt
 }
+
+// Gateway-backed promotion payment records. These are additive and separate
+// from the legacy Payment.amount Float model. Do not apply migration to
+// production without restore-point review. Owner IDs are de-identified on
+// account erasure; no direct user FK is intentional.
+model PromotionBooking {
+  id            String                 @id @default(cuid())
+  ownerUserId   String
+  jobId         String
+  service       String                 @default("FEATURED_JOB")
+  amountTzs     Int
+  currency      String                 @default("TZS")
+  featuredDays  Int
+  status        PromotionBookingStatus @default(PENDING_REVIEW)
+  approvedById  String?
+  approvedAt    DateTime?
+  paidAt        DateTime?
+  fulfilledAt   DateTime?
+  createdAt     DateTime               @default(now())
+  updatedAt     DateTime               @updatedAt
+
+  attempts PaymentAttempt[]
+
+  @@index([ownerUserId, createdAt])
+  @@index([jobId, status])
+  @@index([status, createdAt])
+}
+
+enum PromotionBookingStatus {
+  PENDING_REVIEW
+  APPROVED
+  REJECTED
+  PAID
+  FULFILLED
+  CANCELLED
+}
+
+model PaymentAttempt {
+  id                    String               @id @default(cuid())
+  bookingId             String
+  reference             String               @unique
+  provider              String               @default("AZAMPAY")
+  providerTransactionId String?              @unique
+  merchantId            String?
+  amountTzs             Int
+  currency              String               @default("TZS")
+  environment           String
+  status                GatewayPaymentStatus @default(PENDING)
+  createdAt             DateTime             @default(now())
+  updatedAt             DateTime             @updatedAt
+
+  booking PromotionBooking @relation(fields: [bookingId], references: [id], onDelete: Restrict)
+  events  PaymentEvent[]
+
+  @@index([bookingId, status])
+  @@index([status, createdAt])
+}
+
+enum GatewayPaymentStatus {
+  PENDING
+  UNKNOWN
+  SUCCESS
+  FAILED
+  CANCELLED
+  REFUNDED
+}
+
+model PaymentEvent {
+  id         String   @id @default(cuid())
+  attemptId  String
+  eventKey   String   @unique
+  outcome    String
+  receivedAt DateTime @default(now())
+
+  attempt PaymentAttempt @relation(fields: [attemptId], references: [id], onDelete: Restrict)
+
+  @@index([attemptId, receivedAt])
+}

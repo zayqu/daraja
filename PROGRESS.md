@@ -1,5 +1,13 @@
 # Daraja Jobs production-readiness progress
 
+## AzamPay reviewed payment ledger draft (NOT deployed)
+
+- 2026-11-10: added proposed, separate `PromotionBooking`, `PaymentAttempt`, and `PaymentEvent` Prisma models with enum states, integer TZS amounts, unique references/event keys and reviewed SQL migration `20261110143000_azampay_promotion_payment_ledger`. Legacy `Payment.amount Float` unchanged.
+- Updated `lib/account-data-export.js` and `lib/account-deletion.js` to include the new promotion records and de-identify booking/approval ownership after account deletion. The SQL migration is **draft only**; it was not applied to Neon or any server database.
+- Added ledger checks and ran all four isolated AzamPay test files: **25 tests passed, 0 failed**, plus `node --check` on privacy code and **`prisma validate` passed** on the isolated schema, on connected cPanel host under `/home/darajaco/azampay-test-isolated`. No customer traffic, no production application edits and no credentials used. SQL execution and full app tests/build/lint remain unverified.
+- Still blocked from production: verified checkout/callback contract, real sandbox credentials and auth, transactional persistence workflow, owner-to-booking authorization, webhook signature or authoritative status verification, account/settlement approval, fresh Neon restore point, migration review and explicit production release approval. Draft PR #226 must remain unmerged.
+
+
 ## AzamPay credential client (draft PR #226, not deployed)
 
 - 2026-11-10: added `lib/payments/azampay-api-client.mjs` to connect the existing authenticated transport to separate sandbox/production AzamPay authentication and checkout origins behind the disabled-by-default gate; credentials remain server-only, with token expiry checking, reuse and sanitized errors. The GenerateToken endpoint/response assumptions come from third-party SDK references and are **not official-merchant verified**; there is no production-facing API route or checkout invocation.

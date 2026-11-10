@@ -112,7 +112,7 @@ function messagingOnlyApplication(job) {
 // A title that is only a field label ("Employer", "Position", "Deadline") means
 // the source page was mis-read; never publish it as a vacancy.
 const FIELD_LABEL_TITLE =
-  /^(?:employer|company|organi[sz]ation|position|job\s*title|title|post|posts|deadline|application\s+deadline|closing\s+date|location|salary|qualifications?|email|how\s+to\s+apply)\s*:?$/i;
+  /^(?:employer|company|organi[sz]ation|position|job\s*(?:title|position|location|type)|title|posts?|total|deadline|application\s*(?:deadline|email|method|process|instructions?)|closing\s+date|location|duty\s+station|work\s+station|salary|qualifications?|email|employment\s+type|industry|category|experience|education|reference(?:\s+no\.?)?|how\s+to\s+apply)\s*:?$/i;
 
 function isFieldLabelTitle(title) {
   return FIELD_LABEL_TITLE.test(String(title || "").trim());
@@ -141,7 +141,7 @@ function decidePublication(job, sourceId) {
     reasons.push("source has not been approved for automatic publication");
   }
   if (isFieldLabelTitle(job.title)) {
-    reasons.push(`title "${job.title}" is a field label, not a job position`);
+    return { status: "REJECTED", note: `Automatically blocked: title "${job.title}" is a field label, not a job position.` };
   }
   if (messagingOnlyApplication(job)) {
     reasons.push("applications go only through a messaging app");

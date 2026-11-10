@@ -43,7 +43,8 @@ function parseOfficialAjiraDetail(html, expected = {}) {
   const period = text.match(/Application\s+Period\s*:?\s*(\d{1,2}[/-]\d{1,2}[/-]\d{4})\s*[-–]\s*(\d{1,2}[/-]\d{1,2}[/-]\d{4})/i);
   if (!period) return null;
   const deadline = parseDeadline(period[2]);
-  const expectedDeadline = parseDeadline(expected.deadline);
+  const expectedDeadline = expected.deadline instanceof Date
+    ? expected.deadline : parseDeadline(expected.deadline);
   if (!deadline || !expectedDeadline ||
       deadline.toISOString().slice(0, 10) !== expectedDeadline.toISOString().slice(0, 10)) {
     return null;

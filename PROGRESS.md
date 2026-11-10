@@ -1,5 +1,13 @@
 # Daraja Jobs production-readiness progress
 
+## AzamPay settlement write-stage draft (NOT deployed)
+
+- 2026-11-10: added `lib/payments/collection-settlement.mjs`. It accepts a **trusted internal server-to-server collection verifier dependency** (currently not implemented), requires authoritative proof matching persisted reference, booking, amount, currency, merchant and environment, checks provider transaction identity and verifies booking is still approved. Under serializable database transaction it records unique event, sets attempt SUCCESS and booking PAID. Duplicate statuses are no-ops, conflicts reject or require review, no automatic vacancy publishing occurs.
+- Added `test/collection-settlement.test.mjs`; **48/48** cumulative isolated Node mock/static tests passed on shared cPanel host in `/home/darajaco/azampay-test-isolated`. No database migration was applied and all Prisma transaction behavior was mocked; no actual race/concurrency test on PostgreSQL or AzamPay settlement test occurred.
+- Real merchant-specific collection verification, callback canonicalization/key trust, allowed deployment and test DB remain blockers. The verified-status function may be used only once supplied by a trusted, independently reviewed AzamPay adapter; callers must never pass an untrusted webhook or browser success boolean as verification.
+- PR #226 remains draft, not merged. Live billing disabled, no production changes.
+
+
 ## AzamPay callback signature primitive (draft, no production activation)
 
 - 2026-11-10: added `lib/payments/provider-signature.mjs` with strict RSA-SHA256 verification against caller-supplied trusted public key and exact canonical message. No signature accepted if missing, invalid or altered. Official callback canonical fields, public key trust and rotation, callback handler, authoritative collection status query and transaction writes are **not implemented**.

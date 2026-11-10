@@ -1,5 +1,16 @@
 # Daraja Jobs production-readiness progress
 
+## Payment development checkpoint — closed for now (2026-11-10)
+
+**Decision:** retain draft PR #226 for future sandbox activation; do not merge, close the PR, run customer checkout, apply the production migration or deploy. This completes the *currently authorized code preparation*, not the AzamPay merchant integration.
+
+**Verified:** isolated GitHub Actions PostgreSQL + real Prisma migration/concurrency test succeeded at run #42832401910. Callback/reference-binding and signature tests passed locally (12/12). Standalone safety PR #227 remains draft and unmerged.
+
+**Unresolved:** latest main application CI run #42832401908 failed at `next build --webpack` with `next/font`: `TypeError: Cannot read properties of null (reading '1')`. Other tests and Prisma validation passed; build failure not diagnosed or fixed. This **blocks release**, regardless of whether the issue is payment-related. The registered sandbox callback route is not live; there is still no real checkout transaction or confirmed callback ID mapping.
+
+**Required restart gates:** owner rotates one-time visible sandbox Client Secret and manages all app secrets privately; confirm AzamPay's actual callback ID mapping and public-key lifecycle using sanctioned sandbox testing; resolve full Next.js CI build failure; confirm restore-point and deploy plan before any Neon migration; explicit separate approval before merging PRs or production deployment. Do not submit KYB to unverified external hosts.
+
+
 ## Sandbox callback binding preflight (2026-11-10; no live calls)
 
 - Inspected registered **Daraja Ajira** sandbox app in a connected portal tab and verified intended callback path. Sensitive credential values shown by the portal were **not copied into code, GitHub, logs, or configuration and were not used**. Owner should rotate the one-time visible Client Secret after saving securely in a password manager. Sandbox merchant keys must be provisioned privately in a controlled test host.

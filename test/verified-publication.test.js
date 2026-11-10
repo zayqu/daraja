@@ -62,3 +62,11 @@ test("eligible jobs get an editorial description and retain application provenan
   assert.equal(batch.jobs[0].sourceUrl, verified.sourceUrl);
   assert.equal(batch.jobs[0].applicationUrl, verified.applicationUrl);
 });
+
+
+test("ISO date-only closing dates remain open through the advertised date", () => {
+  const { parseDeadline } = require("../scraper/lib/jobs");
+  assert.equal(parseDeadline("2026-11-30").toISOString(), "2026-11-30T23:59:59.000Z");
+  assert.equal(validateVacancy({ ...verified, deadline: "2026-11-30" }, now).eligible, true);
+  assert.equal(parseDeadline("2026-02-30"), null);
+});

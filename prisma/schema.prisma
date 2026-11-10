@@ -507,6 +507,7 @@ model PaymentAttempt {
 
   @@index([bookingId, status])
   @@index([status, createdAt])
+  @@index([checkoutState, createdAt])
 }
 
 enum GatewayCheckoutState {

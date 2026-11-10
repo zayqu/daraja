@@ -14,8 +14,12 @@ qualifications, salary, openings or responsibilities.
 Eligible jobs use one publication order: Job position, Hiring organization,
 Job location (if specified), Employment type (if specified), Number of positions
 (if confirmed), Job overview, Job description, Responsibilities, Qualifications,
-Experience (only when supplied), Application deadline, How to apply, Original
-vacancy. Sections for unavailable facts are omitted rather than invented.
+Experience (only when supplied), Application deadline, and optional
+Application requirements. Sections for unavailable facts are omitted rather
+than invented. The original source is preserved separately as the verified
+source URL, and the existing Apply button owns the application action. Do not
+repeat either URL inside the editorial description or add another mobile
+sticky Apply control over the bottom navigation.
 The verified employer's source facts are selected and attributed within that
 consistent Ajira editorial layout. Every post retains role-specific content,
 but this deterministic zero-cost formatter is **not** a full semantic paraphrase
@@ -29,9 +33,14 @@ job descriptions. Readers should always be directed to the original notice.
 - NMB: parses the official careers page and an explicit closing date.
 - Standard Bank: marks official ATS details verified, but holds vacancies where
   the official API does not supply a valid deadline.
-- Ajira Portal: the current adapter reads listing rows only. These are held until
-  vacancy-level official **descriptions** are extracted and verified. Do not
-  mark generic placeholder text as a substantive description.
+- Ajira Portal: listing rows are leads. Candidate URLs with the official
+  /view-advert/ path are now checked through a shared client-side browser
+  renderer; the extracted title, hiring institution and closing date must
+  match the listing, with substantive duties and qualifications. An HTML-only
+  fetch returns a JavaScript shell and must **not** count as verification.
+  Rows lacking a vacancy-specific original link, failed rendered pages and
+  contradictory details remain pending review. Full live-rendered coverage
+  and source-to-detail link discovery are not yet verified.
 - AjiraWeb: employer/ATS structured postings are candidates for verification;
   email-only articles from the aggregator are not automatically verified.
 - Verified agencies: only employer-page-confirmed duties and deadlines can
@@ -67,3 +76,24 @@ contact names or deadlines. Preserve exact official role names, institutions and
 application destinations. A short attributed source excerpt may be included
 when it conveys a necessary original requirement; check source terms and review
 against the original notice before publication.
+
+## Public visibility consistency
+
+The draft restricts open, expired and all public results to records with
+explicit closing dates. Only active published records with future closing
+dates appear in Open jobs, job detail reads, application redirects and alert
+selection. Closed links continue to show a closed-job notice instead of a
+missing page when the historical record can be found.
+
+## Verification checks performed
+
+- 79 targeted tests passed for source verification, publishing, public deadline
+  filters and application behavior (10 November 2026).
+- Browser-rendered official notice parsing has fixture-based tests; the server
+  did not have Chromium installed for a complete live-source replay.
+- A real plain HTTP request to an official PSRS vacancy URL returned a
+  client-rendered shell without vacancy details. The new browser path is the
+  correct mechanism, but requires a live GitHub-runner dry run.
+- The zero-budget formatter currently cannot guarantee a faithful, original
+  full paraphrase of long employer descriptions. Highly overlapping drafts
+  are held for editing rather than auto-published.

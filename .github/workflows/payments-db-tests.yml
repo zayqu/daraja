@@ -1,0 +1,50 @@
+name: Isolated payment database tests
+
+on:
+  pull_request:
+    paths:
+      - "prisma/**"
+      - "lib/payments/**"
+      - "test/**"
+      - ".github/workflows/payments-db-tests.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  isolated-postgres:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: daraja_test
+          POSTGRES_PASSWORD: daraja_test
+          POSTGRES_DB: daraja_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U daraja_test"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 12
+    env:
+      # A throwaway GitHub Actions container DB only. No Neon or repo secrets.
+      DATABASE_URL: postgresql://daraja_test:daraja_test@localhost:5432/daraja_test
+      PAYMENTS_DB_TESTS: "1"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+      - name: Install locked dependencies
+        run: npm ci --include=dev
+      - name: Generate real Prisma client
+        run: npx prisma generate
+      - name: Deploy migrations to disposable PostgreSQL only
+        run: npx prisma migrate deploy
+      - name: Run real Prisma payment tests
+        run: node --test test/payments.db.test.mjs

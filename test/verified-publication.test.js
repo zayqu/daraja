@@ -102,3 +102,27 @@ test("the formatter does not invent salary, experience or documents", () => {
   assert.doesNotMatch(result, /TZS|salary:|years of experience|certificate|CV required/i);
   assert.match(result, /Consult the original vacancy for the full document/);
 });
+
+test("a near-copied source summary is flagged for originality review", () => {
+  const { sourceOverlap } = require("../scraper/lib/verified-publication");
+  const copied = "The applicant will develop quarterly reporting dashboards and prepare data analysis for the department.";
+  assert.ok(sourceOverlap(copied, copied) > 0.9);
+  assert.equal(sourceOverlap(copied, "The post concerns reporting analysis work."), 0);
+  const example = {
+    ...verified,
+    description: [
+      "Job Purpose",
+      "The role is responsible for monitoring credit risk reports and maintaining compliance with financial policies across banking operations.",
+      "Principal Responsibilities",
+      "Review internal risk processes and assess compliance indicators in monthly reports submitted by various business departments.",
+      "Prepare accurate reporting dashboards for senior management and evaluate potential financial risks affecting clients and business operations.",
+      "Qualifications Required",
+      "Applicants should possess a recognised qualification in accounting, banking, finance, or another closely related professional discipline.",
+      "Experience",
+      "The applicant must demonstrate professional experience interpreting financial data and communicating analytical findings to relevant stakeholders.",
+    ].join("\n"),
+  };
+  const batch = prepareVerifiedVacancies([example], now);
+  assert.equal(batch.held.length, 1);
+  assert.match(batch.jobs[0].reviewReasons.join(" "), /originality review/);
+});

@@ -16,7 +16,14 @@ async function audit() {
     const page = await browser.newPage();
     try {
       await page.goto(URL, { waitUntil: "domcontentloaded", timeout: 45_000 });
-      await page.locator("table tbody tr").first().waitFor({ timeout: 30_000 });
+      await page.waitForFunction(() =>
+        [...document.querySelectorAll("table tbody tr")].some((row) => {
+          const cells = row.querySelectorAll("td");
+          return cells.length >= 4 &&
+            (cells[1]?.textContent || "").trim().length >= 5 &&
+            (cells[2]?.textContent || "").trim().length >= 4;
+        }), null, { timeout: 30_000 });
+
       rows = await extractRenderedRows(page);
       // Public HTML diagnostics help identify event-driven detail links.
       // Only report attribute names and public URL/role labels, never cookies,

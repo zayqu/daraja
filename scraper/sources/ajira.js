@@ -214,7 +214,7 @@ async function fetchRenderedRows({ launch = (options) => chromium.launch(options
           (cells[1]?.textContent || "").trim().length >= 5 &&
           (cells[2]?.textContent || "").trim().length >= 4;
       });
-    }, { timeout: REQUEST_TIMEOUT_MS });
+    }, null, { timeout: REQUEST_TIMEOUT_MS });
 
     const pageSize = page.locator("select").first();
     if (await pageSize.count()) {

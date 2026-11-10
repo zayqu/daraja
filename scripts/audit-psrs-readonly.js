@@ -21,7 +21,7 @@ async function audit() {
         // Log only PUBLIC source endpoint paths; no query parameters,
         // headers, cookies, response payloads, or applicant records.
         if (url.hostname === "portal.ajira.go.tz" &&
-            /\\/(?:api|vacanc|advert|recruit)/i.test(url.pathname)) {
+            /\/(?:api|vacanc|advert|recruit)/i.test(url.pathname)) {
           publicRequests.add(response.request().method() + " " + url.pathname + " " + response.status());
         }
       } catch {}

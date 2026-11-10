@@ -242,7 +242,7 @@ function extractEmailApplicationJobs(articleTitle, articleUrl, html) {
   function addJob(title, description) {
     const cleanTitle = cleanText(title);
     const key = cleanTitle.toLowerCase();
-    if (!cleanTitle || isGroupedVacancyTitle(cleanTitle) || seenTitles.has(key)) return;
+    if (!cleanTitle || summaryFieldFor(cleanTitle) || isGroupedVacancyTitle(cleanTitle) || seenTitles.has(key)) return;
     seenTitles.add(key);
     jobs.push({
       sourceId: `email-${email.toLowerCase()}-${cleanTitle.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`,

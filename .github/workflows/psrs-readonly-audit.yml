@@ -7,6 +7,7 @@ on:
     paths:
       - "scraper/**"
       - "scripts/audit-psrs-readonly.js"
+      - "scripts/audit-psrs-archive-readonly.js"
       - ".github/workflows/psrs-readonly-audit.yml"
   workflow_dispatch:
 
@@ -35,5 +36,7 @@ jobs:
         run: npx prisma generate
       - name: Install browser (GitHub-hosted runner only)
         run: npx playwright install --with-deps chromium
+      - name: Inspect public official vacancy document archive (read-only)
+        run: node scripts/audit-psrs-archive-readonly.js
       - name: Inspect original government vacancy notices (read-only)
         run: node scripts/audit-psrs-readonly.js

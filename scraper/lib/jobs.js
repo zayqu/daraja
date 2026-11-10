@@ -62,6 +62,9 @@ function parseDeadline(value) {
     .replace(/\s+/g, " ")
     .trim();
   if (!text) return null;
+  // A date-only deadline means the entire advertised closing day, not midnight.
+  const isoDay = text.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if (isoDay) return utcEndOfDay(Number(isoDay[1]), Number(isoDay[2]) - 1, Number(isoDay[3]));
   const numeric = text.match(/^(\d{1,2})[./-](\d{1,2})[./-](\d{4})$/);
   if (numeric) {
     const [, day, month, year] = numeric.map(Number);

@@ -236,7 +236,7 @@ async function runScrapers({ dryRun = false, requestedSources = new Set() } = {}
         // ReliefWeb sometimes rejects the hosted runner with HTTP 406.
         // Preserve its last known vacancies and report degraded health without
         // failing successful imports from independent sources.
-        if (source.id === "reliefweb" && /ReliefWeb returned HTTP 406\\b/.test(String(error.message))) {
+        if (source.id === "reliefweb" && /ReliefWeb returned HTTP 406\b/.test(String(error.message))) {
           warnings.push({
             source: source.id,
             warning: "ReliefWeb denied this run (HTTP 406); existing jobs preserved, retry on next schedule",

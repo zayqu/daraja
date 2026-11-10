@@ -266,7 +266,7 @@ async function saveJobs(
   for (const candidate of jobs) {
     const decision = decidePublication(candidate, source);
     // Review reasons inform the decision only; they are not Job columns.
-    const { reviewReasons: _reviewReasons, ...job } = candidate;
+    const { reviewReasons: _reviewReasons, originalEvidence: _originalEvidence, ...job } = candidate;
     const existing = await findExistingJob(prisma, job, source);
 
     if (existing) {

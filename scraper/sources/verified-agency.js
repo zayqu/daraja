@@ -912,6 +912,11 @@ async function parseAgencyDetail(
     ),
     sourceUrl: discovery.sourceUrl,
     applicationUrl: finalApplicationUrl,
+    originalEvidence: {
+      verified: Boolean(employerDescription.length >= 80 && Object.keys(official).length),
+      deadlineVerified: Boolean(official.deadline),
+      originalUrl: applicationUrl && !applicationUrl.startsWith("mailto:") ? applicationUrl : null,
+    },
     companyLogo: source.publishPolicy?.hideSourceBranding
       ? null
       : metadata.companyLogo,

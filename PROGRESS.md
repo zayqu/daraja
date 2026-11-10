@@ -1,5 +1,12 @@
 # Daraja Jobs production-readiness progress
 
+## AzamPay credential client (draft PR #226, not deployed)
+
+- 2026-11-10: added `lib/payments/azampay-api-client.mjs` to connect the existing authenticated transport to separate sandbox/production AzamPay authentication and checkout origins behind the disabled-by-default gate; credentials remain server-only, with token expiry checking, reuse and sanitized errors. The GenerateToken endpoint/response assumptions come from third-party SDK references and are **not official-merchant verified**; there is no production-facing API route or checkout invocation.
+- Added `test/azampay-api-client.test.mjs`. Executed all three AzamPay test files using `node --test` in the isolated `/home/darajaco/azampay-test-isolated` directory on the connected cPanel host: **21 tests passed, 0 failed**. All provider HTTP calls are mocks. No real funds, customer numbers, live gateway requests or production files changed.
+- **Not completed:** authoritative confirmation of actual auth payload/expiry and checkout endpoints; booking/order ownership and persistence, verified webhooks, reconciliation, checkout UI, end-to-end sandbox, full repository checks, migration approval and deployment. Merchant onboarding remains outstanding.
+
+
 ## AzamPay transport foundation (draft, not deployed)
 
 - 2026-11-10: added `lib/payments/azampay-transport.mjs` with server-side bearer-token transport, concurrent token refresh coalescing, HTTPS origin pinning, no redirects, bounded request timeout, strict method/path validation and sanitized provider error classes. Actual AzamPay token endpoint, payloads, callbacks and remote verification remain intentionally **unimplemented** pending official authenticated API contract.

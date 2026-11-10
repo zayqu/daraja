@@ -269,3 +269,13 @@ test("label/value summary tables are read as job details, not published as vacan
   assert.equal(jobs[0].deadline, "23 October 2026");
   assert.ok(!jobs.some((job) => /^(?:employer|position|deadline|location)$/i.test(job.title)));
 });
+
+
+test("Precision Air detail fields are not extracted as separate vacancies", () => {
+  const jobs = extractEmailApplicationJobs(
+    "Precision Air Pilot Vacancies",
+    "https://ajiraweb.com/precision-air-pilot-vacancies/",
+    `<table><tr><th>Job Location</th><th>Tanzania</th></tr><tr><td>Employment Type</td><td>Full-time</td></tr><tr><td>Industry</td><td>Aviation</td></tr><tr><td>Total</td><td>20</td></tr><tr><td>Application Email</td><td>careers@example.com</td></tr><tr><td>Captain</td><td>10</td></tr><tr><td>First Officer</td><td>10</td></tr></table><a href="mailto:careers@example.com">Apply</a>`
+  );
+  assert.deepEqual(jobs.map(job => job.title), ["Captain", "First Officer"]);
+});

@@ -28,6 +28,9 @@ export async function POST(request) {
 
   const publish = body.publish !== false;
   const now = new Date();
+  if (publish && (!data.deadline || data.deadline < now)) {
+    return NextResponse.json({ error: "A valid future application deadline is required before publishing." }, { status: 400 });
+  }
   const job = await createJobWithPositionSlug(
     prisma,
     {
@@ -42,7 +45,7 @@ export async function POST(request) {
       moderatedAt: publish ? now : null,
       submittedById: actor.id,
       adminEditedAt: now,
-      active: publish && (!data.deadline || data.deadline.getTime() >= now.getTime()),
+      active: publish && data.deadline.getTime() >= now.getTime(),
     },
     randomUUID()
   );
@@ -88,7 +91,10 @@ export async function PATCH(request) {
   });
   const now = new Date();
   const allowed = jobs.filter(
-    (job) => status !== "PUBLISHED" || !job.employer || job.employer.verificationStatus === "VERIFIED"
+    (job) => status !== "PUBLISHED" || (
+      job.deadline && job.deadline >= now &&
+      (!job.employer || job.employer.verificationStatus === "VERIFIED")
+    )
   );
   await prisma.$transaction([
     ...allowed.map((job) =>
@@ -99,7 +105,7 @@ export async function PATCH(request) {
           moderationNote: note || null,
           moderatedById: actor.id,
           moderatedAt: now,
-          active: status === "PUBLISHED" && (!job.deadline || job.deadline.getTime() >= now.getTime()),
+          active: status === "PUBLISHED" && Boolean(job.deadline && job.deadline.getTime() >= now.getTime()),
         },
       })
     ),

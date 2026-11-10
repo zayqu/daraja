@@ -1,6 +1,7 @@
 // Public PSRS archive discovery; no authentication, PDF downloads, or database use.
 // This produces only public advertisement metadata for source evaluation.
 const { chromium } = require("playwright");
+const { archiveCandidates } = require("../scraper/lib/psrs-archive");
 
 const ARCHIVE = "https://www.ajira.go.tz/archive?type=vacancies";
 
@@ -29,11 +30,12 @@ async function auditArchive() {
           href: node.getAttribute("href"),
         }));
     });
-    const pdfLinks = excerpt.filter((v) => /\.pdf(?:\?|$)/i.test(v.href || ""));
+    const pdfLinks = archiveCandidates(excerpt);
     const summary = {
       officialArchive: ARCHIVE,
       noticeActionCount: excerpt.length,
-      directPdfLinks: pdfLinks.length,
+      officialPdfNoticeCandidates: pdfLinks.length,
+      candidateNotices: pdfLinks.slice(0, 6),
       actions: excerpt.slice(0, 15),
       downloadedDocuments: documents.length,
     };

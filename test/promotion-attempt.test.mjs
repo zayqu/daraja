@@ -10,7 +10,7 @@ const fakeBooking = () => ({
 const fakeJob = () => ({
   id: "job1", active: true, moderationStatus: "PUBLISHED",
   deadline: new Date("2030-12-31T00:00:00Z"),
-  employerId: "employer1", employer: { verificationStatus: "VERIFIED" },
+  employerId: "employer1", employer: { verificationStatus: "VERIFIED", userId: "owner1" },
 });
 const context = (overrides = {}) => {
   let created = 0;
@@ -88,6 +88,14 @@ test("no payment for unapproved promotion or expired/unverified vacancy", async 
     await assert.rejects(preparePromotionPaymentAttempt(args(c.db)), /JOB_NOT_ELIGIBLE/);
     assert.equal(c.created, 0);
   }
+});
+
+test("rejects employer payment for another employer's vacancy even if booking owner matches", async () => {
+  const c = context({
+    job: { ...fakeJob(), employer: { verificationStatus: "VERIFIED", userId: "other-owner" } },
+  });
+  await assert.rejects(preparePromotionPaymentAttempt(args(c.db)), /JOB_NOT_ELIGIBLE/);
+  assert.equal(c.created, 0);
 });
 
 test("creates new pending payment only for owner of approved eligible booking", async () => {

@@ -651,6 +651,7 @@ function createPageRenderer({
         return {
           text: await page.evaluate(() => document.body?.innerText || ""),
           html: await page.content(),
+          url: page.url(),
         };
       } finally {
         await page.close();

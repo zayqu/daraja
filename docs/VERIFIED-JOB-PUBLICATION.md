@@ -11,10 +11,15 @@ Discovery feeds, third-party boards, Google results and email addresses are **le
 not employer verification. No deadline inference from posting date; no invented
 qualifications, salary, openings or responsibilities.
 
-Eligible jobs receive an original Ajira-formatted overview (employer, title, location,
-job type when stated, openings when stated, closing date, application guidance)
-and up to two short, attributed excerpts from the verified employer description.
-This deterministic, zero-cost formatter is **not** a full semantic paraphrase.
+Eligible jobs use one publication order: Job position, Hiring organization,
+Job location (if specified), Employment type (if specified), Number of positions
+(if confirmed), Job overview, Job description, Responsibilities, Qualifications,
+Experience (only when supplied), Application deadline, How to apply, Original
+vacancy. Sections for unavailable facts are omitted rather than invented.
+The verified employer's source facts are selected and attributed within that
+consistent Ajira editorial layout. Every post retains role-specific content,
+but this deterministic zero-cost formatter is **not** a full semantic paraphrase
+or a promise of copyright-distinct text.
 A fuller human-edited rewrite remains the preferred method for substantial
 job descriptions. Readers should always be directed to the original notice.
 
@@ -51,3 +56,14 @@ job descriptions. Readers should always be directed to the original notice.
 Current staging changes do **not** automatically clean legacy database rows
 that are not refreshed by a source, and they must not be deployed as a silent
 bulk-purge mechanism.
+
+## Unique content standard
+
+Reordering paragraphs and adding identical boilerplate does not create genuine
+unique editorial content. Human editing or a separately approved, tested
+rewriting engine is required for *complete* original-language paraphrasing.
+Never hallucinate pay, qualifications, responsibilities, application documents,
+contact names or deadlines. Preserve exact official role names, institutions and
+application destinations. A short attributed source excerpt may be included
+when it conveys a necessary original requirement; check source terms and review
+against the original notice before publication.

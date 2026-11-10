@@ -136,6 +136,12 @@ function mapPosting(posting) {
     type: mapEmploymentType(posting.typeOfEmployment?.label),
     sourceUrl,
     applicationUrl,
+    deadline: posting.validThrough || null,
+    originalEvidence: {
+      verified: true,
+      deadlineVerified: Boolean(posting.validThrough),
+      originalUrl: sourceUrl,
+    },
     companyLogo,
     representativeImage: media.representativeImage,
     language: posting.language?.code || "en",

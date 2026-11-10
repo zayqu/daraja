@@ -1,5 +1,14 @@
 # Daraja Jobs production-readiness progress
 
+## Exclusive sandbox checkout claim and key retrieval (development only)
+
+- 2026-11-10: added `lib/payments/azampay-public-key.mjs` for sandbox-only authenticated RSA public-key retrieval with bounded 24-hour memory caching, single refresh on signature failure and no unsigned acceptance. Added `lib/payments/azampay-sandbox-checkout.mjs` to validate reported MNO request/response structure without sending any provider requests.
+- Added `GatewayCheckoutState` and `PaymentAttempt.checkoutState/checkoutClaimedAt` to Prisma schema, with separate **unapplied** draft migration `20261110171500_azampay_checkout_claim`. Implemented `lib/payments/azampay-checkout-claim.mjs` as a one-shot sandbox-only compare-and-set checkout claim, response transaction-ID binding and fail-closed UNKNOWN state on ambiguous timeout. **Do not retry a claimed/unknown payment without reconciliation.**
+- Added local tests for key cache/refresh, MNO validations, exclusive claims and ambiguous timeouts. **17/17 targeted unit tests passed** in isolated connected-host directory. Prisma schema validation passed. Expanded real-Prisma CI `test/payments.db.test.mjs` to race 10 claims; this CI result is **not yet recorded as passed** at the time of this note.
+- This branch still exposes **no public checkout or webhook route**, performs no real AzamPay API calls, and has no verified collection settlement integration. Real phone and callback transaction field mapping must be verified on sandbox with privately rotated merchant credentials. No live database migration, hosting changes or production payment activation.
+- Maintain strict release approvals for any deployment/Neon migration. PR #226 remains draft and unmerged.
+
+
 ## AzamPay sandbox key and checkout validation (2026-11-10; isolated only)
 
 - Added `lib/payments/azampay-public-key.mjs`: sandbox-only, authenticated API public-key retrieval from `/azampay/v1/public-key`, RSA key validation (minimum 2048 bits), in-memory 24-hour cache, parallel request coalescing, and a single forced refresh on failed signature verification. **Only accepts an explicitly provided trusted sandbox API client**; there is no public HTTP route or live callback wiring. Trust of the exact key delivery and rotation semantics must be confirmed against the actual sandbox.

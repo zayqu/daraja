@@ -24,6 +24,7 @@ export default function JobForm({ job = null, categories }) {
     type: job?.type || "",
     salary: job?.salary || "",
     deadline: job?.deadline || "",
+    featuredUntil: job?.featuredUntil || "",
     applyMethod: job?.applyEmail ? "email" : "link",
     applyEmail: job?.applyEmail || "",
     emailSubject: job?.emailSubject || "",
@@ -111,6 +112,11 @@ export default function JobForm({ job = null, categories }) {
           <label htmlFor="job-deadline">Closing date</label>
           <input id="job-deadline" className={styles.input} type="date" value={values.deadline} onChange={set("deadline")} />
           <p className={styles.help}>Applications close at the end of this day (Tanzania time). Leave empty if there is no deadline.</p>
+        </div>
+        <div className={styles.field}>
+          <label htmlFor="job-featured-until">Featured until (paid promotion)</label>
+          <input id="job-featured-until" className={styles.input} type="date" value={values.featuredUntil} onChange={set("featuredUntil")} />
+          <p className={styles.help}>Set after the employer has paid. The job shows a Featured badge at the top of Ajira until the end of this day (Tanzania time). Leave empty for a normal listing.</p>
         </div>
         <div className={styles.field}>
           <label htmlFor="job-salary">Salary (optional)</label>

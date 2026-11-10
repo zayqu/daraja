@@ -1,84 +1,112 @@
 import Link from "next/link";
 import ContentPage from "@/components/ContentPage";
-import { loadSiteSettings, employerPortalEnabled, siteSetting } from "@/lib/features";
+import { loadSiteSettings, siteSetting } from "@/lib/features";
 import { WHATSAPP_CHANNEL_URL } from "@/lib/site-config";
 
 export const dynamic = "force-dynamic";
 
 export const metadata = {
-  title: "Recruitment advertising pilot | DARAJA",
+  title: "Advertise a vacancy | DARAJA",
   description:
-    "A measured, no-obligation recruitment distribution pilot for verified Tanzanian employers.",
+    "Promote your vacancy to Tanzanian job seekers on the DARAJA WhatsApp Channel and as a Featured job on Daraja Ajira.",
   alternates: { canonical: "/advertise" },
 };
 
+function followersLabel(followers) {
+  if (Number.isSafeInteger(followers) && followers >= 1000) {
+    return `${Math.floor(followers / 1000)}k+`;
+  }
+  if (Number.isSafeInteger(followers) && followers >= 0) {
+    return followers.toLocaleString("en-GB");
+  }
+  return "11k+";
+}
+
+function bookingLink(number, price) {
+  const digits = String(number || "").replace(/\D/g, "");
+  if (digits.length < 9) return null;
+  const message = `Hello Daraja, I would like to advertise a vacancy (Featured job, TZS ${price}).`;
+  return `https://wa.me/${digits}?text=${encodeURIComponent(message)}`;
+}
+
 export default async function AdvertisePage() {
   await loadSiteSettings();
-  const employerEnabled = employerPortalEnabled();
-  const followers = siteSetting("channel.followers");
-  const followersLabel = Number.isSafeInteger(followers) && followers >= 1000
-    ? `${Math.floor(followers / 1000)}k+`
-    : Number.isSafeInteger(followers) && followers >= 0
-      ? followers.toLocaleString("en-GB")
-      : "11k+";
+  const followers = followersLabel(siteSetting("channel.followers"));
+  const priceValue = siteSetting("promo.price");
+  const price = (Number.isSafeInteger(priceValue) && priceValue > 0 ? priceValue : 30000).toLocaleString("en-GB");
+  const daysValue = siteSetting("promo.days");
+  const days = Number.isSafeInteger(daysValue) && daysValue > 0 ? daysValue : 14;
+  const whatsappBooking = bookingLink(siteSetting("promo.whatsapp"), price);
+  const lipaNamba = String(siteSetting("promo.lipaNamba") || "").trim();
+  const lipaName = String(siteSetting("promo.lipaName") || "").trim();
+
   return (
     <ContentPage
-      title="Your vacancy deserves the right audience."
-      description="DARAJA helps Tanzanian employers distribute real vacancies to people who follow employment opportunities. We are inviting three employers to test the service before our paid launch."
+      title="Reach Tanzanian job seekers with your vacancy."
+      description={`One simple package: your vacancy on the DARAJA WhatsApp Channel (${followers} followers) and featured at the top of Daraja Ajira for ${days} days.`}
     >
-      <h2>Why try DARAJA?</h2>
+      <h2>Featured job — TZS {price}</h2>
+      <ul>
+        <li>One post of your vacancy on the DARAJA WhatsApp Channel ({followers} followers, mostly in Tanzania).</li>
+        <li>A Featured badge and top placement on Daraja Ajira for {days} days.</li>
+        <li>A clear job page that sends candidates to your official application route.</li>
+        <li>A short summary of channel views after 24 hours.</li>
+      </ul>
       <p>
-        Our WhatsApp Channel has {followersLabel} followers, 99.7% of whom
-        are based in Tanzania. A typical job post receives approximately
-        1,000–3,000 views in its first 24 hours. These figures come from
-        historical Channel insights, not a forecast for your vacancy.
+        A typical job post on the channel receives approximately 1,000–3,000 views in
+        its first 24 hours, based on past channel insights. Views, clicks,
+        applications and hires are different measures and none is guaranteed.
       </p>
       <p>
         <a href={WHATSAPP_CHANNEL_URL} target="_blank" rel="noopener noreferrer">
-          View the DARAJA WhatsApp Channel
+          See the DARAJA WhatsApp Channel
         </a>
       </p>
 
-      <h2>What is included in the pilot?</h2>
-      <ul>
-        <li>Review of your organisation, vacancy and official application destination.</li>
-        <li>Preparation and publication of one approved vacancy on the channel.</li>
-        <li>A tracked link to the Daraja vacancy page where available.</li>
-        <li>A summary of channel views after 24 hours and seven days.</li>
-        <li>A request for voluntary employer feedback on applications and relevance.</li>
-      </ul>
+      <h2>How to book</h2>
+      <ol>
+        <li>
+          Send us your vacancy details (job title, organisation, location, closing
+          date and how to apply)
+          {whatsappBooking ? (
+            <>
+              {" "}on{" "}
+              <a href={whatsappBooking} target="_blank" rel="noopener noreferrer">
+                WhatsApp
+              </a>
+            </>
+          ) : null}{" "}
+          or through our <Link href="/contact">contact page</Link>.
+        </li>
+        <li>We review the vacancy and confirm it meets our listing standards.</li>
+        <li>
+          {lipaNamba ? (
+            <>
+              Pay TZS {price} by M-Pesa to Lipa Namba <strong>{lipaNamba}</strong>
+              {lipaName ? <> ({lipaName})</> : null} and send us the confirmation message.
+            </>
+          ) : (
+            <>Pay TZS {price} using the payment details we send you, and share the confirmation.</>
+          )}
+        </li>
+        <li>We publish your vacancy on the channel and feature it on Daraja Ajira.</li>
+      </ol>
       <p>
-        <strong>Pilot fee: TZS 0.</strong> No long-term commitment. Participation
-        is subject to verification, editorial approval and available pilot slots.
-        Views, clicks, applications, shortlisted candidates and hires are
-        different measures; none is guaranteed.
+        Pay only after we have confirmed your vacancy. Daraja will never ask you to
+        pay a personal number that is different from the one shown on this page.
       </p>
 
-      <h2>How to participate</h2>
-      {employerEnabled ? (
-        <>
-          <p>
-            Register through the secure employer workspace, provide your organisation
-            details and submit an active vacancy for verification. Our team will
-            review eligible submissions and confirm pilot placements individually.
-            Submitting does not guarantee a pilot slot.
-          </p>
-          <p>
-            <Link href="/employer">Open employer workspace to submit a vacancy</Link>
-          </p>
-        </>
-      ) : (
-        <p>
-          Pilot enrolment is not open yet. Employer submissions are currently
-          disabled; please check back once the verified employer workspace is available.
-        </p>
-      )}
+      <h2>Our listing standards</h2>
+      <p>
+        We only promote genuine vacancies from identifiable employers with an official
+        application route. We do not promote roles that charge candidates fees.
+        Read our <Link href="/editorial-policy">job listing policy</Link>.
+      </p>
 
       <h2>Important for candidates</h2>
       <p>
-        DARAJA does not charge jobseekers to view or apply for vacancies.
-        Candidates apply through the employer&apos;s official application route.
-        Do not submit CVs or identity documents through an employer enquiry.
+        DARAJA does not charge job seekers to view or apply for vacancies. Candidates
+        apply through the employer&apos;s official application route.
       </p>
     </ContentPage>
   );

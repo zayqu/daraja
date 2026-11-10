@@ -1,6 +1,6 @@
 # Daraja Jobs production-readiness progress
 
-Last updated: 4 November 2026
+Last updated: 10 November 2026
 
 ## Current objective
 
@@ -8,6 +8,14 @@ Build Daraja into a secure Tanzania-first work marketplace through small,
 tested vertical releases. The current priority is Phase 0 security and privacy
 hardening before expanding candidate CV, employer, freelance, payment or AI
 workflows.
+
+## Current batch: paid featured jobs (D-036)
+
+- `/advertise` now sells a paid "Featured job" package (WhatsApp Channel post + Featured on Ajira) instead of the TZS 0 pilot. Price, days, bookings WhatsApp number, Lipa Namba and account name are admin settings under "Paid job promotion"; empty WhatsApp/Lipa values hide those details.
+- Admins set "Featured until" on the job edit form after payment; `parseFeaturedUntil` sets `featured` and `featuredUntil` (end of day EAT) and an empty value removes the badge. `expireFeaturedJobs` clears expired placements in each scraper lifecycle run.
+- Additive migration `20261110090000_job_featured_until` adds `Job.featuredUntil`.
+- Monetag setting help text no longer says to keep it off; the owner switches it on in `/admin/settings`.
+- Tests: `test/featured-promotion.test.js` (new) and the advertise-page test in `test/whatsapp-recruitment-pilot.test.js` (updated); related admin/public-job tests pass 26/26 and ESLint is clean. DB-backed suites need a generated Prisma client (CI).
 
 ## Current batch: closed-job links and branded 404
 

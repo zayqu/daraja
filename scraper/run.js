@@ -4,6 +4,7 @@ const { sendJobAlertDigests } = require("./lib/alerts");
 const {
   archiveExpiredJobs,
   createPrismaClient,
+  expireFeaturedJobs,
   saveJobs,
 } = require("./lib/store");
 const {
@@ -140,6 +141,8 @@ async function runScrapers({ dryRun = false, requestedSources = new Set() } = {}
     if (!dryRun) {
       try {
         lifecycle.archivedExpired = await archiveExpiredJobs(prisma);
+        const featuredEnded = await expireFeaturedJobs(prisma);
+        if (featuredEnded) console.log(`Lifecycle: ${featuredEnded} paid featured placement(s) ended`);
         console.log(
           `Lifecycle: ${lifecycle.archivedExpired} expired ` +
           `vacanc${lifecycle.archivedExpired === 1 ? "y" : "ies"} archived`

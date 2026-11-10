@@ -77,6 +77,7 @@ export default async function AdminEditJobPage({ params, searchParams }) {
             type: job.type || "",
             salary: job.salary || "",
             deadline: deadlineInputValue(job.deadline),
+            featuredUntil: job.featured ? deadlineInputValue(job.featuredUntil) : "",
             description: job.description,
             ...applicationFields(job.applicationUrl),
           }}

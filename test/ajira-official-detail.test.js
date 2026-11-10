@@ -44,6 +44,7 @@ test("official vacancy parser extracts duties and qualifications with confirmed 
   assert.equal(detail.title, row.title);
   assert.equal(detail.company, row.company);
   assert.equal(detail.deadline.toISOString(), "2026-11-30T23:59:59.000Z");
+  assert.match(detail.description, /Principal Responsibilities/);
   assert.match(detail.description, /Maintain records across council departments/);
   assert.match(detail.description, /diploma in records management/);
   assert.equal(detail.originalEvidence.verified, true);

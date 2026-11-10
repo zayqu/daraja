@@ -23,7 +23,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     env:
-      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      DATABASE_URL: ${{ github.event_name == 'push' && github.ref == 'refs/heads/master' && secrets.DATABASE_URL || 'postgresql://127.0.0.1:5432/daraja_ci_unavailable' }}
       NEXT_TELEMETRY_DISABLED: "1"
       NEXT_PUBLIC_GOOGLE_ANALYTICS_ID: G-89Q157X930
       NEXT_PUBLIC_GOOGLE_ADSENSE_CLIENT: ca-pub-5101856964689063

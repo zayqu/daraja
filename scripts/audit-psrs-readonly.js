@@ -14,6 +14,18 @@ async function audit() {
   let rows = [];
   try {
     const page = await browser.newPage();
+    const publicRequests = new Set();
+    page.on("response", (response) => {
+      try {
+        const url = new URL(response.url());
+        // Log only PUBLIC source endpoint paths; no query parameters,
+        // headers, cookies, response payloads, or applicant records.
+        if (url.hostname === "portal.ajira.go.tz" &&
+            /\\/(?:api|vacanc|advert|recruit)/i.test(url.pathname)) {
+          publicRequests.add(response.request().method() + " " + url.pathname + " " + response.status());
+        }
+      } catch {}
+    });
     try {
       await page.goto(URL, { waitUntil: "domcontentloaded", timeout: 45_000 });
       await page.waitForFunction(() =>
@@ -38,6 +50,27 @@ async function audit() {
         })),
       }));
       console.log("PSRS_PUBLIC_ROW_STRUCTURE " + JSON.stringify(rowStructure));
+      const cellSummary = await page.locator("table tbody tr").first().evaluate((row) =>
+        [...row.querySelectorAll("td")].map((cell) => ({
+          text: (cell.innerText || "").trim().slice(0, 110),
+          clickable: Boolean(cell.querySelector("button, a, [role='button']")),
+        }))
+      );
+      console.log("PSRS_PUBLIC_CELLS " + JSON.stringify(cellSummary));
+      const firstTitleCell = page.locator("table tbody tr").first().locator("td").nth(1);
+      const initialUrl = page.url();
+      try {
+        await firstTitleCell.click({ timeout: 5_000 });
+        await page.waitForTimeout(700);
+        console.log("PSRS_TITLE_CLICK " + JSON.stringify({
+          pathChanged: page.url() !== initialUrl,
+          currentPath: new URL(page.url()).pathname,
+          dialogCount: await page.locator("[role='dialog'], .modal").count(),
+        }));
+      } catch (error) {
+        console.log("PSRS_TITLE_CLICK " + JSON.stringify({ clickError: error.name }));
+      }
+      console.log("PSRS_PUBLIC_ENDPOINTS " + JSON.stringify([...publicRequests].slice(0, 30)));
     } finally {
       await page.close();
     }

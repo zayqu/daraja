@@ -56,3 +56,31 @@ test("collectAjiraJobs maps the rendered Advert Name into a valid job", async ()
   );
 });
 
+
+test("official numeric row IDs recover detail URLs without guessing", async () => {
+  const [job] = await collectAjiraJobs({
+    rows: [{
+      id: "13755",
+      title: "ARTISAN II (MINERAL LABORATORY)",
+      company: "Geological Survey of Tanzania",
+      deadline: "06/08/2027",
+      sourceUrl: "https://portal.ajira.go.tz/vacancies",
+    }],
+  });
+  assert.equal(job.sourceId, "13755");
+  assert.equal(job.sourceUrl, getAjiraDetailUrl(13755));
+  assert.equal(job.originalEvidence.verified, false);
+});
+test("untrusted identifiers never become original vacancy URLs", async () => {
+  const [job] = await collectAjiraJobs({
+    rows: [{
+      id: "13755-malformed",
+      title: "ARTISAN II (MINERAL LABORATORY)",
+      company: "Geological Survey of Tanzania",
+      deadline: "06/08/2027",
+      sourceUrl: "https://portal.ajira.go.tz/vacancies",
+    }],
+  });
+  assert.equal(job.sourceUrl, "https://portal.ajira.go.tz/vacancies");
+  assert.equal(job.originalEvidence.verified, false);
+});

@@ -1,5 +1,14 @@
 # Daraja Jobs production-readiness progress
 
+## Sandbox callback binding preflight (2026-11-10; no live calls)
+
+- Inspected registered **Daraja Ajira** sandbox app in a connected portal tab and verified intended callback path. Sensitive credential values shown by the portal were **not copied into code, GitHub, logs, or configuration and were not used**. Owner should rotate the one-time visible Client Secret after saving securely in a password manager. Sandbox merchant keys must be provisioned privately in a controlled test host.
+- Added `lib/payments/azampay-callback-verify.mjs`, which checks reported AzamPay callback canonical RSA-SHA256 signature and (critically) binds the *signed* `externalreference` to the stored checkout `providerTransactionId`, and compares unsigned `amount` to the stored TZS amount. Does not accept missing checkout provider ID, incorrect environment or altered status. Signed failures remain failures. Does not expose an HTTP callback route, save records or initiate payments; actual callback/provider ID mapping still needs sandbox verification.
+- Restricted low-level callback signature key type to RSA (not RSA-PSS), as expected for PKCS#1 v1.5 in the owner-provided hand-off. Added `test/azampay-callback-verify.test.mjs`.
+- Executed targeted tests on isolated server directory: **12/12 pass** for new callback and existing signature tests. Other previous mock/Prisma CI evidence remains separate. No AzamPay network request, live payment, database mutation or production deployment.
+- This is a **nonproduction, local verifier only**. The next real-world test requires verified server key retrieval, checkout transaction ID persistence, a protected callback route and an approved test deployment/database, plus an actual sandbox transaction. Do not merge PR #226 as production-ready.
+
+
 ## AzamPay sandbox registration and real Prisma CI (2026-11-10)
 
 - Owner-provided sandbox hand-off added to `docs/AZAMPAY-SANDBOX-HANDOFF.md`. Reported app name `Daraja Ajira`; credentials remain in the owner's password manager, never GitHub. Unverified third-party KYC URL explicitly flagged for official confirmation.

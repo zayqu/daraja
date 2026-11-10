@@ -76,7 +76,7 @@ const {
 } = require("./lib/employer-media");
 
 const adapters = {
-  ajira: () => collectAjiraJobs(),
+  ajira: (_source, { renderer }) => collectAjiraJobs({ render: renderer.render }),
   ajiraweb: () => collectAjiraWebJobs(),
   crdb: () => collectCrdbJobs(),
   nmb: () => collectNmbJobs(),
@@ -125,7 +125,11 @@ async function runScrapers({ dryRun = false, requestedSources = new Set() } = {}
     throw new Error("No enabled scraper source matched the request.");
   }
 
-  const renderer = createPageRenderer();
+  // Government pages are rendered client-side; reserve enough shared browser
+  // reads for those original notices and any agency verification pages.
+  const renderer = createPageRenderer({
+    budget: Number.parseInt(process.env.EMPLOYER_PAGE_RENDER_BUDGET || "60", 10),
+  });
   const summaries = [];
   const failures = [];
   const warnings = [];

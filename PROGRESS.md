@@ -1,5 +1,14 @@
 # Daraja Jobs production-readiness progress
 
+## AzamPay sandbox key and checkout validation (2026-11-10; isolated only)
+
+- Added `lib/payments/azampay-public-key.mjs`: sandbox-only, authenticated API public-key retrieval from `/azampay/v1/public-key`, RSA key validation (minimum 2048 bits), in-memory 24-hour cache, parallel request coalescing, and a single forced refresh on failed signature verification. **Only accepts an explicitly provided trusted sandbox API client**; there is no public HTTP route or live callback wiring. Trust of the exact key delivery and rotation semantics must be confirmed against the actual sandbox.
+- Added `lib/payments/azampay-sandbox-checkout.mjs`: pure MNO checkout request validation and authenticated initiation response parser. Supported reported sandbox provider names Airtel/Tigo/Halopesa/Azampesa/Mpesa, TZS whole shillings in range 1–5,000,000, explicit phone assumption `255[67]XXXXXXXX` (needs confirmation), and preexisting server-controlled internal reference. A successful HTTP response is **not proof of funds collected**. No checkout network call or customer payment initiated by these helpers.
+- Targeted local tests `test/azampay-public-key.test.mjs` and `test/azampay-sandbox-checkout.test.mjs` ran in isolated cPanel testing directory: **12/12 passed**, all with mocks, no AzamPay credentials or network requests.
+- **Critical next task before a checkout route:** persist a database-backed checkout claim/lease and transaction ID compare-and-set to prevent concurrent requests sending multiple provider prompts, and avoid any automatic new checkout after ambiguous timeout. Confirm callback-signed `externalreference` exactly matches the authenticated checkout response `transactionId` in actual sandbox. Until then no public checkout UI or callback activation.
+- PR #226 remains draft/unmerged; previous full app CI build green; production untouched. Secrets visible in portal must be rotated by owner before real testing.
+
+
 ## CI build repair verified (2026-11-10; sandbox checkout not activated)
 
 - The earlier full build failed in Next.js 16.4.1 `next/font/google` while parsing a remote Nunito font response (`Cannot read properties of null (reading '1')`). Fixed on the draft feature branch by loading the same Nunito weights through the browser stylesheet with a system-font fallback instead of requiring a Google Fonts response at CI build time. The font remains Nunito where clients can reach the font service; loading now occurs at runtime and external font requests/privacy/offline behavior should be reviewed before production release. Updated typography assertions for the new setup without introducing a competing app font.

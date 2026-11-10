@@ -118,8 +118,9 @@ async function sendJobAlertDigests(prisma, fetchFn = fetch) {
     const candidates = await prisma.job.findMany({
       where: {
         active: true,
+        moderationStatus: "PUBLISHED",
         createdAt: { gt: subscriber.lastNotifiedAt },
-        OR: [{ deadline: null }, { deadline: { gte: new Date() } }],
+        deadline: { gte: new Date() },
       },
       orderBy: { createdAt: "asc" },
       take: 100,

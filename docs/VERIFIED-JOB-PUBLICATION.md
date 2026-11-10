@@ -97,3 +97,20 @@ missing page when the historical record can be found.
 - The zero-budget formatter currently cannot guarantee a faithful, original
   full paraphrase of long employer descriptions. Highly overlapping drafts
   are held for editing rather than auto-published.
+
+## Additional staged hardening (10 November 2026)
+
+- Government listing rows may expose an official numeric vacancy identifier.
+  When present, the adapter builds the official /view-advert/ URL and still
+  requires original-page verification before publication. Non-numeric IDs and
+  generic index links never count as verified evidence.
+- The original notice parser recognizes tested English and Kiswahili headings
+  for duties, qualifications and the application period; contradictory source
+  details are refused instead of guessed.
+- Concurrent rendered detail checks share one browser launch, reducing process
+  pressure on constrained hosting and respecting a fixed render budget.
+- The admin's single and bulk Publish actions now reject missing or expired
+  deadlines. Incomplete posts can still be saved in Needs review; the public
+  page, application endpoint and alert selection also enforce valid deadlines.
+- 125 related regression tests passed in the isolated worktree. No live
+  Chromium validation or production deployment was performed.

@@ -174,3 +174,46 @@ but the role-to-document match must be validated individually.
 The browser audit workflow is now **manual-only**, not triggered on every
 feature-branch commit, to protect the strict zero-dollar tooling budget.
 Source: https://github.com/zayqu/daraja/actions/runs/42826279155
+
+## Role-level PSRS PDF extraction — verified Nanyumbu example
+
+The draft includes `scraper/lib/psrs-notice.js`. It uses the free, pinned
+`pdfjs-dist` library rather than invoking Ghostscript or external AI services.
+Only strict HTTPS PDF attachment endpoints on the Secretariat's own site can
+be read; downloads are capped at 6 MiB and 20 seconds, and extraction is
+capped at 30 pages. Unreadable/scanned documents, missing or conflicting
+closing dates, incomplete position sections and nonmatching institutions
+are **held for manual review**. No PDF-derived role is automatically published.
+
+A real read-only PDF parse was performed using the PSRS Nanyumbu notice:
+https://www.ajira.go.tz/api/v1/vacancies/attachment/token/0e70f879-9766-46cd-b60d-e006a2bf0dbc/download
+
+The four-page PDF, dated **6 November 2026**, contains two separate
+positions: MWANDISHI MWENDESHA OFISI DARAJA LA II (**4 posts**) and
+DEREVA DARAJA LA II (**3 posts**). Its general terms explicitly state that
+applications close on **19 November 2026** and should be submitted at
+https://portal.ajira.go.tz/. The parser extracted separate role requirements,
+matched the hiring institution (Halmashauri ya Wilaya ya Nanyumbu) against
+the document and identified the correct shared deadline without confusing
+the notice's publication date with the closing date.
+
+For repeatable, read-only review after dependencies are installed:
+
+```sh
+node scripts/audit-psrs-notice-readonly.js \
+  --url="https://www.ajira.go.tz/api/v1/vacancies/attachment/token/0e70f879-9766-46cd-b60d-e006a2bf0dbc/download" \
+  --organization="Halmashauri ya Wilaya ya Nanyumbu"
+```
+
+The CLI emits **only** source metadata, position titles, counts, deadline,
+and verification/review flags. It does not print full extracted employer
+text, create vacancies, update the database, send notifications or publish
+posts. Any subsequent editorial rewrite must preserve exact employer
+requirements and remain subject to human factual/originality approval.
+A validated PDF is a **source of facts**, not evidence that an editor has
+approved a publishable vacancy. The original PDF remains the source link,
+while the official portal remains the application destination.
+
+This branch deliberately does not connect the new archive PDF pipeline to
+automatic production ingestion until source matching, editorial approval and
+legacy-deadline impacts have been separately reviewed and authorized.

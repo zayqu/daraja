@@ -124,3 +124,52 @@ test("a contradictory named hiring institution cannot qualify as complete origin
   assert.equal(result.needsManualReview, true);
   assert.equal(result.roles.length, 2);
 });
+
+
+test("end-to-end official PDF reader returns review-only roles and cannot auto-publish", async () => {
+  const pdfBytes = new TextEncoder().encode("%PDF-1.7\nfixture document");
+  let destroyed = false;
+  const mockDocument = () => ({
+    promise: Promise.resolve({
+      numPages: 1,
+      getPage: async () => ({
+        getTextContent: async () => ({
+          items: sourceLines.map((str, index) => ({
+            str,
+            transform: [1, 0, 0, 1, 70, 10000 - index * 20],
+          })),
+        }),
+      }),
+    }),
+    destroy: async () => { destroyed = true; },
+  });
+  const result = await readOfficialNotice(NANYUMBU, {
+    expectedOrganization: "Halmashauri ya Wilaya ya Nanyumbu",
+    getDocumentFn: mockDocument,
+    fetchFn: async (url, options) => {
+      assert.equal(url, NANYUMBU);
+      assert.equal(options.headers.Accept, "application/pdf");
+      return {
+        ok: true,
+        url,
+        headers: { get: () => String(pdfBytes.length) },
+        arrayBuffer: async () => pdfBytes.buffer,
+      };
+    },
+  });
+  assert.equal(destroyed, true);
+  assert.equal(result.roles.length, 2);
+  assert.equal(result.organizationMatches, true);
+  assert.equal(result.documentFactsComplete, true);
+  assert.equal(result.needsManualReview, true);
+  const { validateVacancy } = require("../scraper/lib/verified-publication");
+  const job = {
+    ...result.roles[0],
+    company: result.organization,
+    sourceUrl: NANYUMBU,
+    applicationUrl: result.applicationUrl,
+  };
+  const verification = validateVacancy(job, new Date("2026-11-10"));
+  assert.equal(verification.eligible, false);
+  assert.match(verification.reasons.join(" "), /original source|original-source/i);
+});

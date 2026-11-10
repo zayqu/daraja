@@ -59,9 +59,9 @@ test("will not prepare payment for unapproved booking or unsupported currency", 
 test("marks verified matching status paid once", () => {
   const intent = makeIntent();
   const verification = verified(intent);
-  assert.equal(assessVerifiedPayment({ intent, verification }).action, "MARK_PAID");
+  assert.equal(assessVerifiedPayment({ intent, verification, expectedMerchantId: "MAZIKU" }).action, "MARK_PAID");
   assert.equal(assessVerifiedPayment({
-    intent, verification, currentStatus: "SUCCESS",
+    intent, verification, expectedMerchantId: "MAZIKU", currentStatus: "SUCCESS",
   }).action, "NOOP");
 });
 
@@ -73,7 +73,7 @@ test("rejects unverified, forged, mismatched and unsupported statuses", () => {
     { merchantId: "OTHER" }, { status: "PAID" },
   ]) {
     assert.notEqual(assessVerifiedPayment({
-      intent, verification: verified(intent, overrides),
+      intent, verification: verified(intent, overrides), expectedMerchantId: "MAZIKU",
     }).action, "MARK_PAID");
   }
 });
@@ -81,9 +81,9 @@ test("rejects unverified, forged, mismatched and unsupported statuses", () => {
 test("does not silently reverse terminal payment state", () => {
   const intent = makeIntent();
   assert.equal(assessVerifiedPayment({
-    intent, verification: verified(intent, { status: "FAILED" }), currentStatus: "SUCCESS",
+    intent, verification: verified(intent, { status: "FAILED" }), expectedMerchantId: "MAZIKU", currentStatus: "SUCCESS",
   }).action, "REVIEW");
   assert.equal(assessVerifiedPayment({
-    intent, verification: verified(intent, { status: "REFUNDED" }), currentStatus: "SUCCESS",
+    intent, verification: verified(intent, { status: "REFUNDED" }), expectedMerchantId: "MAZIKU", currentStatus: "SUCCESS",
   }).action, "REVIEW");
 });

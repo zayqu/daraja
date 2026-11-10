@@ -570,3 +570,25 @@ day is hard-coded any more; existing owners were edited, no parallel files.
   details drop the rows that repeat the header.
 
 Migration `20261022090000_dynamic_admin_sources_categories_settings` is additive.
+
+## D-036 - Paid featured jobs and Monetag while AdSense is declined
+
+**Status:** accepted (owner decision, 10 November 2026)
+
+Google AdSense declined `daraja.co.tz` twice (10 October and 10 November 2026)
+with only the generic "meet AdSense Program Policies" reason. Revenue now comes
+from two sources that do not depend on AdSense approval:
+
+- **Paid featured jobs.** `/advertise` sells one package: a vacancy post on the
+  DARAJA WhatsApp Channel plus a Featured listing on Ajira. Price (default
+  TZS 30,000), featured period (default 14 days), bookings WhatsApp number and
+  M-Pesa Lipa Namba are admin settings (`promo.*`), not code. Payment is manual:
+  the admin confirms payment, then sets "Featured until" on the job form.
+  `Job.featuredUntil` (additive column) ends the badge automatically in the
+  scraper lifecycle run (`expireFeaturedJobs`). The free pilot copy is retired.
+- **Monetag** (D-032 formats only: In-Page Push and Vignette, never
+  pop-unders) is the active ad network, toggled in `/admin/settings`.
+
+Candidates are never charged. A future AdSense application should pause the
+Vignette during review and address unoriginal aggregated job text first.
+

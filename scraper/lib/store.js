@@ -84,6 +84,15 @@ async function archiveExpiredJobs(prisma, now = new Date()) {
   return result.count;
 }
 
+// Paid Featured placements end automatically at their featuredUntil time.
+async function expireFeaturedJobs(prisma, now = new Date()) {
+  const result = await prisma.job.updateMany({
+    where: { featured: true, featuredUntil: { lt: now } },
+    data: { featured: false },
+  });
+  return result.count;
+}
+
 async function archiveMissingSourceJobs(
   prisma,
   jobs,
@@ -325,6 +334,7 @@ async function saveJobs(
 
 module.exports = {
   archiveExpiredJobs,
+  expireFeaturedJobs,
   archiveGenericJobTitles,
   archiveMissingSourceJobs,
   createPrismaClient,

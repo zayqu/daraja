@@ -212,6 +212,7 @@ model Job {
   source           String              @default("daraja")
   language         String              @default("en")
   featured         Boolean             @default(false)
+  featuredUntil    DateTime?
   active           Boolean             @default(true)
   employerId       String?
   moderationStatus JobModerationStatus @default(PUBLISHED)

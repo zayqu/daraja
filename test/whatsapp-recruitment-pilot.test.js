@@ -5,7 +5,7 @@ const path = require("node:path");
 
 const read = (file) => readFile(path.join(__dirname, "..", file), "utf8");
 
-test("pilot page makes no outcome guarantees and keeps candidate applications with employer", async () => {
+test("advertise page sells a paid featured package without outcome guarantees", async () => {
   const page = await read("app/advertise/page.js");
   assert.match(page, /channel\.followers/);
   assert.match(page, /followersLabel/);
@@ -13,10 +13,12 @@ test("pilot page makes no outcome guarantees and keeps candidate applications wi
   assert.match(page, /1,000–3,000 views/);
   assert.match(page, /none is guaranteed/);
   assert.match(page, /official application route/);
+  assert.match(page, /promo\.price/);
+  assert.match(page, /promo\.lipaNamba/);
+  assert.match(page, /Pay only after we have confirmed your vacancy/);
+  assert.match(page, /does not charge job seekers/);
   assert.doesNotMatch(page, /<form/);
-  assert.doesNotMatch(page, /mailto:/);
-  assert.match(page, /employerPortalEnabled/);
-  assert.match(page, /href="\/employer"/);
+  assert.doesNotMatch(page, /Pilot fee: TZS 0/);
 });
 
 test("pilot attribution uses a validated WhatsApp campaign and does not fake applications", async () => {

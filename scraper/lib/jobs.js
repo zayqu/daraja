@@ -269,6 +269,7 @@ function normalizeJob(rawJob, defaults = {}) {
     companyLogo,
     representativeImage,
     source: cleanText(defaults.source) || AJIRA_SOURCE,
+    originalEvidence: rawJob.originalEvidence || null,
     language: cleanText(rawJob.language) || cleanText(defaults.language) || "en",
     deadline,
     active: deadline ? deadline.getTime() >= (defaults.now ? defaults.now.getTime() : Date.now()) : true,

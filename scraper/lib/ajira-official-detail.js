@@ -40,7 +40,7 @@ function parseOfficialAjiraDetail(html, expected = {}) {
   );
   if (!title || !expected.company || comparable(expected.company).length < 4) return null;
   if (!comparable(text).includes(comparable(expected.company))) return null;
-  const period = text.match(/Application\s+Period\s*:?\s*(\d{1,2}[/-]\d{1,2}[/-]\d{4})\s*[-–]\s*(\d{1,2}[/-]\d{1,2}[/-]\d{4})/i);
+  const period = text.match(/(?:Application\s+Period|Muda\s+wa\s+Maombi|Kipindi\s+cha\s+Maombi)\s*:?\s*(\d{1,2}[/-]\d{1,2}[/-]\d{4})\s*[-–]\s*(\d{1,2}[/-]\d{1,2}[/-]\d{4})/i);
   if (!period) return null;
   const deadline = parseDeadline(period[2]);
   const expectedDeadline = expected.deadline instanceof Date
@@ -49,10 +49,11 @@ function parseOfficialAjiraDetail(html, expected = {}) {
       deadline.toISOString().slice(0, 10) !== expectedDeadline.toISOString().slice(0, 10)) {
     return null;
   }
-  const duties = between(text, /Duties\s+and\s+Responsibilities/i, /\bQualifications\b/i)
-    .replace(/^\s*(?:Duties|Responsibilities)\s*/i, "").trim();
-  const qualifications = between(text, /\bQualifications\b/i, /\bRemuneration\b|(?:Apply\s+Now)/i)
-    .replace(/^\s*Qualifications\s*/i, "").trim();
+  const dutiesHeading = /(?:Duties\s+and\s+Responsibilities|Majukumu\s+na\s+Wajibu|Majukumu\s+ya\s+Kazi)/i;
+  const qualificationsHeading = /(?:Qualifications(?:\s+Required)?|Sifa\s+za\s+(?:Mwombaji|Waombaji|Kuajiriwa))/i;
+  const endHeading = /(?:Remuneration|Mshahara|Malipo|Apply\s+Now|Tuma\s+Maombi)/i;
+  const duties = between(text, dutiesHeading, qualificationsHeading).trim();
+  const qualifications = between(text, qualificationsHeading, endHeading).trim();
   if (duties.length < 45 || qualifications.length < 25 ||
       /^N\/A$/i.test(duties) || /^N\/A$/i.test(qualifications)) return null;
 

@@ -16,7 +16,7 @@ function parseValue(definition, value) {
   if (definition.type === "number") {
     const parsed = typeof value === "string" && value.trim() !== "" ? Number(value.trim()) : value;
     if (!Number.isSafeInteger(parsed) || parsed < 0 || parsed > 100000000) {
-      return { error: "Enter a valid whole-number follower count" };
+      return { error: "Enter a whole number" };
     }
     return { value: parsed };
   }
@@ -29,7 +29,22 @@ function parseValue(definition, value) {
     return { value: [...new Set(list)] };
   }
   const text = typeof value === "string" ? value.trim().slice(0, 200) : "";
-  if (text && !SENDER.test(text)) return { error: "Use an email address, e.g. Daraja <no-reply@daraja.co.tz>" };
+  if (!text) return { value: "" };
+  if (definition.format === "phone") {
+    const digits = text.replace(/[\s()+-]/g, "");
+    if (!/^\d{9,15}$/.test(digits)) return { error: "Enter a phone number, e.g. +255712345678" };
+    return { value: digits };
+  }
+  if (definition.format === "digits") {
+    const digits = text.replace(/\s/g, "");
+    if (!/^\d{4,15}$/.test(digits)) return { error: "Enter digits only, e.g. 1234567" };
+    return { value: digits };
+  }
+  if (definition.format === "plain") {
+    if (/[<>]/.test(text)) return { error: "Remove < and > characters" };
+    return { value: text.slice(0, 120) };
+  }
+  if (!SENDER.test(text)) return { error: "Use an email address, e.g. Daraja <no-reply@daraja.co.tz>" };
   return { value: text };
 }
 

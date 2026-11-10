@@ -63,3 +63,34 @@ test("admins set the featured date on the job form and promotion details in sett
     assert.match(settings, new RegExp(`"${key.replace(".", "\\.")}"`));
   }
 });
+
+async function loadParseValue() {
+  const source = await read("app/api/admin/settings/route.js");
+  const sender = source.match(/const SENDER = (.*);/)[1];
+  const start = source.indexOf("function parseValue");
+  const body = source.slice(start);
+  const end = body.indexOf("\n}\n") + 2;
+  return new Function(`const SENDER = ${sender}; ${body.slice(0, end)}; return parseValue;`)();
+}
+
+test("each text setting is validated by its own format, not as an email", async () => {
+  const parse = await loadParseValue();
+  assert.deepEqual(parse({ type: "text", format: "phone" }, "+255745990159"), { value: "255745990159" });
+  assert.deepEqual(parse({ type: "text", format: "phone" }, "+255 745 990 159"), { value: "255745990159" });
+  assert.ok(parse({ type: "text", format: "phone" }, "call me").error);
+  assert.deepEqual(parse({ type: "text", format: "digits" }, "5123 456"), { value: "5123456" });
+  assert.ok(parse({ type: "text", format: "digits" }, "LIPA12").error);
+  assert.deepEqual(parse({ type: "text", format: "plain" }, "DARAJA DIGITAL"), { value: "DARAJA DIGITAL" });
+  assert.ok(parse({ type: "text", format: "email" }, "not an email").error);
+  assert.deepEqual(parse({ type: "text", format: "email" }, "Daraja <no-reply@daraja.co.tz>"), { value: "Daraja <no-reply@daraja.co.tz>" });
+  assert.deepEqual(parse({ type: "text", format: "phone" }, ""), { value: "" });
+  assert.equal(parse({ type: "number" }, "abc").error, "Enter a whole number");
+});
+
+test("every text setting declares a validation format", async () => {
+  const features = await read("lib/features.js");
+  for (const key of ["email.accountFrom", "promo.whatsapp", "promo.lipaNamba", "promo.lipaName"]) {
+    const block = features.slice(features.indexOf(`"${key}": {`)).split("\n  },")[0];
+    assert.match(block, /format: "(email|phone|digits|plain)"/, key);
+  }
+});

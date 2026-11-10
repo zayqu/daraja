@@ -1,5 +1,14 @@
 # Daraja Jobs production-readiness progress
 
+## AzamPay sandbox registration and real Prisma CI (2026-11-10)
+
+- Owner-provided sandbox hand-off added to `docs/AZAMPAY-SANDBOX-HANDOFF.md`. Reported app name `Daraja Ajira`; credentials remain in the owner's password manager, never GitHub. Unverified third-party KYC URL explicitly flagged for official confirmation.
+- Added `.github/workflows/payments-db-tests.yml`, using a disposable PostgreSQL 16 service and literal database test credentials without Neon secrets; `test/payments.db.test.mjs` uses the **actual Prisma client** and PrismaPg adapter for 10 concurrent booking attempts and 10 concurrent settlement results, ownership, amount mismatch, and rollback. Test refuses any database URL other than the literal ephemeral CI URL and is skipped in normal `npm test`.
+- **Verified first GitHub Actions success:** isolated Postgres job #42830162060 ran real `prisma generate`, `prisma migrate deploy` against container PostgreSQL and the Prisma integration test; job conclusion `success`, 1 database-backed test suite passed, 0 failed. Follow-up isolated CI job #42830965621 also succeeded. This verifies those 10-way cases with actual Prisma, **not** 40-way concurrency or real AzamPay provider responses. The external raw-SQL/stand-in report separately claims 40-way testing, not independently reproduced here.
+- Separate draft security PR #227 guards production migrations/release publication so only a `push` to `refs/heads/master` may trigger them and prevents pull-request/manual jobs from receiving `secrets.DATABASE_URL`. Equivalent guard also added on this feature branch. Updated cPanel deployment test assertions to expect the stronger guard.
+- Both PRs remain unmerged; no production schema, data, deployment, credentials or payments touched. Merging **either** branch targeting master would cause the master-push production release pipeline, so require explicit deployment approval and backup verification before any merge. Full build CI outcome is still subject to separate checks.
+
+
 ## AzamPay settlement write-stage draft (NOT deployed)
 
 - 2026-11-10: added `lib/payments/collection-settlement.mjs`. It accepts a **trusted internal server-to-server collection verifier dependency** (currently not implemented), requires authoritative proof matching persisted reference, booking, amount, currency, merchant and environment, checks provider transaction identity and verifies booking is still approved. Under serializable database transaction it records unique event, sets attempt SUCCESS and booking PAID. Duplicate statuses are no-ops, conflicts reject or require review, no automatic vacancy publishing occurs.

@@ -18,6 +18,19 @@ async function audit() {
       await page.goto(URL, { waitUntil: "domcontentloaded", timeout: 45_000 });
       await page.locator("table tbody tr").first().waitFor({ timeout: 30_000 });
       rows = await extractRenderedRows(page);
+      // Public HTML diagnostics help identify event-driven detail links.
+      // Only report attribute names and public URL/role labels, never cookies,
+      // local storage, request headers or applicant account information.
+      const rowStructure = await page.locator("table tbody tr").first().evaluate((row) => ({
+        rowAttributes: [...row.attributes].map((item) => item.name),
+        controls: [...row.querySelectorAll("a,button,[role='button']")].slice(0, 8).map((node) => ({
+          tag: node.tagName.toLowerCase(),
+          label: (node.textContent || "").replace(/\\s+/g, " ").trim().slice(0, 70),
+          href: node.getAttribute("href")?.slice(0, 180) || null,
+          attributes: [...node.attributes].map((item) => item.name),
+        })),
+      }));
+      console.log("PSRS_PUBLIC_ROW_STRUCTURE " + JSON.stringify(rowStructure));
     } finally {
       await page.close();
     }

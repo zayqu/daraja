@@ -60,7 +60,7 @@ function parseOfficialAjiraDetail(html, expected = {}) {
     title,
     company: expected.company,
     deadline,
-    description: ["Job Purpose", duties, "Qualifications Required", qualifications].join("\n"),
+    description: ["Principal Responsibilities", duties, "Qualifications Required", qualifications].join("\n"),
     sourceUrl: expected.sourceUrl,
     applicationUrl: expected.sourceUrl,
     originalEvidence: {

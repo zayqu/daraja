@@ -338,15 +338,15 @@ jobs_api_healthcheck() {
 }
 
 # Production cron guard. Some tools replace the whole crontab when they add a
-# job, which silently removed the deploy, MZH scheduler and MZH backup jobs on
-# 2026-10-04. Every deploy run re-adds any missing required line, keeps all
-# other lines untouched and saves the previous crontab first. Create
-# "$STATE_DIR/cron-guard.disabled" to pause the guard deliberately.
+# job, which silently removed the MZH scheduler and MZH backup jobs on
+# 2026-10-04. Every deploy run re-adds those lines if missing, keeps all other
+# lines untouched and saves the previous crontab first. It never adds an
+# automatic deploy line: deploys are manual and owner-approved (SERVER_RULES.md
+# Rule 1). Create "$STATE_DIR/cron-guard.disabled" to pause the guard.
 CRON_GUARD_DISABLED_FILE="${CRON_GUARD_DISABLED_FILE:-$STATE_DIR/cron-guard.disabled}"
 CRON_GUARD_HOME="${CRON_GUARD_HOME:-/home/darajaco}"
 
 required_cron_lines() {
-  printf '%s\n' "*/5 * * * * /bin/bash $CRON_GUARD_HOME/.daraja-deploy/auto-deploy.sh >> $CRON_GUARD_HOME/.daraja-deploy/cron.log 2>&1"
   if [[ -d "$CRON_GUARD_HOME/mzh" ]]; then
     printf '%s\n' "* * * * * cd $CRON_GUARD_HOME/mzh && /usr/local/bin/php artisan schedule:run >> $CRON_GUARD_HOME/mzh/storage/logs/scheduler.log 2>&1"
   fi

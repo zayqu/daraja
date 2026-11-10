@@ -874,10 +874,11 @@ async function parseAgencyDetail(
     ? htmlToText(posting.description)
     : descriptionFromPage($, source);
   // Prefer the employer's own, usually fuller, description.
-  const description =
-    employerDescription.length > recruiterDescription.length
-      ? employerDescription
-      : recruiterDescription;
+  // Once the original employer notice has been verified, its wording and
+  // facts outrank a longer intermediary copy. Never rewrite from the board.
+  const description = employerDescription.length >= 80
+    ? employerDescription
+    : recruiterDescription;
 
   if (
     !identity.title ||

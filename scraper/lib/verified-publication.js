@@ -45,60 +45,85 @@ function validateVacancy(job, now = new Date()) {
   return { eligible: reasons.length === 0, reasons };
 }
 
-// Small, attributed excerpts preserve substantive source facts without
-// copying the entire employer description or algorithmically inventing duties.
-function sourceHighlights(description) {
-  const blocked = /^(?:job purpose|principal responsibilities|responsibilities|qualification(?:s)?(?: required)?|job description|how to apply|application|closing date|deadline)\\s*:?$/i;
-  const lines = String(description || "").split(/\\n+/)
-    .map((line) => line.replace(/\\s+/g, " ").trim())
-    .filter((line) => line.length >= 35 && !blocked.test(line));
-  const seen = new Set();
-  const result = [];
-  for (const line of lines) {
-    const excerpt = line.split(/\\s+/).slice(0, 16).join(" ").replace(/[,:;\\s]+$/, "");
-    const key = excerpt.toLowerCase();
-    if (!excerpt || seen.has(key)) continue;
-    seen.add(key);
-    result.push(`• Source excerpt: “${excerpt}${line.length > excerpt.length ? "…" : ""}”`);
-    if (result.length === 2) break;
-  }
-  return result;
+// Uniform editorial structure; position-specific evidence is taken from each
+// verified original. This deterministic formatter does not claim to be a
+// semantic paraphraser and never invents duties, credentials, or salaries.
+const SECTION_RULES = [
+  ["Responsibilities", /^(?:principal\s+)?(?:duties(?:\s+and\s+responsibilities)?|responsibilities|key\s+accountabilities|tasks)\s*:?\s*$/i],
+  ["Qualifications", /^(?:minimum\s+|required\s+)?(?:qualifications?(?:\s+required)?|education|academic\s+requirements|knowledge\s+and\s+skills|skills\s+and\s+qualifications)\s*:?\s*$/i],
+  ["Experience", /^(?:work\s+)?(?:experience|professional\s+experience)\s*:?\s*$/i],
+  ["Application instructions", /^(?:how\s+to\s+apply|application\s+(?:procedure|instructions|process|method)|submission\s+instructions)\s*:?\s*$/i],
+  ["Role summary", /^(?:job\s+purpose|job\s+description|job\s+summary|role\s+(?:overview|purpose|summary)|position\s+summary)\s*:?\s*$/i],
+];
+function sectionFor(value) {
+  const heading = String(value || "").replace(/[\s:#]+$/, "").trim();
+  return SECTION_RULES.find((entry) => entry[1].test(heading))?.[0] || null;
 }
-
+function cleanFact(value) {
+  return String(value || "").replace(/^[\s•*\-–—\d.)]+/, "")
+    .replace(/\s+/g, " ").trim();
+}
+function sourceFacts(description) {
+  const sections = new Map();
+  let current = "Role summary";
+  for (const rawLine of String(description || "").split(/\n+/)) {
+    const line = rawLine.trim();
+    if (!line) continue;
+    const heading = sectionFor(line);
+    if (heading) {
+      current = heading;
+      continue;
+    }
+    const inline = line.match(/^([^:]{3,38}):\s+(.+)$/);
+    const inlineSection = inline && sectionFor(inline[1]);
+    if (inlineSection) current = inlineSection;
+    const fact = cleanFact(inlineSection ? inline[2] : line);
+    if (!fact || fact.length < 15 ||
+      /^(?:apply\s+now|click\s+here|read\s+more|login\s+to\s+apply)$/i.test(fact)) continue;
+    const bucket = sections.get(current) || [];
+    const excerpt = fact.split(/\s+/).slice(0, 24).join(" ").replace(/[,;:\s]+$/, "");
+    const snippet = excerpt + (fact.length > excerpt.length ? "…" : "");
+    if (!bucket.some((existing) => existing.toLowerCase() === snippet.toLowerCase())) {
+      bucket.push(snippet);
+      sections.set(current, bucket);
+    }
+  }
+  return sections;
+}
 function originalEditorialSummary(job) {
   const company = String(job.company).trim();
   const title = String(job.title).trim();
   const location = String(job.location || "").trim();
-  const date = new Date(job.deadline);
+  const deadline = job.deadline instanceof Date ? job.deadline : parseDeadline(job.deadline);
   const closing = new Intl.DateTimeFormat("en-GB", {
     day: "numeric", month: "long", year: "numeric", timeZone: "UTC",
-  }).format(date);
-  const place = location ? ` in ${location}` : "";
-  const count = Number(job.openings);
-  const openings = Number.isInteger(count) && count > 0
-    ? ` The notice lists ${count} opening${count === 1 ? "" : "s"}.` : "";
+  }).format(deadline);
   const type = {
-    FULL_TIME: "full-time", PART_TIME: "part-time", CONTRACT: "contract",
-    INTERNSHIP: "internship", FREELANCE: "freelance",
+    FULL_TIME: "Full-time", PART_TIME: "Part-time", CONTRACT: "Contract",
+    INTERNSHIP: "Internship", FREELANCE: "Freelance",
   }[job.type];
-  const kind = type ? ` This is listed as a ${type} opportunity.` : "";
-
-  // Independently worded editorial overview. Do not copy the employer's
-  // paragraphs or invent duties, salary, qualifications or experience.
-  return [
-    "Opportunity overview",
-    `${company} has advertised a vacancy for ${title}${place}.${openings}${kind}`,
-    "",
-    "Job description",
-    `This is a recruitment notice for ${title} at ${company}. The employer\u0027s original vacancy contains the detailed role requirements and instructions. Read those details before deciding to apply.`,
-    ...sourceHighlights(job.description),
-    "",
-    "Closing date",
-    `Applications close on ${closing}, according to the verified original vacancy.`,
-    "",
-    "How to apply",
-    "Use the original employer or institution application destination linked to this listing. Confirm the final requirements before submitting an application.",
-  ].join("\n");
+  const count = Number(job.openings);
+  const destination = job.applicationUrl || job.sourceUrl;
+  const sections = sourceFacts(job.description);
+  const lines = ["Job position", title, "", "Hiring organization", company];
+  if (location) lines.push("", "Job location", location);
+  if (type) lines.push("", "Employment type", type);
+  if (Number.isInteger(count) && count > 0) lines.push("", "Number of positions", String(count));
+  lines.push("", "Job overview",
+    company + " is inviting applications for " + title + (location ? " in " + location : "") + ". The role is advertised in the organization's verified vacancy notice.");
+  for (const name of ["Role summary", "Responsibilities", "Qualifications", "Experience"]) {
+    const facts = sections.get(name) || [];
+    if (!facts.length) continue;
+    lines.push("", name === "Role summary" ? "Job description" : name);
+    for (const fact of facts.slice(0, 4)) lines.push("• From the official notice: " + fact);
+  }
+  lines.push("", "Application deadline", closing, "", "How to apply",
+    "Apply through the original employer destination: " + destination,
+    "Consult the original vacancy for the full document and submission requirements.");
+  const instructions = sections.get("Application instructions") || [];
+  for (const fact of instructions.slice(0, 2)) lines.push("• Original application guidance: " + fact);
+  lines.push("", "Original vacancy", job.originalEvidence.originalUrl);
+  return lines.join("\n");
 }
 
 function prepareVerifiedVacancies(jobs, now = new Date()) {

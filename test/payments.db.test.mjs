@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import { randomUUID } from "node:crypto";
 import { preparePromotionPaymentAttempt } from "../lib/payments/promotion-attempt.mjs";
 import { settleVerifiedCollection } from "../lib/payments/collection-settlement.mjs";
+import { claimSandboxCheckout, recordSandboxCheckoutResponse } from "../lib/payments/azampay-checkout-claim.mjs";
 
 // The ordinary npm test command must never connect to a DB. Only the
 // isolated GitHub Actions workflow sets PAYMENTS_DB_TESTS.
@@ -70,6 +71,15 @@ test("real Prisma: isolated booking and settlement transactions", {
     assert.equal(await prisma.paymentAttempt.count({ where: { bookingId: booking.id } }), 1);
 
     const original = simultaneous[0].reference;
+    const attemptId = simultaneous[0].attemptId;
+    const claimed = await Promise.allSettled(Array.from({ length: 10 },
+      () => claimSandboxCheckout({ prisma, actor, attemptId })));
+    assert.equal(claimed.filter(x => x.status === "fulfilled").length, 1);
+    assert.equal(claimed.filter(x => x.status === "rejected").length, 9);
+    await recordSandboxCheckoutResponse({
+      prisma, attemptId, response: { success: true, transactionId: "isolatedtx" + suffix },
+    });
+    assert.equal((await prisma.paymentAttempt.findUnique({ where: { id: attemptId } })).checkoutState, "INITIATED");
     const authoritative = {
       authentic: true, authoritative: true,
       reference: original, eventKey: "azampay:isolated:" + suffix,

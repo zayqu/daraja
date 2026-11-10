@@ -10,6 +10,7 @@ const {
   deduplicateJobs,
 } = require("../lib/jobs");
 const { createPrismaClient, saveJobs } = require("../lib/store");
+const { enrichOfficialAjiraJobs } = require("../lib/ajira-official-detail");
 
 const AJIRA_DETAIL_URL = "https://portal.ajira.go.tz/view-advert";
 const AJIRA_ENCRYPTION_KEY = "*n%^+-$#@$$^@1ERFWFW";
@@ -220,7 +221,7 @@ async function collectAjiraJobs(options = {}) {
   const rows = options.rows || (await fetchRenderedRows(options));
   const mapped = rows.map(mapRenderedVacancy).filter(Boolean);
   const rejectedGenericTitles = rows.length - mapped.length;
-  const jobs = deduplicateJobs(mapped, {
+  let jobs = deduplicateJobs(mapped, {
     source: AJIRA_SOURCE,
     baseUrl: AJIRA_VACANCIES_URL,
     language: "sw",
@@ -234,12 +235,20 @@ async function collectAjiraJobs(options = {}) {
     );
   }
 
+  let verification = { verified: 0, unverified: jobs.length };
+  // Fixture-based adapter tests pass rows directly; production runs fetch
+  // and verify full official vacancy pages, rather than trusting the index.
+  if (options.verifyOfficial === true || (!options.rows && options.verifyOfficial !== false)) {
+    const result = await enrichOfficialAjiraJobs(jobs, { fetchFn: options.fetchFn });
+    jobs = result.jobs;
+    verification = { verified: result.verified, unverified: result.unverified };
+  }
   console.log(
-    `Ajira rendered listings: ${rows.length} rows; ${jobs.length} valid vacancies; ${rejectedGenericTitles} invalid titles skipped`
+    `Ajira rendered listings: ${rows.length} rows; ${jobs.length} candidate vacancies; ${verification.verified} verified original notices; ${rejectedGenericTitles} invalid titles skipped`
   );
   Object.defineProperty(jobs, "health", {
     enumerable: false,
-    value: { rejectedGenericTitles, renderedRows: rows.length },
+    value: { rejectedGenericTitles, renderedRows: rows.length, ...verification },
   });
   return jobs;
 }

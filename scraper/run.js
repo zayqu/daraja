@@ -27,6 +27,7 @@ const {
 } = require("./lib/source-settings");
 const { loadCategories } = require("./lib/categories");
 const { configurePolicy } = require("./lib/job-policy");
+const { prepareVerifiedVacancies } = require("./lib/verified-publication");
 
 // Admin review rules from /admin/settings (SiteSetting rows).
 async function loadReviewRules(prisma) {
@@ -173,10 +174,18 @@ async function runScrapers({ dryRun = false, requestedSources = new Set() } = {}
             : [],
         });
         const sourceHealth = jobs.health || {};
+        const prepared = prepareVerifiedVacancies(jobs);
+        if (prepared.held.length) {
+          warnings.push({
+            source: source.id,
+            warning: `${prepared.held.length} vacancy(ies) held for missing original-source verification or required facts`,
+          });
+        }
         const summary = dryRun
           ? {
               source: source.id,
-              found: jobs.length,
+              found: prepared.jobs.length,
+              heldForVerification: prepared.held.length,
               sample: jobs.slice(0, 3).map(
                 ({
                   title,
@@ -206,14 +215,15 @@ async function runScrapers({ dryRun = false, requestedSources = new Set() } = {}
                 archived: 0,
                 preserved: true,
               }
-            : await saveJobs(prisma, jobs, source.id, {
+            : await saveJobs(prisma, prepared.jobs, source.id, {
                 archiveEmptySnapshot:
                   sourceHealth.archiveEmptySnapshot === true,
               });
         summaries.push({
           ...summary,
           ...sourceHealth,
-          classification: summarizeClassifications(jobs),
+          heldForVerification: prepared.held.length,
+          classification: summarizeClassifications(prepared.jobs),
           durationMs: Date.now() - sourceStartedAt,
         });
         if (sourceHealth.unresolved) {

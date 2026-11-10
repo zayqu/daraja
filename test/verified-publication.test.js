@@ -55,8 +55,7 @@ test("editorial text is distinct, factual, and consistently structured", () => {
   assert.match(result, /Job description/);
   assert.match(result, /From the official notice: The successful applicant will assess operational risks/);
   assert.match(result, /Application deadline\n30 November 2026/);
-  assert.match(result, /How to apply\nApply through the original employer destination:/);
-  assert.match(result, /Original vacancy\nhttps:\/\/careers.example.co.tz\/jobs\/42/);
+  assert.doesNotMatch(result, /How to apply|Original vacancy|careers.example.co.tz/);
   assert.ok(result.length > verified.description.length);
   assert.doesNotMatch(result, /salary|degree required/i);
 });
@@ -87,7 +86,7 @@ test("the same editorial headings carry different role-specific facts", () => {
   };
   const b = originalEditorialSummary(bank);
   const h = originalEditorialSummary(hospital);
-  for (const heading of ["Job position", "Hiring organization", "Job overview", "Job description", "Responsibilities", "Qualifications", "Application deadline", "How to apply", "Original vacancy"]) {
+  for (const heading of ["Job position", "Hiring organization", "Job overview", "Job description", "Responsibilities", "Qualifications", "Application deadline", "Application requirements"]) {
     assert.ok(b.includes(heading), heading);
     assert.ok(h.includes(heading), heading);
   }
@@ -100,7 +99,7 @@ test("the same editorial headings carry different role-specific facts", () => {
 test("the formatter does not invent salary, experience or documents", () => {
   const result = originalEditorialSummary(verified);
   assert.doesNotMatch(result, /TZS|salary:|years of experience|certificate|CV required/i);
-  assert.match(result, /Consult the original vacancy for the full document/);
+  assert.doesNotMatch(result, /How to apply|Application requirements|Apply through/);
 });
 
 test("a near-copied source summary is flagged for originality review", () => {
@@ -125,4 +124,16 @@ test("a near-copied source summary is flagged for originality review", () => {
   const batch = prepareVerifiedVacancies([example], now);
   assert.equal(batch.held.length, 1);
   assert.match(batch.jobs[0].reviewReasons.join(" "), /originality review/);
+});
+
+
+test("application instructions appear only when the employer provides them", () => {
+  const instructions = {
+    ...verified,
+    description: "Job Purpose\nLead operational risk reporting and assess bank control procedures.\nHow to Apply\nUpload copies of the requested professional registration documents.",
+  };
+  const result = originalEditorialSummary(instructions);
+  assert.match(result, /Application requirements/);
+  assert.match(result, /professional registration documents/);
+  assert.doesNotMatch(result, /Apply through the original employer destination/);
 });

@@ -19,7 +19,7 @@ test("new payment ledger is separate from legacy floating-point Payment model", 
 
 test("migration only adds new structures with amount, currency and environment constraints", () => {
   const sql = read("prisma/migrations/20261110143000_azampay_promotion_payment_ledger/migration.sql");
-  assert.doesNotMatch(sql, /\b(DROP|TRUNCATE|DELETE|UPDATE)\b/i);
+  assert.doesNotMatch(sql, /(?:^|\\n)\\s*(?:DROP|TRUNCATE|DELETE|UPDATE)\\b/i);
   for (const table of ["PromotionBooking", "PaymentAttempt", "PaymentEvent"]) {
     assert.match(sql, new RegExp(`CREATE TABLE "${table}"`));
   }

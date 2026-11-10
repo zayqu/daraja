@@ -33,7 +33,7 @@ export async function PATCH(request, { params }) {
   if (invalid) return NextResponse.json({ error: invalid }, { status: 400 });
 
   const now = new Date();
-  const stillOpen = !data.deadline || data.deadline.getTime() >= now.getTime();
+  const stillOpen = Boolean(data.deadline && data.deadline.getTime() >= now.getTime());
   const job = await prisma.$transaction(async (tx) => {
     const updated = await tx.job.update({
       where: { id },

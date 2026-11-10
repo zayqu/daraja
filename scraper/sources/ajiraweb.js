@@ -187,7 +187,9 @@ function readSummaryTable($, table) {
     .get()
     .filter((cells) => cells.length === 2);
   const labelled = rows.filter(([label]) => summaryFieldFor(label));
-  if (!labelled.length || labelled.length < Math.ceil(rows.length / 2)) return null;
+  // Mixed tables can contain real job rows alongside metadata labels.
+  // Treat a table as a summary only when every non-empty row is a field.
+  if (!labelled.length || labelled.length !== rows.length) return null;
   const fields = {};
   for (const [label, value] of labelled) {
     const field = summaryFieldFor(label);

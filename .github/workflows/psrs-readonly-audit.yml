@@ -1,14 +1,8 @@
 name: Read-only PSRS vacancy verification
 
+# Manual-only: avoid repeatedly downloading Chromium on every development commit.
+# GitHub Actions billing/quotas must be confirmed before more CI runs.
 on:
-  push:
-    branches:
-      - feature/verified-deadline-editorial-ingestion-20261110
-    paths:
-      - "scraper/**"
-      - "scripts/audit-psrs-readonly.js"
-      - "scripts/audit-psrs-archive-readonly.js"
-      - ".github/workflows/psrs-readonly-audit.yml"
   workflow_dispatch:
 
 permissions:

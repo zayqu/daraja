@@ -230,6 +230,12 @@ async function runScrapers({ dryRun = false, requestedSources = new Set() } = {}
           classification: summarizeClassifications(prepared.jobs),
           durationMs: Date.now() - sourceStartedAt,
         });
+        if (sourceHealth.unverified) {
+          warnings.push({
+            source: source.id,
+            warning: `${sourceHealth.unverified} government vacancy notice(s) could not be verified from a fully rendered original page`,
+          });
+        }
         if (sourceHealth.unresolved) {
           warnings.push({
             source: source.id,

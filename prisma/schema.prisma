@@ -493,6 +493,8 @@ model PaymentAttempt {
   provider              String               @default("AZAMPAY")
   providerTransactionId String?              @unique
   merchantId            String?
+  checkoutState         GatewayCheckoutState @default(NOT_STARTED)
+  checkoutClaimedAt     DateTime?
   amountTzs             Int
   currency              String               @default("TZS")
   environment           String
@@ -505,6 +507,13 @@ model PaymentAttempt {
 
   @@index([bookingId, status])
   @@index([status, createdAt])
+}
+
+enum GatewayCheckoutState {
+  NOT_STARTED
+  CLAIMED
+  INITIATED
+  UNKNOWN
 }
 
 enum GatewayPaymentStatus {

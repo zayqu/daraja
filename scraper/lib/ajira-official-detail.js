@@ -73,6 +73,7 @@ function parseOfficialAjiraDetail(html, expected = {}) {
 
 async function enrichOfficialAjiraJobs(jobs, {
   fetchFn = fetch,
+  render = null,
   concurrency = 3,
 } = {}) {
   const results = Array.from(jobs);
@@ -84,15 +85,25 @@ async function enrichOfficialAjiraJobs(jobs, {
       const job = results[index];
       if (!isOfficialDetailUrl(job.sourceUrl)) continue;
       try {
-        const response = await fetchFn(job.sourceUrl, {
-          headers: { Accept: "text/html,application/xhtml+xml", "User-Agent": "DarajaJobsBot/1.0" },
-          redirect: "follow",
-          signal: AbortSignal.timeout(20000),
-        });
-        if (!response.ok) continue;
-        const finalUrl = response.url || job.sourceUrl;
-        if (!isOfficialDetailUrl(finalUrl)) continue;
-        const official = parseOfficialAjiraDetail(await response.text(), job);
+        // PSRS serves a client-rendered shell to normal HTTP fetches. The
+        // runner's shared Playwright renderer supplies the fully loaded DOM.
+        // No rendered content = no automatic verification.
+        let documentHtml;
+        if (render) {
+          const page = await render(job.sourceUrl);
+          if (!page || (page.url && !isOfficialDetailUrl(page.url))) continue;
+          documentHtml = page.html;
+        } else {
+          // Dependency-injected HTTP path for tests/static fixtures only.
+          const response = await fetchFn(job.sourceUrl, {
+            headers: { Accept: "text/html,application/xhtml+xml", "User-Agent": "DarajaJobsBot/1.0" },
+            redirect: "follow",
+            signal: AbortSignal.timeout(20000),
+          });
+          if (!response.ok || !isOfficialDetailUrl(response.url || job.sourceUrl)) continue;
+          documentHtml = await response.text();
+        }
+        const official = parseOfficialAjiraDetail(documentHtml, job);
         if (!official) continue;
         results[index] = { ...job, ...official };
         verified += 1;

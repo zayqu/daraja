@@ -114,3 +114,33 @@ missing page when the historical record can be found.
   page, application endpoint and alert selection also enforce valid deadlines.
 - 125 related regression tests passed in the isolated worktree. No live
   Chromium validation or production deployment was performed.
+
+## Live PSRS browser audit outcome — 10 November 2026
+
+A dedicated GitHub-hosted Chromium workflow (no DATABASE_URL, no writes)
+confirmed that the public vacancies table can populate 10 rows. A sampled
+public row contained a real title (Assistant Meteorological Officer II),
+Tanzania Meteorological Authority as institution, and an explicit closing
+date of 23 November 2026.
+
+However, each of the 10 rows exposed only a generic /vacancies source URL,
+not a vacancy-level /view-advert/ link or recognized numeric vacancy ID.
+The row had an ordinary "Login to Apply" button; clicking the title cell did
+not navigate or open a detail dialog. Public response diagnostics for the
+portal hostname did not reveal a vacancy-detail endpoint on this page load.
+This does **not** establish that no official API exists elsewhere.
+
+Read-only audit run: https://github.com/zayqu/daraja/actions/runs/42822435634
+
+**Operational decision:** Keep current PSRS listing-table records as leads
+requiring verification. Never infer a detailed role description from a listing
+title, or treat the sign-in button as an original vacancy notice. Find a
+public official vacancy-detail route, published notice/PDF, or a documented
+original vacancy API before allowing PSRS automatic publication. Do not
+guess vacancy IDs from titles or scrape authenticated sessions.
+
+The standalone audit CI intentionally returns a failing status when it cannot
+verify source details; this is a monitoring signal, not a production incident.
+The main live scheduler is unchanged. The editorial gate additionally holds
+all machine-formatted drafts for an independent factual and originality
+review until an approved reliable rewrite workflow exists.

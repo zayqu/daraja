@@ -117,3 +117,17 @@ test("a browser-rendered listing without full detail remains unverified", async 
   });
   assert.equal(result.verified, 0);
 });
+
+
+test("Kiswahili government notices use the same verified facts and deadline policy", () => {
+  const swahili = html
+    .replace("Application Period", "Kipindi cha Maombi")
+    .replace("Duties and Responsibilities", "Majukumu na Wajibu")
+    .replace("Qualifications", "Sifa za Mwombaji")
+    .replace("Remuneration", "Mshahara");
+  const detail = parseOfficialAjiraDetail(swahili, row);
+  assert.ok(detail);
+  assert.equal(detail.deadline.toISOString(), "2026-11-30T23:59:59.000Z");
+  assert.match(detail.description, /Maintain records across council departments/);
+  assert.match(detail.description, /diploma in records management/);
+});

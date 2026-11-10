@@ -57,7 +57,9 @@ test("multi-position official document produces separately attributable review-o
   assert.doesNotMatch(result.roles[1].description, /Kuchapa barua/);
   assert.equal(result.deadline.toISOString(), "2026-11-19T23:59:59.000Z");
   assert.equal(result.applicationUrl, "https://portal.ajira.go.tz/");
-  assert.equal(result.needsManualReview, false);
+  assert.equal(result.organizationMatches, true);
+  assert.equal(result.documentFactsComplete, true);
+  assert.equal(result.needsManualReview, true);
   assert.equal(result.roles[0].evidenceStatus, "PENDING_ROLE_REVIEW");
   assert.equal(result.roles[0].sourceVerified, false);
   assert.equal(result.roles[0].originalEvidence, undefined);
@@ -108,4 +110,16 @@ test("official PDF reader blocks redirected and non-PDF data and never publishes
       ok: true, url: "https://example.org/redirect", headers: { get: () => "100" },
     }),
   }), /redirected/);
+});
+
+
+test("a contradictory named hiring institution cannot qualify as complete original evidence", () => {
+  const result = parseNoticeRoles(sourceLines, {
+    documentUrl: NANYUMBU,
+    expectedOrganization: "Halmashauri ya Wilaya ya Temeke",
+  });
+  assert.equal(result.organizationMatches, false);
+  assert.equal(result.documentFactsComplete, false);
+  assert.equal(result.needsManualReview, true);
+  assert.equal(result.roles.length, 2);
 });

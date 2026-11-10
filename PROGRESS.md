@@ -1,5 +1,13 @@
 # Daraja Jobs production-readiness progress
 
+## AzamPay transport foundation (draft, not deployed)
+
+- 2026-11-10: added `lib/payments/azampay-transport.mjs` with server-side bearer-token transport, concurrent token refresh coalescing, HTTPS origin pinning, no redirects, bounded request timeout, strict method/path validation and sanitized provider error classes. Actual AzamPay token endpoint, payloads, callbacks and remote verification remain intentionally **unimplemented** pending official authenticated API contract.
+- Hardened `azampay-core.mjs` to fail closed on unknown `AZAMPAY_MODE` and accept strict UUID-shaped internal references.
+- Added `test/azampay-transport.test.mjs`. **15/15 targeted unit tests passed** (core + transport) by running `node --test test/azampay-core.test.mjs test/azampay-transport.test.mjs` from a separate isolated directory on the connected cPanel host. This did **not** execute the live application or use provider credentials. No network payment tests, full-repository tests, lint, build or production deploy have been claimed.
+- Current feature branch remains draft PR #226, no change to `/advertise`, billing persistence or payment settings.
+
+
 ## Current branch: AzamPay payment safety foundation (not deployed)
 
 - 2026-11-10, workstream E, draft PR #226: added `lib/payments/azampay-core.mjs` with fail-closed sandbox/production activation guard, integer-safe TZS amount validation, opaque payment references, approved-booking payment intent checks and a pure function that assesses **already independently verified** payment statuses against a server-supplied merchant ID, amount, reference, booking and currency.

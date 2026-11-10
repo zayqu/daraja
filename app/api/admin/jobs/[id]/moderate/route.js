@@ -26,8 +26,11 @@ export async function PATCH(request, { params }) {
   if (status === "PUBLISHED") {
     const pending = await prisma.job.findUnique({
       where: { id },
-      select: { employer: { select: { verificationStatus: true } } },
+      select: { deadline: true, employer: { select: { verificationStatus: true } } },
     });
+    if (!pending?.deadline || pending.deadline < new Date()) {
+      return NextResponse.json({ error: "A valid future application deadline is required before publishing." }, { status: 409 });
+    }
     // Employer-submitted vacancies go live only for verified employers.
     if (pending?.employer && pending.employer.verificationStatus !== "VERIFIED") {
       return NextResponse.json({ error: "Verify this employer before publishing their vacancy" }, { status: 409 });

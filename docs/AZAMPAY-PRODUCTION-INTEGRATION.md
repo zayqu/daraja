@@ -105,3 +105,13 @@ The feature branch now includes the proposed `PromotionBooking`, `PaymentAttempt
 Evidence from the isolated connected-host working directory: 25 targeted mock/static tests passed, JavaScript syntax checks passed, and the Prisma schema validated. **Not tested:** migration execution on a database, replay/transactional update service, end-to-end sandbox collection, live authorization or complete production build.
 
 Production sequence remains: authoritative AzamPay contract and merchant credentials -> complete owner-authorized booking/order workflow -> signed webhook or authoritative transaction verification -> atomic persisted status transitions and reconciliation -> test on isolated sandbox database -> review migration with fresh restore point -> explicit owner-authorized release. Payment service stays disabled throughout development.
+
+## Callback authenticity hardening (10 Nov 2026)
+
+Added `lib/payments/provider-signature.mjs`, a fail-closed RSA-SHA256 verification primitive. It requires a canonical message, base64 signature and trusted PEM public key; missing/invalid signatures and tampered messages return false. It **does not** infer callback field order, construct messages from arbitrary JSON, download or trust a public key dynamically, create a webhook route, or mark transactions paid. The official AzamPay callback signing/canonicalisation contract and key-rotation rules are still required before integration. An unofficial SDK suggests RSA signatures for callbacks but its allowance of unsigned callbacks is **not accepted** in Daraja.
+
+**Tests:** 39/39 isolated mock/static tests passed, including signature forgery, status/reference tampering and wrong key. This validates local primitives only, not AzamPay-signed webhooks or settlement.
+
+**Disposable PostgreSQL test blocker:** connected shared cPanel host and current isolated workspace have no local `postgres`, `initdb`, `pg_ctl`, `psql`, Docker or Podman binary. Do not use existing production Neon as a substitute. A separate, explicitly identified disposable PostgreSQL database is needed for applying the draft migration, realistic transactions, concurrent request collision tests and rollback verification. Do not create billable Neon branches or change production DB without approval.
+
+**Authoritative verification limitation:** Tanzania transaction-status examples in external SDK documentation describe disbursement status, not necessarily mobile-money collections. Do not use disbursement status as proof of collection. Obtain the actual collection lookup/reconciliation API and signed callback contract from AzamPay before allowing `SUCCESS` transitions.

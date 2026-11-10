@@ -239,7 +239,7 @@ async function collectAjiraJobs(options = {}) {
   // Fixture-based adapter tests pass rows directly; production runs fetch
   // and verify full official vacancy pages, rather than trusting the index.
   if (options.verifyOfficial === true || (!options.rows && options.verifyOfficial !== false)) {
-    const result = await enrichOfficialAjiraJobs(jobs, { fetchFn: options.fetchFn });
+    const result = await enrichOfficialAjiraJobs(jobs, { fetchFn: options.fetchFn, render: options.render });
     jobs = result.jobs;
     verification = { verified: result.verified, unverified: result.unverified };
   }

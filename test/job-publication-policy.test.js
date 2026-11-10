@@ -204,14 +204,18 @@ test("automatic records follow the latest evidence until an administrator decide
   assert.equal(Object.hasOwn(decided.updates[0].data, "moderationStatus"), false);
 });
 
-test("a field-label title like Employer or Deadline is held for review", () => {
+test("field-label titles are blocked before publication", () => {
   const { decidePublication, isFieldLabelTitle } = require("../scraper/lib/job-policy");
   assert.equal(isFieldLabelTitle("Employer"), true);
   assert.equal(isFieldLabelTitle("Deadline:"), true);
   assert.equal(isFieldLabelTitle("Sales Executive"), false);
   const decision = decidePublication({ title: "Employer", description: "" }, "ajiraweb");
-  assert.equal(decision.status, "PENDING_REVIEW");
+  assert.equal(decision.status, "REJECTED");
   assert.match(decision.note, /field label/);
+  for (const title of ["Application Email", "Employment Type", "Industry", "Job Location", "Total", "Deadline"]) {
+    assert.equal(isFieldLabelTitle(title), true, title);
+    assert.equal(decidePublication({ title }, "ajiraweb").status, "REJECTED", title);
+  }
 });
 
 test("a vacancy an administrator edited is never overwritten by a scrape", async () => {

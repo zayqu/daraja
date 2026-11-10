@@ -169,8 +169,8 @@ const SUMMARY_FIELDS = [
   ["title", /^(?:position|job\s*title|job\s*position|post|role|vacancy|title)$/i],
   ["company", /^(?:employer|company|organi[sz]ation|institution|hiring\s+organi[sz]ation)$/i],
   ["deadline", /^(?:(?:application\s+)?deadline|closing\s+date|last\s+date)$/i],
-  ["location", /^(?:location|duty\s+station|work\s+station|region)$/i],
-  ["other", /^(?:posts?|no\.?\s+of\s+posts?|number\s+of\s+posts?|salary|qualifications?|minimum\s+qualifications?|education|experience|reports?\s+to|employment\s+type|job\s+type|contract|category|email|how\s+to\s+apply|industry|ref(?:erence)?(?:\s+no\.?)?)$/i],
+  ["location", /^(?:location|job\s+location|duty\s+station|work\s+station|region)$/i],
+  ["other", /^(?:posts?|total|no\.?\s+of\s+posts?|number\s+of\s+posts?|application\s+email|salary|qualifications?|minimum\s+qualifications?|education|experience|reports?\s+to|employment\s+type|job\s+type|contract|category|email|how\s+to\s+apply|industry|ref(?:erence)?(?:\s+no\.?)?)$/i],
 ];
 
 function summaryFieldFor(label) {
@@ -187,7 +187,9 @@ function readSummaryTable($, table) {
     .get()
     .filter((cells) => cells.length === 2);
   const labelled = rows.filter(([label]) => summaryFieldFor(label));
-  if (!labelled.length || labelled.length < Math.ceil(rows.length / 2)) return null;
+  // Mixed tables can contain real job rows alongside metadata labels.
+  // Treat a table as a summary only when every non-empty row is a field.
+  if (!labelled.length || labelled.length !== rows.length) return null;
   const fields = {};
   for (const [label, value] of labelled) {
     const field = summaryFieldFor(label);
@@ -242,7 +244,7 @@ function extractEmailApplicationJobs(articleTitle, articleUrl, html) {
   function addJob(title, description) {
     const cleanTitle = cleanText(title);
     const key = cleanTitle.toLowerCase();
-    if (!cleanTitle || isGroupedVacancyTitle(cleanTitle) || seenTitles.has(key)) return;
+    if (!cleanTitle || summaryFieldFor(cleanTitle) || isGroupedVacancyTitle(cleanTitle) || seenTitles.has(key)) return;
     seenTitles.add(key);
     jobs.push({
       sourceId: `email-${email.toLowerCase()}-${cleanTitle.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`,

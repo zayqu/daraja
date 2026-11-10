@@ -126,6 +126,25 @@ function originalEditorialSummary(job) {
   return lines.join("\n");
 }
 
+// Similarity is a conservative flag for human review, not a plagiarism score.
+// Five-word runs detect substantial copy/paste without penalizing a shared
+// employer name or an unavoidably identical role title.
+function wordRuns(value, length = 5) {
+  const words = String(value || "").toLowerCase()
+    .replace(/[^\p{L}\p{N}]+/gu, " ").trim().split(/\s+/).filter(Boolean);
+  const runs = [];
+  for (let i = 0; i + length <= words.length; i += 1) {
+    runs.push(words.slice(i, i + length).join(" "));
+  }
+  return runs;
+}
+function sourceOverlap(source, editorial) {
+  const originalRuns = new Set(wordRuns(source));
+  const generatedRuns = wordRuns(editorial);
+  if (!originalRuns.size || !generatedRuns.length) return 0;
+  return generatedRuns.filter((run) => originalRuns.has(run)).length / generatedRuns.length;
+}
+
 function prepareVerifiedVacancies(jobs, now = new Date()) {
   const accepted = [];
   const held = [];
@@ -139,7 +158,19 @@ function prepareVerifiedVacancies(jobs, now = new Date()) {
       });
       continue;
     }
-    accepted.push({ ...job, description: originalEditorialSummary(job) });
+    const editorial = originalEditorialSummary(job);
+    const overlap = sourceOverlap(job.description, editorial);
+    if (overlap > 0.25) {
+      const reason = "editorial draft retains substantial original-source phrasing and requires an originality review";
+      held.push({ title: job.title, sourceId: job.sourceId, reasons: [reason] });
+      accepted.push({
+        ...job,
+        description: editorial,
+        reviewReasons: [...(job.reviewReasons || []), reason],
+      });
+      continue;
+    }
+    accepted.push({ ...job, description: editorial });
   }
   return { jobs: accepted, held };
 }
@@ -148,4 +179,5 @@ module.exports = {
   validateVacancy,
   originalEditorialSummary,
   prepareVerifiedVacancies,
+  sourceOverlap,
 };

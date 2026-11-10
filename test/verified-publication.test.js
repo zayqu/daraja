@@ -61,7 +61,8 @@ test("editorial text is distinct, factual, and consistently structured", () => {
 });
 test("eligible jobs get an editorial description and retain application provenance", () => {
   const batch = prepareVerifiedVacancies([verified], now);
-  assert.equal(batch.held.length, 0);
+  assert.equal(batch.held.length, 1);
+  assert.match(batch.jobs[0].reviewReasons.join(" "), /editorial draft requires human/);
   assert.notEqual(batch.jobs[0].description, verified.description);
   assert.equal(batch.jobs[0].sourceUrl, verified.sourceUrl);
   assert.equal(batch.jobs[0].applicationUrl, verified.applicationUrl);
@@ -136,4 +137,20 @@ test("application instructions appear only when the employer provides them", () 
   assert.match(result, /Application requirements/);
   assert.match(result, /professional registration documents/);
   assert.doesNotMatch(result, /Apply through the original employer destination/);
+});
+
+
+test("lexically different formatting never bypasses editorial approval", () => {
+  const job = {
+    ...verified,
+    description: [
+      "Job Purpose",
+      "Oversee reporting operations for a specialist risk management team.",
+      "Responsibilities",
+      "Prepare monthly summaries and analyse control effectiveness.",
+    ].join("\n"),
+  };
+  const result = prepareVerifiedVacancies([job], now);
+  assert.equal(result.held.length, 1);
+  assert.match(result.jobs[0].reviewReasons.join(" "), /editorial draft requires human|originality review/);
 });

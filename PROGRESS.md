@@ -1,5 +1,13 @@
 # Daraja Jobs production-readiness progress
 
+## CI build repair verified (2026-11-10; sandbox checkout not activated)
+
+- The earlier full build failed in Next.js 16.4.1 `next/font/google` while parsing a remote Nunito font response (`Cannot read properties of null (reading '1')`). Fixed on the draft feature branch by loading the same Nunito weights through the browser stylesheet with a system-font fallback instead of requiring a Google Fonts response at CI build time. The font remains Nunito where clients can reach the font service; loading now occurs at runtime and external font requests/privacy/offline behavior should be reviewed before production release. Updated typography assertions for the new setup without introducing a competing app font.
+- **GitHub Actions run #42836369725 succeeded:** tests, lint, Prisma validation, Next.js Webpack production build, standalone cPanel runtime smoke/package checks. No release was published or deployed by this PR run.
+- **GitHub Actions run #42836369910 succeeded:** real Prisma migration and transaction suite against ephemeral PostgreSQL, not production Neon.
+- Production remains OFF, PR #226 draft/unmerged. The next milestone is an approved isolated sandbox host + database with privately rotated AzamPay credentials, registered callback set to that host, a confirmed provider transaction ID mapping, and a real sandbox checkout/callback. Do not enable live payment UI, deploy or alter production Neon without separate owner approval.
+
+
 ## Payment development checkpoint — closed for now (2026-11-10)
 
 **Decision:** retain draft PR #226 for future sandbox activation; do not merge, close the PR, run customer checkout, apply the production migration or deploy. This completes the *currently authorized code preparation*, not the AzamPay merchant integration.

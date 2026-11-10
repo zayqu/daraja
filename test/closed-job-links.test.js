@@ -12,7 +12,8 @@ test("closed vacancies keep their URL and show alternatives instead of a bare 40
   const notice = await read("components/ClosedJobNotice.js");
 
   assert.match(loader, /export async function findClosedPublicJob/);
-  assert.match(loader, /active: false,\s*moderationStatus: "PUBLISHED"/);
+  assert.match(loader, /moderationStatus: "PUBLISHED"/);
+  assert.match(loader, /\{ active: false \}, \{ deadline: null \}, \{ deadline: \{ lt: new Date\(\) \} \}/);
   assert.match(page, /findClosedPublicJob\(id\)/);
   assert.match(page, /<ClosedJobNotice job=\{closedJob\} \/>/);
   assert.match(page, /notFound\(\)/);

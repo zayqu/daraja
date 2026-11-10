@@ -103,7 +103,6 @@ function originalEditorialSummary(job) {
     INTERNSHIP: "Internship", FREELANCE: "Freelance",
   }[job.type];
   const count = Number(job.openings);
-  const destination = job.applicationUrl || job.sourceUrl;
   const sections = sourceFacts(job.description);
   const lines = ["Job position", title, "", "Hiring organization", company];
   if (location) lines.push("", "Job location", location);
@@ -117,12 +116,16 @@ function originalEditorialSummary(job) {
     lines.push("", name === "Role summary" ? "Job description" : name);
     for (const fact of facts.slice(0, 4)) lines.push("• From the official notice: " + fact);
   }
-  lines.push("", "Application deadline", closing, "", "How to apply",
-    "Apply through the original employer destination: " + destination,
-    "Consult the original vacancy for the full document and submission requirements.");
+  lines.push("", "Application deadline", closing);
+  // The page's existing Apply button owns the application URL. Only display
+  // additional employer requirements when verified instructions exist.
   const instructions = sections.get("Application instructions") || [];
-  for (const fact of instructions.slice(0, 2)) lines.push("• Original application guidance: " + fact);
-  lines.push("", "Original vacancy", job.originalEvidence.originalUrl);
+  if (instructions.length) {
+    lines.push("", "Application requirements");
+    for (const fact of instructions.slice(0, 3)) {
+      lines.push("• As stated in the official notice: " + fact);
+    }
+  }
   return lines.join("\n");
 }
 

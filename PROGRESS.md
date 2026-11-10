@@ -9,6 +9,12 @@ tested vertical releases. The current priority is Phase 0 security and privacy
 hardening before expanding candidate CV, employer, freelance, payment or AI
 workflows.
 
+## Current batch: admin settings validation per format
+
+- Bug (reported from the live admin, 10 Nov 2026): every text site setting was validated as an email sender, so the new "Bookings WhatsApp number", "M-Pesa Lipa Namba" and "Lipa Namba account name" could not be saved; number settings showed a "follower count" error.
+- Each text setting in `lib/features.js` now declares `format` (`email`, `phone`, `digits`, `plain`) and `app/api/admin/settings/route.js` validates by it. Phone numbers accept `+255 ...` and are stored as digits; Lipa Namba is digits only; account name is plain text. Number errors now say "Enter a whole number".
+- Tests in `test/featured-promotion.test.js` run the real validator against these inputs; related tests pass 24/24.
+
 ## Current batch: cron guard aligned with manual deploys (SERVER_RULES Rule 1)
 
 - Conflict fixed: `SERVER_RULES.md` Rule 1 forbids timed deploy cron jobs, but the October cron guard in `ops/cpanel/deploy.sh` still listed the 5-minute `auto-deploy.sh` line as required and would have re-added it during any manual deploy.

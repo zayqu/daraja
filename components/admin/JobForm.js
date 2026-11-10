@@ -111,7 +111,7 @@ export default function JobForm({ job = null, categories }) {
         <div className={styles.field}>
           <label htmlFor="job-deadline">Closing date</label>
           <input id="job-deadline" className={styles.input} type="date" value={values.deadline} onChange={set("deadline")} />
-          <p className={styles.help}>Applications close at the end of this day (Tanzania time). Leave empty if there is no deadline.</p>
+          <p className={styles.help}>Required before publishing. You may leave it empty while saving a vacancy for review; only jobs with a valid future deadline appear publicly.</p>
         </div>
         <div className={styles.field}>
           <label htmlFor="job-featured-until">Featured until (paid promotion)</label>

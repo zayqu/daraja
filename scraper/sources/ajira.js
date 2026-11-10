@@ -108,6 +108,9 @@ function mapRenderedVacancy(row) {
     deadline: formatDeadline(row?.deadline),
     numberOfPosts: row?.numberOfPosts || "",
     sourceUrl,
+    // A listing row is not enough to verify the full job description.
+    // Keep it for review until a vacancy-level official notice is resolved.
+    originalEvidence: { verified: false, deadlineVerified: Boolean(row?.deadline), originalUrl: sourceUrl },
     applicationUrl: row?.applicationUrl || null,
     companyLogo: row?.companyLogo || null,
   };

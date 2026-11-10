@@ -45,6 +45,26 @@ function validateVacancy(job, now = new Date()) {
   return { eligible: reasons.length === 0, reasons };
 }
 
+// Small, attributed excerpts preserve substantive source facts without
+// copying the entire employer description or algorithmically inventing duties.
+function sourceHighlights(description) {
+  const blocked = /^(?:job purpose|principal responsibilities|responsibilities|qualification(?:s)?(?: required)?|job description|how to apply|application|closing date|deadline)\\s*:?$/i;
+  const lines = String(description || "").split(/\\n+/)
+    .map((line) => line.replace(/\\s+/g, " ").trim())
+    .filter((line) => line.length >= 35 && !blocked.test(line));
+  const seen = new Set();
+  const result = [];
+  for (const line of lines) {
+    const excerpt = line.split(/\\s+/).slice(0, 16).join(" ").replace(/[,:;\\s]+$/, "");
+    const key = excerpt.toLowerCase();
+    if (!excerpt || seen.has(key)) continue;
+    seen.add(key);
+    result.push(`• Source excerpt: “${excerpt}${line.length > excerpt.length ? "…" : ""}”`);
+    if (result.length === 2) break;
+  }
+  return result;
+}
+
 function originalEditorialSummary(job) {
   const company = String(job.company).trim();
   const title = String(job.title).trim();
@@ -71,6 +91,7 @@ function originalEditorialSummary(job) {
     "",
     "Job description",
     `This is a recruitment notice for ${title} at ${company}. The employer\u0027s original vacancy contains the detailed role requirements and instructions. Read those details before deciding to apply.`,
+    ...sourceHighlights(job.description),
     "",
     "Closing date",
     `Applications close on ${closing}, according to the verified original vacancy.`,

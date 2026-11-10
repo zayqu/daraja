@@ -111,11 +111,17 @@ function parseNoticeRoles(lines, { documentUrl, expectedOrganization = null } = 
   if (current) records.push(current);
   const deadline = exactClosingDate(lines.slice(generalIndex));
   const fullText = lines.join("\n");
+  const normalized = (value) => String(value || "").normalize("NFKC")
+    .replace(/[^\\p{L}\\p{N}]+/gu, " ").toLowerCase().trim()
+    .replace(/\\s+/g, " ");
+  const organizationMatches = Boolean(expectedOrganization &&
+    normalized(fullText).includes(normalized(expectedOrganization)));
   // Only original government notice references may substantiate a deadline.
   // Any ambiguity, missing role section or unidentified organization stays in review.
   return {
     documentUrl,
     organization: expectedOrganization || null,
+    organizationMatches,
     deadline,
     applicationUrl: /https:\/\/portal\.ajira\.go\.tz\/?/i.test(fullText)
       ? "https://portal.ajira.go.tz/" : null,
@@ -131,10 +137,13 @@ function parseNoticeRoles(lines, { documentUrl, expectedOrganization = null } = 
       // employer match or original editorial copy.
       sourceVerified: false,
     })),
-    needsManualReview: !deadline || !expectedOrganization ||
-      !records.length || records.some((r) =>
-        r.duties.join(" ").length < 45 || r.qualifications.join(" ").length < 30
-      ),
+    documentFactsComplete: Boolean(deadline && organizationMatches &&
+      records.length && records.every((r) =>
+        r.duties.join(" ").length >= 45 && r.qualifications.join(" ").length >= 30
+      )),
+    // Extraction does not prove that an editor checked the exact
+    // original against the draft. Publication is always manual.
+    needsManualReview: true,
   };
 }
 

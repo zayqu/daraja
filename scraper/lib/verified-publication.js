@@ -1,4 +1,4 @@
-const { isFieldLabelTitle } = require("./job-policy");
+const { isFieldLabelTitle, feeSignal } = require("./job-policy");
 const { parseDeadline } = require("./jobs");
 
 // Original-source evidence is supplied by an adapter after it has opened
@@ -37,6 +37,7 @@ function validateVacancy(job, now = new Date()) {
       !safeOriginalUrl(evidence.originalUrl)) {
     reasons.push("vacancy, description and closing date have not been verified at the original source");
   }
+  if (feeSignal([title, description].join("\\n"))) reasons.push("source notice includes a candidate-payment risk requiring rejection");
   const destination = String(job?.applicationUrl || job?.sourceUrl || "").trim();
   if (!destination || (!safeOriginalUrl(destination) && !/^mailto:[^\s@]+@[^\s@]+\.[^\s@]+/i.test(destination))) {
     reasons.push("valid original application destination is missing");
@@ -69,7 +70,7 @@ function originalEditorialSummary(job) {
     `${company} has advertised a vacancy for ${title}${place}.${openings}${kind}`,
     "",
     "Job description",
-    `The official vacancy notice describes the ${title} position at ${company}. Review the original notice for its precise responsibilities, eligibility requirements and supporting documents; those details take precedence over this summary.`,
+    `This is a recruitment notice for ${title} at ${company}. The employer\u0027s original vacancy contains the detailed role requirements and instructions. Read those details before deciding to apply.`,
     "",
     "Closing date",
     `Applications close on ${closing}, according to the verified original vacancy.`,

@@ -95,3 +95,13 @@ The module contains **no caller-facing checkout method, payment status lookup, m
 **Evidence:** 21/21 isolated mock unit tests passed on the connected cPanel host (outside the live app, with no production DB or environment changes). **Not evidence of:** successful AzamPay sandbox authentication, successful payment, callback authenticity, persistence, full lint/build or production readiness.
 
 **Next approved development unit:** design the reviewed additive promotion booking and payment attempt migration with user/booking ownership, account export/erasure, optimistic or transactional status updates and a provider-event ledger. No schema should be applied without a Neon restore point and migration review. Real callback parsing remains blocked on official signed-callback / authoritative query documentation.
+
+## Draft additive ledger committed (2026-11-10; no database changes applied)
+
+The feature branch now includes the proposed `PromotionBooking`, `PaymentAttempt` and `PaymentEvent` Prisma models, plus SQL migration `20261110143000_azampay_promotion_payment_ledger`. This migration is **not applied** to Neon or production and must be separately reviewed before release. Existing `Payment.amount Float` is unchanged. New amounts use integer TZS, with SQL positivity/currency/environment checks; reference and event keys are unique. PaymentEvent records require a trusted provider-verification implementation before they can be written to indicate settlement.
+
+`lib/account-data-export.js` includes account-owned bookings and sanitized attempts; `lib/account-deletion.js` de-identifies owner and approver IDs while retaining minimal financial evidence. These updates must be included in any future migration deployment as one controlled release.
+
+Evidence from the isolated connected-host working directory: 25 targeted mock/static tests passed, JavaScript syntax checks passed, and the Prisma schema validated. **Not tested:** migration execution on a database, replay/transactional update service, end-to-end sandbox collection, live authorization or complete production build.
+
+Production sequence remains: authoritative AzamPay contract and merchant credentials -> complete owner-authorized booking/order workflow -> signed webhook or authoritative transaction verification -> atomic persisted status transitions and reconciliation -> test on isolated sandbox database -> review migration with fresh restore point -> explicit owner-authorized release. Payment service stays disabled throughout development.

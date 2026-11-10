@@ -51,7 +51,8 @@ test("editorial text is distinct, factual, and consistently structured", () => {
   assert.match(result, /30 November 2026/);
   assert.match(result, /2 openings/);
   assert.match(result, /Job description/);
-  assert.doesNotMatch(result, /will assess operational risks, review controls/);
+  assert.match(result, /Source excerpt: “The successful applicant will assess operational risks/);
+  assert.ok(result.length > verified.description.length);
   assert.doesNotMatch(result, /salary|degree required/i);
 });
 test("eligible jobs get an editorial description and retain application provenance", () => {

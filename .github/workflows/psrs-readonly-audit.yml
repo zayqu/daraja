@@ -31,6 +31,8 @@ jobs:
           cache: npm
       - name: Install dependencies
         run: npm ci
+      - name: Generate Prisma client without accessing a database
+        run: npx prisma generate
       - name: Install browser (GitHub-hosted runner only)
         run: npx playwright install --with-deps chromium
       - name: Inspect original government vacancy notices (read-only)

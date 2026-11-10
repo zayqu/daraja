@@ -135,6 +135,18 @@ test("production release applies Prisma migrations outside cPanel", () => {
   );
   assert.doesNotMatch(deployScript, /prisma (?:migrate|db push)/);
   assert.doesNotMatch(autoDeployScript, /prisma (?:migrate|db push)/);
+  assert.match(
+    releaseWorkflow,
+    /DATABASE_URL: .*github\.event_name == 'push' && github\.ref == 'refs\/heads\/master'.*secrets\.DATABASE_URL/,
+  );
+  for (const name of ["Publish stable cPanel release", "Hand off release to cPanel pull deployer"]) {
+    const i = releaseWorkflow.indexOf("name: " + name);
+    assert.ok(i >= 0, "missing release step: " + name);
+    assert.match(
+      releaseWorkflow.slice(i, i + 200),
+      /if: github\.event_name == 'push' && github\.ref == 'refs\/heads\/master'/,
+    );
+  }
 });
 
 test("cPanel release packages and smoke-tests a standalone runtime", () => {

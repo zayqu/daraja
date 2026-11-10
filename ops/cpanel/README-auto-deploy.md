@@ -18,7 +18,7 @@ Do not replace it with manual file copying, direct `node server.js`, pasted secr
 
 When a model asks the operator to perform a cPanel release action, the canonical command above must be present in the handoff so the operator always receives one copy/paste command.
 
-Required cron line (every 5 minutes). This cPanel crontab is shared with MZH and is locked: never replace the whole crontab, change single lines only, and keep all three required lines listed in `AGENTS.md` > "Shared cPanel cron jobs (locked)". The deploy run re-adds any missing required line automatically.
+This cPanel crontab is shared with MZH and is locked: never replace the whole crontab, change single lines only, and keep the two required MZH lines listed in `AGENTS.md` > "Shared cPanel cron jobs (locked)". Each deploy run re-adds a missing MZH line automatically; it never adds a deploy line.
 
 Do not schedule this command with cron. Deploys are manual and owner-approved (`SERVER_RULES.md` Rule 1): run the command once for each new release, after checking that the account's process usage is normal (Rule 8). The production watchdog emails the owner when a published release has not been installed.
 

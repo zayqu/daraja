@@ -75,3 +75,13 @@ Official commercial pages confirm REST API, sandbox, hosted checkout and webhook
 - **Blocked:** authorized merchant/API documentation and credentials plus approved order-owner lifecycle; production schema/release approval.
 
 Do not mark the integration shipped until the verification and release gates are complete.
+
+## Verified API-flow evidence (2026-11-10)
+
+The **official** https://developerdocs.azampay.co.tz/azampay-api-flow page says AzamPay APIs use a two-step process: (1) obtain an access token using application authentication credentials; (2) consume the actual API. The rendered page contains a general flow diagram but not a complete machine-readable request/response, payment callback or settlement contract.
+
+**Integration consequence:** implement token acquisition/cache/expiry securely on the server and send authenticated requests only after credentials have been provisioned; exact header names and signature rules require the official endpoint reference and live sandbox confirmation. Never expose the token to the browser or reuse tokens between sandbox and production.
+
+Third-party, **non-authoritative** SDK docs show a Tanzania MNO checkout (customer phone, TZS amount, provider, unique external ID) and a partner-hosted checkout endpoint. They also show callback payload variations. These are research leads, **not approved production schemas**. In particular, do not infer that a successful initiation response or a raw webhook status means collected money; do not accept unsigned callbacks because a community example does.
+
+**Documentation follow-up:** obtain the AzamPay official auth endpoint schema, payment initiation endpoint schema, hosted-checkout URL contract, server verification/public-key or authoritative collection status endpoint, callback subscription/verification details, and sandbox examples from the AzamPay team. Confirm each before wiring actual money handling.

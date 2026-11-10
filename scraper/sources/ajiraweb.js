@@ -169,8 +169,8 @@ const SUMMARY_FIELDS = [
   ["title", /^(?:position|job\s*title|job\s*position|post|role|vacancy|title)$/i],
   ["company", /^(?:employer|company|organi[sz]ation|institution|hiring\s+organi[sz]ation)$/i],
   ["deadline", /^(?:(?:application\s+)?deadline|closing\s+date|last\s+date)$/i],
-  ["location", /^(?:location|duty\s+station|work\s+station|region)$/i],
-  ["other", /^(?:posts?|no\.?\s+of\s+posts?|number\s+of\s+posts?|salary|qualifications?|minimum\s+qualifications?|education|experience|reports?\s+to|employment\s+type|job\s+type|contract|category|email|how\s+to\s+apply|industry|ref(?:erence)?(?:\s+no\.?)?)$/i],
+  ["location", /^(?:location|job\s+location|duty\s+station|work\s+station|region)$/i],
+  ["other", /^(?:posts?|total|no\.?\s+of\s+posts?|number\s+of\s+posts?|application\s+email|salary|qualifications?|minimum\s+qualifications?|education|experience|reports?\s+to|employment\s+type|job\s+type|contract|category|email|how\s+to\s+apply|industry|ref(?:erence)?(?:\s+no\.?)?)$/i],
 ];
 
 function summaryFieldFor(label) {

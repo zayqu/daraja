@@ -86,3 +86,33 @@ test("the government adapter enriches a listing only after verifying official de
   assert.equal(result[0].originalEvidence.verified, true);
   assert.match(result[0].description, /records management/);
 });
+
+test("client-rendered official vacancy data can be verified without trusting an HTML shell", async () => {
+  let rendered = 0;
+  const result = await enrichOfficialAjiraJobs([row], {
+    fetchFn: async () => { throw new Error("plain HTTP must not run when browser renderer is supplied"); },
+    render: async (url) => {
+      assert.equal(url, original);
+      rendered += 1;
+      return { html, url: original };
+    },
+  });
+  assert.equal(rendered, 1);
+  assert.equal(result.verified, 1);
+  assert.equal(result.jobs[0].originalEvidence.verified, true);
+});
+test("a renderer that redirects away from the official vacancy is rejected", async () => {
+  const result = await enrichOfficialAjiraJobs([row], {
+    render: async () => ({ html, url: "https://other.example.test/view-advert/123" }),
+  });
+  assert.equal(result.verified, 0);
+});
+test("a browser-rendered listing without full detail remains unverified", async () => {
+  const result = await enrichOfficialAjiraJobs([row], {
+    render: async () => ({
+      html: "<html><body><h2>OFFICER II – RECORDS MANAGEMENT</h2><p>Application period is shown in the browser later.</p></body></html>",
+      url: original,
+    }),
+  });
+  assert.equal(result.verified, 0);
+});

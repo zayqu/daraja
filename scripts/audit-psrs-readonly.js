@@ -5,7 +5,7 @@ const { extractRenderedRows, mapRenderedVacancy } = require("../scraper/sources/
 const { enrichOfficialAjiraJobs } = require("../scraper/lib/ajira-official-detail");
 const { createPageRenderer } = require("../scraper/lib/source-page");
 
-const URL = "https://portal.ajira.go.tz/vacancies";
+const SOURCE_URL = "https://portal.ajira.go.tz/vacancies";
 const sampleLimit = Math.min(Math.max(Number(process.env.PSRS_AUDIT_SAMPLE || 6), 1), 12);
 
 async function audit() {
@@ -27,7 +27,7 @@ async function audit() {
       } catch {}
     });
     try {
-      await page.goto(URL, { waitUntil: "domcontentloaded", timeout: 45_000 });
+      await page.goto(SOURCE_URL, { waitUntil: "domcontentloaded", timeout: 45_000 });
       await page.waitForFunction(() =>
         [...document.querySelectorAll("table tbody tr")].some((row) => {
           const cells = row.querySelectorAll("td");
@@ -100,7 +100,7 @@ async function audit() {
   if (!withDetail.length) warnings.push("No vacancy-specific URLs were discoverable from the rendered table");
   if (sample.length && result.verified === 0) warnings.push("None of the sampled original notices passed full verification");
   const summary = {
-    source: URL,
+    source: SOURCE_URL,
     discoveredRows: rows.length,
     mappedVacancies: mapped.length,
     vacancyDetailLinks: withDetail.length,

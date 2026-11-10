@@ -1,0 +1,77 @@
+# AzamPay production integration — engineering contract
+
+**Status:** Design / merchant onboarding pending. **No live checkout enabled.**
+**Merchant legal entity:** MAZIKU HOLDINGS LIMITED
+**Product/site:** Daraja / Ajira (`daraja.co.tz`, `ajira.daraja.co.tz`)
+**Owner:** Workstream E (Payments and billing)
+**Tracking:** #225
+**Date:** 2026-11-10
+
+## Current workflow and non-negotiable invariants
+
+The existing `app/advertise/page.js` sells a Featured Job promotion at the server-configured `promo.price`, comprising one WhatsApp Channel post and placement as Featured on Ajira for `promo.days`. Employers currently submit vacancy details via WhatsApp/contact, Daraja verifies and approves their vacancy, employers pay by Lipa Namba/payment instructions, and an admin sets `featuredUntil` **after confirmed payment**.
+
+**Preserve this order**: vacancy verified -> payment requested -> provider-verified settlement -> human-controlled publication/featured activation. Do **not** charge candidates to browse/apply; do not charge employers for unreviewed/unapproved vacancies; do not automatically publish on callback. Preserve the manual booking and Lipa Namba payment flow as a fallback until gated live launch.
+
+`prisma/schema.prisma` contains a legacy `Payment.amount Float` table and `PayStatus` PENDING/SUCCESS/FAILED. Do not extend its floating-point design for new gateway transactions. `lib/account-data-export.js` and `lib/account-deletion.js` handle legacy payments: new data needs privacy and deletion/export review before deployment.
+
+## Proposed canonical flow
+
+1. Only an authenticated, authorized owner of an **approved promotion booking** can initiate checkout. Existing booking path is WhatsApp/contact, not an authenticated order; an approval-linked order/booking owner must be designed and tested before enabling public checkout. No free-floating amount/price from browser.
+2. Server snapshots `promo.price` (positive, safe whole TZS) and `promo.days`, merchant legal entity and approved order ID. Create an immutable price snapshot and unique order ID; idempotency key scoped to booking/attempt.
+3. Provider adapter requests hosted or tokenized collection in **TZS**, using current officially documented API. Server-only secrets, allowlisted provider hosts, bounded timeouts and safe errors. Never store card details, PINs or customer payment secrets.
+4. Persist a pending attempt before external request; record returned provider reference and state without logging sensitive payloads. Explicit unknown/pending state for network timeouts; never assume failure is safe to retry as a new order.
+5. Callbacks are untrusted until verified using the exact current official AzamPay authentication/signature specification **and/or authoritative transaction status query**. Compare merchant account, amount, currency, order ID and provider reference. Record immutable provider event ID or stable deduplication hash. Atomic idempotent transition prevents double activation. Redirects/browser client reports are never proof of payment.
+6. Provider-confirmed success marks the approved promotion as **paid/ready for admin fulfilment**. Admin remains responsible for the WhatsApp post and `featuredUntil`. Failed, declined, pending, cancelled, reversed and refunded states remain auditable; reconciliation resolves late callbacks.
+7. Return an order status view and safe receipt reference; keep customer email/phone private, use `Cache-Control: no-store`, server authorization checks and request throttling. Do not expose provider credentials or PII in logs, analytics or HTML.
+
+## Recommended incremental data model (migration requires separate review)
+
+Do **not** change production schema before a fresh Neon restore point and approved migration plan. New, independent `PromotionBooking` and `PaymentAttempt` records should have at least:
+
+- `PromotionBooking`: unique ID; employer/booking owner or verified contact linkage; associated verified job (nullable until review); service code `FEATURED_JOB`; snapshot TZS amount as **integer** (TZS whole units if provider uses major units, with explicit conversion contract); package duration; review status; payment status; timestamps; fulfilment evidence; unique idempotency reference.
+- `PaymentAttempt`: unique internal ref; booking ID; provider `AZAMPAY`; provider transaction ID (uniqueness where supplied); TZS amount (integer); currency; sandbox/live environment; state including unknown/pending/confirmed/failed/refunded; webhook dedupe; safe JSON metadata allowlist; timestamps.
+- `PaymentEvent` or durable verified event record: attempt ID; provider event ID/deduplication key unique; verification outcome; state transition; received/processed times.
+- Ownership, account-data export/deletion, audit and retention rules updated atomically with new models. Do not overwrite payment evidence on deletion; de-identify where policy requires.
+
+Schema names are **proposals** to reconcile with the application's canonical admin/employer ownership flow. Do not create a duplicate job or billing model.
+
+## Configuration and deployment gates
+
+- Provider adapter must default disabled: `AZAMPAY_ENABLED=false` and environment explicit `sandbox` / `production`. Production enablement requires a deliberate separate owner action.
+- Secrets supplied via the production host's protected environment management, not source, docs, PRs, browser or chat.
+- No additional Node worker, scheduled process or crontab overwrite on shared cPanel. Any reconciliation can use existing verified scheduling infrastructure only after separate capacity review.
+- Use GitHub source branch, review, tests, production build and canonical manual deployment procedure in `ops/cpanel/README-auto-deploy.md`, with rollback plan.
+- Do not replace merchant/bank account ownership or settlement account without explicit owner confirmation.
+- For live smoke test, obtain explicit approval for amount, account and recipient; never use real customer data as test fixtures.
+
+## Provider information outstanding
+
+Official commercial pages confirm REST API, sandbox, hosted checkout and webhook notifications:
+- https://azampay.com/developers
+- https://azampay.com/products/checkout
+- https://azampay.com/products/payment-gateway
+- https://azampay.com/pricing
+
+**Before implementing request payloads, obtain official current developer API specification and sandbox credentials.** Confirm: authentication/token flow; base URLs; hosted checkout/collection API; currency and amount units; exact callback signature or alternative authoritative status verification; webhook retry/order guarantees; refunds; settlement account; reconciliation API; supported production payment methods; per-transaction fees plus VAT; production KYB approval and authorized account association with MAZIKU HOLDINGS LIMITED. Do not infer callback security from unofficial tutorials.
+
+## Validation checklist
+
+- Approved vs rejected vacancy: only approved can pay; no candidate charging.
+- Ownership: cross-employer checkout, status and callback tampering rejected.
+- Money: zero/negative/overflow/float currency mismatch rejected; amount snapshot preserved despite later admin price change.
+- Initiation: retries/timeouts do not create duplicate orders or transactions.
+- Provider: missing token, rate limit, malicious redirect, unexpected host, 4xx/5xx and timeout safe.
+- Callback: forged/unsigned, valid duplicate, out-of-order and repeated success, unknown order/provider, wrong amount/currency/merchant, replay and reversal safe.
+- Reconciliation: callback delayed or lost; query provider and resolve pending states without double fulfilment.
+- Privacy: redacted logs/analytics, customer payment data private; export and account-erasure policies tested.
+- Operations: audit trail, admin manual review, refund handling, feature flag off disables initiation but leaves verification/reconciliation functional for outstanding payments.
+- Tests, lint, production build, Prisma validation, reviewed additive migration and rollback/restore evidence required before enablement.
+
+## Progress / blockers
+
+- **Done:** reviewed `app/advertise/page.js`, `lib/features.js`, current Prisma payment schema and project policies; produced this production integration contract; original manual payment flow unchanged.
+- **Not done:** API adapter, schema, payment UI, tests, sandbox transactions, merchant approval, live credentials, live deployment.
+- **Blocked:** authorized merchant/API documentation and credentials plus approved order-owner lifecycle; production schema/release approval.
+
+Do not mark the integration shipped until the verification and release gates are complete.

@@ -173,7 +173,16 @@ function prepareVerifiedVacancies(jobs, now = new Date()) {
       });
       continue;
     }
-    accepted.push({ ...job, description: editorial });
+    // Source attribution and lexical difference do not prove a faithful
+    // independent rewrite. Every generated draft needs editorial approval
+    // until a validated meaning-preserving rewriting workflow exists.
+    const reason = "editorial draft requires human fact-checking and originality approval before publication";
+    held.push({ title: job.title, sourceId: job.sourceId, reasons: [reason] });
+    accepted.push({
+      ...job,
+      description: editorial,
+      reviewReasons: [...(job.reviewReasons || []), reason],
+    });
   }
   return { jobs: accepted, held };
 }

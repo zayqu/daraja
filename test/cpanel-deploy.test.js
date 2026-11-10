@@ -131,7 +131,7 @@ test("cPanel deployment automatically restores the previous runtime on failure",
 test("production release applies Prisma migrations outside cPanel", () => {
   assert.match(
     releaseWorkflow,
-    /name: Apply production migrations[\s\S]*if: github\.event_name != 'pull_request'[\s\S]*npx prisma migrate deploy/,
+    /name: Apply production migrations[\s\S]*if: github\.event_name == 'push' && github\.ref == 'refs\/heads\/master'[\s\S]*npx prisma migrate deploy/,
   );
   assert.doesNotMatch(deployScript, /prisma (?:migrate|db push)/);
   assert.doesNotMatch(autoDeployScript, /prisma (?:migrate|db push)/);

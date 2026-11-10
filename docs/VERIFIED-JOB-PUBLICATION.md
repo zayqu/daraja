@@ -144,3 +144,33 @@ verify source details; this is a monitoring signal, not a production incident.
 The main live scheduler is unchanged. The editorial gate additionally holds
 all machine-formatted drafts for an independent factual and originality
 review until an approved reliable rewrite workflow exists.
+
+## New verified discovery route — official PSRS document archive
+
+On 10 November 2026, a read-only GitHub Chromium audit confirmed that
+https://www.ajira.go.tz/archive?type=vacancies exposes individual Download
+actions under /api/v1/vacancies/attachment/token/<UUID>/download. Examples
+include separate Nanyumbu, Moshi, Momba and Kisarawe council notices.
+A direct read-only HTTP probe of the Nanyumbu URL returned status 200,
+Content-Type application/pdf, a %PDF-1.7 signature and 274383 bytes.
+This establishes that the link is a real **official document**, not that
+any specific role, closing date or qualification in that document has
+yet been extracted and matched.
+
+The new scraper/lib/psrs-archive.js helper recognizes only canonical HTTPS
+document-token links on www.ajira.go.tz and marks all extracted archive
+announcements PENDING_DOCUMENT_REVIEW. The read-only archive auditor reports
+these links for follow-up. These candidates are intentionally **not** connected
+to automatic publication.
+
+Before a candidate becomes verified originalEvidence, extract PDF content
+with a reliable PDF parser, inspect representative layouts (including
+scanned notices), match the exact individual position and hiring institution,
+and establish its official application deadline and method from the notice.
+A document's posting date must never be substituted for a closing date.
+One multi-position PDF can substantiate many separately verified positions,
+but the role-to-document match must be validated individually.
+
+The browser audit workflow is now **manual-only**, not triggered on every
+feature-branch commit, to protect the strict zero-dollar tooling budget.
+Source: https://github.com/zayqu/daraja/actions/runs/42826279155

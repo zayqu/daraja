@@ -112,8 +112,8 @@ function parseNoticeRoles(lines, { documentUrl, expectedOrganization = null } = 
   const deadline = exactClosingDate(lines.slice(generalIndex));
   const fullText = lines.join("\n");
   const normalized = (value) => String(value || "").normalize("NFKC")
-    .replace(/[^\\p{L}\\p{N}]+/gu, " ").toLowerCase().trim()
-    .replace(/\\s+/g, " ");
+    .replace(/[^\p{L}\p{N}]+/gu, " ").toLowerCase().trim()
+    .replace(/\s+/g, " ");
   const organizationMatches = Boolean(expectedOrganization &&
     normalized(fullText).includes(normalized(expectedOrganization)));
   // Only original government notice references may substantiate a deadline.

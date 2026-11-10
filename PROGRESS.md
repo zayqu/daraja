@@ -1,5 +1,12 @@
 # Daraja Jobs production-readiness progress
 
+## AzamPay approved-booking payment preparation (draft, not deployed)
+
+- 2026-11-10: added `lib/payments/promotion-attempt.mjs` as the isolated server-side booking-to-attempt transaction owner. It requires authenticated employer/admin context, booking ownership, approved Featured Job booking, eligible published/unexpired vacancy, verified employer and correct vacancy ownership. It creates only PENDING records, reuses outstanding PENDING/UNKNOWN attempts and rejects completed or mismatched attempts. Database transaction requests SERIALIZABLE isolation with bounded serialization-conflict retries. **No AzamPay outbound request, billing endpoint or fulfillment** is implemented.
+- Added `test/promotion-attempt.test.mjs`. Re-ran AzamPay unit/static tests in isolated directory on connected server: **34 passed, 0 failed**, all database behavior mocked. No live database transaction/concurrency test or end-to-end API test has been performed; the isolation and retry behavior must be tested against a disposable Postgres database before migration/activation.
+- Existing manual WhatsApp and Lipa Namba workflow unchanged. Draft PR #226 not merged; payment activation OFF. Still requires validated provider API and status verification, approved migration, server route authorization and full regression checks.
+
+
 ## AzamPay reviewed payment ledger draft (NOT deployed)
 
 - 2026-11-10: added proposed, separate `PromotionBooking`, `PaymentAttempt`, and `PaymentEvent` Prisma models with enum states, integer TZS amounts, unique references/event keys and reviewed SQL migration `20261110143000_azampay_promotion_payment_ledger`. Legacy `Payment.amount Float` unchanged.

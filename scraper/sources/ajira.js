@@ -98,9 +98,14 @@ function mapRenderedVacancy(row) {
     .trim();
   if (isGenericVacancyTitle(title)) return null;
 
-  const sourceUrl = /^https:\/\/portal\.ajira\.go\.tz\//i.test(row?.sourceUrl || "")
-    ? row.sourceUrl
-    : AJIRA_VACANCIES_URL;
+  const candidateUrl = String(row?.sourceUrl || "");
+  // An explicit numeric PSRS vacancy ID is valid evidence from the listing.
+  // Never derive a detail URL from a title, employer name, or a URL slug.
+  const officialId = /^\d+$/.test(String(row?.id || "")) ? String(row.id) : null;
+  const directUrl = officialId ? getAjiraDetailUrl(officialId) : null;
+  const sourceUrl = /^https:\/\/portal\.ajira\.go\.tz\/view-advert\/[^/]+/i.test(candidateUrl)
+    ? candidateUrl
+    : directUrl || AJIRA_VACANCIES_URL;
 
   return {
     sourceId: sourceIdFor(sourceUrl, title, company),
@@ -167,7 +172,15 @@ async function extractRenderedRows(page) {
         const deadline =
           cells[3].querySelector("span")?.textContent || cells[3].textContent;
         const link = row.querySelector('a[href*="view-advert"]')?.href || "";
+        // Only capture IDs explicitly included in the rendered official row.
+        // Titles and table positions are not substitute vacancy identifiers.
+        const id = row.getAttribute("data-vacancy-id") ||
+          row.getAttribute("data-advert-id") ||
+          row.getAttribute("data-advertisement-id") ||
+          row.querySelector("[data-vacancy-id]")?.getAttribute("data-vacancy-id") ||
+          "";
         return {
+          id: /^\d+$/.test(id) ? id : "",
           title: title?.trim(),
           company: employer?.trim(),
           companyLogo,

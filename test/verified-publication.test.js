@@ -47,11 +47,16 @@ test("unverified aggregator email posts are held even with a deadline", () => {
 });
 test("editorial text is distinct, factual, and consistently structured", () => {
   const result = originalEditorialSummary({ ...verified, openings: 2, type: "FULL_TIME" });
-  assert.match(result, /Example Bank has advertised a vacancy for Senior Risk Analyst in Dar es Salaam/);
+  assert.match(result, /Job position\nSenior Risk Analyst/);
+  assert.match(result, /Hiring organization\nExample Bank/);
+  assert.match(result, /Job overview\nExample Bank is inviting applications for Senior Risk Analyst in Dar es Salaam/);
   assert.match(result, /30 November 2026/);
-  assert.match(result, /2 openings/);
+  assert.match(result, /Number of positions\n2/);
   assert.match(result, /Job description/);
-  assert.match(result, /Source excerpt: “The successful applicant will assess operational risks/);
+  assert.match(result, /From the official notice: The successful applicant will assess operational risks/);
+  assert.match(result, /Application deadline\n30 November 2026/);
+  assert.match(result, /How to apply\nApply through the original employer destination:/);
+  assert.match(result, /Original vacancy\nhttps:\/\/careers.example.co.tz\/jobs\/42/);
   assert.ok(result.length > verified.description.length);
   assert.doesNotMatch(result, /salary|degree required/i);
 });
@@ -69,4 +74,31 @@ test("ISO date-only closing dates remain open through the advertised date", () =
   assert.equal(parseDeadline("2026-11-30").toISOString(), "2026-11-30T23:59:59.000Z");
   assert.equal(validateVacancy({ ...verified, deadline: "2026-11-30" }, now).eligible, true);
   assert.equal(parseDeadline("2026-02-30"), null);
+});
+
+test("the same editorial headings carry different role-specific facts", () => {
+  const bank = {
+    ...verified,
+    description: "Job Purpose\nAssess credit requests and prepare risk recommendations for the bank.\nPrincipal Responsibilities\nReview loan portfolios for policy compliance and document key findings.\nQualifications Required\nA bachelor's degree in finance or accounting is required.\nHow to Apply\nSubmit an application through the official employer portal.",
+  };
+  const hospital = {
+    ...verified, title: "Registered Nurse", company: "Example Hospital",
+    description: "Job Purpose\nProvide direct nursing care and maintain accurate patient records.\nPrincipal Responsibilities\nMonitor vital signs and coordinate with medical staff.\nQualifications Required\nCurrent nursing registration is required to practise.\nHow to Apply\nUpload the requested documents to the official hospital careers site.",
+  };
+  const b = originalEditorialSummary(bank);
+  const h = originalEditorialSummary(hospital);
+  for (const heading of ["Job position", "Hiring organization", "Job overview", "Job description", "Responsibilities", "Qualifications", "Application deadline", "How to apply", "Original vacancy"]) {
+    assert.ok(b.includes(heading), heading);
+    assert.ok(h.includes(heading), heading);
+  }
+  assert.match(b, /loan portfolios/);
+  assert.match(h, /patient records/);
+  assert.doesNotMatch(h, /loan portfolios/);
+  assert.doesNotMatch(b, /patient records/);
+  assert.match(h, /nursing registration/);
+});
+test("the formatter does not invent salary, experience or documents", () => {
+  const result = originalEditorialSummary(verified);
+  assert.doesNotMatch(result, /TZS|salary:|years of experience|certificate|CV required/i);
+  assert.match(result, /Consult the original vacancy for the full document/);
 });

@@ -5,33 +5,7 @@ import { SITE_SETTINGS, invalidateSiteSettings } from "@/lib/features";
 import prisma from "@/lib/prisma";
 import { PUBLIC_JOBS_CACHE_TAG } from "@/lib/public-jobs";
 import { readProtectedJson } from "@/lib/request-security";
-
-const SENDER = /^(?:[^<>@\n]{1,80}<)?[^\s@<>]+@[^\s@<>]+\.[^\s@<>]+>?$/;
-
-// Validates one setting value against its definition in lib/features.js.
-function parseValue(definition, value) {
-  if (definition.type === "boolean") {
-    return typeof value === "boolean" ? { value } : { error: "Choose on or off" };
-  }
-  if (definition.type === "number") {
-    const parsed = typeof value === "string" && value.trim() !== "" ? Number(value.trim()) : value;
-    if (!Number.isSafeInteger(parsed) || parsed < 0 || parsed > 100000000) {
-      return { error: "Enter a valid whole-number follower count" };
-    }
-    return { value: parsed };
-  }
-  if (definition.type === "list") {
-    const list = (Array.isArray(value) ? value : String(value || "").split("\n"))
-      .map((item) => String(item).trim())
-      .filter((item) => item.length >= 3)
-      .slice(0, 200)
-      .map((item) => item.slice(0, 120));
-    return { value: [...new Set(list)] };
-  }
-  const text = typeof value === "string" ? value.trim().slice(0, 200) : "";
-  if (text && !SENDER.test(text)) return { error: "Use an email address, e.g. Daraja <no-reply@daraja.co.tz>" };
-  return { value: text };
-}
+import { parseSettingValue } from "@/lib/admin-settings-validation.mjs";
 
 // { key, value } saves one setting; { key, reset: true } goes back to the default.
 export async function PATCH(request) {
@@ -58,7 +32,7 @@ export async function PATCH(request) {
       }),
     ]);
   } else {
-    const { value, error: invalid } = parseValue(definition, body.value);
+    const { value, error: invalid } = parseSettingValue(key, definition, body.value);
     if (invalid) return NextResponse.json({ error: invalid }, { status: 400 });
     await prisma.$transaction([
       prisma.siteSetting.upsert({

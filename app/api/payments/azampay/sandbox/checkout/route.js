@@ -58,13 +58,16 @@ export async function POST(request) {
     const checkoutBody = buildSandboxMnoCheckout({
       attempt, accountNumber: body.accountNumber, provider: body.provider,
     });
+    // Validate local gateway configuration BEFORE taking the one-shot
+    // database claim. A missing credential must not strand an unpaid attempt.
+    // This constructor performs no provider network request.
+    const client = createAzamPayApiClient();
+    if (client.mode !== "sandbox") throw new Error("INVALID_SANDBOX_CLIENT");
+
     // CAS must precede the actual provider request: only one request may send
     // a prompt. If the process dies after claiming, reconciliation is required.
     await claimSandboxCheckout({ prisma, actor, attemptId: attempt.id });
     claimId = attempt.id;
-
-    const client = createAzamPayApiClient();
-    if (client.mode !== "sandbox") throw new Error("INVALID_SANDBOX_CLIENT");
     const response = await client.request({
       method: "POST", path: "/azampay/mno/checkout", body: checkoutBody,
     });

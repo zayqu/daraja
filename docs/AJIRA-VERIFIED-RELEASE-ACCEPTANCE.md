@@ -19,9 +19,9 @@
 - [x] Admin approval confirmation in API and interface; bulk publishing prohibited.
 - [x] Existing published jobs preserved when refreshed text needs review; incomplete snapshots cannot archive unmatched jobs.
 - [x] Read-only impact auditor added: `node scripts/preflight-verified-jobs.js`.
-- [ ] Latest regression suite and full `npm test` and `npm run build` completed after the last edits.
+- [x] Full `npm test` completed after the last edits: **441/441 passed** on GitHub Actions run 42982920209. Vercel draft build status: success.
 - [ ] Per-source scraper dry runs pass and source/application URLs are confirmed.
-- [ ] Current production impact audit lists all open jobs that would disappear under deadline-only filtering.
+- [x] Current public API impact counted: 82 live records, 31 undated and therefore hidden under strict deadline filtering. A restricted export of IDs/records is still required before production changes.
 - [ ] Explicit approval for release and any visible catalogue reduction.
 - [ ] Production deployment and post-release Apply/mobile navigation/alerts checks passed.
 
@@ -33,7 +33,7 @@ Run `node scripts/preflight-verified-jobs.js` with read-only access to the publi
 - Exit 2: Some jobs would disappear; stop for source-recovery or explicit impact approval.
 - Exit 1: API data incomplete or inconsistent; stop and rerun.
 
-A prior live audit observed 66 open jobs with 28 missing deadlines. Those counts require a new audit. The strict public filter must not be activated before its effect is approved.
+Live read-only API audit on 11 November 2026 (two pages, 82 unique job IDs): **82 open jobs; 31 without closing dates; 51 with future deadlines**. Missing deadlines by source: Ajira Portal 20, manual Daraja 4, Standard Bank Tanzania 3, NMB Bank Careers 2, AjiraWeb 1, retired financial institutions 1. Thus the strict public filter would hide **31** currently visible vacancies. The strict filter must not be activated before this explicit catalogue impact is approved.
 
 ## Deployment and rollback
 

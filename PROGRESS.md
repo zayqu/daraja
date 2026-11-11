@@ -1,5 +1,15 @@
 # Daraja Jobs production-readiness progress
 
+## Draft-only sandbox HTTP routes and signed callback processing (2026-11-11)
+
+- Added disabled-by-default sandbox gate: `AZAMPAY_ENABLED=true`, `AZAMPAY_MODE=sandbox`, `AZAMPAY_SANDBOX_ROUTES_ENABLED=true`, `AZAMPAY_SANDBOX_DEPLOYMENT_APPROVED=true` are all required before routes respond; **flags do not replace separate human release approval**.
+- Added `app/api/payments/azampay/sandbox/checkout/route.js`, authenticated employer-only, origin-checked/rate-limited, server-side approved booking amount and ownership, exclusive DB checkout claim, pinned sandbox MNO checkout request, authenticated transaction receipt compare-and-set, and UNKNOWN lockout on ambiguous failure. Does not expose any payer phone in returned response.
+- Added `app/api/payments/azampay/callback/route.js` with bounded JSON, no-store response and a sandbox-only processor. It retrieves an authenticated sandbox RSA public key, verifies the reported signed callback fields and binds signed `externalreference` to the checkout provider transaction ID saved before callback acceptance. Success goes through the existing serializable ledger writer, but **never publishes the job automatically**. Verified failure is recorded as a review-only/UNKNOWN state, not a new automatic charge; early callback without persisted receipt returns retryable 5xx rather than falsely claiming failure.
+- Added `test/azampay-sandbox-callback.test.mjs` for signed success, duplicate delivery, failure review, forged status, mismatched transaction, unsigned amount, unbound attempt and separate opt-in switches. The exact provider callback identifier mapping, key response contract and accepted phone format are **still unconfirmed by an actual AzamPay sandbox transaction**. No real credentials or payment requests used.
+- Real Prisma disposable Postgres CI #42968797885 succeeded for previous revision; full application CI was still running while this update was written. **Do not call the integration live-ready until latest branch CI passes, sandbox endpoint contract is verified, and separately approved isolated deployment is available.**
+- Production Neon, existing payments and the live Ajira site are unchanged. PR #226 remains draft/unmerged.
+
+
 ## Exclusive sandbox checkout claim and key retrieval (development only)
 
 - 2026-11-10: added `lib/payments/azampay-public-key.mjs` for sandbox-only authenticated RSA public-key retrieval with bounded 24-hour memory caching, single refresh on signature failure and no unsigned acceptance. Added `lib/payments/azampay-sandbox-checkout.mjs` to validate reported MNO request/response structure without sending any provider requests.

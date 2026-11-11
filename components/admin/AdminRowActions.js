@@ -16,6 +16,20 @@ export default function AdminRowActions({ actions, links = [] }) {
   async function run(action) {
     if (action.confirm && !window.confirm(action.confirm)) return;
     let body = action.body || {};
+    if (action.verifySource) {
+      const confirmation = window.prompt(
+        "Open the original notice and verify the employer, full job content, closing date and application link. Type VERIFIED to confirm your review:"
+      );
+      if (confirmation !== "VERIFIED") {
+        setError("Original-source review was not confirmed.");
+        return;
+      }
+      body = {
+        ...body,
+        sourceReviewed: true,
+        note: "Administrator verified official source, original Ajira content, deadline and application method",
+      };
+    }
     if (action.askReason) {
       const reason = window.prompt(action.askReason);
       if (reason === null) return;

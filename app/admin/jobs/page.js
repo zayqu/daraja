@@ -29,7 +29,7 @@ function jobActions(job) {
   const moderate = `/api/admin/jobs/${job.id}/moderate`;
   const actions = [];
   if (job.moderationStatus !== "PUBLISHED" || !job.active) {
-    actions.push({ label: "Publish", url: moderate, body: { status: "PUBLISHED" }, tone: "primary" });
+    actions.push({ label: "Review & publish", url: moderate, body: { status: "PUBLISHED" }, verifySource: true, tone: "primary" });
   }
   if (job.moderationStatus === "PENDING_REVIEW") {
     actions.push({ label: "Reject", url: moderate, body: { status: "REJECTED" }, askReason: "Why is this job rejected?" });
@@ -143,7 +143,6 @@ export default async function AdminJobsPage({ searchParams }) {
               formId="bulk-jobs"
               url="/api/admin/jobs"
               actions={[
-                { label: "Publish", status: "PUBLISHED", tone: "primary" },
                 { label: "Archive", status: "ARCHIVED", askReason: "Why are these jobs being removed from the site?" },
                 { label: "Reject", status: "REJECTED", askReason: "Why are these jobs rejected?" },
               ]}

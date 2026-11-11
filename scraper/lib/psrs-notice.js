@@ -5,12 +5,12 @@ const { officialPdfUrl } = require("./psrs-archive");
 
 const MAX_PDF_BYTES = 6 * 1024 * 1024;
 const MAX_PAGES = 30;
-const ROLE_HEADING = /^\s*(\d{1,2})\.0\s+(.+?)\s*[-–—]\s*NAFASI\s+(\d{1,4})\s*$/i;
-const GENERAL_HEADING = /^\s*MASHARTI\s+YA\s+JUMLA\s*$/i;
-const DUTIES_HEADING = /^\s*(?:\d+(?:\.\d+){1,3}\s+)?(?:MAJUKUMU\s+YA\s+KAZI|DUTIES\s+AND\s+RESPONSIBILITIES)\s*$/i;
-const QUALIFICATIONS_HEADING = /^\s*(?:\d+(?:\.\d+){1,3}\s+)?(?:SIFA\s+ZA\s+(?:MWOMBAJI|WAOMBAJI)|QUALIFICATIONS(?:\s+REQUIRED)?)\s*$/i;
-const SALARY_HEADING = /^\s*(?:\d+(?:\.\d+){1,3}\s+)?(?:NGAZI\s+YA\s+MSHAHARA|SALARY\s+SCALE)\s*$/i;
-const DEADLINE_LEAD = /(?:mwisho\s+wa\s+(?:kutuma|kupokea|kuwasilisha)\s+maombi|tarehe\s+ya\s+mwisho\s+ya\s+(?:kutuma|kupokea)\s+maombi|(?:application|submission)\s+(?:deadline|closing\s+date))/i;
+const ROLE_HEADING = /^\s*(\d{1,2})\.0\.?\s+(.+?)\s*(?:[-–—]\s*NAFASI\s+(\d{1,4})|\(\s*NAFASI\s+(\d{1,4})\s*\))\s*$/i;
+const GENERAL_HEADING = /^\s*(?:\d+(?:\.\d+){1,3}\.?\s+)?MASHARTI\s+YA\s+JUMLA(?:\s+KWA\s+WAOMBAJI)?\s*$/i;
+const DUTIES_HEADING = /^\s*(?:\d+(?:\.\d+){1,3}\.?\s+)?(?:MAJUKUMU\s+(?:YA|NA)\s+KAZI|KAZI\s+NA\s+MAJUKUMU|DUTIES\s+AND\s+RESPONSIBILITIES)\s*$/i;
+const QUALIFICATIONS_HEADING = /^\s*(?:\d+(?:\.\d+){1,3}\.?\s+)?(?:SIFA\s+ZA\s+(?:MWOMBAJI|WAOMBAJI|KUAJIRIWA)|QUALIFICATIONS(?:\s+REQUIRED)?)\.?\s*$/i;
+const SALARY_HEADING = /^\s*(?:\d+(?:\.\d+){1,3}\.?\s+)?(?:NGAZI\s+YA\s+MSHAHARA|SALARY\s+SCALE)\s*$/i;
+const DEADLINE_LEAD = /(?:mwisho\s*wa\s*(?:kutuma|kupokea|kuwasilisha)\s+maombi|tarehe\s+ya\s+mwisho\s+ya\s+(?:kutuma|kupokea)\s+maombi|(?:application|submission)\s+(?:deadline|closing\s+date))/i;
 const DATE_FRAGMENT = /(\d{1,2}[./-]\d{1,2}[./-]\d{4}|\d{1,2}\s+(?:of\s+)?[A-Za-z]+\s*,?\s*\d{4})/i;
 const WORDS = /\p{L}/u;
 
@@ -138,10 +138,14 @@ function parseNoticeRoles(lines, { documentUrl, expectedOrganization = null } = 
   for (let i = 0; i < lines.length; i++) {
     const line = String(lines[i] || "").replace(/\s+/g, " ").trim();
     if (GENERAL_HEADING.test(line)) { generalIndex = i; break; }
-    const heading = line.match(ROLE_HEADING);
+    // Some official notices wrap long role titles before the NAFASI count.
+    const paired = [line, String(lines[i + 1] || "").replace(/\s+/g, " ").trim()].join(" ").trim();
+    const directHeading = line.match(ROLE_HEADING);
+    const heading = directHeading || (/[\p{L}\p{N}]/u.test(line) && /\bNAFASI\s*\d+\s*\)?$/i.test(paired)
+      ? paired.match(ROLE_HEADING) : null);
     if (heading) {
       if (current) records.push(current);
-      const count = Number(heading[3]);
+      const count = Number(heading[3] || heading[4]);
       current = {
         title: heading[2].trim(), openings: count, duties: [], qualifications: [],
         documentUrl, evidenceStatus: "PENDING_ROLE_REVIEW",
@@ -149,6 +153,7 @@ function parseNoticeRoles(lines, { documentUrl, expectedOrganization = null } = 
       section = "";
       if (roleNumbers.has(heading[1])) throw new Error("Duplicate position numbering in PSRS notice");
       roleNumbers.add(heading[1]);
+      if (!directHeading) i++; // consume the wrapped title line once
       continue;
     }
     if (!current) continue;

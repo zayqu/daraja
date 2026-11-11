@@ -5,11 +5,31 @@
 Assess the existing cPanel host and prepare an *isolated* zero-USD staging runtime plan. **Do not** change `master`, merge PR #226 or #227, run `prisma migrate deploy` against Neon, provision a paid service, upload merchant secrets, change AzamPay's registered callback URL, configure a public staging endpoint or initiate a transaction without separate explicit authorization.
 
 ## Current assessment
-- The existing connected cPanel device `c8.my-control-panel.com` is **offline** (remote connector reported last seen approximately 2 hours before this run).
+- The cPanel device was offline during initial preparation; it reconnected later on 11 November and live read-only measurements are recorded below.
 - Historical process usage reached 71–72 of 100 slots during previous periods, with multiple Node workers. **Historic usage is not a current measurement.**
-- Capacity therefore **NOT VERIFIED**. The default action is to stop; do not assume room for another resident Node worker.
+- Host-wide basic capacity measured below; per-account LVE and DB isolation **remain NOT VERIFIED**. The default action is to stop; do not assume room for another resident Node worker.
 - Daraja's existing `ops/cpanel/deploy.sh` defaults to `/home/darajaco/repositories/daraja`, `https://ajira.daraja.co.tz`, the live `cpanel-production` release and live worker health checks. Never use this deploy script unchanged for staging.
 - Real Prisma/temporary PostgreSQL GitHub tests passed previously. A GitHub Actions database service is ephemeral and **cannot receive external AzamPay callbacks** after the job ends; it is not a public staging host.
+
+## Verified live host preflight — 11 November 2026, 14:23 EAT
+
+Authorized remote cPanel agent came back **online**. Read-only checks ran on account `darajaco`:
+
+| Check | Observed result |
+|---|---|
+| Process slots | **55/100** threads (the conservative allowed baseline is **at the ceiling**) |
+| Registered Node apps | 4: Daraja, Smart Motorz, THA production, THA staging v2 |
+| THA workers | Two `lsnode` processes for THA production, **9 threads each**; do not alter without separate production review |
+| Node | v22.22.2 |
+| Host memory | ~59,487,272 KiB `MemAvailable`; host-wide, **not** cPanel LVE allotment |
+| Filesystem | 87% utilized on `/home/darajaco` filesystem; `df` is filesystem-wide, **not** the account disk quota |
+| PostgreSQL | `psql`, `initdb`, `postgres`, `pg_isready` not on account PATH; no running `postgres` process visible; expected PG Unix socket absent; **separate PostgreSQL availability not established** |
+| MySQL | Socket visible, but **not** a substitute for the application Prisma/PostgreSQL schema |
+| Quota / LVE | `quota` and `lveinfo` unavailable to account; cPanel per-account resource headroom **not verified** |
+
+**Operational decision: HOLD / NO-GO for staging installation at this time.** Meeting the 55/100 historical ceiling is insufficient: no demonstrated spare CloudLinux limit and no verified isolated PostgreSQL DB/user. No staging app/DB/DNS/callback change was made. Do not kill the THA workers or commandeer THA staging to create headroom.
+
+**To unblock without extra cost:** obtain cPanel provider confirmation of available account-level Node process/LVE headroom and a separate PostgreSQL database/user under the current plan, OR propose a completely separate zero-dollar staging topology with evidence of no new charges and no production data/Neon access. A future staging deployment still requires explicit approval; this approval covered preparation and capacity checking only.
 
 ## Step 1 — read-only capacity preflight
 Reconnect the authorized Desktop Commander agent. As the cPanel account (not root), execute from a **clean checkout of the feature branch**:

@@ -70,6 +70,11 @@ function parseNmbCareers(html) {
       description: description || `View the official NMB Bank vacancy for ${title}.`,
       deadline: parseDate(closing),
       sourceUrl: NMB_CAREERS_URL,
+      originalEvidence: {
+        verified: true,
+        deadlineVerified: Boolean(closing),
+        originalUrl: NMB_CAREERS_URL,
+      },
       applicationUrl: applicationHref
         ? new URL(applicationHref, NMB_CAREERS_URL).toString()
         : null,

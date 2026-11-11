@@ -874,10 +874,11 @@ async function parseAgencyDetail(
     ? htmlToText(posting.description)
     : descriptionFromPage($, source);
   // Prefer the employer's own, usually fuller, description.
-  const description =
-    employerDescription.length > recruiterDescription.length
-      ? employerDescription
-      : recruiterDescription;
+  // Once the original employer notice has been verified, its wording and
+  // facts outrank a longer intermediary copy. Never rewrite from the board.
+  const description = employerDescription.length >= 80
+    ? employerDescription
+    : recruiterDescription;
 
   if (
     !identity.title ||
@@ -910,8 +911,16 @@ async function parseAgencyDetail(
           "Type",
         ])
     ),
-    sourceUrl: discovery.sourceUrl,
+    // Prefer the verified employer vacancy as the source of record rather
+    // than republishing the recruiter's intermediary article link.
+    sourceUrl: employerDescription.length >= 80 && applicationUrl && !applicationUrl.startsWith("mailto:")
+      ? applicationUrl : discovery.sourceUrl,
     applicationUrl: finalApplicationUrl,
+    originalEvidence: {
+      verified: Boolean(employerDescription.length >= 80 && Object.keys(official).length),
+      deadlineVerified: Boolean(official.deadline),
+      originalUrl: applicationUrl && !applicationUrl.startsWith("mailto:") ? applicationUrl : null,
+    },
     companyLogo: source.publishPolicy?.hideSourceBranding
       ? null
       : metadata.companyLogo,

@@ -639,26 +639,34 @@ function createPageRenderer({
   timeoutMs = 25_000,
 } = {}) {
   let browser = null;
+  let launchPromise = null;
   let remaining = budget;
   return {
     async render(url) {
       if (remaining <= 0) return null;
       remaining -= 1;
-      browser ||= await launch();
+      // All concurrent vacancy reads share one in-flight launch promise.
+      // Without this lock, each source worker can spawn its own Chromium.
+      if (!browser) {
+        launchPromise ||= Promise.resolve().then(() => launch());
+        browser = await launchPromise;
+      }
       const page = await browser.newPage();
       try {
         await page.goto(url, { waitUntil: "networkidle", timeout: timeoutMs });
         return {
           text: await page.evaluate(() => document.body?.innerText || ""),
           html: await page.content(),
+          url: page.url(),
         };
       } finally {
         await page.close();
       }
     },
     async close() {
-      const activeBrowser = browser;
+      const activeBrowser = browser || await launchPromise?.catch(() => null);
       browser = null;
+      launchPromise = null;
       if (!activeBrowser) return;
       // A stuck Chromium shutdown must not keep the scheduled runner alive.
       // The CLI has already completed its database and report work at this point.

@@ -31,7 +31,7 @@ export async function POST(request) {
     where: {
       id: body.jobId,
       active: true,
-      OR: [{ deadline: null }, { deadline: { gte: new Date() } }],
+      deadline: { gte: new Date() },
     },
     select: { id: true, sourceUrl: true },
   });

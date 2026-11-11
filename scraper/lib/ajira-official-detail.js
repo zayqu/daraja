@@ -1,0 +1,120 @@
+const cheerio = require("cheerio");
+const { parseDeadline } = require("./jobs");
+
+// The only valid verification target is a vacancy-level PSRS URL. The index
+// page is not evidence of the full role or requirements.
+function isOfficialDetailUrl(url) {
+  try {
+    const value = new URL(url);
+    return value.protocol === "https:" &&
+      value.hostname === "portal.ajira.go.tz" &&
+      /^\/view-advert\/[^/]+\/?$/.test(value.pathname) &&
+      !value.username && !value.password;
+  } catch {
+    return false;
+  }
+}
+function comparable(text) {
+  return String(text || "").toLowerCase().normalize("NFKC")
+    .replace(/[^\p{L}\p{N}]+/gu, " ").trim().replace(/\s+/g, " ");
+}
+function between(text, start, end) {
+  const startMatch = start.exec(text);
+  if (!startMatch) return "";
+  const remaining = text.slice(startMatch.index + startMatch[0].length);
+  const endMatch = end.exec(remaining);
+  return (endMatch ? remaining.slice(0, endMatch.index) : remaining).trim();
+}
+function parseOfficialAjiraDetail(html, expected = {}) {
+  const $ = cheerio.load(html || "");
+  $("script, style, nav, footer, noscript").remove();
+  $("br").replaceWith("\n");
+  $("h1, h2, h3, h4, h5, h6, p, li, tr").each((_, element) => {
+    $(element).prepend("\n").append("\n");
+  });
+  const text = $("body").text().replace(/\r/g, "\n")
+    .replace(/[ \t\u00a0]+/g, " ").replace(/\n[ \t]+/g, "\n");
+  const headings = $("h1, h2, h3").map((_, node) => $(node).text().trim()).get();
+  const title = headings.find((value) =>
+    comparable(value) === comparable(expected.title)
+  );
+  if (!title || !expected.company || comparable(expected.company).length < 4) return null;
+  if (!comparable(text).includes(comparable(expected.company))) return null;
+  const period = text.match(/(?:Application\s+Period|Muda\s+wa\s+Maombi|Kipindi\s+cha\s+Maombi)\s*:?\s*(\d{1,2}[/-]\d{1,2}[/-]\d{4})\s*[-–]\s*(\d{1,2}[/-]\d{1,2}[/-]\d{4})/i);
+  if (!period) return null;
+  const deadline = parseDeadline(period[2]);
+  const expectedDeadline = expected.deadline instanceof Date
+    ? expected.deadline : parseDeadline(expected.deadline);
+  if (!deadline || !expectedDeadline ||
+      deadline.toISOString().slice(0, 10) !== expectedDeadline.toISOString().slice(0, 10)) {
+    return null;
+  }
+  const dutiesHeading = /(?:Duties\s+and\s+Responsibilities|Majukumu\s+na\s+Wajibu|Majukumu\s+ya\s+Kazi)/i;
+  const qualificationsHeading = /(?:Qualifications(?:\s+Required)?|Sifa\s+za\s+(?:Mwombaji|Waombaji|Kuajiriwa))/i;
+  const endHeading = /(?:Remuneration|Mshahara|Malipo|Apply\s+Now|Tuma\s+Maombi)/i;
+  const duties = between(text, dutiesHeading, qualificationsHeading).trim();
+  const qualifications = between(text, qualificationsHeading, endHeading).trim();
+  if (duties.length < 45 || qualifications.length < 25 ||
+      /^N\/A$/i.test(duties) || /^N\/A$/i.test(qualifications)) return null;
+
+  return {
+    title,
+    company: expected.company,
+    deadline,
+    description: ["Principal Responsibilities", duties, "Qualifications Required", qualifications].join("\n"),
+    sourceUrl: expected.sourceUrl,
+    applicationUrl: expected.sourceUrl,
+    originalEvidence: {
+      verified: true,
+      deadlineVerified: true,
+      originalUrl: expected.sourceUrl,
+    },
+  };
+}
+
+async function enrichOfficialAjiraJobs(jobs, {
+  fetchFn = fetch,
+  render = null,
+  concurrency = 3,
+} = {}) {
+  const results = Array.from(jobs);
+  let cursor = 0;
+  let verified = 0;
+  const worker = async () => {
+    while (cursor < results.length) {
+      const index = cursor++;
+      const job = results[index];
+      if (!isOfficialDetailUrl(job.sourceUrl)) continue;
+      try {
+        // PSRS serves a client-rendered shell to normal HTTP fetches. The
+        // runner's shared Playwright renderer supplies the fully loaded DOM.
+        // No rendered content = no automatic verification.
+        let documentHtml;
+        if (render) {
+          const page = await render(job.sourceUrl);
+          if (!page || (page.url && !isOfficialDetailUrl(page.url))) continue;
+          documentHtml = page.html;
+        } else {
+          // Dependency-injected HTTP path for tests/static fixtures only.
+          const response = await fetchFn(job.sourceUrl, {
+            headers: { Accept: "text/html,application/xhtml+xml", "User-Agent": "DarajaJobsBot/1.0" },
+            redirect: "follow",
+            signal: AbortSignal.timeout(20000),
+          });
+          if (!response.ok || !isOfficialDetailUrl(response.url || job.sourceUrl)) continue;
+          documentHtml = await response.text();
+        }
+        const official = parseOfficialAjiraDetail(documentHtml, job);
+        if (!official) continue;
+        results[index] = { ...job, ...official };
+        verified += 1;
+      } catch {
+        // Failed or contradictory evidence must remain a review-only lead.
+      }
+    }
+  };
+  await Promise.all(Array.from({ length: Math.min(concurrency, jobs.length || 1) }, worker));
+  return { jobs: results, verified, unverified: results.length - verified };
+}
+
+module.exports = { isOfficialDetailUrl, parseOfficialAjiraDetail, enrichOfficialAjiraJobs };

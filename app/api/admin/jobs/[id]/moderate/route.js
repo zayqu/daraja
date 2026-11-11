@@ -24,10 +24,30 @@ export async function PATCH(request, { params }) {
   if (!ALLOWED.has(status)) return NextResponse.json({ error: "Invalid moderation status" }, { status: 400 });
   if (status === "REJECTED" && !note) return NextResponse.json({ error: "A rejection reason is required" }, { status: 400 });
   if (status === "PUBLISHED") {
+    // Explicit editorial confirmation is required server-side, not just in
+    // the client. A source lookup or a generated summary is not approval.
+    if (body.sourceReviewed !== true) {
+      return NextResponse.json({ error: "Check the original vacancy, deadline, application link and content before publishing." }, { status: 409 });
+    }
     const pending = await prisma.job.findUnique({
       where: { id },
-      select: { employer: { select: { verificationStatus: true } } },
+      select: {
+        source: true, sourceUrl: true, applicationUrl: true,
+        description: true, title: true, company: true, deadline: true,
+        employer: { select: { verificationStatus: true } },
+      },
     });
+    if (!pending?.deadline || pending.deadline < new Date()) {
+      return NextResponse.json({ error: "A valid future application deadline is required before publishing." }, { status: 409 });
+    }
+    if (!pending.title?.trim() || !pending.company?.trim() ||
+        !pending.description || pending.description.trim().length < 80) {
+      return NextResponse.json({ error: "A substantial job description and named employer are required." }, { status: 409 });
+    }
+    if (pending.source !== "daraja" &&
+        (!pending.sourceUrl?.startsWith("https://") || !pending.applicationUrl)) {
+      return NextResponse.json({ error: "An official original notice and application destination must be checked before publishing." }, { status: 409 });
+    }
     // Employer-submitted vacancies go live only for verified employers.
     if (pending?.employer && pending.employer.verificationStatus !== "VERIFIED") {
       return NextResponse.json({ error: "Verify this employer before publishing their vacancy" }, { status: 409 });

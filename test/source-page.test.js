@@ -187,3 +187,44 @@ test("Apply links are followed to the page where the application starts", async 
     "mailto:hr@employer.co.tz"
   );
 });
+
+
+test("parallel source verification shares one browser and respects budget", async () => {
+  const { createPageRenderer } = require("../scraper/lib/source-page");
+  let launches = 0;
+  let closings = 0;
+  let openedPages = 0;
+  const fakeBrowser = {
+    newPage: async () => {
+      openedPages += 1;
+      let currentUrl = "";
+      return {
+        goto: async (url) => { currentUrl = url; },
+        evaluate: async () => "Verified vacancy details",
+        content: async () => "<main>Verified vacancy details</main>",
+        url: () => currentUrl,
+        close: async () => {},
+      };
+    },
+    close: async () => { closings += 1; },
+  };
+  const renderer = createPageRenderer({
+    budget: 2,
+    launch: async () => {
+      launches += 1;
+      await new Promise((resolve) => setTimeout(resolve, 10));
+      return fakeBrowser;
+    },
+  });
+  const results = await Promise.all([
+    renderer.render("https://portal.ajira.go.tz/view-advert/100"),
+    renderer.render("https://portal.ajira.go.tz/view-advert/200"),
+  ]);
+  assert.equal(launches, 1);
+  assert.equal(openedPages, 2);
+  assert.equal(results[0].url, "https://portal.ajira.go.tz/view-advert/100");
+  assert.equal(results[1].url, "https://portal.ajira.go.tz/view-advert/200");
+  assert.equal(await renderer.render("https://portal.ajira.go.tz/view-advert/300"), null);
+  await renderer.close();
+  assert.equal(closings, 1);
+});

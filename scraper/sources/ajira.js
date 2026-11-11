@@ -10,6 +10,7 @@ const {
   deduplicateJobs,
 } = require("../lib/jobs");
 const { createPrismaClient, saveJobs } = require("../lib/store");
+const { enrichOfficialAjiraJobs } = require("../lib/ajira-official-detail");
 
 const AJIRA_DETAIL_URL = "https://portal.ajira.go.tz/view-advert";
 const AJIRA_ENCRYPTION_KEY = "*n%^+-$#@$$^@1ERFWFW";
@@ -97,9 +98,14 @@ function mapRenderedVacancy(row) {
     .trim();
   if (isGenericVacancyTitle(title)) return null;
 
-  const sourceUrl = /^https:\/\/portal\.ajira\.go\.tz\//i.test(row?.sourceUrl || "")
-    ? row.sourceUrl
-    : AJIRA_VACANCIES_URL;
+  const candidateUrl = String(row?.sourceUrl || "");
+  // An explicit numeric PSRS vacancy ID is valid evidence from the listing.
+  // Never derive a detail URL from a title, employer name, or a URL slug.
+  const officialId = /^\d+$/.test(String(row?.id || "")) ? String(row.id) : null;
+  const directUrl = officialId ? getAjiraDetailUrl(officialId) : null;
+  const sourceUrl = /^https:\/\/portal\.ajira\.go\.tz\/view-advert\/[^/]+/i.test(candidateUrl)
+    ? candidateUrl
+    : directUrl || AJIRA_VACANCIES_URL;
 
   return {
     sourceId: sourceIdFor(sourceUrl, title, company),
@@ -108,6 +114,9 @@ function mapRenderedVacancy(row) {
     deadline: formatDeadline(row?.deadline),
     numberOfPosts: row?.numberOfPosts || "",
     sourceUrl,
+    // A listing row is not enough to verify the full job description.
+    // Keep it for review until a vacancy-level official notice is resolved.
+    originalEvidence: { verified: false, deadlineVerified: Boolean(row?.deadline), originalUrl: sourceUrl },
     applicationUrl: row?.applicationUrl || null,
     companyLogo: row?.companyLogo || null,
   };
@@ -163,7 +172,15 @@ async function extractRenderedRows(page) {
         const deadline =
           cells[3].querySelector("span")?.textContent || cells[3].textContent;
         const link = row.querySelector('a[href*="view-advert"]')?.href || "";
+        // Only capture IDs explicitly included in the rendered official row.
+        // Titles and table positions are not substitute vacancy identifiers.
+        const id = row.getAttribute("data-vacancy-id") ||
+          row.getAttribute("data-advert-id") ||
+          row.getAttribute("data-advertisement-id") ||
+          row.querySelector("[data-vacancy-id]")?.getAttribute("data-vacancy-id") ||
+          "";
         return {
+          id: /^\d+$/.test(id) ? id : "",
           title: title?.trim(),
           company: employer?.trim(),
           companyLogo,
@@ -187,7 +204,17 @@ async function fetchRenderedRows({ launch = (options) => chromium.launch(options
       waitUntil: "networkidle",
       timeout: REQUEST_TIMEOUT_MS,
     });
-    await page.waitForSelector("table tbody tr", { timeout: REQUEST_TIMEOUT_MS });
+    await page.waitForFunction(() => {
+      // Angular draws a placeholder row before vacancy data arrives.
+      // A <tr> alone is not evidence that a vacancy has loaded.
+      const rows = [...document.querySelectorAll("table tbody tr")];
+      return rows.some((row) => {
+        const cells = row.querySelectorAll("td");
+        return cells.length >= 4 &&
+          (cells[1]?.textContent || "").trim().length >= 5 &&
+          (cells[2]?.textContent || "").trim().length >= 4;
+      });
+    }, null, { timeout: REQUEST_TIMEOUT_MS });
 
     const pageSize = page.locator("select").first();
     if (await pageSize.count()) {
@@ -217,7 +244,7 @@ async function collectAjiraJobs(options = {}) {
   const rows = options.rows || (await fetchRenderedRows(options));
   const mapped = rows.map(mapRenderedVacancy).filter(Boolean);
   const rejectedGenericTitles = rows.length - mapped.length;
-  const jobs = deduplicateJobs(mapped, {
+  let jobs = deduplicateJobs(mapped, {
     source: AJIRA_SOURCE,
     baseUrl: AJIRA_VACANCIES_URL,
     language: "sw",
@@ -231,12 +258,20 @@ async function collectAjiraJobs(options = {}) {
     );
   }
 
+  let verification = { verified: 0, unverified: jobs.length };
+  // Fixture-based adapter tests pass rows directly; production runs fetch
+  // and verify full official vacancy pages, rather than trusting the index.
+  if (options.verifyOfficial === true || (!options.rows && options.verifyOfficial !== false)) {
+    const result = await enrichOfficialAjiraJobs(jobs, { fetchFn: options.fetchFn, render: options.render });
+    jobs = result.jobs;
+    verification = { verified: result.verified, unverified: result.unverified };
+  }
   console.log(
-    `Ajira rendered listings: ${rows.length} rows; ${jobs.length} valid vacancies; ${rejectedGenericTitles} invalid titles skipped`
+    `Ajira rendered listings: ${rows.length} rows; ${jobs.length} candidate vacancies; ${verification.verified} verified original notices; ${rejectedGenericTitles} invalid titles skipped`
   );
   Object.defineProperty(jobs, "health", {
     enumerable: false,
-    value: { rejectedGenericTitles, renderedRows: rows.length },
+    value: { rejectedGenericTitles, renderedRows: rows.length, ...verification },
   });
   return jobs;
 }

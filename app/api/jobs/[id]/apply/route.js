@@ -55,7 +55,7 @@ export async function GET(_request, context) {
     if (!job) {
       return jsonError("Job not found", 404);
     }
-    if (job.deadline && job.deadline < new Date()) {
+    if (!job.deadline || job.deadline < new Date()) {
       return jsonError("Applications are closed", 410);
     }
     if (job.applicationUrl) {
@@ -151,7 +151,7 @@ export async function GET(_request, context) {
       jsonError("A direct application link could not be verified", 502);
   } catch (error) {
     console.error("Application redirect error:", error);
-    const fallback = job?.deadline && job.deadline < new Date()
+    const fallback = !job?.deadline || job.deadline < new Date()
       ? null
       : officialFallback(job);
     return fallback || jsonError("Unable to open the application right now", 502);

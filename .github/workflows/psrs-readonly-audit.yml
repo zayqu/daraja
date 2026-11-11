@@ -1,0 +1,37 @@
+name: Read-only PSRS vacancy verification
+
+# Manual-only: avoid repeatedly downloading Chromium on every development commit.
+# GitHub Actions billing/quotas must be confirmed before more CI runs.
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: psrs-readonly-audit-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    env:
+      PSRS_AUDIT_SAMPLE: "6"
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: "22"
+          cache: npm
+      - name: Install dependencies
+        run: npm ci
+      - name: Generate Prisma client without accessing a database
+        run: npx prisma generate
+      - name: Install browser (GitHub-hosted runner only)
+        run: npx playwright install --with-deps chromium
+      - name: Inspect public official vacancy document archive (read-only)
+        run: node scripts/audit-psrs-archive-readonly.js
+        continue-on-error: true
+      - name: Inspect original government vacancy notices (read-only)
+        run: node scripts/audit-psrs-readonly.js

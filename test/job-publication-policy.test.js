@@ -180,16 +180,18 @@ test("review reasons from ingestion hold a vacancy and are never written as colu
   assert.equal(summary.heldForReview, 1);
 });
 
-test("automatic records follow the latest evidence until an administrator decides", async () => {
+test("existing published jobs are preserved while new strict drafts wait for review", async () => {
   const broken = fakePrisma({
     existing: { id: "row", source: "ajiraweb", moderationStatus: "PUBLISHED", moderatedById: null },
   });
-  await saveJobs(
+  const held = await saveJobs(
     broken,
     [{ ...vacancy, reviewReasons: ["the employer application link did not show this vacancy"] }],
     "ajiraweb"
   );
-  assert.equal(broken.updates[0].data.moderationStatus, "PENDING_REVIEW");
+  assert.equal(broken.updates.length, 0);
+  assert.equal(held.preservedPublished, 1);
+  assert.equal(held.heldForReview, 0);
 
   const fixed = fakePrisma({
     existing: { id: "row", source: "ajiraweb", moderationStatus: "PENDING_REVIEW", moderatedById: null },
@@ -202,6 +204,25 @@ test("automatic records follow the latest evidence until an administrator decide
   });
   await saveJobs(decided, [vacancy], "ajiraweb");
   assert.equal(Object.hasOwn(decided.updates[0].data, "moderationStatus"), false);
+});
+
+test("partial verification never archives unmatched published source jobs", async () => {
+  const prisma = fakePrisma();
+  const attempted = [];
+  prisma.job.updateMany = async (payload) => {
+    attempted.push(payload);
+    return { count: 0 };
+  };
+  const summary = await saveJobs(
+    prisma,
+    [{ ...vacancy, reviewReasons: ["editorial draft requires approval"] }],
+    "ajiraweb"
+  );
+  assert.equal(summary.missingFromSourceArchived, 0);
+  assert.equal(attempted.some((payload) =>
+    payload.where?.source === "ajiraweb" &&
+    payload.where?.sourceId?.notIn
+  ), false);
 });
 
 test("field-label titles are blocked before publication", () => {

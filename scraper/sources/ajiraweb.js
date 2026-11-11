@@ -421,6 +421,8 @@ async function fetchStandardBankJob(sourceUrl, fetchFn) {
     type: mapEmploymentType(posting.typeOfEmployment?.label),
     sourceUrl: sourceJobUrl,
     applicationUrl: posting.applyUrl || null,
+    deadline: posting.validThrough || null,
+    originalEvidence: { verified: true, deadlineVerified: Boolean(posting.validThrough), originalUrl: sourceJobUrl },
     companyLogo:
       cleanText(posting.company?.logoUrl) ||
       cleanText(posting.company?.logo) ||
@@ -468,6 +470,7 @@ async function fetchStructuredJob(sourceUrl, fetchFn) {
     location: location || "Tanzania",
     description: htmlToText(posting.description),
     deadline: posting.validThrough || null,
+    originalEvidence: { verified: true, deadlineVerified: Boolean(posting.validThrough), originalUrl: sourceUrl },
     type: mapEmploymentType(posting.employmentType),
     sourceUrl,
     applicationUrl: sourceMetadata.applicationUrl,

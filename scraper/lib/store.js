@@ -241,12 +241,22 @@ async function saveJobs(
     created: 0,
     updated: 0,
     heldForReview: 0,
+    preservedPublished: 0,
     blocked: 0,
     crossSourceDuplicates: 0,
   };
   const ownPrecedence = sourcePolicy(source).precedence;
 
   const write = async (existing, job, decision) => {
+    // Initial strict rollout is additive. Existing published records must
+    // not be silently demoted or rewritten as unapproved machine drafts.
+    // Hold the *new* candidate for review while keeping the historical job
+    // unchanged until a separate, audited legacy transition is authorized.
+    if (existing.moderationStatus === "PUBLISHED" &&
+        decision.status === "PENDING_REVIEW") {
+      counts.preservedPublished += 1;
+      return;
+    }
     // An administrator's corrections to a vacancy are never overwritten by a
     // later scrape of the same source page.
     if (existing.adminEditedAt) {
@@ -266,7 +276,7 @@ async function saveJobs(
   for (const candidate of jobs) {
     const decision = decidePublication(candidate, source);
     // Review reasons inform the decision only; they are not Job columns.
-    const { reviewReasons: _reviewReasons, ...job } = candidate;
+    const { reviewReasons: _reviewReasons, originalEvidence: _originalEvidence, ...job } = candidate;
     const existing = await findExistingJob(prisma, job, source);
 
     if (existing) {
@@ -313,12 +323,16 @@ async function saveJobs(
     },
     data: { active: false },
   });
-  const missingFromSourceArchived = await archiveMissingSourceJobs(
-    prisma,
-    jobs,
-    source,
-    { archiveEmptySnapshot }
-  );
+  // Incomplete or editorially held source snapshots are not authoritative.
+  // Do not use a partial verification run to archive jobs absent from it.
+  const sourceSnapshotVerified = jobs.length > 0 &&
+    jobs.every((job) => !(job.reviewReasons || []).length) &&
+    jobs.every((job) => job.originalEvidence?.verified === true);
+  const missingFromSourceArchived = sourceSnapshotVerified
+    ? await archiveMissingSourceJobs(
+        prisma, jobs, source, { archiveEmptySnapshot }
+      )
+    : 0;
   const invalidTitlesArchived = await archiveGenericJobTitles(prisma);
 
   return {

@@ -85,7 +85,7 @@ function normalizeRoleValue(value) {
 }
 
 // Exact, unambiguous matching is a review aid. It never approves a job.
-function matchNoticeRoleToListing(notice, listing) {
+function matchNoticeRoleToListing(notice, listing, now = new Date()) {
   const reasons = [];
   if (!notice?.documentFactsComplete || !notice?.needsManualReview) {
     reasons.push("Incomplete original PDF facts or missing review state");
@@ -104,6 +104,9 @@ function matchNoticeRoleToListing(notice, listing) {
   if (!listingDeadline || !noticeDeadline ||
       listingDeadline.toISOString().slice(0, 10) !== noticeDeadline.toISOString().slice(0, 10)) {
     reasons.push("Listing deadline differs from official notice");
+  }
+  if (!noticeDeadline || noticeDeadline.getTime() < now.getTime()) {
+    reasons.push("Original government vacancy deadline has passed");
   }
   const matches = (Array.isArray(notice?.roles) ? notice.roles : []).filter(
     (role) => normalizeRoleValue(role.title) === title

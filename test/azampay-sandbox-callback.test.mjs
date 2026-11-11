@@ -93,17 +93,19 @@ test("sandbox callback routes fail closed without independent opt-in", () => {
   assert.equal(sandboxRoutesAvailable({ ...env, AZAMPAY_MODE: "production", AZAMPAY_PRODUCTION_APPROVED: "true" }), false);
 });
 
-test("valid signed callback settles the linked booking once and never fulfils", async () => {
+test("valid signed success is recorded once but never marks an unconfirmed booking paid", async () => {
   const s = scenario();
   const result = await process(s, callback());
   assert.equal(result.accepted, true);
-  assert.equal(result.result, "READY_FOR_ADMIN_FULFILMENT");
-  assert.deepEqual(s.writes, ["event", "attempt", "booking"]);
-  assert.equal(s.attempt.status, "SUCCESS");
-  assert.equal(s.attempt.booking.status, "PAID");
+  assert.equal(result.result, "SUCCESS_REQUIRES_RECONCILIATION");
+  assert.deepEqual(s.writes, ["event", "attempt"]);
+  assert.equal(s.attempt.status, "UNKNOWN");
+  assert.equal(s.attempt.checkoutState, "UNKNOWN");
+  assert.equal(s.attempt.booking.status, "APPROVED");
   assert.equal(s.events.size, 1);
-  assert.equal((await process(s, callback())).result, "ALREADY_PAID");
-  assert.equal(s.writes.length, 3);
+  assert.equal([...s.events.values()][0].outcome, "SIGNED_SUCCESS_REVIEW");
+  assert.equal((await process(s, callback())).result, "ALREADY_RECORDED");
+  assert.equal(s.writes.length, 2);
 });
 
 test("valid signed failure is recorded but not settled or retried", async () => {

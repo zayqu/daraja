@@ -1,7 +1,7 @@
 const test = require("node:test");
 const assert = require("node:assert/strict");
 const {
-  pdfItemsToLines, exactClosingDate, parseNoticeRoles, extractPdfLines, readOfficialNotice,
+  pdfItemsToLines, exactClosingDate, parseNoticeRoles, extractPdfLines, readOfficialNotice, matchNoticeRoleToListing,
 } = require("../scraper/lib/psrs-notice");
 
 const NANYUMBU = "https://www.ajira.go.tz/api/v1/vacancies/attachment/token/0e70f879-9766-46cd-b60d-e006a2bf0dbc/download";
@@ -172,4 +172,70 @@ test("end-to-end official PDF reader returns review-only roles and cannot auto-p
   const verification = validateVacancy(job, new Date("2026-11-10"));
   assert.equal(verification.eligible, false);
   assert.match(verification.reasons.join(" "), /original source|original-source/i);
+});
+
+
+test("individual PSRS roles match only exact title, institution and date", () => {
+  const notice = parseNoticeRoles(sourceLines, {
+    documentUrl: NANYUMBU,
+    expectedOrganization: "Halmashauri ya Wilaya ya Nanyumbu",
+  });
+  const listing = {
+    title: "MWANDISHI MWENDESHA OFISI DARAJA LA II",
+    company: "Halmashauri ya Wilaya ya Nanyumbu",
+    deadline: "19/11/2026",
+  };
+  const result = matchNoticeRoleToListing(notice, listing);
+  assert.equal(result.matched, true);
+  assert.equal(result.publishable, false);
+  assert.equal(result.evidenceStatus, "PENDING_EDITORIAL_REVIEW");
+  assert.equal(result.role.openings, 4);
+  for (const changed of [
+    { title: "DEREVA DARAJA LA I" },
+    { company: "Halmashauri ya Wilaya ya Moshi" },
+    { deadline: "20/11/2026" },
+    { deadline: "" },
+  ]) {
+    const mismatch = matchNoticeRoleToListing(notice, { ...listing, ...changed });
+    assert.equal(mismatch.matched, false, JSON.stringify(changed));
+    assert.equal(mismatch.publishable, false);
+    assert.equal(mismatch.role, null);
+  }
+});
+
+test("duplicate roles and missing verified application path are held for review", () => {
+  const notice = parseNoticeRoles(sourceLines, {
+    documentUrl: NANYUMBU,
+    expectedOrganization: "Halmashauri ya Wilaya ya Nanyumbu",
+  });
+  const listing = {
+    title: notice.roles[0].title,
+    company: notice.organization,
+    deadline: notice.deadline,
+  };
+  assert.equal(matchNoticeRoleToListing({
+    ...notice, roles: [...notice.roles, notice.roles[0]],
+  }, listing).matched, false);
+  assert.equal(matchNoticeRoleToListing({
+    ...notice, applicationUrl: null, documentFactsComplete: false,
+  }, listing).matched, false);
+});
+
+test("a PDF with invalid openings or no application destination is not fact-complete", () => {
+  const missingPortal = sourceLines.filter((line) => !line.includes("https://portal.ajira.go.tz/"));
+  const first = parseNoticeRoles(missingPortal, {
+    documentUrl: NANYUMBU,
+    expectedOrganization: "Halmashauri ya Wilaya ya Nanyumbu",
+  });
+  assert.equal(first.documentFactsComplete, false);
+  assert.equal(first.needsManualReview, true);
+  const invalidCount = sourceLines.map((line) =>
+    line.startsWith("2.0 DEREVA") ? line.replace("NAFASI 3", "NAFASI 999") : line
+  );
+  const second = parseNoticeRoles(invalidCount, {
+    documentUrl: NANYUMBU,
+    expectedOrganization: "Halmashauri ya Wilaya ya Nanyumbu",
+  });
+  assert.equal(second.documentFactsComplete, false);
+  assert.equal(second.roles.length, 1);
 });

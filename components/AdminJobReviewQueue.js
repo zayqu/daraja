@@ -17,6 +17,7 @@ function formatDate(value) {
 
 function ReviewItem({ job, onDone }) {
   const [reason, setReason] = useState("");
+  const [sourceReviewed, setSourceReviewed] = useState(false);
   const [state, setState] = useState("idle");
   const [error, setError] = useState("");
   const deadline = formatDate(job.deadline);
@@ -28,7 +29,13 @@ function ReviewItem({ job, onDone }) {
       const response = await fetch(`/api/admin/jobs/${job.id}/moderate`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ status, note: status === "PUBLISHED" ? "" : reason }),
+        body: JSON.stringify({
+          status,
+          note: status === "PUBLISHED"
+            ? "Editor confirmed original source, job details, closing date, original writing, and application destination"
+            : reason,
+          sourceReviewed: status === "PUBLISHED" ? sourceReviewed : undefined,
+        }),
       });
       const payload = await response.json().catch(() => ({}));
       if (!response.ok) throw new Error(payload.error || "Decision was not saved");
@@ -70,11 +77,19 @@ function ReviewItem({ job, onDone }) {
         </a>
       )}
 
+      <label>
+        <input
+          type="checkbox"
+          checked={sourceReviewed}
+          onChange={(event) => setSourceReviewed(event.target.checked)}
+        />
+        I checked the original vacancy, deadline, application destination and the accuracy/originality of this Ajira description.
+      </label>
       <div className={styles.actions}>
         <button
           type="button"
           className={styles.publish}
-          disabled={state === "saving"}
+          disabled={state === "saving" || !sourceReviewed || !job.sourceUrl || !deadline}
           onClick={() => decide("PUBLISHED")}
         >
           Publish

@@ -241,6 +241,7 @@ async function saveJobs(
     created: 0,
     updated: 0,
     heldForReview: 0,
+    preservedPublished: 0,
     blocked: 0,
     crossSourceDuplicates: 0,
   };
@@ -253,7 +254,7 @@ async function saveJobs(
     // unchanged until a separate, audited legacy transition is authorized.
     if (existing.moderationStatus === "PUBLISHED" &&
         decision.status === "PENDING_REVIEW") {
-      counts.heldForReview += 1;
+      counts.preservedPublished += 1;
       return;
     }
     // An administrator's corrections to a vacancy are never overwritten by a

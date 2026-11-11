@@ -239,3 +239,22 @@ test("a PDF with invalid openings or no application destination is not fact-comp
   assert.equal(second.documentFactsComplete, false);
   assert.equal(second.roles.length, 1);
 });
+
+
+test("an otherwise exact PDF role match is rejected after the verified deadline", () => {
+  const notice = parseNoticeRoles(sourceLines, {
+    documentUrl: NANYUMBU,
+    expectedOrganization: "Halmashauri ya Wilaya ya Nanyumbu",
+  });
+  const listing = {
+    title: notice.roles[1].title,
+    company: notice.organization,
+    deadline: "19/11/2026",
+  };
+  const open = matchNoticeRoleToListing(notice, listing, new Date("2026-11-11T09:00:00Z"));
+  assert.equal(open.matched, true);
+  const closed = matchNoticeRoleToListing(notice, listing, new Date("2026-11-20T00:00:00Z"));
+  assert.equal(closed.matched, false);
+  assert.match(closed.reasons.join(" "), /deadline has passed/);
+  assert.equal(closed.publishable, false);
+});

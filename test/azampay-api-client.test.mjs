@@ -69,6 +69,8 @@ test("token response must include authenticated success, token and valid expiry"
     { success: false, data: { accessToken: "test-token-long-enough" } },
     { success: true, data: { accessToken: "test-token-long-enough" } },
     { success: true, data: { accessToken: "test-token-long-enough", expire: "not-a-date" } },
+    { success: true, data: { accessToken: "test-token-long-enough", expire: "2026-11-10T13:00:00" } },
+    { success: true, data: { accessToken: "test-token-long-enough", expire: "2026-11-10 13:00:00" } },
     { success: true, data: { accessToken: "test-token-long-enough", expire: new Date(NOW + 100).toISOString() } },
   ];
   for (const response of bad) {

@@ -58,8 +58,9 @@ export async function POST(request) {
     return json({ accepted: result.accepted }, 200);
   } catch (error) {
     const invalid = error?.code === "CALLBACK_INVALID" ||
-      error?.code === "CALLBACK_UNBOUND" ||
       error?.code === "CALLBACK_SIGNATURE_OR_BINDING_INVALID";
+    // Unbound checkout may be an early callback before the authenticated
+    // initiation receipt is committed. Return 5xx so the provider can retry.
     // 5xx: potential retryable DB/key issue. Never echo sensitive payload,
     // phone number, token, password, provider error or internal references.
     return json({ error: invalid ? "Unverified callback" : "Callback requires retry or review" },

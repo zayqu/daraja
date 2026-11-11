@@ -27,6 +27,8 @@ Authorized remote cPanel agent came back **online**. Read-only checks ran on acc
 | MySQL | Socket visible, but **not** a substitute for the application Prisma/PostgreSQL schema |
 | Quota / LVE | `quota` and `lveinfo` unavailable to account; cPanel per-account resource headroom **not verified** |
 
+**Additional decisive finding:** read-only cPanel UAPI `Postgresql list_databases` returned `status: 0` with error **"This server does not support this functionality."** The shared cPanel account cannot presently provision PostgreSQL through this interface. Do not attempt an unsupported workaround by writing to MySQL or installing a database daemon into the account.
+
 **Operational decision: HOLD / NO-GO for staging installation at this time.** Meeting the 55/100 historical ceiling is insufficient: no demonstrated spare CloudLinux limit and no verified isolated PostgreSQL DB/user. No staging app/DB/DNS/callback change was made. Do not kill the THA workers or commandeer THA staging to create headroom.
 
 **To unblock without extra cost:** obtain cPanel provider confirmation of available account-level Node process/LVE headroom and a separate PostgreSQL database/user under the current plan, OR propose a completely separate zero-dollar staging topology with evidence of no new charges and no production data/Neon access. A future staging deployment still requires explicit approval; this approval covered preparation and capacity checking only.

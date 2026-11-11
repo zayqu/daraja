@@ -217,3 +217,46 @@ while the official portal remains the application destination.
 This branch deliberately does not connect the new archive PDF pipeline to
 automatic production ingestion until source matching, editorial approval and
 legacy-deadline impacts have been separately reviewed and authorized.
+
+## Multi-document PSRS validation — 11 November 2026
+
+A read-only audit parsed **four actual November 2026 council PDFs** using
+PDF.js. The new observed-format regression suite covers:
+
+| Source | Correctly separated roles | Total advertised posts | Official closing date | Parsing status |
+| --- | ---: | ---: | --- | --- |
+| Nanyumbu District Council | 2 | 7 | 19 Nov 2026 | Full document facts; editorial review required |
+| Moshi District Council | 2 | 7 | 20 Nov 2026 | Full document facts; editorial review required |
+| Momba District Council | 1 | 2 | 20 Nov 2026 | Role and deadline extracted; **official application URL unavailable** |
+| Kisarawe District Council | 1 | 4 | 20 Nov 2026 | Full document facts; editorial review required |
+
+The parser now recognizes observed variations such as a role title
+continued on a second line (Moshi), "MAJUKUMU NA KAZI" and
+"SIFA ZA KUAJIRIWA" (Momba), "KAZI NA MAJUKUMU",
+parenthesized opening counts and "Mwisho wakutuma" (Kisarawe).
+The general application conditions are separated from role-specific
+responsibilities and qualifications. All extracted roles stay in
+`PENDING_ROLE_REVIEW`.
+
+The new `matchNoticeRoleToListing` checks the exact normalized role title,
+named institution, and closing date against the original PDF. Duplicate
+roles, mismatches, missing application destinations and expired deadlines
+are rejected as current matches. Even a correct match returns
+`publishable: false` and `PENDING_EDITORIAL_REVIEW`.
+It is a **review aid**, not a publication gate bypass.
+
+Do not automatically replace a missing official URL with the general
+Ajira Portal root merely because the PDF says "Recruitment Portal".
+The Momba sample demonstrates why unsupported destinations remain
+unverified. Preserve the original source PDF for independent inspection.
+No status changes or new jobs were written to production.
+
+Observed-format focused regression: 19/19 passed on the isolated
+cPanel worktree. A broad regression run was initiated but its result
+was not available before the remote connection dropped; do not
+claim that full suite passed without retrieving its exit status.
+
+Future validation should include older PSRS templates, longer
+multi-institution advertisements, scanned/image PDFs, amended notices
+and ambiguous duplicate role titles. Until those are covered, auto
+publication of government PDF-extracted roles remains prohibited.

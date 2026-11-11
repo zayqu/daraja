@@ -247,6 +247,15 @@ async function saveJobs(
   const ownPrecedence = sourcePolicy(source).precedence;
 
   const write = async (existing, job, decision) => {
+    // Initial strict rollout is additive. Existing published records must
+    // not be silently demoted or rewritten as unapproved machine drafts.
+    // Hold the *new* candidate for review while keeping the historical job
+    // unchanged until a separate, audited legacy transition is authorized.
+    if (existing.moderationStatus === "PUBLISHED" &&
+        decision.status === "PENDING_REVIEW") {
+      counts.heldForReview += 1;
+      return;
+    }
     // An administrator's corrections to a vacancy are never overwritten by a
     // later scrape of the same source page.
     if (existing.adminEditedAt) {

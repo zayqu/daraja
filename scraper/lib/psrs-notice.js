@@ -79,6 +79,52 @@ function exactClosingDate(lines) {
   return unique.length === 1 ? parseDeadline(unique[0]) : null;
 }
 
+function normalizeRoleValue(value) {
+  return String(value || "").normalize("NFKC").toLowerCase()
+    .replace(/[^\p{L}\p{N}]+/gu, " ").trim().replace(/\s+/g, " ");
+}
+
+// Exact, unambiguous matching is a review aid. It never approves a job.
+function matchNoticeRoleToListing(notice, listing) {
+  const reasons = [];
+  if (!notice?.documentFactsComplete || !notice?.needsManualReview) {
+    reasons.push("Incomplete original PDF facts or missing review state");
+  }
+  if (!officialPdfUrl(notice?.documentUrl)) reasons.push("Not an official PDF URL");
+  const title = normalizeRoleValue(listing?.title);
+  if (!title) reasons.push("Missing original listing position");
+  if (!normalizeRoleValue(listing?.company) ||
+      normalizeRoleValue(listing?.company) !== normalizeRoleValue(notice?.organization)) {
+    reasons.push("Listing institution differs from PDF institution");
+  }
+  const listingDeadline = listing?.deadline instanceof Date
+    ? listing.deadline : parseDeadline(listing?.deadline);
+  const noticeDeadline = notice?.deadline instanceof Date
+    ? notice.deadline : parseDeadline(notice?.deadline);
+  if (!listingDeadline || !noticeDeadline ||
+      listingDeadline.toISOString().slice(0, 10) !== noticeDeadline.toISOString().slice(0, 10)) {
+    reasons.push("Listing deadline differs from official notice");
+  }
+  const matches = (Array.isArray(notice?.roles) ? notice.roles : []).filter(
+    (role) => normalizeRoleValue(role.title) === title
+  );
+  if (matches.length !== 1) reasons.push("Role title is not a unique exact PDF match");
+  const role = matches.length === 1 ? matches[0] : null;
+  if (role && (role.sourceVerified !== false ||
+      role.evidenceStatus !== "PENDING_ROLE_REVIEW")) {
+    reasons.push("Role lacks controlled pending-review state");
+  }
+  if (!notice?.applicationUrl) reasons.push("Missing original application destination");
+  return {
+    matched: reasons.length === 0,
+    reasons,
+    documentUrl: notice?.documentUrl || null,
+    evidenceStatus: "PENDING_EDITORIAL_REVIEW",
+    role: reasons.length === 0 ? role : null,
+    publishable: false,
+  };
+}
+
 function parseNoticeRoles(lines, { documentUrl, expectedOrganization = null } = {}) {
   if (!officialPdfUrl(documentUrl)) throw new Error("Source is not an official PSRS document link");
   const records = [];
@@ -111,11 +157,8 @@ function parseNoticeRoles(lines, { documentUrl, expectedOrganization = null } = 
   if (current) records.push(current);
   const deadline = exactClosingDate(lines.slice(generalIndex));
   const fullText = lines.join("\n");
-  const normalized = (value) => String(value || "").normalize("NFKC")
-    .replace(/[^\p{L}\p{N}]+/gu, " ").toLowerCase().trim()
-    .replace(/\s+/g, " ");
   const organizationMatches = Boolean(expectedOrganization &&
-    normalized(fullText).includes(normalized(expectedOrganization)));
+    normalizeRoleValue(fullText).includes(normalizeRoleValue(expectedOrganization)));
   // Only original government notice references may substantiate a deadline.
   // Any ambiguity, missing role section or unidentified organization stays in review.
   return {
@@ -138,7 +181,9 @@ function parseNoticeRoles(lines, { documentUrl, expectedOrganization = null } = 
       sourceVerified: false,
     })),
     documentFactsComplete: Boolean(deadline && organizationMatches &&
+      /https:\/\/portal\.ajira\.go\.tz\/?/i.test(fullText) &&
       records.length && records.every((r) =>
+        r.openings > 0 && r.openings <= 500 && r.title.length > 4 &&
         r.duties.join(" ").length >= 45 && r.qualifications.join(" ").length >= 30
       )),
     // Extraction does not prove that an editor checked the exact
@@ -192,4 +237,4 @@ async function readOfficialNotice(documentUrl, {
   return parseNoticeRoles(lines, { documentUrl: official, expectedOrganization });
 }
 
-module.exports = { pdfItemsToLines, extractPdfLines, exactClosingDate, parseNoticeRoles, readOfficialNotice };
+module.exports = { pdfItemsToLines, extractPdfLines, exactClosingDate, parseNoticeRoles, readOfficialNotice, matchNoticeRoleToListing };

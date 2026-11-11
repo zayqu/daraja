@@ -83,6 +83,7 @@ export async function PATCH(request) {
   const note = typeof body.note === "string" ? body.note.trim().slice(0, 1000) : "";
   if (!ids.length) return NextResponse.json({ error: "Select at least one job" }, { status: 400 });
   if (!BULK_STATUSES.has(status)) return NextResponse.json({ error: "Invalid moderation status" }, { status: 400 });
+  if (status === "PUBLISHED") return NextResponse.json({ error: "Publish jobs individually after reviewing the original vacancy and editorial content." }, { status: 409 });
   if (status !== "PUBLISHED" && !note) return NextResponse.json({ error: "A reason is required" }, { status: 400 });
 
   const jobs = await prisma.job.findMany({

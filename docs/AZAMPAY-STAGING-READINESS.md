@@ -1,5 +1,24 @@
 # AzamPay staging preparation — owner-approved, NOT deployed
 
+## Cloudflare Workers compatibility decision — 11 November 2026
+
+**Verdict: NO-GO for a direct lift-and-shift of the existing AzamPay checkout/callback routes to Cloudflare Workers Free.** A deliberately separate small callback receiver is possible in principle, but **not yet proven to complete the authenticated checkout workflow**. Do not create Cloudflare resources or alter the merchant callback.
+
+Verified source-code dependencies:
+- `app/api/payments/azampay/sandbox/checkout/route.js` is a **Next.js route** with `getActor()`, `readProtectedJson()`, verification of real employer/booking/job and a Prisma transaction. A standalone callback Worker cannot replace it.
+- `lib/prisma.js` uses `PrismaPg` with a normal TCP PostgreSQL connection. Workers needs an edge-compatible connection path, such as `@prisma/adapter-neon` with the Neon serverless driver, or Cloudflare Hyperdrive / nodejs_compat with a suitably tested driver.
+- Callback verification uses `node:crypto` RSA, public-key operations and hash generation; test the exact `nodejs_compat` runtime and bundle, not merely assume compatibility.
+- Gateway transport uses Node primitives, AbortController and token auth; compatible behavior and expiry formats still need real sandbox checks.
+- Workers Free restrictions: 100,000 requests/day, 10 ms CPU/request, 128 MB memory, 50 external subrequests/request and 64 MiB Worker-size limit, as published 29 Oct 2026. A signed callback with key parsing, JWT auth and Prisma calls must be load-tested for CPU and startup.
+- Cloudflare Workers supports Neon connections (official Cloudflare documentation), so the DB network path is viable, but **not an authorization to connect to production Neon**.
+- Free Workers do not keep a sleeping origin application alive, but callback delivery/retry contract is still unverified and a separate authenticated checkout/UI route remains necessary.
+
+**Payment-integrity correction on draft PR:** Previously the callback processor constructed an `authoritative:true` verifier result from the signed notification alone and immediately marked bookings `PAID`. This contradicted `collection-settlement.mjs`'s requirement for an independent authoritative server-to-server collection-status check. It is now changed to store deduplicated `SIGNED_SUCCESS_REVIEW` (or `VERIFIED_FAILURE_REVIEW`) events and set the payment attempt to `UNKNOWN` for manual/independent reconciliation; the booking remains `APPROVED`, with no auto-publishing or second checkout. Until the authentic provider collection-status interface is established, a sandbox callback alone must not settle funds.
+
+**Decision:** keep existing full Next.js route on a separately isolated test runtime when one becomes available, or scope a **new callback-only Worker experiment** only after a specific approval for additional adaptation work. Cloudflare has no direct evidence of being a faster end-to-end path than Render; do not extend scope without an authenticated checkout plan.
+
+References: https://developers.cloudflare.com/workers/platform/limits/ ; https://developers.cloudflare.com/workers/databases/third-party-integrations/neon/ ; https://www.prisma.io/docs/orm/v7/prisma-client/deployment/edge/deploy-to-cloudflare .
+
 ## Evaluated zero-dollar alternative — 11 November 2026
 
 PROPOSED ONLY, NOT PROVISIONED: create a NEW independent Neon Free PostgreSQL project in the existing Daraja organization, plus a NEW isolated Render Free HTTPS web service for the feature branch with automatic deployment disabled. Neither may share production Daraja credentials, existing application/database roots, cookies, or real customer records.

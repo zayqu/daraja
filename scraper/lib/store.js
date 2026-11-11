@@ -322,12 +322,16 @@ async function saveJobs(
     },
     data: { active: false },
   });
-  const missingFromSourceArchived = await archiveMissingSourceJobs(
-    prisma,
-    jobs,
-    source,
-    { archiveEmptySnapshot }
-  );
+  // Incomplete or editorially held source snapshots are not authoritative.
+  // Do not use a partial verification run to archive jobs absent from it.
+  const sourceSnapshotVerified = jobs.length > 0 &&
+    jobs.every((job) => !(job.reviewReasons || []).length) &&
+    jobs.every((job) => job.originalEvidence?.verified === true);
+  const missingFromSourceArchived = sourceSnapshotVerified
+    ? await archiveMissingSourceJobs(
+        prisma, jobs, source, { archiveEmptySnapshot }
+      )
+    : 0;
   const invalidTitlesArchived = await archiveGenericJobTitles(prisma);
 
   return {

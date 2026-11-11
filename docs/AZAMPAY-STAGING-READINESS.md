@@ -1,4 +1,13 @@
 # AzamPay staging preparation — owner-approved, NOT deployed
+
+## Evaluated zero-dollar alternative — 11 November 2026
+
+PROPOSED ONLY, NOT PROVISIONED: create a NEW independent Neon Free PostgreSQL project in the existing Daraja organization, plus a NEW isolated Render Free HTTPS web service for the feature branch with automatic deployment disabled. Neither may share production Daraja credentials, existing application/database roots, cookies, or real customer records.
+
+Connected-account findings: the Daraja Neon organization uses the Free plan and has several existing projects. Published Neon Free plan (November 2026) offers 100 projects, 1 GB per project and 100 CU-hours/project/month; exact quota availability and no billing upgrade must be checked before creation. Render has existing free web services in the same workspace. Its Free instances have 512 MB RAM; the workspace shares 750 free instance-hours/month, plus bandwidth/build allowances. Current usage was not verified. A new service could exhaust shared allowances, disrupt existing free services, or incur excess bandwidth charges, so **free does not automatically meet the user's strict zero-USD/no-disruption requirement**. The application is Next.js standalone and may not fit a 512 MB instance. Render Free Postgres expires after 30 days, so prefer a fresh Neon Free project rather than its database. Vercel Hobby restricts business/commercial use.
+
+DECISION GATE: previous authorization covered staging PREPARATION, not creation of third-party resources, live URL changes, gateway credentials, or a real transaction. Obtain explicit approval before any new Neon project/Render service. First demonstrate no-spend quota availability, verify no impact on existing free Render services, create only an isolated empty database with synthetic fixtures and separate private secrets, keep all payment feature flags OFF until test approval. Stop if limits, hosting eligibility, or cost cannot be verified.
+
 **Status:** preparation approval granted 11 November 2026. No application, database, DNS, callback or payment deployment approved yet.
 
 ## Scope of this approval

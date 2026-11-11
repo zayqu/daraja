@@ -54,6 +54,7 @@ jobs:
         run: |
           bash -n ops/cpanel/deploy.sh
           bash -n ops/cpanel/auto-deploy.sh
+          bash -n ops/azampay/staging-preflight.sh
 
       - name: Run tests
         run: npm test

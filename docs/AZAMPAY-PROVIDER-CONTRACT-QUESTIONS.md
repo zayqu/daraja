@@ -1,7 +1,7 @@
 # AzamPay Tanzania MNO collections — official contract answers (12 Nov 2026)
 
 **Status: ANSWERED from AzamPay's official documentation. No inquiry needs to be sent.**
-The 11 Nov draft inquiry is withdrawn: every question it asked is either answered by the official docs below or can only be observed in a real sandbox payment (listed at the end). Nothing was sent to AzamPay, and no credentials, tokens or portal secrets were read, copied or stored.
+The 11 Nov inquiry is no longer needed: every question it asked is either answered by the official docs below or can only be observed in a real sandbox payment (listed at the end). It had already been emailed from the owner's account to `info@azampay.co.tz` on 12 Nov 2026 at 10:02 EAT (see "Contact log"), so treat any reply as a cross-check of these answers. No credentials, tokens or portal secrets were read, copied or stored.
 
 ## Sources (official, reviewed 12 Nov 2026 in the owner's signed-in browser)
 - Sandbox portal: https://developers.azampay.co.tz (Documentation → "Go to Documentation" → developerdocs.azampay.co.tz)
@@ -26,9 +26,14 @@ The 11 Nov draft inquiry is withdrawn: every question it asked is either answere
 - The portal's Register App page currently shows "Network error" and `Messages.FailedToGenerateClientSecret` and does not load the registered app, so the sandbox callback URL could not be re-checked or changed today. Retry later; if it persists, contact `product@azampay.com`.
 - The portal's **KYC Submission** link opens `kyc-verifierzip--itadmin2026.replit.app`, which is not an AzamPay domain. Do not upload company documents there until `compliance@azampay.com` confirms it in writing.
 
+## Contact log
+- 12 Nov 2026, 10:02 EAT: the 11 Nov technical questions, emailed from the owner's account to `info@azampay.co.tz`.
+- 12 Nov 2026, 13:47 EAT: Register App error and KYC-link confirmation, emailed from the owner's account to `info@azampay.co.tz`, CC `compliance@azampay.com` and `product@azampay.com`. The Register App page still showed both errors just before sending. No credentials or documents were included.
+- +255 746 000 000 (azampay.com's listed number) is not on WhatsApp, and neither azampay.com nor the portal lists a WhatsApp contact. The portal Help page lists `support@azampay.com` for general issues. Follow up by phone or email.
+
 ## Still to observe in the first sandbox payment (cannot be documented in advance)
 - `transactionId` (checkout) equals `externalreference` (callback); if not, the callback is refused (401) and nothing is paid.
 - Actual `expire` format, whether the portal-issued Token is the `X-API-Key`, accepted MSISDN format per provider, exact `operator` and `amount` strings, and whether AzamPay retries a non-200 callback.
 
-## Optional question for AzamPay (not required; send only with owner approval)
+## Status-lookup question (already asked in the 12 Nov 10:02 email; do not resend)
 To `product@azampay.com`: "Your changelog (v1.2.0) lists a transaction status query endpoint for the Tanzania Checkout API, but the API reference only documents status for disbursements. Is there a supported status lookup for an MNO checkout, by `externalId` or the returned `transactionId`, for reconciling a lost callback?" Never include client secret, tokens, API key or customer data.

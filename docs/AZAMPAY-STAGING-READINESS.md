@@ -13,6 +13,8 @@ Verified source-code dependencies:
 - Cloudflare Workers supports Neon connections (official Cloudflare documentation), so the DB network path is viable, but **not an authorization to connect to production Neon**.
 - Free Workers do not keep a sleeping origin application alive, but callback delivery/retry contract is still unverified and a separate authenticated checkout/UI route remains necessary.
 
+**Superseded 12 Nov 2026 by D-037:** AzamPay's official docs document no collection-status API and make the signed callback the confirmation, so a fully bound, signed success now marks the booking `PAID` (admin fulfilment unchanged). The paragraph below is kept as history.
+
 **Payment-integrity correction on draft PR:** Previously the callback processor constructed an `authoritative:true` verifier result from the signed notification alone and immediately marked bookings `PAID`. This contradicted `collection-settlement.mjs`'s requirement for an independent authoritative server-to-server collection-status check. It is now changed to store deduplicated `SIGNED_SUCCESS_REVIEW` (or `VERIFIED_FAILURE_REVIEW`) events and set the payment attempt to `UNKNOWN` for manual/independent reconciliation; the booking remains `APPROVED`, with no auto-publishing or second checkout. Until the authentic provider collection-status interface is established, a sandbox callback alone must not settle funds.
 
 **Decision:** keep existing full Next.js route on a separately isolated test runtime when one becomes available, or scope a **new callback-only Worker experiment** only after a specific approval for additional adaptation work. Cloudflare has no direct evidence of being a faster end-to-end path than Render; do not extend scope without an authenticated checkout plan.

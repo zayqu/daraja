@@ -1,33 +1,34 @@
-# AzamPay Tanzania MNO collections — provider contract questions (11 Nov 2026)
+# AzamPay Tanzania MNO collections — official contract answers (12 Nov 2026)
 
-**Status: UNSENT.** This is a minimal, sanitized support request to the official AzamPay developer support channel. No credentials, account numbers, live customer data or raw callbacks may be included.
+**Status: ANSWERED from AzamPay's official documentation. No inquiry needs to be sent.**
+The 11 Nov draft inquiry is withdrawn: every question it asked is either answered by the official docs below or can only be observed in a real sandbox payment (listed at the end). Nothing was sent to AzamPay, and no credentials, tokens or portal secrets were read, copied or stored.
 
-## Proposed message
+## Sources (official, reviewed 12 Nov 2026 in the owner's signed-in browser)
+- Sandbox portal: https://developers.azampay.co.tz (Documentation → "Go to Documentation" → developerdocs.azampay.co.tz)
+- Tanzania API reference: https://developerdocs.azampay.co.tz/tanzania/checkout-api (Mno Checkout, Callback, Payment Partners), https://developerdocs.azampay.co.tz/tanzania/disbursement, https://developerdocs.azampay.co.tz/tanzania/token-generation
+- Downloadable OpenAPI 3.0.1 schema: https://developerdocs.azampay.co.tz/tanzania/v1/schema.json
+- Getting started: https://developerdocs.azampay.co.tz/authentication, https://developerdocs.azampay.co.tz/base-urls, https://developerdocs.azampay.co.tz/changelog
+- Portal Help page support contacts: technical `product@azampay.com`, general `support@azampay.com`, KYC `compliance@azampay.com`
 
-**Subject:** Daraja Ajira sandbox — confirm MNO collections status verification and callback contract
+## Answers
 
-Hello AzamPay Developer Support,
+1. **Status lookup for an incoming MNO collection — none documented.** The schema's only paths are token generation, MNO/bank checkout, bank OTP, Callback, Payment Partners, Post Checkout (hosted pages), Disburse, Name Lookup, `GET /api/v1/azampay/transactionstatus` and Bill Pay. `transactionstatus` lives on the disbursement host and is described as "retrieve the status of a **disbursement** transaction" (query `pgReferenceId`, `bankName`). The changelog mentions a "transaction status query endpoint" for Checkout (v1.2.0), but no such operation exists in the reference or schema. Daraja must not use the disbursement endpoint for collections.
+2. **Approved verification procedure — the signed callback.** "All callbacks from AzamPay include an RSA digital signature in the `signature` field. Use this to verify that callbacks are authentic and have not been tampered with." The callback "will send transaction completion status to merchant application upon confirmation by user." Owner decision D-037 (12 Nov 2026): a callback that passes every check below marks the booking PAID, ready for admin fulfilment. Disputes/reversals are not documented; they stay manual.
+3. **Reference mapping.** `utilityref` = "Partner's reference" / "Utility reference ID that belongs to the calling application" (our checkout `externalId`, i.e. the `drj_…` attempt reference). `externalreference` = "AzamPay's reference". The checkout response returns `transactionId` ("each successful transaction will be given a valid transaction id"). The docs do **not** state that `transactionId` equals `externalreference`; Daraja requires that equality (fail closed) and the first sandbox payment confirms it.
+4. **Signature and key.** Signed data is the UTF-8 concatenation `{utilityref}{externalreference}{transactionstatus}{operator}` with no separators; RSA, SHA-256, PKCS#1 v1.5; Base64 `signature`. Key: `GET /azampay/v1/public-key` on the checkout host, "same authentication as other checkout APIs"; `format` = `Pem` (default) or `Xml`; response `{success, format, publicKey}`. "Cache the public key locally and refresh periodically (e.g., every 24 hours). If verification fails, re-fetch the key and retry once before rejecting the callback." The schema marks `signature` nullable and one field note says it covers only `{utilityref}{externalreference}`; the overview and all five official code samples use four fields, so Daraja verifies four fields and rejects missing signatures. Key rotation and callback retry timing are not documented.
+5. **Token, phone, providers, API key.** Token: `POST https://authenticator-sandbox.azampay.co.tz/AppRegistration/GenerateToken` with `{appName, clientId, clientSecret}` → `{data: {accessToken, expire}, message, success, statusCode}`; the `expire` format is **not** documented (Daraja uses an explicit-timezone value capped at one hour, otherwise a 5-minute local lifetime). MNO checkout: `POST https://sandbox.azampay.co.tz/azampay/mno/checkout`, Bearer auth, body `{accountNumber, amount (0–5,000,000), currency (≤32), externalId (≤128), provider, additionalProperties?}`; providers `Airtel`, `Tigo`, `Halopesa`, `Azampesa`, `Mpesa`; responses 200/400/500 with `{transactionId, message, success}`, where `success: false` means initiation failed. Phone format: only "account number/MSISDN"; the callback example uses `255712345678` (the format Daraja sends). `X-API-Key`: defined as an optional scheme ("API key issued to you by AzamPay during onboarding") and included in the official checkout code samples; Daraja sends it to the checkout host only when `AZAMPAY_API_KEY` is set.
+6. **Callback URL.** "For Sandbox environment, the URL for this callback can be provided upon registering the app. For Production, after approval of submitted KYC, you will be asked to provide the production URL for the callback by the Payment Gateway Customer Care team." The callback endpoint "must be available in your application all the time" and should answer HTTP 200. Origin allowlist changes for a separate sandbox URL are not documented.
 
-We are integrating your **Tanzania sandbox MNO checkout** for our Daraja Ajira website, under merchant **MAZIKU HOLDINGS LIMITED**. Before initiating our first sandbox transaction, please confirm:
+## Callback body (official schema)
+`message`, `user`, `password`, `clientId`, `transactionstatus` ("success or failure"), `operator`, `reference`, `externalreference`, `utilityref`, `amount` (string), `transid`, `msisdn`, `mnoreference`, `submerchantAcc`, `additionalProperties`, `signature`. Only the four signed fields may decide anything; `amount` is compared to the stored snapshot; `clientId`, `user`, `password`, `msisdn` and the raw body are never logged or stored.
 
-1. Does the Tanzania sandbox provide an **authoritative server-to-server status lookup for an incoming MNO collection** initiated via `POST /azampay/mno/checkout`? Please provide the exact endpoint, authentication method, request/response example, allowed statuses and which reference identifier to query. We understand the commonly documented `transactionStatus` interface is for **disbursements**, not collections.
-2. If no incoming-collection status endpoint exists, what is the approved verification/reconciliation procedure for proving a payment was collected before fulfilling a customer booking? Is a signed callback alone sufficient according to your authoritative merchant contract, and how are disputes/late reversals handled?
-3. In the signed callback, does `externalreference` match the authenticated checkout response's `transactionId`, `pgReferenceId` or a different field? Is `utilityref` guaranteed to equal our submitted `externalId`? Please share a **redacted** sandbox response and callback example.
-4. Please confirm the **RSA public-key** endpoint and parameters (including whether `?format=Pem` is required), signed canonical field order, key rotation, whether `signature` may be null, and delivery/retry timing for 5xx, timeouts, and a cold-starting callback server.
-5. Confirm sandbox authentication token `expire` timestamp format/timezone; valid Tanzanian MSISDN format and accepted provider strings; and whether `X-API-Key` is required for checkout and public-key retrieval.
-6. Can a merchant configure a **separate HTTPS sandbox callback URL**, different from its production Ajira domain, through the developer portal? Is any origin allowlist update necessary?
+## Portal observations (12 Nov 2026)
+- The portal's Register App page currently shows "Network error" and `Messages.FailedToGenerateClientSecret` and does not load the registered app, so the sandbox callback URL could not be re-checked or changed today. Retry later; if it persists, contact `product@azampay.com`.
+- The portal's **KYC Submission** link opens `kyc-verifierzip--itadmin2026.replit.app`, which is not an AzamPay domain. Do not upload company documents there until `compliance@azampay.com` confirms it in writing.
 
-We will use synthetic test records in an isolated database, with sandbox routes disabled until these details are confirmed.
+## Still to observe in the first sandbox payment (cannot be documented in advance)
+- `transactionId` (checkout) equals `externalreference` (callback); if not, the callback is refused (401) and nothing is paid.
+- Actual `expire` format, whether the portal-issued Token is the `X-API-Key`, accepted MSISDN format per provider, exact `operator` and `amount` strings, and whether AzamPay retries a non-200 callback.
 
-Thank you,
-Daraja Ajira integration team
-
-## Evidence and safeguards
-- Official portal accessible: https://developers.azampay.co.tz/sandbox/documentation
-- Official API schema URL reported in existing integration handoff: https://developerdocs.azampay.co.tz/tanzania/v1/schema.json — could not be fetched through our read-only browser tooling at the time of review. Do **not** infer contents.
-- Third-party Dart SDK documents Tanzania `transactionStatus` as a disbursement-status operation, whereas Rwanda has a separately documented collections-status interface. Neither is sufficient proof of a Tanzania collections endpoint.
-- Current draft PR #226 accepts signed callback success as **REVIEW ONLY**, leaves booking `APPROVED`, and requires independent reconciliation to mark `PAID`. It does not initiate any payment.
-- Never send this inquiry to an unverified KYC site, and never include client secret, portal token, sandbox API key or customer identifiers.
-
-## Provider response checklist
-Record the date, official support contact/case number, relevant official docs URL or redacted example, and the exact field mapping. If response cannot be authenticated as originating from AzamPay, keep settlement disabled.
+## Optional question for AzamPay (not required; send only with owner approval)
+To `product@azampay.com`: "Your changelog (v1.2.0) lists a transaction status query endpoint for the Tanzania Checkout API, but the API reference only documents status for disbursements. Is there a supported status lookup for an MNO checkout, by `externalId` or the returned `transactionId`, for reconciling a lost callback?" Never include client secret, tokens, API key or customer data.

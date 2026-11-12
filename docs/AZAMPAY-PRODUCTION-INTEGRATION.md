@@ -5,7 +5,14 @@
 **Product/site:** Daraja / Ajira (`daraja.co.tz`, `ajira.daraja.co.tz`)
 **Owner:** Workstream E (Payments and billing)
 **Tracking:** #225
-**Date:** 2026-11-10
+**Date:** 2026-11-10 (current state updated 2026-11-12)
+
+## Current state — 12 November 2026 (read this first)
+
+- **Provider contract:** answered from AzamPay's official Tanzania docs; see `docs/AZAMPAY-PROVIDER-CONTRACT-QUESTIONS.md`. No collection-status API is documented; the RSA-signed callback is AzamPay's confirmation.
+- **Settlement rule (D-037):** a callback bound to our saved checkout `transactionId`, with matching amount and a valid AzamPay signature, marks the booking `PAID` for admin fulfilment. Verified failure or a definitive checkout refusal closes that attempt as `FAILED` so the employer can retry. Ambiguous outcomes stay `UNKNOWN`.
+- **Code aligned with the docs:** binding is checked before any key request; the key is cached per process and re-fetched once only after a bad signature; `X-API-Key` (optional) goes to the checkout host only; the token is obtained before the one-shot checkout claim; undocumented token `expire` formats get a short local lifetime instead of blocking checkout.
+- **Still required before real money:** one real sandbox payment on an approved, isolated test deployment to observe `transactionId` = `externalreference`, token `expire`, phone format and callback retries; employer pay screen and admin bookings view; KYC through an AzamPay-confirmed channel; production keys and callback URL from AzamPay; separate owner approval. Production stays OFF.
 
 ## Current workflow and non-negotiable invariants
 

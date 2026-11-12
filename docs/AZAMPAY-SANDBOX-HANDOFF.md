@@ -21,11 +21,13 @@ Source for revalidation: https://developerdocs.azampay.co.tz/tanzania/v1/schema.
 | Sandbox MNO collections | `https://sandbox.azampay.co.tz`, `POST /azampay/mno/checkout` with `accountNumber, amount, currency: TZS, externalId, provider`. Providers reported: Airtel, Tigo, Halopesa, Azampesa, Mpesa. |
 | Public verification key | `GET /azampay/v1/public-key` with Bearer token, response includes `publicKey`. Trust origin, pin/rotate keys and validate response. |
 | Callback signature | RSA-SHA256 PKCS#1 v1.5 over UTF-8 concatenation `utilityref + externalreference + transactionstatus + operator` (no delimiters); Base64 `signature`. |
-| Collection status | An authoritative *collection* status endpoint is **not confirmed**. A disbursement status endpoint must not substitute. |
+| Collection status | **None in the official reference (confirmed 12 Nov 2026).** `transactionstatus` is disbursement-only and must not substitute. The signed callback is AzamPay's confirmation (D-037). |
 
 Callback fields reported: `utilityref`, `externalreference`, `transactionstatus`, `operator`, `signature`, `amount`, `reference`, `transid`, `clientId`, `msisdn`, and other fields including **password**. Do not log/store raw callbacks. `amount` and `clientId` are **not signed**, therefore matching `externalreference` to an authenticated checkout response is mandatory before changing booking state. Reject callbacks missing `signature`; never accept a browser redirect or mere HTTP 200 as proof of payment. Confirm in sandbox which returned transaction identifier corresponds to signed `externalreference`.
 
 Production origins and auth expiry format are not confirmed. `X-API-Key` requirement and portal Token purpose need sandbox confirmation.
+
+**12 Nov 2026 update:** the rows above were re-checked against AzamPay's official docs and schema (`docs/AZAMPAY-PROVIDER-CONTRACT-QUESTIONS.md`). Confirmed: auth, MNO checkout, public key (`format` defaults to `Pem`), four-field signature, "re-fetch key once" rule, and `utilityref` = our reference / `externalreference` = AzamPay's reference. `X-API-Key` appears in the official checkout sample; set `AZAMPAY_API_KEY` to the portal-issued Token if the first sandbox call returns 401 without it. The portal's Register App page currently errors (`FailedToGenerateClientSecret`), and its KYC link points to a non-AzamPay `replit.app` host: confirm with `compliance@azampay.com` before uploading anything.
 
 ## Critical CI deployment risk
 `.github/workflows/cpanel-staging-build.yml` used `github.event_name != 'pull_request'` to guard `prisma migrate deploy` and cPanel release publication. That included manual `workflow_dispatch` on any branch and could use production `secrets.DATABASE_URL`. **Separate fix PR #227** changes those steps to `github.event_name == 'push' && github.ref == 'refs/heads/master'`. Review/merge PR #227 first with normal authorization. PR #226 remains draft, unmerged and undeployed.

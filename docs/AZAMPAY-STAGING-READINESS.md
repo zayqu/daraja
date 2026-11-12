@@ -1,5 +1,27 @@
 # AzamPay staging preparation — owner-approved, NOT deployed
 
+## Chosen test site — 12 November 2026 (owner decision; read this first)
+
+**Decision:** run the one sandbox test payment on a **separate free test site**, never the live site: the PR #226 Vercel preview at `https://daraja-git-feature-azampay-production-readiness-zayqus-projects.vercel.app` with its own new free Neon database named `daraja_sandbox`. Nothing touches `ajira.daraja.co.tz` or the production database.
+
+**Facts checked 12 Nov 2026:**
+- The AzamPay portal's Register App page still fails (`Network error`, `Messages.FailedToGenerateClientSecret`), so the sandbox callback cannot yet be pointed at the test site; it is registered to the live domain. The owner is asking AzamPay to fix it (to `info@azampay.co.tz`, CC `compliance@azampay.com` and `product@azampay.com`).
+- **Risk to know:** all six Vercel variables, including `DATABASE_URL`, are scoped "Production and Preview", so every Vercel preview uses the live database. The test branch must get its own branch-scoped `DATABASE_URL` before any payment switch is turned on for it.
+- Vercel previews sit behind Vercel Authentication. "Protection Bypass for Automation" (available on Hobby) accepts `x-vercel-protection-bypass` as a header or query parameter, so AzamPay's callback URL can carry it.
+- Sign-in works on a preview host: the session cookie set by password sign-in is host-only. Set `AUTH_URL` to the preview URL, or same-origin checks refuse the sign-in. Google sign-in does not work on previews; use the seeded password accounts.
+- Rehearsed locally with the built app on a throwaway `daraja_sandbox`: seeded accounts sign in, request → approve → pay box works, the employer cannot approve, unsigned callbacks get 401, and no AzamPay call is made before the pay step.
+
+**Setup (owner does every step that involves a secret):**
+1. Neon: new free project, database name `daraja_sandbox`; copy its connection string.
+2. GitHub → Settings → Secrets → Actions: `SANDBOX_DATABASE_URL` (that string) and `SANDBOX_TEST_PASSWORD` (8+ characters, letters and a number). Optional variable `SANDBOX_ADMIN_EMAIL` (default `admin@daraja.co.tz`).
+3. Add the label `azampay-sandbox-setup` to PR #226. `.github/workflows/azampay-sandbox-setup.yml` refuses any database not named `daraja_sandbox` or already holding data, then runs `prisma migrate deploy` and `scripts/azampay-sandbox-setup.mjs seed`. That seeds the test admin, the verified test employer `sandbox-employer@example.com`, one test vacancy, and switches the employer portal on in that database only. It never receives the production `DATABASE_URL`.
+4. Vercel → Environment Variables → Preview, branch `feature/azampay-production-readiness` only: `DATABASE_URL` (the test string, first), `AUTH_URL` (the preview URL), `AZAMPAY_ENABLED=true`, `AZAMPAY_MODE=sandbox`, `AZAMPAY_SANDBOX_ROUTES_ENABLED=true`, `AZAMPAY_SANDBOX_DEPLOYMENT_APPROVED=true`, `AZAMPAY_APP_NAME`, `AZAMPAY_CLIENT_ID`, `AZAMPAY_CLIENT_SECRET`, and optionally `AZAMPAY_API_KEY` (the portal Token).
+5. Vercel → Deployment Protection → Protection Bypass for Automation → Add Secret.
+6. When AzamPay's portal works: register the sandbox callback as `https://daraja-git-feature-azampay-production-readiness-zayqus-projects.vercel.app/api/payments/azampay/callback?x-vercel-protection-bypass=<that secret>`, with the same host as the allowed origin. Update the Vercel keys if AzamPay issues new ones.
+7. Redeploy the preview. Then: employer requests → admin approves → employer pays with the sandbox number → expect `PAID`. A 401 on the callback in Vercel's request logs means `transactionId` ≠ `externalreference`; a refused checkout shows "AzamPay did not start this payment" (try adding `AZAMPAY_API_KEY` or check the number format).
+
+**Afterwards:** delete the bypass secret, remove the branch-scoped AzamPay keys, and record redacted evidence in `PROGRESS.md`.
+
 ## Cloudflare Workers compatibility decision — 11 November 2026
 
 **Verdict: NO-GO for a direct lift-and-shift of the existing AzamPay checkout/callback routes to Cloudflare Workers Free.** A deliberately separate small callback receiver is possible in principle, but **not yet proven to complete the authenticated checkout workflow**. Do not create Cloudflare resources or alter the merchant callback.

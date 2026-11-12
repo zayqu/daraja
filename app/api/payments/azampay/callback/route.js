@@ -2,12 +2,29 @@ import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { sandboxRoutesAvailable } from "@/lib/payments/azampay-sandbox-gate.mjs";
 import { createAzamPayApiClient } from "@/lib/payments/azampay-api-client.mjs";
+import { createAzamPayPublicKeyProvider } from "@/lib/payments/azampay-public-key.mjs";
 import { processSandboxCallback } from "@/lib/payments/azampay-sandbox-callback.mjs";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 const MAX_BYTES = 16_384;
+
+// One API client (token cache) and one public-key cache per server process.
+// AzamPay asks merchants to cache the callback key, refresh it about every
+// 24 hours and re-fetch once when a signature fails.
+let gateway = null;
+function sandboxGateway() {
+  if (!gateway) {
+    const apiClient = createAzamPayApiClient();
+    if (apiClient.mode !== "sandbox") return null;
+    gateway = Object.freeze({
+      apiClient, keyProvider: createAzamPayPublicKeyProvider({ apiClient }),
+    });
+  }
+  return gateway;
+}
+
 function json(payload, status = 200) {
   return NextResponse.json(payload, {
     status,
@@ -47,10 +64,10 @@ export async function POST(request) {
   if (!payload) return json({ error: "Invalid sandbox callback" }, 400);
 
   try {
-    const client = createAzamPayApiClient();
-    if (client.mode !== "sandbox") return json({ error: "Not found" }, 404);
+    const sandbox = sandboxGateway();
+    if (!sandbox) return json({ error: "Not found" }, 404);
     const result = await processSandboxCallback({
-      prisma, apiClient: client, payload,
+      prisma, apiClient: sandbox.apiClient, keyProvider: sandbox.keyProvider, payload,
       // From authenticated server environment ONLY. Callback clientId is
       // unsigned and cannot be treated as proof of merchant ownership.
       expectedMerchantId: process.env.AZAMPAY_CLIENT_ID,

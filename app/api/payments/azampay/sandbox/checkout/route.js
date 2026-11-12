@@ -5,9 +5,12 @@ import { readProtectedJson } from "@/lib/request-security";
 import { sandboxRoutesAvailable } from "@/lib/payments/azampay-sandbox-gate.mjs";
 import { createAzamPayApiClient } from "@/lib/payments/azampay-api-client.mjs";
 import { preparePromotionPaymentAttempt } from "@/lib/payments/promotion-attempt.mjs";
-import { buildSandboxMnoCheckout } from "@/lib/payments/azampay-sandbox-checkout.mjs";
 import {
-  claimSandboxCheckout, markSandboxCheckoutUnknown, recordSandboxCheckoutResponse,
+  buildSandboxMnoCheckout, sandboxCheckoutRejected,
+} from "@/lib/payments/azampay-sandbox-checkout.mjs";
+import {
+  claimSandboxCheckout, markSandboxCheckoutRejected, markSandboxCheckoutUnknown,
+  recordSandboxCheckoutResponse,
 } from "@/lib/payments/azampay-checkout-claim.mjs";
 
 export const runtime = "nodejs";
@@ -58,19 +61,36 @@ export async function POST(request) {
     const checkoutBody = buildSandboxMnoCheckout({
       attempt, accountNumber: body.accountNumber, provider: body.provider,
     });
-    // Validate local gateway configuration BEFORE taking the one-shot
-    // database claim. A missing credential must not strand an unpaid attempt.
-    // This constructor performs no provider network request.
+    // Validate local gateway configuration and obtain the access token BEFORE
+    // taking the one-shot database claim. A missing credential or a token
+    // problem must not strand an unpaid attempt. No checkout is sent here.
     const client = createAzamPayApiClient();
     if (client.mode !== "sandbox") throw new Error("INVALID_SANDBOX_CLIENT");
+    await client.prepare();
 
     // CAS must precede the actual provider request: only one request may send
     // a prompt. If the process dies after claiming, reconciliation is required.
     await claimSandboxCheckout({ prisma, actor, attemptId: attempt.id });
     claimId = attempt.id;
-    const response = await client.request({
-      method: "POST", path: "/azampay/mno/checkout", body: checkoutBody,
-    });
+    let response;
+    let refused = false;
+    try {
+      response = await client.request({
+        method: "POST", path: "/azampay/mno/checkout", body: checkoutBody,
+      });
+      refused = sandboxCheckoutRejected({ response });
+    } catch (error) {
+      if (!sandboxCheckoutRejected({ error })) throw error;
+      refused = true;
+    }
+    if (refused) {
+      // AzamPay definitively did not start it: no prompt, nothing charged.
+      await markSandboxCheckoutRejected({ prisma, attemptId: attempt.id });
+      return json({
+        error: "AzamPay did not start this payment, so nothing was charged. Check the phone number and network, then try again.",
+        status: "FAILED",
+      }, 422);
+    }
     await recordSandboxCheckoutResponse({
       prisma, attemptId: attempt.id, response,
     });

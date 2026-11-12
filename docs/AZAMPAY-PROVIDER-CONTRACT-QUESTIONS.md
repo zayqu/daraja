@@ -23,7 +23,7 @@ The 11 Nov inquiry is no longer needed: every question it asked is either answer
 `message`, `user`, `password`, `clientId`, `transactionstatus` ("success or failure"), `operator`, `reference`, `externalreference`, `utilityref`, `amount` (string), `transid`, `msisdn`, `mnoreference`, `submerchantAcc`, `additionalProperties`, `signature`. Only the four signed fields may decide anything; `amount` is compared to the stored snapshot; `clientId`, `user`, `password`, `msisdn` and the raw body are never logged or stored.
 
 ## Portal observations (12 Nov 2026)
-- The portal's Register App page currently shows "Network error" and `Messages.FailedToGenerateClientSecret` and does not load the registered app, so the sandbox callback URL could not be re-checked or changed today. Retry later; if it persists, contact `product@azampay.com`.
+- For most of 12 Nov the portal's Register App page showed "Network error" and `Messages.FailedToGenerateClientSecret` and did not load the registered app. It worked again that afternoon, and the sandbox callback was then moved to the test site (`docs/AZAMPAY-STAGING-READINESS.md`, step 6). If it breaks again, contact `product@azampay.com`.
 - The portal's **KYC Submission** link opens `kyc-verifierzip--itadmin2026.replit.app`, which is not an AzamPay domain. Do not upload company documents there until `compliance@azampay.com` confirms it in writing.
 
 ## Contact log

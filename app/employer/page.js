@@ -7,10 +7,14 @@ import {
 } from "@/lib/employer-access";
 import EmployerProfileForm from "@/components/EmployerProfileForm";
 import EmployerPortalTabs from "@/components/EmployerPortalTabs";
+import EmployerPromotion from "@/components/EmployerPromotion";
 import SiteNav from "@/components/SiteNav";
 import PageHero from "@/components/ui/PageHero";
 import WorkspaceShell from "@/components/ui/WorkspaceShell";
 import SurfaceCard from "@/components/ui/SurfaceCard";
+import { loadSiteSettings, promotionOffer } from "@/lib/features";
+import { sandboxRoutesAvailable } from "@/lib/payments/azampay-sandbox-gate.mjs";
+import { ownerBookingsByJob } from "@/lib/payments/promotion-booking.mjs";
 import prisma from "@/lib/prisma";
 import styles from "../portal.module.css";
 
@@ -41,10 +45,22 @@ export default async function EmployerPage() {
         moderationStatus: true,
         moderationNote: true,
         active: true,
+        featuredUntil: true,
       },
     })
     : [];
   const verified = status === "VERIFIED";
+  // Paying for a Featured slot appears only while mobile-money payments are
+  // switched on; otherwise the page is unchanged (WhatsApp + Lipa Namba).
+  const payments = verified && sandboxRoutesAvailable();
+  if (payments) await loadSiteSettings();
+  const offer = payments ? promotionOffer() : null;
+  const bookings = payments
+    ? await ownerBookingsByJob({ prisma, actor, jobIds: vacancies.map((job) => job.id) })
+    : {};
+  const dayLabel = (value) => value.toLocaleDateString("en-GB", {
+    day: "numeric", month: "short", year: "numeric", timeZone: "Africa/Dar_es_Salaam",
+  });
 
   return (
     <div className={styles.page}>
@@ -86,7 +102,7 @@ export default async function EmployerPage() {
                 </p>
               )}
               {vacancies.length ? (
-                <ul>
+                <ul className={payments ? styles.vacancyList : undefined}>
                   {vacancies.map((job) => (
                     <li key={job.id}>
                       {job.active && job.moderationStatus === "PUBLISHED" ? (
@@ -95,9 +111,17 @@ export default async function EmployerPage() {
                         <strong>{job.title}</strong>
                       )}
                       {" "}— {statusLabel(job.moderationStatus)}
-                      {job.deadline && `, closes ${job.deadline.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric", timeZone: "Africa/Dar_es_Salaam" })}`}
+                      {job.deadline && `, closes ${dayLabel(job.deadline)}`}
                       {job.moderationNote && job.moderationStatus === "REJECTED" && (
                         <span className={styles.statusPending}> Reason: {job.moderationNote}</span>
+                      )}
+                      {payments && job.active && job.moderationStatus === "PUBLISHED" && (
+                        <EmployerPromotion
+                          jobId={job.id}
+                          initialBooking={bookings[job.id] || null}
+                          offer={offer}
+                          featuredUntilLabel={job.featuredUntil && job.featuredUntil > new Date() ? dayLabel(job.featuredUntil) : ""}
+                        />
                       )}
                     </li>
                   ))}

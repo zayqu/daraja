@@ -19,6 +19,7 @@ const ADMIN_PAGES = [
   "app/admin/categories/page.js",
   "app/admin/sources/page.js",
   "app/admin/settings/page.js",
+  "app/admin/bookings/page.js",
 ];
 
 const ADMIN_WRITE_ROUTES = [
@@ -32,6 +33,7 @@ const ADMIN_WRITE_ROUTES = [
   "app/api/admin/sources/route.js",
   "app/api/admin/sources/[id]/route.js",
   "app/api/admin/settings/route.js",
+  "app/api/admin/promotions/[id]/route.js",
 ];
 
 test("every admin page checks for an administrator itself", () => {

@@ -165,6 +165,35 @@ test("retries serialization conflicts only, never duplicates side effects outsid
   assert.equal(s.eventRecords.size, 1);
 });
 
+test("pg driver adapter conflicts at COMMIT are retried like P2034", async () => {
+  // Shape observed from @prisma/adapter-pg with real PostgreSQL 16.
+  const adapterConflict = () => Object.assign(new Error("TransactionWriteConflict"), {
+    name: "DriverAdapterError",
+    cause: { originalCode: "40001", kind: "TransactionWriteConflict" },
+  });
+  const s = scenario();
+  let calls = 0;
+  const result = await settleVerifiedCollection({
+    prisma: {
+      $transaction: async (fn, opt) => {
+        calls++;
+        if (calls < 3) throw adapterConflict();
+        return s.db.$transaction(fn, opt);
+      },
+    },
+    reference, expectedMerchantId: "merchant123", verifyCollection: async () => proof(), now,
+  });
+  assert.equal(result.action, "READY_FOR_ADMIN_FULFILMENT");
+  assert.equal(calls, 3);
+  // Retries are bounded; the last conflict is surfaced, never treated as paid.
+  const stuck = scenario();
+  await assert.rejects(settleVerifiedCollection({
+    prisma: { $transaction: async () => { throw adapterConflict(); } },
+    reference, expectedMerchantId: "merchant123", verifyCollection: async () => proof(), now,
+  }), /TransactionWriteConflict/);
+  assert.equal(stuck.writes.length, 0);
+});
+
 test("unique constraint conflict is review, not assumed successful payment", async () => {
   const s = scenario();
   await assert.rejects(settleVerifiedCollection({

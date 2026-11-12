@@ -13,7 +13,10 @@ test("advertise page sells a paid featured package without outcome guarantees", 
   assert.match(page, /1,000–3,000 views/);
   assert.match(page, /none is guaranteed/);
   assert.match(page, /official application route/);
-  assert.match(page, /promo\.price/);
+  // Price and days come from the one shared offer (promo.price / promo.days).
+  assert.match(page, /promotionOffer\(\)/);
+  const features = await read("lib/features.js");
+  assert.match(features, /export function promotionOffer\(\)[\s\S]*siteSetting\("promo\.price"\)[\s\S]*siteSetting\("promo\.days"\)/);
   assert.match(page, /promo\.lipaNamba/);
   assert.match(page, /Pay only after we have confirmed your vacancy/);
   assert.match(page, /does not charge job seekers/);

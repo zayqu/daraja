@@ -6,6 +6,7 @@ import {
   newAzamPayReference,
   createApprovedPaymentIntent,
   assessVerifiedPayment,
+  isSerializationConflict, isUniqueConflict,
 } from "../lib/payments/azampay-core.mjs";
 
 const makeIntent = () => createApprovedPaymentIntent({
@@ -86,4 +87,18 @@ test("does not silently reverse terminal payment state", () => {
   assert.equal(assessVerifiedPayment({
     intent, verification: verified(intent, { status: "REFUNDED" }), expectedMerchantId: "MAZIKU", currentStatus: "SUCCESS",
   }).action, "REVIEW");
+});
+
+test("serialization and unique conflicts are recognised in engine and pg-adapter forms", () => {
+  assert.equal(isSerializationConflict({ code: "P2034" }), true);
+  assert.equal(isSerializationConflict({ name: "DriverAdapterError", cause: { kind: "TransactionWriteConflict", originalCode: "40001" } }), true);
+  assert.equal(isSerializationConflict({ code: "P2010", meta: { driverAdapterError: { cause: { originalCode: "40001" } } } }), true);
+  for (const other of [undefined, null, {}, new Error("network"), { code: "P2002" }, { cause: { originalCode: "23505" } }]) {
+    assert.equal(isSerializationConflict(other), false);
+  }
+  assert.equal(isUniqueConflict({ code: "P2002" }), true);
+  assert.equal(isUniqueConflict({ cause: { kind: "UniqueConstraintViolation", originalCode: "23505" } }), true);
+  for (const other of [undefined, {}, { code: "P2034" }, { cause: { originalCode: "40001" } }]) {
+    assert.equal(isUniqueConflict(other), false);
+  }
 });

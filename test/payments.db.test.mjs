@@ -8,6 +8,10 @@ import {
 } from "../lib/payments/azampay-checkout-claim.mjs";
 import { processSandboxCallback } from "../lib/payments/azampay-sandbox-callback.mjs";
 import { createAzamPayPublicKeyProvider } from "../lib/payments/azampay-public-key.mjs";
+import { isSerializationConflict } from "../lib/payments/azampay-core.mjs";
+import {
+  ownerBooking, requestPromotionBooking, reviewPromotionBooking,
+} from "../lib/payments/promotion-booking.mjs";
 
 // The ordinary npm test command must never connect to a DB. Only the
 // isolated GitHub Actions workflow sets PAYMENTS_DB_TESTS.
@@ -189,7 +193,8 @@ test("real Prisma: isolated booking and settlement transactions", {
     assert.ok(delivered.every(x => ["READY_FOR_ADMIN_FULFILMENT", "ALREADY_PAID"].includes(x)));
     for (const failure of deliveries.filter(x => x.status === "rejected")) {
       // Lost serialization races are retryable 5xx for AzamPay, never a payment.
-      assert.match(String(failure.reason?.code), /^(P2034|DUPLICATE_SETTLEMENT_CONFLICT)$/);
+      assert.ok(isSerializationConflict(failure.reason) ||
+        failure.reason?.code === "DUPLICATE_SETTLEMENT_CONFLICT", String(failure.reason?.message));
     }
     assert.equal((await deliver(success)).result, "ALREADY_PAID");
     assert.equal(await prisma.paymentEvent.count({
@@ -246,6 +251,75 @@ test("real Prisma: isolated booking and settlement transactions", {
       prisma, bookingId: refusedBooking.id, actor, environment: "sandbox",
     });
     assert.equal(afterRefusal.reused, false);
+
+    // Full journey (D-038): request -> approve -> pay -> signed callback -> feature.
+    const adminUser = await prisma.user.create({
+      data: { email: `azampay-admin-${suffix}@example.invalid`, role: "ADMIN" },
+    });
+    const adminActor = { id: adminUser.id, role: "ADMIN" };
+    const employerActor = {
+      id: owner.id, role: "EMPLOYER",
+      employer: { id: employer.id, verificationStatus: "VERIFIED" },
+    };
+    const audit = (tx, event) => tx.auditEvent.create({ data: { actorUserId: owner.id, ...event } });
+    const adminAudit = (tx, event) => tx.auditEvent.create({ data: { actorUserId: adminUser.id, ...event } });
+    const journeyJob = await prisma.job.create({
+      data: {
+        slug: `azampay-journey-${suffix}`,
+        title: "Temporary journey test job", company: "AzamPay test company",
+        location: "Test fixture", description: "No public vacancy",
+        category: "Other", source: "daraja", employerId: employer.id,
+        active: true, moderationStatus: "PUBLISHED",
+        deadline: new Date(Date.now() + 86400000),
+      },
+    });
+    // Simultaneous requests for one vacancy leave exactly one open booking.
+    const requests = await Promise.allSettled(Array.from({ length: 5 }, () => requestPromotionBooking({
+      prisma, actor: employerActor, jobId: journeyJob.id,
+      offer: { priceTzs: 30000, featuredDays: 14 }, audit,
+    })));
+    const opened = requests.filter(x => x.status === "fulfilled").map(x => x.value);
+    assert.equal(opened.length, 1);
+    for (const failure of requests.filter(x => x.status === "rejected")) {
+      assert.ok(failure.reason?.code === "BOOKING_OPEN" || isSerializationConflict(failure.reason),
+        String(failure.reason?.message));
+    }
+    assert.equal(await prisma.promotionBooking.count({ where: { jobId: journeyJob.id } }), 1);
+    const journeyId = opened[0].id;
+    await assert.rejects(preparePromotionPaymentAttempt({
+      prisma, bookingId: journeyId, actor, environment: "sandbox",
+    }), /BOOKING_NOT_PAYABLE/);
+    await reviewPromotionBooking({ prisma, admin: adminActor, bookingId: journeyId, action: "approve", audit: adminAudit });
+    const journeyAttempt = await preparePromotionPaymentAttempt({
+      prisma, bookingId: journeyId, actor, environment: "sandbox",
+    });
+    await claimSandboxCheckout({ prisma, actor, attemptId: journeyAttempt.attemptId });
+    await recordSandboxCheckoutResponse({
+      prisma, attemptId: journeyAttempt.attemptId,
+      response: { success: true, transactionId: "journeytx" + suffix },
+    });
+    assert.equal((await ownerBooking({ prisma, actor: employerActor, bookingId: journeyId })).payment, "WAITING");
+    assert.equal((await deliver(signedCallback({
+      utilityref: journeyAttempt.reference, externalreference: "journeytx" + suffix,
+      transactionstatus: "success",
+    }))).result, "READY_FOR_ADMIN_FULFILMENT");
+    const paidView = await ownerBooking({ prisma, actor: employerActor, bookingId: journeyId });
+    assert.equal(paidView.status, "PAID");
+    assert.equal(paidView.payment, "PAID");
+    const featured = await reviewPromotionBooking({
+      prisma, admin: adminActor, bookingId: journeyId, action: "fulfil", audit: adminAudit,
+    });
+    const featuredJob = await prisma.job.findUnique({ where: { id: journeyJob.id } });
+    assert.equal(featuredJob.featured, true);
+    assert.equal(featuredJob.featuredUntil.toISOString(), featured.featuredUntil);
+    assert.ok(featuredJob.featuredUntil.getTime() > Date.now() + 13 * 86400000);
+    assert.equal((await prisma.promotionBooking.findUnique({ where: { id: journeyId } })).status, "FULFILLED");
+    assert.deepEqual((await prisma.auditEvent.findMany({
+      where: { entityType: "PromotionBooking", entityId: journeyId }, orderBy: { createdAt: "asc" },
+    })).map(event => event.action), ["PROMOTION_REQUESTED", "PROMOTION_APPROVED", "PROMOTION_FULFILLED"]);
+    await assert.rejects(reviewPromotionBooking({
+      prisma, admin: adminActor, bookingId: journeyId, action: "fulfil", audit: adminAudit,
+    }), /STATE_CHANGED/);
   } finally {
     // Database exists only for this CI job; do not mutate external DBs.
     await prisma.$disconnect();

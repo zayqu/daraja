@@ -1,5 +1,13 @@
 # Daraja Jobs production-readiness progress
 
+## Separate free AzamPay test site prepared (2026-11-12, PR #226)
+
+- Owner chose a separate free test site over the live domain. The PR #226 Vercel preview (`daraja-git-feature-azampay-production-readiness-zayqus-projects.vercel.app`) gets its own free Neon database `daraja_sandbox`; the full checklist is in `docs/AZAMPAY-STAGING-READINESS.md`.
+- Added `.github/workflows/azampay-sandbox-setup.yml`. It runs only when the label `azampay-sandbox-setup` is added to this PR from this branch, has read-only permissions, and receives only `SANDBOX_DATABASE_URL` and `SANDBOX_TEST_PASSWORD`, never the production `DATABASE_URL`. It runs `scripts/azampay-sandbox-setup.mjs check` (refuses any database not named `daraja_sandbox` or holding more than 25 users/jobs) before `prisma migrate deploy`, then `seed` (test admin, verified test employer, one test vacancy, employer portal on in that database only).
+- Verified locally against throwaway PostgreSQL 16: wrong name, missing URL, populated database and weak password are each refused; the seed is idempotent. With the built app on the seeded database, both accounts signed in, wrong password got 401, request → approve → pay box worked, the employer could not approve (403), an unsigned callback got 401, and no AzamPay call was made. `test/azampay-sandbox-setup.test.mjs` covers the guards and the workflow's security rules.
+- Findings: the AzamPay portal's Register App page still errors, so the callback cannot yet point at the test site. All Vercel variables, including `DATABASE_URL`, apply to Production and Preview, so every preview uses the live database; the test branch needs its own branch-scoped `DATABASE_URL`. The KYC contact `compliance@azampay.com` appears only on the portal; azampay.com lists `info@azampay.co.tz` (+255 746 000 000), and both domains receive mail (azampay.com via Google Workspace).
+- Not done: Neon project, GitHub secrets, Vercel variables and bypass secret (owner, they hold secrets); AzamPay portal fix; the test payment itself.
+
 ## Featured job booking screens + driver-adapter retry fix (2026-11-12, PR #226)
 
 - New booking lifecycle owner `lib/payments/promotion-booking.mjs` (D-038): employer request (verified employer, own live vacancy, one open booking per vacancy, price/days snapshotted from the shared `promotionOffer()`), owner-only status view, and admin approve / reject / cancel / release-stuck-payment / feature-now, each a compare-and-set with an audit event. `paymentProgress()` gives one wording of payment state (none, waiting, stalled after 15 min, failed, unknown, paid).

@@ -23,7 +23,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     env:
-      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      DATABASE_URL: ${{ github.event_name == 'push' && github.ref == 'refs/heads/master' && secrets.DATABASE_URL || 'postgresql://127.0.0.1:5432/daraja_ci_unavailable' }}
       NEXT_TELEMETRY_DISABLED: "1"
       NEXT_PUBLIC_GOOGLE_ANALYTICS_ID: G-89Q157X930
       NEXT_PUBLIC_GOOGLE_ADSENSE_CLIENT: ca-pub-5101856964689063
@@ -54,6 +54,7 @@ jobs:
         run: |
           bash -n ops/cpanel/deploy.sh
           bash -n ops/cpanel/auto-deploy.sh
+          bash -n ops/azampay/staging-preflight.sh
 
       - name: Run tests
         run: npm test
@@ -65,7 +66,7 @@ jobs:
         run: npx prisma validate
 
       - name: Apply production migrations
-        if: github.event_name != 'pull_request'
+        if: github.event_name == 'push' && github.ref == 'refs/heads/master'
         run: npx prisma migrate deploy
 
       - name: Build production bundle
@@ -132,7 +133,7 @@ jobs:
           retention-days: 7
 
       - name: Publish stable cPanel release
-        if: github.event_name != 'pull_request'
+        if: github.event_name == 'push' && github.ref == 'refs/heads/master'
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
@@ -156,7 +157,7 @@ jobs:
             --clobber
 
       - name: Hand off release to cPanel pull deployer
-        if: github.event_name != 'pull_request'
+        if: github.event_name == 'push' && github.ref == 'refs/heads/master'
         run: |
           echo "Verified cPanel release published for $GITHUB_SHA."
           echo "The cPanel pull deployer will fetch and install it outbound; inbound SSH is not required."

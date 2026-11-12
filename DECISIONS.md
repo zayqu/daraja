@@ -592,3 +592,58 @@ from two sources that do not depend on AdSense approval:
 Candidates are never charged. A future AdSense application should pause the
 Vignette during review and address unoriginal aggregated job text first.
 
+
+## D-037 - AzamPay signed callbacks confirm featured-job payments
+
+**Status:** accepted (owner decision, 12 November 2026; sandbox only until
+production is separately approved)
+
+AzamPay's official Tanzania documentation (reviewed 12 November 2026, see
+`docs/AZAMPAY-PROVIDER-CONTRACT-QUESTIONS.md`) documents no status lookup for
+incoming mobile-money collections; its RSA-signed callback is the provider's
+payment confirmation. A callback therefore marks a featured-job booking `PAID`
+(ready for admin fulfilment) when, and only when:
+
+- `utilityref` is a persisted attempt reference whose checkout receipt
+  (`transactionId` from our authenticated checkout call) is already saved;
+- the signed `externalreference` equals that saved `transactionId`;
+- the unsigned `amount` equals the stored whole-TZS snapshot;
+- the RSA-SHA256 signature over `utilityref + externalreference +
+  transactionstatus + operator` verifies with AzamPay's published key
+  (cached; re-fetched once on failure). Missing signatures are rejected.
+
+A verified failure closes only that attempt (`FAILED`) so the employer can pay
+again with a fresh reference; AzamPay refusing to start a checkout (HTTP
+400/401/403 or `success: false`) does the same. Timeouts, network errors and
+5xx stay `UNKNOWN` for manual reconciliation. Admins still post to the WhatsApp
+Channel and set `featuredUntil` by hand; nothing is published automatically.
+`lib/payments/collection-settlement.mjs` remains the single owner of "paid".
+This supersedes the 11 November draft rule that signed callbacks were
+review-only pending a collection-status API.
+
+## D-038 - Featured job bookings: request, approve, pay, feature
+
+**Status:** accepted (owner delegated the choice, 12 November 2026; only
+visible while the sandbox payment switches are on)
+
+Paying for a Featured job by mobile money follows one path, owned by
+`lib/payments/promotion-booking.mjs`:
+
+1. A verified employer asks to feature one of its own live vacancies from
+   `/employer`. Price and days are snapshotted from the admin settings
+   (`promotionOffer()`); one open booking per vacancy.
+2. An admin approves or rejects it in `/admin/bookings` (vacancy must still be
+   live). Nobody pays for an unreviewed request.
+3. The employer pays from `/employer` (phone + network); the page follows the
+   payment until AzamPay's signed callback marks the booking `PAID` (D-037).
+4. The admin clicks "Feature now", which features the vacancy until 23:59 EAT
+   after the paid days (extending a running period) and marks the booking
+   `FULFILLED`. The WhatsApp Channel post stays manual.
+
+If AzamPay never answers (no callback for 15+ minutes) or the outcome is
+unknown, an admin may "release" that one payment attempt after checking
+AzamPay that no money arrived; the employer can then pay again. A paid
+booking can only be fulfilled once, and every admin decision is a
+compare-and-set on the booking status with an audit event. With the switches
+off, `/employer` and `/advertise` are unchanged and bookings stay on WhatsApp
+and Lipa Namba.

@@ -1,5 +1,169 @@
 # Daraja Jobs production-readiness progress
 
+## Separate AzamPay test site configured (2026-11-12)
+
+- Checklist steps 1 to 6 in `docs/AZAMPAY-STAGING-READINESS.md` are done. Neon project `daraja-sandbox` (Daraja organization, AWS US East 1, Postgres 17) holds only the database `daraja_sandbox`. The owner added the GitHub secrets `SANDBOX_DATABASE_URL` and `SANDBOX_TEST_PASSWORD`.
+- The label `azampay-sandbox-setup` (created for this) started run #1 of `.github/workflows/azampay-sandbox-setup.yml`. The guard accepted the empty `daraja_sandbox`, all 18 migrations applied, and the seed created `admin@daraja.co.tz` and the verified `sandbox-employer@example.com` with one test vacancy.
+- Vercel: ten branch-only Preview variables for `feature/azampay-production-readiness`, all of the Secret type. The assistant prepared the names and non-secret values; the owner pasted the database string and the three AzamPay values and saved. The six existing variables are unchanged.
+- A dashboard Redeploy asks for an emailed code, so this push starts the new preview build. Next: confirm the preview uses the test database and the payment routes answer, then the one sandbox payment.
+
+## AzamPay sandbox callback now points at the test site (2026-11-12)
+
+- The portal's Register App page works again. At about 17:55 EAT the sandbox callback for "Daraja Ajira" was saved as the PR #226 preview's `/api/payments/azampay/callback` with the Vercel bypass code (steps 5 and 6 in `docs/AZAMPAY-STAGING-READINESS.md`). A fresh page load confirmed the address and that the code matches the Vercel secret, checked by hash without displaying it.
+- The owner created the Vercel bypass secret and typed the callback. The portal refused to save while its Allowed URLs box was empty, so the test-site origin was entered there and saved with the owner's go-ahead.
+- The bypass secret opens every preview of this project, and previews still use the live database until the branch-scoped `DATABASE_URL` is set. Delete it after the test.
+- Not done (owner): Neon project, GitHub secrets, Vercel variables; then the setup label, redeploy and the test payment.
+
+## AzamPay asked to fix the portal and confirm the KYC link (2026-11-12)
+
+- Emailed from the owner's account at 13:47 EAT to `info@azampay.co.tz`, CC `compliance@azampay.com` and `product@azampay.com`: fix the portal's Register App page (still showing `Network error` and `Messages.FailedToGenerateClientSecret` just before sending) and confirm in writing whether the `replit.app` KYC link is theirs. No credentials or documents were sent. Log: `docs/AZAMPAY-PROVIDER-CONTRACT-QUESTIONS.md` > "Contact log".
+- Correction: the 11 Nov technical inquiry had already been emailed from the owner's account to `info@azampay.co.tz` at 10:02 EAT that morning. Its questions are answered by the official docs, so a reply is only a cross-check.
+- WhatsApp was not possible: +255 746 000 000 is not on WhatsApp, and AzamPay publishes no WhatsApp contact. Follow up by phone.
+- Not done (owner): Neon project, GitHub secrets, Vercel variables and bypass secret; then the setup label, AzamPay's portal fix and the test payment.
+
+## Separate free AzamPay test site prepared (2026-11-12, PR #226)
+
+- Owner chose a separate free test site over the live domain. The PR #226 Vercel preview (`daraja-git-feature-azampay-production-readiness-zayqus-projects.vercel.app`) gets its own free Neon database `daraja_sandbox`; the full checklist is in `docs/AZAMPAY-STAGING-READINESS.md`.
+- Added `.github/workflows/azampay-sandbox-setup.yml`. It runs only when the label `azampay-sandbox-setup` is added to this PR from this branch, has read-only permissions, and receives only `SANDBOX_DATABASE_URL` and `SANDBOX_TEST_PASSWORD`, never the production `DATABASE_URL`. It runs `scripts/azampay-sandbox-setup.mjs check` (refuses any database not named `daraja_sandbox` or holding more than 25 users/jobs) before `prisma migrate deploy`, then `seed` (test admin, verified test employer, one test vacancy, employer portal on in that database only).
+- Verified locally against throwaway PostgreSQL 16: wrong name, missing URL, populated database and weak password are each refused; the seed is idempotent. With the built app on the seeded database, both accounts signed in, wrong password got 401, request → approve → pay box worked, the employer could not approve (403), an unsigned callback got 401, and no AzamPay call was made. `test/azampay-sandbox-setup.test.mjs` covers the guards and the workflow's security rules.
+- Findings: the AzamPay portal's Register App page still errors, so the callback cannot yet point at the test site. All Vercel variables, including `DATABASE_URL`, apply to Production and Preview, so every preview uses the live database; the test branch needs its own branch-scoped `DATABASE_URL`. The KYC contact `compliance@azampay.com` appears only on the portal; azampay.com lists `info@azampay.co.tz` (+255 746 000 000), and both domains receive mail (azampay.com via Google Workspace).
+- Not done: Neon project, GitHub secrets, Vercel variables and bypass secret (owner, they hold secrets); AzamPay portal fix; the test payment itself.
+
+## Featured job booking screens + driver-adapter retry fix (2026-11-12, PR #226)
+
+- New booking lifecycle owner `lib/payments/promotion-booking.mjs` (D-038): employer request (verified employer, own live vacancy, one open booking per vacancy, price/days snapshotted from the shared `promotionOffer()`), owner-only status view, and admin approve / reject / cancel / release-stuck-payment / feature-now, each a compare-and-set with an audit event. `paymentProgress()` gives one wording of payment state (none, waiting, stalled after 15 min, failed, unknown, paid).
+- Screens: `/employer` shows "Feature this vacancy" and the mobile-money pay box (phone typed as 07…, sent as 2557…; network list uses AzamPay's provider names) and follows the payment by polling `GET /api/employer/promotions/[id]`; `/admin/bookings` lists bookings with actions and a nav count of requests to review plus paid bookings to feature. New routes: `POST /api/employer/promotions`, `GET /api/employer/promotions/[id]`, `PATCH /api/admin/promotions/[id]`. All employer parts appear only while the sandbox payment switches are on; the admin count never breaks the panel if the table is missing. `/advertise` now reads the same `promotionOffer()`.
+- **Bug fixed across all payment retries:** with `@prisma/adapter-pg` (used by `lib/prisma.js`) a PostgreSQL serialization failure found at COMMIT arrives as `DriverAdapterError` (`cause.kind = TransactionWriteConflict`, SQLSTATE 40001), not `P2034`, so the four SERIALIZABLE retry loops (attempt preparation, settlement, signed-failure ledger, booking request) did not retry. Found by repeated real-PostgreSQL runs; one helper `isSerializationConflict()` (plus `isUniqueConflict()`) in `azampay-core.mjs` now serves every site.
+- Validation: `npm test` 495/496 (DB suite skipped by design), full ESLint, `prisma validate`, `next build --webpack`. Real Prisma + throwaway PostgreSQL 16: 13 consecutive passes after the fix, now including request → approve → pay → signed callback → feature, and five simultaneous requests leaving one open booking. Built server with synthetic data and sandbox switches on: employer and admin screens checked at phone and desktop widths; request and approve clicked through; no AzamPay request was made.
+- Not done: real sandbox payment, deployment, merge.
+
+## AzamPay official contract applied; signed callbacks settle (2026-11-12, PR #226)
+
+- Read AzamPay's official sandbox portal and Tanzania API reference/schema in the owner's browser (no credentials viewed or copied). Answers recorded in `docs/AZAMPAY-PROVIDER-CONTRACT-QUESTIONS.md`; the support inquiry is no longer needed (it had already been emailed at 10:02 EAT; see the entry above). Key facts: no collection-status API exists (the documented `transactionstatus` is disbursement-only); the RSA-signed callback is the confirmation; `utilityref` = our reference, `externalreference` = AzamPay's reference; key from `/azampay/v1/public-key` (Pem default), cache ~24 h, re-fetch once on failure.
+- Owner decision **D-037**: a bound, signed, amount-matching success marks the booking `PAID` through `collection-settlement.mjs` (admin fulfilment unchanged); a signed failure marks only that attempt `FAILED` so the employer can retry. A success after a recorded failure (or vice versa) needs a person.
+- Code (existing owners only): `azampay-callback-verify.mjs` split into bind (no network) + signature; `azampay-sandbox-callback.mjs` settles/fails per D-037 and refreshes the key only after a bad signature; callback route keeps one API client + key cache per process; settlement acknowledges duplicate confirmations even after fulfilment; transport sends optional `X-API-Key` to the checkout host only and exposes HTTP status (never bodies) on errors; API client takes the token before the one-shot claim (`prepare()`), and undocumented `expire` formats get a 5-minute lifetime (explicit-offset values capped at 1 h) instead of blocking; checkout route closes definitive refusals (HTTP 400/401/403, `success: false`) as `FAILED` instead of locking `UNKNOWN`. Callback operator accepts any plain signed name; amount accepts a zero fraction (`30000.00`).
+- Validation in an isolated workspace: `npm test` 484/485 pass (1 DB suite skipped by design), full ESLint, `prisma validate`, `next build --webpack` all passed. `test/payments.db.test.mjs` (real Prisma 7 + throwaway PostgreSQL 16, migrations applied as SQL) passed 6/6 runs, including 10 simultaneous signed-success deliveries settling exactly once, replayed/tampered callbacks refused, failure and refusal freeing a fresh attempt. Built server smoke: both payment routes 404 with flags off; with sandbox flags on, non-JSON 400, malformed reference 401, unknown reference 503, bound reference with wrong AzamPay ID 401 — all without any AzamPay network call.
+- Not done: no real AzamPay request or sandbox payment; no deployment, Neon change, merge or credential handling. Next: approved isolated test deployment + one sandbox payment (observe `transactionId` = `externalreference`, `expire`, phone format, retries), then employer pay screen and admin bookings view.
+
+## Draft-only sandbox HTTP routes and signed callback processing (2026-11-11)
+
+- Added disabled-by-default sandbox gate: `AZAMPAY_ENABLED=true`, `AZAMPAY_MODE=sandbox`, `AZAMPAY_SANDBOX_ROUTES_ENABLED=true`, `AZAMPAY_SANDBOX_DEPLOYMENT_APPROVED=true` are all required before routes respond; **flags do not replace separate human release approval**.
+- Added `app/api/payments/azampay/sandbox/checkout/route.js`, authenticated employer-only, origin-checked/rate-limited, server-side approved booking amount and ownership, exclusive DB checkout claim, pinned sandbox MNO checkout request, authenticated transaction receipt compare-and-set, and UNKNOWN lockout on ambiguous failure. Does not expose any payer phone in returned response.
+- Added `app/api/payments/azampay/callback/route.js` with bounded JSON, no-store response and a sandbox-only processor. It retrieves an authenticated sandbox RSA public key, verifies the reported signed callback fields and binds signed `externalreference` to the checkout provider transaction ID saved before callback acceptance. Success goes through the existing serializable ledger writer, but **never publishes the job automatically**. Verified failure is recorded as a review-only/UNKNOWN state, not a new automatic charge; early callback without persisted receipt returns retryable 5xx rather than falsely claiming failure.
+- Added `test/azampay-sandbox-callback.test.mjs` for signed success, duplicate delivery, failure review, forged status, mismatched transaction, unsigned amount, unbound attempt and separate opt-in switches. The exact provider callback identifier mapping, key response contract and accepted phone format are **still unconfirmed by an actual AzamPay sandbox transaction**. No real credentials or payment requests used.
+- Real Prisma disposable Postgres CI #42968797885 succeeded for previous revision; full application CI was still running while this update was written. **Do not call the integration live-ready until latest branch CI passes, sandbox endpoint contract is verified, and separately approved isolated deployment is available.**
+- Production Neon, existing payments and the live Ajira site are unchanged. PR #226 remains draft/unmerged.
+
+
+## Exclusive sandbox checkout claim and key retrieval (development only)
+
+- 2026-11-10: added `lib/payments/azampay-public-key.mjs` for sandbox-only authenticated RSA public-key retrieval with bounded 24-hour memory caching, single refresh on signature failure and no unsigned acceptance. Added `lib/payments/azampay-sandbox-checkout.mjs` to validate reported MNO request/response structure without sending any provider requests.
+- Added `GatewayCheckoutState` and `PaymentAttempt.checkoutState/checkoutClaimedAt` to Prisma schema, with separate **unapplied** draft migration `20261110171500_azampay_checkout_claim`. Implemented `lib/payments/azampay-checkout-claim.mjs` as a one-shot sandbox-only compare-and-set checkout claim, response transaction-ID binding and fail-closed UNKNOWN state on ambiguous timeout. **Do not retry a claimed/unknown payment without reconciliation.**
+- Added local tests for key cache/refresh, MNO validations, exclusive claims and ambiguous timeouts. **17/17 targeted unit tests passed** in isolated connected-host directory. Prisma schema validation passed. Expanded real-Prisma CI `test/payments.db.test.mjs` to race 10 claims; **GitHub Actions ephemeral PostgreSQL job #42838347809 passed**. **Full build job #42838348004 passed** (unit tests, lint, Prisma validation, Next.js build and packaging).
+- This branch still exposes **no public checkout or webhook route**, performs no real AzamPay API calls, and has no verified collection settlement integration. Real phone and callback transaction field mapping must be verified on sandbox with privately rotated merchant credentials. No live database migration, hosting changes or production payment activation.
+- Maintain strict release approvals for any deployment/Neon migration. PR #226 remains draft and unmerged.
+
+
+## AzamPay sandbox key and checkout validation (2026-11-10; isolated only)
+
+- Added `lib/payments/azampay-public-key.mjs`: sandbox-only, authenticated API public-key retrieval from `/azampay/v1/public-key`, RSA key validation (minimum 2048 bits), in-memory 24-hour cache, parallel request coalescing, and a single forced refresh on failed signature verification. **Only accepts an explicitly provided trusted sandbox API client**; there is no public HTTP route or live callback wiring. Trust of the exact key delivery and rotation semantics must be confirmed against the actual sandbox.
+- Added `lib/payments/azampay-sandbox-checkout.mjs`: pure MNO checkout request validation and authenticated initiation response parser. Supported reported sandbox provider names Airtel/Tigo/Halopesa/Azampesa/Mpesa, TZS whole shillings in range 1–5,000,000, explicit phone assumption `255[67]XXXXXXXX` (needs confirmation), and preexisting server-controlled internal reference. A successful HTTP response is **not proof of funds collected**. No checkout network call or customer payment initiated by these helpers.
+- Targeted local tests `test/azampay-public-key.test.mjs` and `test/azampay-sandbox-checkout.test.mjs` ran in isolated cPanel testing directory: **12/12 passed**, all with mocks, no AzamPay credentials or network requests.
+- **Checkout-claim prerequisite completed in subsequent development:** the new `azampay-checkout-claim.mjs` and draft migration provide a one-shot database claim and transaction ID compare-and-set; timeout remains UNKNOWN. Before a checkout route, confirm the protocol/provider ID mapping and implement bounded webhook processing. Confirm callback-signed `externalreference` exactly matches the authenticated checkout response `transactionId` in actual sandbox. Until then no public checkout UI or callback activation.
+- PR #226 remains draft/unmerged; previous full app CI build green; production untouched. Secrets visible in portal must be rotated by owner before real testing.
+
+
+## CI build repair verified (2026-11-10; sandbox checkout not activated)
+
+- The earlier full build failed in Next.js 16.4.1 `next/font/google` while parsing a remote Nunito font response (`Cannot read properties of null (reading '1')`). Fixed on the draft feature branch by loading the same Nunito weights through the browser stylesheet with a system-font fallback instead of requiring a Google Fonts response at CI build time. The font remains Nunito where clients can reach the font service; loading now occurs at runtime and external font requests/privacy/offline behavior should be reviewed before production release. Updated typography assertions for the new setup without introducing a competing app font.
+- **GitHub Actions run #42836369725 succeeded:** tests, lint, Prisma validation, Next.js Webpack production build, standalone cPanel runtime smoke/package checks. No release was published or deployed by this PR run.
+- **GitHub Actions run #42836369910 succeeded:** real Prisma migration and transaction suite against ephemeral PostgreSQL, not production Neon.
+- Production remains OFF, PR #226 draft/unmerged. The next milestone is an approved isolated sandbox host + database with privately rotated AzamPay credentials, registered callback set to that host, a confirmed provider transaction ID mapping, and a real sandbox checkout/callback. Do not enable live payment UI, deploy or alter production Neon without separate owner approval.
+
+
+## Payment development checkpoint — closed for now (2026-11-10)
+
+**Decision:** retain draft PR #226 for future sandbox activation; do not merge, close the PR, run customer checkout, apply the production migration or deploy. This completes the *currently authorized code preparation*, not the AzamPay merchant integration.
+
+**Verified:** isolated GitHub Actions PostgreSQL + real Prisma migration/concurrency test succeeded at run #42832401910. Callback/reference-binding and signature tests passed locally (12/12). Standalone safety PR #227 remains draft and unmerged.
+
+**Unresolved:** latest main application CI run #42832401908 failed at `next build --webpack` with `next/font`: `TypeError: Cannot read properties of null (reading '1')`. Other tests and Prisma validation passed; build failure not diagnosed or fixed. This **blocks release**, regardless of whether the issue is payment-related. The registered sandbox callback route is not live; there is still no real checkout transaction or confirmed callback ID mapping.
+
+**Required restart gates:** owner rotates one-time visible sandbox Client Secret and manages all app secrets privately; confirm AzamPay's actual callback ID mapping and public-key lifecycle using sanctioned sandbox testing; resolve full Next.js CI build failure; confirm restore-point and deploy plan before any Neon migration; explicit separate approval before merging PRs or production deployment. Do not submit KYB to unverified external hosts.
+
+
+## Sandbox callback binding preflight (2026-11-10; no live calls)
+
+- Inspected registered **Daraja Ajira** sandbox app in a connected portal tab and verified intended callback path. Sensitive credential values shown by the portal were **not copied into code, GitHub, logs, or configuration and were not used**. Owner should rotate the one-time visible Client Secret after saving securely in a password manager. Sandbox merchant keys must be provisioned privately in a controlled test host.
+- Added `lib/payments/azampay-callback-verify.mjs`, which checks reported AzamPay callback canonical RSA-SHA256 signature and (critically) binds the *signed* `externalreference` to the stored checkout `providerTransactionId`, and compares unsigned `amount` to the stored TZS amount. Does not accept missing checkout provider ID, incorrect environment or altered status. Signed failures remain failures. Does not expose an HTTP callback route, save records or initiate payments; actual callback/provider ID mapping still needs sandbox verification.
+- Restricted low-level callback signature key type to RSA (not RSA-PSS), as expected for PKCS#1 v1.5 in the owner-provided hand-off. Added `test/azampay-callback-verify.test.mjs`.
+- Executed targeted tests on isolated server directory: **12/12 pass** for new callback and existing signature tests. Other previous mock/Prisma CI evidence remains separate. No AzamPay network request, live payment, database mutation or production deployment.
+- This is a **nonproduction, local verifier only**. The next real-world test requires verified server key retrieval, checkout transaction ID persistence, a protected callback route and an approved test deployment/database, plus an actual sandbox transaction. Do not merge PR #226 as production-ready.
+
+
+## AzamPay sandbox registration and real Prisma CI (2026-11-10)
+
+- Owner-provided sandbox hand-off added to `docs/AZAMPAY-SANDBOX-HANDOFF.md`. Reported app name `Daraja Ajira`; credentials remain in the owner's password manager, never GitHub. Unverified third-party KYC URL explicitly flagged for official confirmation.
+- Added `.github/workflows/payments-db-tests.yml`, using a disposable PostgreSQL 16 service and literal database test credentials without Neon secrets; `test/payments.db.test.mjs` uses the **actual Prisma client** and PrismaPg adapter for 10 concurrent booking attempts and 10 concurrent settlement results, ownership, amount mismatch, and rollback. Test refuses any database URL other than the literal ephemeral CI URL and is skipped in normal `npm test`.
+- **Verified first GitHub Actions success:** isolated Postgres job #42830162060 ran real `prisma generate`, `prisma migrate deploy` against container PostgreSQL and the Prisma integration test; job conclusion `success`, 1 database-backed test suite passed, 0 failed. Follow-up isolated CI job #42830965621 also succeeded. This verifies those 10-way cases with actual Prisma, **not** 40-way concurrency or real AzamPay provider responses. The external raw-SQL/stand-in report separately claims 40-way testing, not independently reproduced here.
+- Separate draft security PR #227 guards production migrations/release publication so only a `push` to `refs/heads/master` may trigger them and prevents pull-request/manual jobs from receiving `secrets.DATABASE_URL`. Equivalent guard also added on this feature branch. Updated cPanel deployment test assertions to expect the stronger guard.
+- Both PRs remain unmerged; no production schema, data, deployment, credentials or payments touched. Merging **either** branch targeting master would cause the master-push production release pipeline, so require explicit deployment approval and backup verification before any merge. Full build CI outcome is still subject to separate checks.
+
+
+## AzamPay settlement write-stage draft (NOT deployed)
+
+- 2026-11-10: added `lib/payments/collection-settlement.mjs`. It accepts a **trusted internal server-to-server collection verifier dependency** (currently not implemented), requires authoritative proof matching persisted reference, booking, amount, currency, merchant and environment, checks provider transaction identity and verifies booking is still approved. Under serializable database transaction it records unique event, sets attempt SUCCESS and booking PAID. Duplicate statuses are no-ops, conflicts reject or require review, no automatic vacancy publishing occurs.
+- Added `test/collection-settlement.test.mjs`; **48/48** cumulative isolated Node mock/static tests passed on shared cPanel host in `/home/darajaco/azampay-test-isolated`. No database migration was applied and all Prisma transaction behavior was mocked; no actual race/concurrency test on PostgreSQL or AzamPay settlement test occurred.
+- Real merchant-specific collection verification, callback canonicalization/key trust, allowed deployment and test DB remain blockers. The verified-status function may be used only once supplied by a trusted, independently reviewed AzamPay adapter; callers must never pass an untrusted webhook or browser success boolean as verification.
+- PR #226 remains draft, not merged. Live billing disabled, no production changes.
+
+
+## AzamPay callback signature primitive (draft, no production activation)
+
+- 2026-11-10: added `lib/payments/provider-signature.mjs` with strict RSA-SHA256 verification against caller-supplied trusted public key and exact canonical message. No signature accepted if missing, invalid or altered. Official callback canonical fields, public key trust and rotation, callback handler, authoritative collection status query and transaction writes are **not implemented**.
+- Added `test/provider-signature.test.mjs`: **39/39 targeted isolated mock/static tests passed** (all five AzamPay-related files). No real AzamPay signed callback was used; existing API assumptions remain third-party-derived until AzamPay confirms them.
+- Checked connected cPanel host and separate container for ephemeral PostgreSQL tools. `postgres`, `initdb`, `pg_ctl`, `psql`, Docker and Podman are unavailable, so a genuine disposable Postgres migration/concurrency test **was not performed**. Explicitly avoided production Neon and any potentially billable database branch.
+- Work remains on draft PR #226. No DB migration, production deployment, real customer payment or live billing API was invoked.
+
+
+## AzamPay approved-booking payment preparation (draft, not deployed)
+
+- 2026-11-10: added `lib/payments/promotion-attempt.mjs` as the isolated server-side booking-to-attempt transaction owner. It requires authenticated employer/admin context, booking ownership, approved Featured Job booking, eligible published/unexpired vacancy, verified employer and correct vacancy ownership. It creates only PENDING records, reuses outstanding PENDING/UNKNOWN attempts and rejects completed or mismatched attempts. Database transaction requests SERIALIZABLE isolation with bounded serialization-conflict retries. **No AzamPay outbound request, billing endpoint or fulfillment** is implemented.
+- Added `test/promotion-attempt.test.mjs`. Re-ran AzamPay unit/static tests in isolated directory on connected server: **34 passed, 0 failed**, all database behavior mocked. No live database transaction/concurrency test or end-to-end API test has been performed; the isolation and retry behavior must be tested against a disposable Postgres database before migration/activation.
+- Existing manual WhatsApp and Lipa Namba workflow unchanged. Draft PR #226 not merged; payment activation OFF. Still requires validated provider API and status verification, approved migration, server route authorization and full regression checks.
+
+
+## AzamPay reviewed payment ledger draft (NOT deployed)
+
+- 2026-11-10: added proposed, separate `PromotionBooking`, `PaymentAttempt`, and `PaymentEvent` Prisma models with enum states, integer TZS amounts, unique references/event keys and reviewed SQL migration `20261110143000_azampay_promotion_payment_ledger`. Legacy `Payment.amount Float` unchanged.
+- Updated `lib/account-data-export.js` and `lib/account-deletion.js` to include the new promotion records and de-identify booking/approval ownership after account deletion. The SQL migration is **draft only**; it was not applied to Neon or any server database.
+- Added ledger checks and ran all four isolated AzamPay test files: **25 tests passed, 0 failed**, plus `node --check` on privacy code and **`prisma validate` passed** on the isolated schema, on connected cPanel host under `/home/darajaco/azampay-test-isolated`. No customer traffic, no production application edits and no credentials used. SQL execution and full app tests/build/lint remain unverified.
+- Still blocked from production: verified checkout/callback contract, real sandbox credentials and auth, transactional persistence workflow, owner-to-booking authorization, webhook signature or authoritative status verification, account/settlement approval, fresh Neon restore point, migration review and explicit production release approval. Draft PR #226 must remain unmerged.
+
+
+## AzamPay credential client (draft PR #226, not deployed)
+
+- 2026-11-10: added `lib/payments/azampay-api-client.mjs` to connect the existing authenticated transport to separate sandbox/production AzamPay authentication and checkout origins behind the disabled-by-default gate; credentials remain server-only, with token expiry checking, reuse and sanitized errors. The GenerateToken endpoint/response assumptions come from third-party SDK references and are **not official-merchant verified**; there is no production-facing API route or checkout invocation.
+- Added `test/azampay-api-client.test.mjs`. Executed all three AzamPay test files using `node --test` in the isolated `/home/darajaco/azampay-test-isolated` directory on the connected cPanel host: **21 tests passed, 0 failed**. All provider HTTP calls are mocks. No real funds, customer numbers, live gateway requests or production files changed.
+- **Not completed:** authoritative confirmation of actual auth payload/expiry and checkout endpoints; booking/order ownership and persistence, verified webhooks, reconciliation, checkout UI, end-to-end sandbox, full repository checks, migration approval and deployment. Merchant onboarding remains outstanding.
+
+
+## AzamPay transport foundation (draft, not deployed)
+
+- 2026-11-10: added `lib/payments/azampay-transport.mjs` with server-side bearer-token transport, concurrent token refresh coalescing, HTTPS origin pinning, no redirects, bounded request timeout, strict method/path validation and sanitized provider error classes. Actual AzamPay token endpoint, payloads, callbacks and remote verification remain intentionally **unimplemented** pending official authenticated API contract.
+- Hardened `azampay-core.mjs` to fail closed on unknown `AZAMPAY_MODE` and accept strict UUID-shaped internal references.
+- Added `test/azampay-transport.test.mjs`. **15/15 targeted unit tests passed** (core + transport) by running `node --test test/azampay-core.test.mjs test/azampay-transport.test.mjs` from a separate isolated directory on the connected cPanel host. This did **not** execute the live application or use provider credentials. No network payment tests, full-repository tests, lint, build or production deploy have been claimed.
+- Current feature branch remains draft PR #226, no change to `/advertise`, billing persistence or payment settings.
+
+
+## Current branch: AzamPay payment safety foundation (not deployed)
+
+- 2026-11-10, workstream E, draft PR #226: added `lib/payments/azampay-core.mjs` with fail-closed sandbox/production activation guard, integer-safe TZS amount validation, opaque payment references, approved-booking payment intent checks and a pure function that assesses **already independently verified** payment statuses against a server-supplied merchant ID, amount, reference, booking and currency.
+- Added `test/azampay-core.test.mjs`: seven local Node test cases passed for gating, amount safety, references, approval, duplicate status, mismatches and reversal review. Unit tests were executed in a standalone matching local working copy; full repository lint, build and CI are **not yet verified**.
+- There is **no AzamPay token HTTP client, checkout API route, webhook authentication, booking persistence, migration, production environment change or customer-visible checkout** in this batch. Existing WhatsApp/Lipa Namba flow is untouched.
+- Blockers: official endpoint/authentication/callback verification contract, merchant credentials and approval, approved booking ownership model, schema review and sandbox tests. No production release authorized by this branch.
+
+
 Last updated: 10 November 2026
 
 ## Current objective

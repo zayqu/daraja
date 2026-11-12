@@ -35,7 +35,7 @@ test("Daraja uses the shared Nunito typography stack across the app", async () =
 
   assert.match(
     tokens,
-    /--font-daraja:\s*var\(--font-nunito\), Arial, Helvetica, sans-serif;/,
+    /--font-daraja:\s*"Nunito", Arial, Helvetica, sans-serif;/,
   );
   assert.match(globals, /@theme inline\s*\{[\s\S]*--font-sans:\s*var\(--font-daraja\)/);
   assert.match(globals, /html\s*\{[\s\S]*font-family:\s*var\(--font-daraja\)/);
@@ -45,13 +45,13 @@ test("Daraja uses the shared Nunito typography stack across the app", async () =
     /h1,[\s\S]*h6,[\s\S]*font-family:\s*var\(--font-daraja\)/,
   );
 
-  assert.match(layout, /import \{ Nunito \} from "next\/font\/google"/);
-  assert.match(layout, /--font-nunito/);
-  assert.match(layout, /nunito\.variable/);
-  assert.match(layout, /nunito\.className/);
-  assert.match(layout, /<html[^>]+className=\{rootFontClass\}/);
-  assert.match(layout, /<body className=\{nunito\.className\}>/);
-  assert.match(layout, /weight:\s*\["400", "500", "600", "700", "800"\]/);
+  assert.match(
+    globals,
+    /@import url\("https:\/\/fonts\.googleapis\.com\/css2\?family=Nunito:wght@400;500;600;700;800&display=swap"\)/,
+  );
+  assert.doesNotMatch(layout, /next\/font\/google/);
+  assert.match(layout, /<html lang="en">/);
+  assert.match(layout, /<body>/);
 
   const decisions = await readFile(
     path.join(__dirname, "..", "DECISIONS.md"),
@@ -97,7 +97,7 @@ test("UI styles cannot introduce a competing font-family", async () => {
   }
 });
 
-test("Nunito is instantiated only once at the root layout", async () => {
+test("Google font loader is not invoked at build time", async () => {
   const roots = ["app", "components"].map((folder) =>
     path.join(__dirname, "..", folder),
   );
@@ -113,5 +113,5 @@ test("Nunito is instantiated only once at the root layout", async () => {
     }
   }
 
-  assert.deepEqual(fontImports, [path.join("app", "layout.js")]);
+  assert.deepEqual(fontImports, []);
 });

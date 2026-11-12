@@ -1,0 +1,46 @@
+name: AzamPay sandbox test database
+
+# Owner-triggered: add the label "azampay-sandbox-setup" to PR #226. It creates
+# the tables and test accounts in the SEPARATE test database used by the PR's
+# Vercel preview. It only receives the test-database secret, never the
+# production DATABASE_URL, and the script refuses any other database.
+on:
+  pull_request:
+    types: [labeled]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: azampay-sandbox-setup
+  cancel-in-progress: false
+
+jobs:
+  setup:
+    if: >-
+      github.event.label.name == 'azampay-sandbox-setup' &&
+      github.event.pull_request.head.ref == 'feature/azampay-production-readiness' &&
+      github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      DATABASE_URL: ${{ secrets.SANDBOX_DATABASE_URL }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+      - name: Install locked dependencies
+        run: npm ci --include=dev
+      - name: Refuse anything but the empty test database
+        run: node scripts/azampay-sandbox-setup.mjs check
+      - name: Generate Prisma client
+        run: npx prisma generate
+      - name: Create the tables in the test database
+        run: npx prisma migrate deploy
+      - name: Add the test admin, test employer and one test vacancy
+        env:
+          SANDBOX_TEST_PASSWORD: ${{ secrets.SANDBOX_TEST_PASSWORD }}
+          SANDBOX_ADMIN_EMAIL: ${{ vars.SANDBOX_ADMIN_EMAIL }}
+        run: node scripts/azampay-sandbox-setup.mjs seed

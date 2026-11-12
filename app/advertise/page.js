@@ -1,6 +1,6 @@
 import Link from "next/link";
 import ContentPage from "@/components/ContentPage";
-import { loadSiteSettings, siteSetting } from "@/lib/features";
+import { loadSiteSettings, promotionOffer, siteSetting } from "@/lib/features";
 import { WHATSAPP_CHANNEL_URL } from "@/lib/site-config";
 
 export const dynamic = "force-dynamic";
@@ -32,10 +32,9 @@ function bookingLink(number, price) {
 export default async function AdvertisePage() {
   await loadSiteSettings();
   const followers = followersLabel(siteSetting("channel.followers"));
-  const priceValue = siteSetting("promo.price");
-  const price = (Number.isSafeInteger(priceValue) && priceValue > 0 ? priceValue : 30000).toLocaleString("en-GB");
-  const daysValue = siteSetting("promo.days");
-  const days = Number.isSafeInteger(daysValue) && daysValue > 0 ? daysValue : 14;
+  const offer = promotionOffer();
+  const price = offer.priceTzs.toLocaleString("en-GB");
+  const days = offer.featuredDays;
   const whatsappBooking = bookingLink(siteSetting("promo.whatsapp"), price);
   const lipaNamba = String(siteSetting("promo.lipaNamba") || "").trim();
   const lipaName = String(siteSetting("promo.lipaName") || "").trim();

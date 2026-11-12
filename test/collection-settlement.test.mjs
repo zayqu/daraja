@@ -87,6 +87,19 @@ test("replayed identical status never creates another event or fulfils again", a
   assert.equal(s.writes.length, 3);
 });
 
+test("duplicate confirmation after admin fulfilment is acknowledged without writes", async () => {
+  const s = scenario();
+  await invoke(s);
+  s.attempt.booking = { ...s.attempt.booking, status: "FULFILLED" };
+  assert.deepEqual(await invoke(s), { action: "ALREADY_PAID", reference });
+  assert.equal(s.writes.length, 3);
+  // A first confirmation for a booking that is no longer payable still fails.
+  const cancelled = scenario();
+  cancelled.attempt.booking.status = "CANCELLED";
+  await assert.rejects(invoke(cancelled), /BOOKING_STATE_CONFLICT/);
+  assert.equal(cancelled.writes.length, 0);
+});
+
 test("unverified, unsigned or non-success provider responses do not write", async () => {
   for (const change of [
     { authentic: false }, { authoritative: false }, { status: "PENDING" },

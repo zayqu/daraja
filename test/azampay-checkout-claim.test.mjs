@@ -1,6 +1,9 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { claimSandboxCheckout, recordSandboxCheckoutResponse, markSandboxCheckoutUnknown } from "../lib/payments/azampay-checkout-claim.mjs";
+import {
+  claimSandboxCheckout, recordSandboxCheckoutResponse, markSandboxCheckoutRejected,
+  markSandboxCheckoutUnknown,
+} from "../lib/payments/azampay-checkout-claim.mjs";
 
 function fakeDB() {
   const data = {
@@ -91,4 +94,20 @@ test("unconfirmed checkout response never writes a provider transaction ID", asy
   }), /CHECKOUT_RESPONSE_UNCONFIRMED/);
   assert.equal(f.data.providerTransactionId, null);
   assert.equal(f.data.checkoutState, "CLAIMED");
+});
+
+test("a definitive AzamPay refusal closes the claimed attempt as FAILED, never twice", async () => {
+  const f = fakeDB();
+  const owner = { id: "owner1", role: "EMPLOYER" };
+  // Not claimed yet: nothing to close.
+  assert.equal((await markSandboxCheckoutRejected({ prisma: f.db, attemptId: "attempt1" })).closed, false);
+  await claimSandboxCheckout({ prisma: f.db, actor: owner, attemptId: "attempt1" });
+  assert.equal((await markSandboxCheckoutRejected({ prisma: f.db, attemptId: "attempt1" })).closed, true);
+  assert.equal(f.data.status, "FAILED");
+  assert.equal(f.data.checkoutState, "CLAIMED");
+  assert.equal(f.data.providerTransactionId, null);
+  assert.equal((await markSandboxCheckoutRejected({ prisma: f.db, attemptId: "attempt1" })).closed, false);
+  await assert.rejects(claimSandboxCheckout({ prisma: f.db, actor: owner, attemptId: "attempt1" }),
+    /CHECKOUT_ALREADY_CLAIMED/);
+  await assert.rejects(markSandboxCheckoutRejected({ prisma: f.db, attemptId: "" }), /CHECKOUT_RECORD_INVALID/);
 });

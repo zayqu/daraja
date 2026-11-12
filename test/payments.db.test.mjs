@@ -1,9 +1,13 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { randomUUID } from "node:crypto";
+import { randomUUID, generateKeyPairSync, sign } from "node:crypto";
 import { preparePromotionPaymentAttempt } from "../lib/payments/promotion-attempt.mjs";
 import { settleVerifiedCollection } from "../lib/payments/collection-settlement.mjs";
-import { claimSandboxCheckout, recordSandboxCheckoutResponse } from "../lib/payments/azampay-checkout-claim.mjs";
+import {
+  claimSandboxCheckout, markSandboxCheckoutRejected, recordSandboxCheckoutResponse,
+} from "../lib/payments/azampay-checkout-claim.mjs";
+import { processSandboxCallback } from "../lib/payments/azampay-sandbox-callback.mjs";
+import { createAzamPayPublicKeyProvider } from "../lib/payments/azampay-public-key.mjs";
 
 // The ordinary npm test command must never connect to a DB. Only the
 // isolated GitHub Actions workflow sets PAYMENTS_DB_TESTS.
@@ -131,6 +135,117 @@ test("real Prisma: isolated booking and settlement transactions", {
     assert.equal(await prisma.paymentEvent.count({ where: { attempt: { bookingId: extra.id } } }), 0);
     assert.equal((await prisma.paymentAttempt.findUnique({ where: { reference: another.reference } })).status, "PENDING");
     assert.equal((await prisma.promotionBooking.findUnique({ where: { id: extra.id } })).status, "APPROVED");
+
+    // Official AzamPay callback flow (D-037) through the real Prisma client:
+    // RSA-signed callbacks bound to our saved checkout receipt.
+    const keys = generateKeyPairSync("rsa", { modulusLength: 2048 });
+    const keyProvider = createAzamPayPublicKeyProvider({
+      apiClient: {
+        mode: "sandbox",
+        request: async () => ({
+          success: true, format: "Pem",
+          publicKey: keys.publicKey.export({ type: "spki", format: "pem" }),
+        }),
+      },
+    });
+    const signedCallback = (fields) => {
+      const p = { operator: "Mpesa", amount: "30000", ...fields };
+      p.signature = sign("RSA-SHA256", Buffer.from(
+        p.utilityref + p.externalreference + p.transactionstatus + p.operator, "utf8",
+      ), keys.privateKey).toString("base64");
+      return p;
+    };
+    const initiatedBooking = async (label) => {
+      const fresh = await prisma.promotionBooking.create({
+        data: {
+          ownerUserId: owner.id, jobId: job.id, amountTzs: 30000, featuredDays: 14,
+          status: "APPROVED", approvedAt: new Date(),
+        },
+      });
+      const prepared = await preparePromotionPaymentAttempt({
+        prisma, bookingId: fresh.id, actor, environment: "sandbox",
+      });
+      await claimSandboxCheckout({ prisma, actor, attemptId: prepared.attemptId });
+      const transactionId = label + suffix;
+      await recordSandboxCheckoutResponse({
+        prisma, attemptId: prepared.attemptId, response: { success: true, transactionId },
+      });
+      return { booking: fresh, prepared, transactionId };
+    };
+    const deliver = (payload) => processSandboxCallback({
+      prisma, apiClient: { mode: "sandbox" }, keyProvider, payload,
+      expectedMerchantId: "sandbox-merchant",
+    });
+
+    // Ten simultaneous deliveries of one signed success settle exactly once.
+    const paidFlow = await initiatedBooking("cbsuccess");
+    const success = signedCallback({
+      utilityref: paidFlow.prepared.reference, externalreference: paidFlow.transactionId,
+      transactionstatus: "success",
+    });
+    const deliveries = await Promise.allSettled(Array.from({ length: 10 }, () => deliver(success)));
+    const delivered = deliveries.filter(x => x.status === "fulfilled").map(x => x.value.result);
+    assert.equal(delivered.filter(x => x === "READY_FOR_ADMIN_FULFILMENT").length, 1);
+    assert.ok(delivered.every(x => ["READY_FOR_ADMIN_FULFILMENT", "ALREADY_PAID"].includes(x)));
+    for (const failure of deliveries.filter(x => x.status === "rejected")) {
+      // Lost serialization races are retryable 5xx for AzamPay, never a payment.
+      assert.match(String(failure.reason?.code), /^(P2034|DUPLICATE_SETTLEMENT_CONFLICT)$/);
+    }
+    assert.equal((await deliver(success)).result, "ALREADY_PAID");
+    assert.equal(await prisma.paymentEvent.count({
+      where: { attempt: { bookingId: paidFlow.booking.id }, outcome: "VERIFIED_SUCCESS" },
+    }), 1);
+    assert.equal((await prisma.promotionBooking.findUnique({ where: { id: paidFlow.booking.id } })).status, "PAID");
+    assert.equal((await prisma.paymentAttempt.findUnique({ where: { id: paidFlow.prepared.attemptId } })).status, "SUCCESS");
+
+    // A callback signed for another transaction, or tampered, never settles.
+    const replayFlow = await initiatedBooking("cbreplay");
+    await assert.rejects(deliver(signedCallback({
+      utilityref: replayFlow.prepared.reference, externalreference: "someoneelse" + suffix,
+      transactionstatus: "success",
+    })), /CALLBACK_SIGNATURE_OR_BINDING_INVALID/);
+    await assert.rejects(deliver({
+      ...signedCallback({
+        utilityref: replayFlow.prepared.reference, externalreference: replayFlow.transactionId,
+        transactionstatus: "failure",
+      }),
+      transactionstatus: "success",
+    }), /CALLBACK_SIGNATURE_OR_BINDING_INVALID/);
+    assert.equal((await prisma.promotionBooking.findUnique({ where: { id: replayFlow.booking.id } })).status, "APPROVED");
+    assert.equal(await prisma.paymentEvent.count({ where: { attempt: { bookingId: replayFlow.booking.id } } }), 0);
+
+    // Signed failure frees the booking for a fresh attempt and reference.
+    const failedFlow = await initiatedBooking("cbfailure");
+    const failure = signedCallback({
+      utilityref: failedFlow.prepared.reference, externalreference: failedFlow.transactionId,
+      transactionstatus: "failure",
+    });
+    assert.equal((await deliver(failure)).result, "PAYMENT_FAILED");
+    assert.equal((await deliver(failure)).result, "ALREADY_RECORDED");
+    assert.equal((await prisma.paymentAttempt.findUnique({ where: { id: failedFlow.prepared.attemptId } })).status, "FAILED");
+    assert.equal((await prisma.promotionBooking.findUnique({ where: { id: failedFlow.booking.id } })).status, "APPROVED");
+    const retry = await preparePromotionPaymentAttempt({
+      prisma, bookingId: failedFlow.booking.id, actor, environment: "sandbox",
+    });
+    assert.equal(retry.reused, false);
+    assert.notEqual(retry.reference, failedFlow.prepared.reference);
+
+    // AzamPay refusing to start a checkout (HTTP 400 / success:false) also frees it.
+    const refusedBooking = await prisma.promotionBooking.create({
+      data: {
+        ownerUserId: owner.id, jobId: job.id, amountTzs: 30000, featuredDays: 14,
+        status: "APPROVED", approvedAt: new Date(),
+      },
+    });
+    const refused = await preparePromotionPaymentAttempt({
+      prisma, bookingId: refusedBooking.id, actor, environment: "sandbox",
+    });
+    await claimSandboxCheckout({ prisma, actor, attemptId: refused.attemptId });
+    assert.equal((await markSandboxCheckoutRejected({ prisma, attemptId: refused.attemptId })).closed, true);
+    const afterRefusal = await preparePromotionPaymentAttempt({
+      prisma, bookingId: refusedBooking.id, actor, environment: "sandbox",
+    });
+    assert.equal(afterRefusal.reused, false);
   } finally {
     // Database exists only for this CI job; do not mutate external DBs.
     await prisma.$disconnect();

@@ -1,7 +1,10 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { randomUUID } from "node:crypto";
-import { buildSandboxMnoCheckout, parseSandboxCheckoutResponse } from "../lib/payments/azampay-sandbox-checkout.mjs";
+import {
+  buildSandboxMnoCheckout, parseSandboxCheckoutResponse, sandboxCheckoutRejected,
+} from "../lib/payments/azampay-sandbox-checkout.mjs";
+import { AzamPayTransportError } from "../lib/payments/azampay-transport.mjs";
 const reference = "drj_" + randomUUID();
 const attempt = { environment: "sandbox", provider: "AZAMPAY", status: "PENDING",
   providerTransactionId: null, reference, currency: "TZS", amountTzs: 30000 };
@@ -53,4 +56,20 @@ test("HTTP success without an authenticated checkout transaction ID is not a con
     { success: true }, { success: true, transactionId: "" },
     { success: true, transactionId: "a b" },
   ]) assert.throws(() => parseSandboxCheckoutResponse(payload), /CHECKOUT_RESPONSE_UNCONFIRMED/);
+});
+
+test("only documented refusals count as 'not started'; anything ambiguous stays UNKNOWN", () => {
+  const http = (status) => new AzamPayTransportError("PROVIDER_HTTP_ERROR", { httpStatus: status });
+  for (const status of [400, 401, 403]) {
+    assert.equal(sandboxCheckoutRejected({ error: http(status) }), true);
+  }
+  for (const error of [http(500), http(502), http(409), http(429),
+    new AzamPayTransportError("PROVIDER_TIMEOUT"), new AzamPayTransportError("PROVIDER_NETWORK_ERROR"),
+    new Error("plain"), { httpStatus: 400 }]) {
+    assert.equal(sandboxCheckoutRejected({ error }), false);
+  }
+  assert.equal(sandboxCheckoutRejected({ response: { success: false, message: "Invalid MSISDN" } }), true);
+  for (const response of [undefined, null, {}, { success: true }, { success: "false" }, { success: 0 }]) {
+    assert.equal(sandboxCheckoutRejected({ response }), false);
+  }
 });

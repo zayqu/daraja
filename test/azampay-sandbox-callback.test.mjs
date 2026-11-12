@@ -2,6 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { randomUUID, generateKeyPairSync, sign } from "node:crypto";
 import { processSandboxCallback } from "../lib/payments/azampay-sandbox-callback.mjs";
+import { createAzamPayPublicKeyProvider } from "../lib/payments/azampay-public-key.mjs";
 import { sandboxRoutesAvailable } from "../lib/payments/azampay-sandbox-gate.mjs";
 
 const pair = generateKeyPairSync("rsa", { modulusLength: 2048 });
@@ -59,9 +60,11 @@ function scenario() {
     request: async (arg) => {
       keyRequests++;
       assert.equal(arg.path, "/azampay/v1/public-key");
-      return { success: true, publicKey: pem };
+      return { success: true, format: "Pem", publicKey: pem };
     },
   };
+  // Mirrors the route: one long-lived key cache per process.
+  const keyProvider = createAzamPayPublicKeyProvider({ apiClient });
   const prisma = {
     paymentAttempt: tx.paymentAttempt,
     $transaction: async (fn, options) => {
@@ -70,14 +73,15 @@ function scenario() {
     },
   };
   return {
-    apiClient, prisma, writes, events,
+    apiClient, keyProvider, prisma, writes, events,
     get attempt() { return attempt; },
     get keyRequests() { return keyRequests; },
   };
 }
 function process(s, payload) {
   return processSandboxCallback({
-    prisma: s.prisma, apiClient: s.apiClient, payload, expectedMerchantId: "merchantSandbox",
+    prisma: s.prisma, apiClient: s.apiClient, keyProvider: s.keyProvider,
+    payload, expectedMerchantId: "merchantSandbox",
   });
 }
 
@@ -93,48 +97,87 @@ test("sandbox callback routes fail closed without independent opt-in", () => {
   assert.equal(sandboxRoutesAvailable({ ...env, AZAMPAY_MODE: "production", AZAMPAY_PRODUCTION_APPROVED: "true" }), false);
 });
 
-test("valid signed success is recorded once but never marks an unconfirmed booking paid", async () => {
+test("bound, signed success marks the booking paid exactly once for admin fulfilment", async () => {
   const s = scenario();
   const result = await process(s, callback());
-  assert.equal(result.accepted, true);
-  assert.equal(result.result, "SUCCESS_REQUIRES_RECONCILIATION");
-  assert.deepEqual(s.writes, ["event", "attempt"]);
-  assert.equal(s.attempt.status, "UNKNOWN");
-  assert.equal(s.attempt.checkoutState, "UNKNOWN");
-  assert.equal(s.attempt.booking.status, "APPROVED");
+  assert.deepEqual(result, { result: "READY_FOR_ADMIN_FULFILMENT", accepted: true });
+  assert.deepEqual(s.writes, ["event", "attempt", "booking"]);
+  assert.equal(s.attempt.status, "SUCCESS");
+  assert.equal(s.attempt.merchantId, "merchantSandbox");
+  assert.equal(s.attempt.booking.status, "PAID");
   assert.equal(s.events.size, 1);
-  assert.equal([...s.events.values()][0].outcome, "SIGNED_SUCCESS_REVIEW");
-  assert.equal((await process(s, callback())).result, "ALREADY_RECORDED");
+  assert.equal([...s.events.values()][0].outcome, "VERIFIED_SUCCESS");
+  // Redelivery is acknowledged without new writes; the key stays cached.
+  assert.deepEqual(await process(s, callback()), { result: "ALREADY_PAID", accepted: true });
+  assert.equal(s.writes.length, 3);
+  assert.equal(s.keyRequests, 1);
+});
+
+test("zero-fraction amount and any signed operator name are accepted", async () => {
+  const s = scenario();
+  const result = await process(s, callback({ operator: "Vodacom", amount: "30000.00" }));
+  assert.equal(result.result, "READY_FOR_ADMIN_FULFILMENT");
+  assert.equal(s.attempt.booking.status, "PAID");
+});
+
+test("signed failure closes only this attempt so the employer can try again", async () => {
+  const s = scenario();
+  const first = await process(s, callback({ transactionstatus: "failure" }));
+  assert.deepEqual(first, { result: "PAYMENT_FAILED", accepted: true });
+  assert.deepEqual(s.writes, ["event", "attempt"]);
+  assert.equal(s.attempt.status, "FAILED");
+  assert.equal(s.attempt.booking.status, "APPROVED");
+  assert.equal([...s.events.values()][0].outcome, "VERIFIED_FAILURE");
+  assert.equal((await process(s, callback({ transactionstatus: "failure" }))).result, "ALREADY_RECORDED");
   assert.equal(s.writes.length, 2);
 });
 
-test("valid signed failure is recorded but not settled or retried", async () => {
-  const s = scenario();
-  const first = await process(s, callback({ transactionstatus: "failure" }));
-  assert.equal(first.result, "FAILURE_REQUIRES_RECONCILIATION");
-  assert.equal(s.attempt.status, "UNKNOWN");
-  assert.equal(s.attempt.checkoutState, "UNKNOWN");
-  assert.equal(s.attempt.booking.status, "APPROVED");
-  assert.equal(s.events.size, 1);
-  assert.equal((await process(s, callback({ transactionstatus: "failure" }))).result, "ALREADY_RECORDED");
+test("a success after a recorded failure, or a failure after success, needs a person", async () => {
+  const failed = scenario();
+  await process(failed, callback({ transactionstatus: "failure" }));
+  await assert.rejects(process(failed, callback()), /CALLBACK_REQUIRES_MANUAL_REVIEW/);
+  assert.equal(failed.attempt.booking.status, "APPROVED");
+
+  const paid = scenario();
+  await process(paid, callback());
+  await assert.rejects(process(paid, callback({ transactionstatus: "failure" })),
+    /CALLBACK_REQUIRES_MANUAL_REVIEW/);
+  assert.equal(paid.attempt.status, "SUCCESS");
+  assert.equal(paid.attempt.booking.status, "PAID");
 });
 
-test("no funds recorded for tampered status, wrong signed ID or unsigned amount", async () => {
+test("no funds recorded for tampered status, wrong signed ID, unsigned amount or no signature", async () => {
   for (const payload of [
     { ...callback(), transactionstatus: "failure" },
+    { ...callback({ transactionstatus: "failure" }), transactionstatus: "success" },
     callback({ externalreference: "othertxn98765" }),
     { ...callback(), amount: "30001" },
     { ...callback(), signature: undefined },
+    { ...callback(), signature: null },
   ]) {
     const s = scenario();
     await assert.rejects(process(s, payload), /CALLBACK_SIGNATURE_OR_BINDING_INVALID/);
     assert.equal(s.writes.length, 0);
+    assert.equal(s.attempt.booking.status, "APPROVED");
   }
 });
 
-test("unbound attempt and spoofed reference never reach key fetch or ledger", async () => {
-  const s = scenario();
-  await assert.rejects(process(s, callback({ utilityref: "drj_" + randomUUID() })));
+test("binding failures never fetch the key; a bad signature refreshes it exactly once", async () => {
+  for (const payload of [
+    callback({ externalreference: "othertxn98765" }),
+    { ...callback(), amount: "30001" },
+    callback({ utilityref: "drj_" + randomUUID() }),
+  ]) {
+    const s = scenario();
+    await assert.rejects(process(s, payload));
+    assert.equal(s.keyRequests, 0);
+  }
+  const tampered = scenario();
+  await assert.rejects(process(tampered, { ...callback(), transactionstatus: "failure" }));
+  assert.equal(tampered.keyRequests, 2);
+});
+
+test("unbound attempt never reaches key fetch or ledger", async () => {
   const noId = scenario();
   noId.prisma.paymentAttempt.findUnique = async () => ({
     ...baseAttempt(), providerTransactionId: null,
@@ -142,4 +185,11 @@ test("unbound attempt and spoofed reference never reach key fetch or ledger", as
   await assert.rejects(process(noId, callback()), /CALLBACK_UNBOUND/);
   assert.equal(noId.keyRequests, 0);
   assert.equal(noId.writes.length, 0);
+
+  const notInitiated = scenario();
+  notInitiated.prisma.paymentAttempt.findUnique = async () => ({
+    ...baseAttempt(), checkoutState: "CLAIMED",
+  });
+  await assert.rejects(process(notInitiated, callback()), /CALLBACK_UNBOUND/);
+  assert.equal(notInitiated.writes.length, 0);
 });

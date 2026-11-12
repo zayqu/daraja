@@ -1,5 +1,12 @@
 # Daraja Jobs production-readiness progress
 
+## AzamPay sandbox callback now points at the test site (2026-11-12)
+
+- The portal's Register App page works again. At about 17:55 EAT the sandbox callback for "Daraja Ajira" was saved as the PR #226 preview's `/api/payments/azampay/callback` with the Vercel bypass code (steps 5 and 6 in `docs/AZAMPAY-STAGING-READINESS.md`). A fresh page load confirmed the address and that the code matches the Vercel secret, checked by hash without displaying it.
+- The owner created the Vercel bypass secret and typed the callback. The portal refused to save while its Allowed URLs box was empty, so the test-site origin was entered there and saved with the owner's go-ahead.
+- The bypass secret opens every preview of this project, and previews still use the live database until the branch-scoped `DATABASE_URL` is set. Delete it after the test.
+- Not done (owner): Neon project, GitHub secrets, Vercel variables; then the setup label, redeploy and the test payment.
+
 ## AzamPay asked to fix the portal and confirm the KYC link (2026-11-12)
 
 - Emailed from the owner's account at 13:47 EAT to `info@azampay.co.tz`, CC `compliance@azampay.com` and `product@azampay.com`: fix the portal's Register App page (still showing `Network error` and `Messages.FailedToGenerateClientSecret` just before sending) and confirm in writing whether the `replit.app` KYC link is theirs. No credentials or documents were sent. Log: `docs/AZAMPAY-PROVIDER-CONTRACT-QUESTIONS.md` > "Contact log".

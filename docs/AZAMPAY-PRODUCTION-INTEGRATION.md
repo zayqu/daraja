@@ -12,7 +12,8 @@
 - **Provider contract:** answered from AzamPay's official Tanzania docs; see `docs/AZAMPAY-PROVIDER-CONTRACT-QUESTIONS.md`. No collection-status API is documented; the RSA-signed callback is AzamPay's confirmation.
 - **Settlement rule (D-037):** a callback bound to our saved checkout `transactionId`, with matching amount and a valid AzamPay signature, marks the booking `PAID` for admin fulfilment. Verified failure or a definitive checkout refusal closes that attempt as `FAILED` so the employer can retry. Ambiguous outcomes stay `UNKNOWN`.
 - **Code aligned with the docs:** binding is checked before any key request; the key is cached per process and re-fetched once only after a bad signature; `X-API-Key` (optional) goes to the checkout host only; the token is obtained before the one-shot checkout claim; undocumented token `expire` formats get a short local lifetime instead of blocking checkout.
-- **Still required before real money:** one real sandbox payment on an approved, isolated test deployment to observe `transactionId` = `externalreference`, token `expire`, phone format and callback retries; employer pay screen and admin bookings view; KYC through an AzamPay-confirmed channel; production keys and callback URL from AzamPay; separate owner approval. Production stays OFF.
+- **Screens (D-038):** employers request and pay from `/employer`; admins approve, release stuck payments and feature paid vacancies from `/admin/bookings`. Both appear only while the sandbox switches are on.
+- **Still required before real money:** one real sandbox payment on an approved, isolated test deployment to observe `transactionId` = `externalreference`, token `expire`, phone format and callback retries; KYC through an AzamPay-confirmed channel; production keys and callback URL from AzamPay; a production gate for the checkout route; separate owner approval. Production stays OFF.
 
 ## Current workflow and non-negotiable invariants
 

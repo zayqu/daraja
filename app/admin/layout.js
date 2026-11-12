@@ -12,15 +12,20 @@ export const dynamic = "force-dynamic";
 
 export default async function AdminLayout({ children }) {
   const actor = await requireAdminPage();
-  const [pendingJobs, pendingEmployers] = await Promise.all([
+  const [pendingJobs, pendingEmployers, bookingsToAction] = await Promise.all([
     prisma.job.count({ where: { moderationStatus: "PENDING_REVIEW" } }),
     prisma.employer.count({ where: { verificationStatus: "PENDING" } }),
+    // Requests to review and paid bookings to feature. A missing count must
+    // never take the whole admin panel down.
+    prisma.promotionBooking
+      .count({ where: { status: { in: ["PENDING_REVIEW", "PAID"] } } })
+      .catch(() => 0),
   ]);
 
   return (
     <AdminShell
       email={actor.email}
-      counts={{ pendingJobs, pendingEmployers }}
+      counts={{ pendingJobs, pendingEmployers, bookingsToAction }}
       signOut={
         <form
           action={async () => {

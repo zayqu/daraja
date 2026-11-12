@@ -1,5 +1,12 @@
 # Daraja Jobs production-readiness progress
 
+## Separate AzamPay test site configured (2026-11-12)
+
+- Checklist steps 1 to 6 in `docs/AZAMPAY-STAGING-READINESS.md` are done. Neon project `daraja-sandbox` (Daraja organization, AWS US East 1, Postgres 17) holds only the database `daraja_sandbox`. The owner added the GitHub secrets `SANDBOX_DATABASE_URL` and `SANDBOX_TEST_PASSWORD`.
+- The label `azampay-sandbox-setup` (created for this) started run #1 of `.github/workflows/azampay-sandbox-setup.yml`. The guard accepted the empty `daraja_sandbox`, all 18 migrations applied, and the seed created `admin@daraja.co.tz` and the verified `sandbox-employer@example.com` with one test vacancy.
+- Vercel: ten branch-only Preview variables for `feature/azampay-production-readiness`, all of the Secret type. The assistant prepared the names and non-secret values; the owner pasted the database string and the three AzamPay values and saved. The six existing variables are unchanged.
+- A dashboard Redeploy asks for an emailed code, so this push starts the new preview build. Next: confirm the preview uses the test database and the payment routes answer, then the one sandbox payment.
+
 ## AzamPay sandbox callback now points at the test site (2026-11-12)
 
 - The portal's Register App page works again. At about 17:55 EAT the sandbox callback for "Daraja Ajira" was saved as the PR #226 preview's `/api/payments/azampay/callback` with the Vercel bypass code (steps 5 and 6 in `docs/AZAMPAY-STAGING-READINESS.md`). A fresh page load confirmed the address and that the code matches the Vercel secret, checked by hash without displaying it.

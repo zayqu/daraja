@@ -39,14 +39,17 @@ test("pilot operating playbook separates Apply clicks from completed application
   assert.match(playbook, /production deployment/i);
 });
 
-test("channel audience figure is admin-maintained rather than a claimed live API count", async () => {
+test("channel audience supports verified rounded snapshots with admin manual fallback", async () => {
   const features = await read("lib/features.js");
   const settings = await read("app/admin/settings/page.js");
   const endpoint = await read("app/api/admin/settings/route.js");
   const field = await read("components/admin/SettingField.js");
   assert.match(features, /"channel.followers"/);
   assert.match(features, /type: "number"/);
-  assert.match(features, /not an automatic live feed/);
+  assert.match(features, /Manual fallback follower count/);
+  assert.match(features, /"channel.publicAudience"/);
+  assert.match(settings, /verifiedPublicAudience/);
+  assert.match(endpoint, /definition.type === "snapshot"/);
   assert.match(settings, /"channel.followers"/);
   assert.match(endpoint, /Number.isSafeInteger/);
   assert.match(field, /setting.type === "number"/);

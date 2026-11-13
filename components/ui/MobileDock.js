@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
 import { mobileDockEnabledPath } from "@/lib/mobile-navigation";
+import { postJobHref } from "@/lib/platform-roles";
 import NavIcon from "@/components/ui/NavIcon";
 import { PRIVACY_SETTINGS_EVENT } from "@/lib/google-services";
 import { WHATSAPP_CHANNEL_URL } from "@/lib/site-config";
@@ -165,7 +166,7 @@ export default function MobileDock({
                 WhatsApp Channel
               </a>
               {showEmployerCta && (isEmployer || isAdmin) && (
-                <Link href="/post-job" onClick={() => setMoreOpen(false)}>
+                <Link href={postJobHref(userRole)} onClick={() => setMoreOpen(false)}>
                   Post a Job
                 </Link>
               )}

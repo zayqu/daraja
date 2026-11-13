@@ -34,7 +34,7 @@ function bookingLink(number, price) {
 export default async function AdvertisePage() {
   await loadSiteSettings();
   const publicSnapshot = verifiedPublicAudience(siteSetting("channel.publicAudience"));
-  const followers = publicSnapshot ? `${publicSnapshot.label} (rounded)` : followersLabel(siteSetting("channel.followers"));
+  const followers = publicSnapshot ? `about ${publicSnapshot.label}` : followersLabel(siteSetting("channel.followers"));
   const priceValue = siteSetting("promo.price");
   const price = (Number.isSafeInteger(priceValue) && priceValue > 0 ? priceValue : 30000).toLocaleString("en-GB");
   const daysValue = siteSetting("promo.days");

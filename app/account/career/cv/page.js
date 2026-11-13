@@ -11,7 +11,7 @@ import WorkspaceShell from "@/components/ui/WorkspaceShell";
 import CvBuilder from "@/components/CvBuilder";
 
 export const metadata = {
-  title: "Smart CV Builder | Daraja",
+  title: "Smart CV Builder",
   description:
     "Build Tanzania-first, ATS-ready CV versions for private-sector and public-service applications.",
 };

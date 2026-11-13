@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import test from "node:test";
 
-import { isOwnerEmail, ownerEmails, roleHome } from "../lib/platform-roles.js";
+import { isOwnerEmail, ownerEmails, postJobHref, roleHome } from "../lib/platform-roles.js";
 
 const read = (path) =>
   fs.readFileSync(new URL(`../${path}`, import.meta.url), "utf8");
@@ -30,6 +30,13 @@ test("each role opens its own dashboard", () => {
   assert.equal(roleHome("EMPLOYER", { employerPortal: false }), "/account");
   assert.equal(roleHome("JOB_SEEKER"), "/account");
   assert.equal(roleHome(undefined), "/account");
+});
+
+test("Post a Job takes admins to the admin job form and everyone else to /post-job", () => {
+  assert.equal(postJobHref("ADMIN"), "/admin/jobs/new");
+  assert.equal(postJobHref("EMPLOYER"), "/post-job");
+  assert.equal(postJobHref("JOB_SEEKER"), "/post-job");
+  assert.equal(postJobHref(undefined), "/post-job");
 });
 
 test("the owner admin grant is audited and the account page routes by role", () => {

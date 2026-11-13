@@ -2,7 +2,12 @@ import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { randomUUID } from "node:crypto";
 import slugUtils from "@/lib/job-slug";
-import { employerPortalEnabled, getActor, safeAuditMetadata } from "@/lib/employer-access";
+import {
+  employerPortalEnabled,
+  getActor,
+  isSuspendedEmployer,
+  safeAuditMetadata,
+} from "@/lib/employer-access";
 import { getCategoryNames } from "@/lib/public-jobs";
 import ownerVacancy from "@/lib/owner-vacancy";
 import { readProtectedJson } from "@/lib/request-security";
@@ -44,6 +49,9 @@ export async function POST(request) {
   const actor = await getActor();
   if (!actor) return NextResponse.json({ error: "Sign in required" }, { status: 401 });
   if (!actor.employer) return NextResponse.json({ error: "Employer profile required" }, { status: 403 });
+  if (isSuspendedEmployer(actor)) {
+    return NextResponse.json({ error: "This employer account is suspended. Contact Daraja." }, { status: 403 });
+  }
   const { body, error } = await readProtectedJson(request, {
     scope: "employer-job-submit",
     limit: 20,

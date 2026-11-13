@@ -1,6 +1,11 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
-import { employerPortalEnabled, getActor, safeAuditMetadata } from "@/lib/employer-access";
+import {
+  employerPortalEnabled,
+  getActor,
+  isSuspendedEmployer,
+  safeAuditMetadata,
+} from "@/lib/employer-access";
 import { readProtectedJson } from "@/lib/request-security";
 
 const clean = (value, max = 160) =>
@@ -20,6 +25,9 @@ export async function POST(request) {
   if (!actor) return NextResponse.json({ error: "Sign in required" }, { status: 401 });
   if (actor.role !== "JOB_SEEKER" && actor.role !== "EMPLOYER") {
     return NextResponse.json({ error: "Account is not eligible" }, { status: 403 });
+  }
+  if (isSuspendedEmployer(actor)) {
+    return NextResponse.json({ error: "This employer account is suspended. Contact Daraja." }, { status: 403 });
   }
   const { body, error } = await readProtectedJson(request, {
     scope: "employer-profile",

@@ -4,7 +4,7 @@ import { requireAdminPage } from "@/lib/admin-guard";
 import prisma from "@/lib/prisma";
 
 export const metadata = {
-  title: "Admin | Daraja",
+  title: "Admin",
   robots: { index: false, follow: false },
 };
 

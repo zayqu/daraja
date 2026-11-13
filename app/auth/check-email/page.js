@@ -4,7 +4,7 @@ import EmailRequestForm from "@/components/auth/EmailRequestForm";
 import styles from "../auth.module.css";
 
 export const metadata = {
-  title: "Confirm your email | Daraja",
+  title: "Confirm your email",
   robots: { index: false, follow: false },
 };
 

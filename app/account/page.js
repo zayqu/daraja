@@ -11,7 +11,7 @@ import prisma from "@/lib/prisma";
 import styles from "./account.module.css";
 
 export const metadata = {
-  title: "My account | Daraja",
+  title: "My account",
   description: "Manage your Daraja candidate account and career tools.",
   robots: { index: false, follow: false },
 };

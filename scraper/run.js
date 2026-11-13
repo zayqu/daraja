@@ -1,4 +1,5 @@
 require("dotenv").config();
+const { syncPublicAudience } = require("../lib/whatsapp-channel-audience.cjs");
 
 const { sendJobAlertDigests } = require("./lib/alerts");
 const {
@@ -144,6 +145,12 @@ async function runScrapers({ dryRun = false, requestedSources = new Set() } = {}
 
   try {
     if (!dryRun) {
+      try {
+        const audience = await syncPublicAudience(prisma);
+        if (audience.status === "updated") console.log(`WhatsApp Channel public audience: ${audience.label} (rounded)`);
+      } catch (error) {
+        warnings.push({ source: "whatsapp-audience", warning: "Audience snapshot not updated; manual setting retained" });
+      }
       try {
         lifecycle.archivedExpired = await archiveExpiredJobs(prisma);
         const featuredEnded = await expireFeaturedJobs(prisma);

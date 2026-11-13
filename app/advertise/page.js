@@ -1,4 +1,6 @@
 import Link from "next/link";
+import audienceModule from "@/lib/whatsapp-channel-audience.cjs";
+const { verifiedPublicAudience } = audienceModule;
 import ContentPage from "@/components/ContentPage";
 import { loadSiteSettings, siteSetting } from "@/lib/features";
 import { WHATSAPP_CHANNEL_URL } from "@/lib/site-config";
@@ -19,7 +21,7 @@ function followersLabel(followers) {
   if (Number.isSafeInteger(followers) && followers >= 0) {
     return followers.toLocaleString("en-GB");
   }
-  return "11k+";
+  return "audience details available on WhatsApp";
 }
 
 function bookingLink(number, price) {
@@ -31,7 +33,8 @@ function bookingLink(number, price) {
 
 export default async function AdvertisePage() {
   await loadSiteSettings();
-  const followers = followersLabel(siteSetting("channel.followers"));
+  const publicSnapshot = verifiedPublicAudience(siteSetting("channel.publicAudience"));
+  const followers = publicSnapshot ? `about ${publicSnapshot.label}` : followersLabel(siteSetting("channel.followers"));
   const priceValue = siteSetting("promo.price");
   const price = (Number.isSafeInteger(priceValue) && priceValue > 0 ? priceValue : 30000).toLocaleString("en-GB");
   const daysValue = siteSetting("promo.days");

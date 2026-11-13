@@ -3,6 +3,9 @@ import SettingField from "@/components/admin/SettingField";
 import { requireAdminPage } from "@/lib/admin-guard";
 import { SITE_SETTINGS } from "@/lib/features";
 import prisma from "@/lib/prisma";
+import audienceModule from "@/lib/whatsapp-channel-audience.cjs";
+
+const { verifiedPublicAudience } = audienceModule;
 
 export const dynamic = "force-dynamic";
 
@@ -23,6 +26,8 @@ export default async function AdminSettingsPage() {
   await requireAdminPage("/admin/settings");
   const rows = await prisma.siteSetting.findMany();
   const saved = Object.fromEntries(rows.map((row) => [row.key, row.value]));
+  const audience = verifiedPublicAudience(saved["channel.publicAudience"]);
+  const lastAttempt = saved["channel.publicAudience"]?.lastAttemptAt;
 
   return (
     <>
@@ -33,6 +38,17 @@ export default async function AdminSettingsPage() {
       {GROUPS.map((group) => (
         <Panel key={group.title} title={group.title}>
           {group.note ? <p style={{ marginTop: 0 }}>{group.note}</p> : null}
+          {group.title === "WhatsApp Channel audience" ? (
+            <div style={{ marginBottom: "1rem" }}>
+              <strong>Public Channel count: {audience ? `${audience.label} followers` : "Not verified"}</strong>
+              <p style={{ marginTop: "0.35rem" }}>
+                {audience
+                  ? `Rounded public count. Last verified: ${new Date(audience.verifiedAt).toLocaleString("en-GB", { timeZone: "Africa/Dar_es_Salaam" })} EAT.`
+                  : "Automatic source unavailable or older than seven days. The manual setting below remains available."}
+                {lastAttempt ? ` Last sync attempt: ${new Date(lastAttempt).toLocaleString("en-GB", { timeZone: "Africa/Dar_es_Salaam" })} EAT.` : ""}
+              </p>
+            </div>
+          ) : null}
           {group.keys.map((key) => {
             const definition = SITE_SETTINGS[key];
             const isDefault = !Object.hasOwn(saved, key);

@@ -24,7 +24,7 @@ export async function generateMetadata({ params }) {
       };
     }
     return {
-      title: "Job Opportunity | Daraja",
+      title: "Job Opportunity",
       robots: {
         index: false,
         follow: true,

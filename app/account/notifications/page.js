@@ -11,7 +11,7 @@ import prisma from "@/lib/prisma";
 import styles from "./notifications.module.css";
 
 export const metadata = {
-  title: "Notifications | Daraja",
+  title: "Notifications",
   description: "View your Daraja account notifications.",
   robots: { index: false, follow: false },
 };

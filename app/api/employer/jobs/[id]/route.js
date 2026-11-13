@@ -1,6 +1,12 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
-import { canManageEmployer, employerPortalEnabled, getActor, safeAuditMetadata } from "@/lib/employer-access";
+import {
+  canManageEmployer,
+  employerPortalEnabled,
+  getActor,
+  isSuspendedEmployer,
+  safeAuditMetadata,
+} from "@/lib/employer-access";
 import { readProtectedJson } from "@/lib/request-security";
 
 const EDITABLE = new Set(["DRAFT", "PENDING_REVIEW", "REJECTED"]);
@@ -18,6 +24,9 @@ export async function PATCH(request, { params }) {
   if (!existing || !existing.employerId) return NextResponse.json({ error: "Vacancy not found" }, { status: 404 });
   if (!canManageEmployer(actor, existing.employerId)) {
     return NextResponse.json({ error: "Access denied" }, { status: 403 });
+  }
+  if (actor.role !== "ADMIN" && isSuspendedEmployer(actor)) {
+    return NextResponse.json({ error: "This employer account is suspended. Contact Daraja." }, { status: 403 });
   }
   if (actor.role !== "ADMIN" && !EDITABLE.has(existing.moderationStatus)) {
     return NextResponse.json({ error: "Published vacancies require administrator review" }, { status: 409 });

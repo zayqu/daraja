@@ -9,7 +9,7 @@ import { candidateCareerEnabled } from "@/lib/candidate-access";
 import AccountDeletionForm from "./AccountDeletionForm";
 import styles from "./privacy.module.css";
 
-export const metadata = { title: "Privacy & Data | Daraja" };
+export const metadata = { title: "Privacy & Data" };
 export const dynamic = "force-dynamic";
 
 export default async function PrivacyPage() {

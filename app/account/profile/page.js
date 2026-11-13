@@ -14,7 +14,7 @@ import prisma from "@/lib/prisma";
 import styles from "./profile.module.css";
 
 export const metadata = {
-  title: "Candidate profile | Daraja",
+  title: "Candidate profile",
   description: "Manage your private Daraja candidate profile.",
   robots: { index: false, follow: false },
 };

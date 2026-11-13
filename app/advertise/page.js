@@ -8,7 +8,7 @@ import { WHATSAPP_CHANNEL_URL } from "@/lib/site-config";
 export const dynamic = "force-dynamic";
 
 export const metadata = {
-  title: "Advertise a vacancy | DARAJA",
+  title: "Advertise a vacancy",
   description:
     "Promote your vacancy to Tanzanian job seekers on the DARAJA WhatsApp Channel and as a Featured job on Daraja Ajira.",
   alternates: { canonical: "/advertise" },

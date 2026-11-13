@@ -1,6 +1,6 @@
 # Daraja Jobs production-readiness progress
 
-Last updated: 10 November 2026
+Last updated: 13 November 2026
 
 ## Current objective
 
@@ -8,6 +8,19 @@ Build Daraja into a secure Tanzania-first work marketplace through small,
 tested vertical releases. The current priority is Phase 0 security and privacy
 hardening before expanding candidate CV, employer, freelance, payment or AI
 workflows.
+
+## Current batch: employer workspace fixes and page titles
+
+- Bug (reported from the live `/employer` page, 13 Nov 2026, signed in as the owner admin): "Post a Job" sent admins to `/post-job`, which redirected to the employer profile form; `POST /api/employer/profile` refuses admin accounts ("Account is not eligible"), so admins hit a dead end. `postJobHref(role)` in `lib/platform-roles.js` now owns where "Post a Job" leads (admins: `/admin/jobs/new`); `SiteNav`, `MobileDock` and `/post-job` use it. `/employer` shows admins (without an employer profile) shortcuts to post a job, review employers and the review queue instead of the profile form.
+- The profile form's "Submit for verification" button sat in the two-column form grid and stretched into a large block; it now uses the `portal-actions` row like the vacancy form. Company name is full width; industry and website are marked optional.
+- `/employer` now has guidance for every verification state (not started, pending, verified, rejected, suspended). Rejected employers see Daraja's note and a pre-filled form to send corrected details (the existing upsert path); suspended employers see the note and a contact link. `getActor` also selects `industry`, `website` and `verificationNote` for this.
+- Suspended employers can no longer reset an administrator's decision by re-posting their profile, or send/resubmit vacancies: `isSuspendedEmployer` guard in `app/api/employer/profile`, `app/api/employer/jobs` and `app/api/employer/jobs/[id]` (403), and `/post-job` redirects them to `/employer`. See D-037.
+- "Your vacancies" is a styled card list with status badges (Live, In review, Not approved, Closed, Draft). Admin notes were forced into Title Case by `text-transform: capitalize`; notes and statuses are now shown as written. List bullets restored (Tailwind preflight removed them). Employer copy rewritten in plain language; candidate-privacy meaning unchanged.
+- `/post-job`: the "How candidates apply" radio buttons inherited the 46px text-input box style and rendered as huge circles; they are now two tappable options. Plain-language hero/intro; success message says "live" for trusted employers' auto-published vacancies.
+- Workspace tabs (`components/ui/WorkspaceTabs.js`, shared with candidate tabs) now mark the current tab (`aria-current="page"`). "Create vacancy" is hidden until the account can create one.
+- Page titles: 15 pages set titles ending in "| Daraja" while the root template adds "| Daraja" again ("Employer workspace | Daraja | Daraja", all admin pages, sign-in, account pages, advertise, missing job). The suffix was removed from those titles; a regression test in `test/platform-quality.test.js` rejects new ones. `/employer` is now `noindex` like `/post-job`.
+- Tests: `test/employer-ui.test.js` (rewritten for the new states), `test/platform-roles.test.js` (`postJobHref`) and the title test. `npm test`: 378 pass; the 12 failures are the existing suites that need a generated Prisma client (Prisma engine download is blocked in the sandbox; CI generates it). ESLint clean. Production build (`next build --webpack`) passes with a stubbed database client; every employer state, admin view and `/post-job` checked visually at desktop and iPhone widths.
+- No schema change, no migration, no provider or cron change.
 
 ## Current batch: admin settings validation per format
 

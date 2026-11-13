@@ -358,3 +358,25 @@ test("Daraja PWA manifest owns installed-app branding", async () => {
   assert.match(appIcon, /data:image\/png;base64/);
   assert.doesNotMatch(manifestSource, /vercel/i);
 });
+
+test("page titles leave the Daraja suffix to the root title template", async () => {
+  const fs = require("node:fs");
+  const appDir = path.join(__dirname, "..", "app");
+  const layout = await readFile(path.join(appDir, "layout.js"), "utf8");
+  assert.match(layout, /template: "%s \| Daraja"/);
+
+  // A page title that already ends in "| Daraja" is shown as
+  // "... | Daraja | Daraja". Only absolute titles and Open Graph titles,
+  // which the template does not touch, may carry the brand themselves.
+  const offenders = [];
+  for (const file of fs.readdirSync(appDir, { recursive: true })) {
+    if (!/(^|[\\/])(page|layout)\.js$/.test(file)) continue;
+    const lines = fs.readFileSync(path.join(appDir, file), "utf8").split("\n");
+    lines.forEach((line, index) => {
+      if (!/\btitle:\s*["'`][^"'`]*\|\s*daraja["'`]/i.test(line)) return;
+      if (/absolute/.test(line) || /openGraph|absolute/.test(lines[index - 1] || "")) return;
+      offenders.push(`app/${file}:${index + 1}`);
+    });
+  }
+  assert.deepEqual(offenders, []);
+});

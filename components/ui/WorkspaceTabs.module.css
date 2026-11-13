@@ -25,6 +25,12 @@
   color: var(--color-teal-deep);
 }
 
+.tabs a.current {
+  border-color: var(--color-navy);
+  background: var(--color-navy);
+  color: var(--color-on-dark);
+}
+
 @media (max-width: 760px) {
   .tabs {
     display: none;

@@ -10,7 +10,7 @@ import PageHero from "@/components/ui/PageHero";
 import WorkspaceShell from "@/components/ui/WorkspaceShell";
 import styles from "./career.module.css";
 
-export const metadata = { title: "Career workspace | Daraja" };
+export const metadata = { title: "Career workspace" };
 export const dynamic = "force-dynamic";
 
 export default async function CareerPage() {

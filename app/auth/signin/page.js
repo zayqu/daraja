@@ -11,7 +11,7 @@ import { safeRedirectPath } from "@/lib/password-auth";
 import styles from "../auth.module.css";
 
 export const metadata = {
-  title: "Sign in | Daraja",
+  title: "Sign in",
   description: "Sign in to your Daraja account.",
   robots: { index: false, follow: false },
 };

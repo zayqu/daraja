@@ -592,3 +592,18 @@ from two sources that do not depend on AdSense approval:
 Candidates are never charged. A future AdSense application should pause the
 Vignette during review and address unoriginal aggregated job text first.
 
+
+## D-037 - Suspended employers cannot undo the suspension; admins post from /admin
+
+**Status:** accepted (13 November 2026)
+
+An employer whose verification status is `SUSPENDED` keeps its record and can
+see Daraja's note in `/employer`, but cannot re-post its company profile (which
+would reset the status to `PENDING`), create vacancies or resubmit vacancies.
+Only an administrator lifts a suspension. The rule lives in
+`isSuspendedEmployer` (`lib/employer-access.js`) and is enforced by the
+employer profile and vacancy APIs; the pages only mirror it.
+
+Administrators never need an employer profile: "Post a Job" leads them to
+`/admin/jobs/new` (`postJobHref` in `lib/platform-roles.js`), and `/employer`
+shows them admin shortcuts instead of the employer profile form.

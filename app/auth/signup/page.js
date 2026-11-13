@@ -10,7 +10,7 @@ import { roleHome } from "@/lib/platform-roles";
 import styles from "../auth.module.css";
 
 export const metadata = {
-  title: "Create account | Daraja",
+  title: "Create account",
   description: "Create a free Daraja account to find work or hire in Tanzania.",
   robots: { index: false, follow: false },
 };

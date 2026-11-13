@@ -34,7 +34,7 @@ test("extracts rounded public count without claiming it is exact", () => {
   assert.deepEqual(parsePublicAudience(body), { label: "13K" });
   assert.equal(parsePublicAudience(body.replace("DARAJA", "OTHER")), null);
   assert.equal(parsePublicAudience("Channel • 13K followers"), null);
-  assert.equal(parsePublicAudience(body.replace("13K", "not-a-number")), null);
+  assert.equal(parsePublicAudience(body.replaceAll("13K", "not-a-number")), null);
 });
 
 test("recognizes a verified snapshot only within seven days", () => {

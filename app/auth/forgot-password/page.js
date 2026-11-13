@@ -4,7 +4,7 @@ import EmailRequestForm from "@/components/auth/EmailRequestForm";
 import styles from "../auth.module.css";
 
 export const metadata = {
-  title: "Reset password | Daraja",
+  title: "Reset password",
   robots: { index: false, follow: false },
 };
 

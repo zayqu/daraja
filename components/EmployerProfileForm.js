@@ -2,8 +2,14 @@
 
 import { useState } from "react";
 
-export default function EmployerProfileForm() {
-  const [form, setForm] = useState({ companyName: "", industry: "", website: "" });
+// Sends the company details for verification. `initial` pre-fills the form
+// when an employer corrects details that Daraja asked them to change.
+export default function EmployerProfileForm({ initial = {}, submitLabel = "Submit for verification" }) {
+  const [form, setForm] = useState({
+    companyName: initial.companyName || "",
+    industry: initial.industry || "",
+    website: initial.website || "",
+  });
   const [status, setStatus] = useState("idle");
   const [message, setMessage] = useState("");
 
@@ -24,7 +30,7 @@ export default function EmployerProfileForm() {
       const payload = await response.json();
       if (!response.ok) throw new Error(payload.error || "Unable to save employer profile");
       setStatus("success");
-      setMessage("Your employer profile was submitted for verification.");
+      setMessage("Thank you. Your company details were sent to Daraja for verification.");
       window.location.reload();
     } catch (error) {
       setStatus("error");
@@ -34,23 +40,25 @@ export default function EmployerProfileForm() {
 
   return (
     <form className="portal-form" onSubmit={handleSubmit}>
-      <div className="portal-field">
+      <div className="portal-field portal-field-wide">
         <label htmlFor="company-name">Registered company name</label>
         <input id="company-name" autoComplete="organization" maxLength={160} required value={form.companyName} onChange={update("companyName")} />
       </div>
       <div className="portal-field">
-        <label htmlFor="industry">Industry</label>
-        <input id="industry" maxLength={160} value={form.industry} onChange={update("industry")} />
+        <label htmlFor="industry">Industry <span>(optional)</span></label>
+        <input id="industry" maxLength={160} placeholder="e.g. Banking, Logistics, NGO" value={form.industry} onChange={update("industry")} />
       </div>
       <div className="portal-field">
-        <label htmlFor="company-website">Company website</label>
+        <label htmlFor="company-website">Company website <span>(optional)</span></label>
         <input id="company-website" type="url" inputMode="url" autoComplete="url" maxLength={500} placeholder="https://example.co.tz" value={form.website} onChange={update("website")} />
-        <small>Use the official HTTPS website when one is available.</small>
+        <small>Your official website, starting with https://</small>
       </div>
       {message && <p className={`portal-message ${status}`} role={status === "error" ? "alert" : "status"}>{message}</p>}
-      <button className="portal-submit" type="submit" disabled={status === "loading"}>
-        {status === "loading" ? "Submitting…" : "Submit for verification"}
-      </button>
+      <div className="portal-actions">
+        <button className="portal-submit" type="submit" disabled={status === "loading"}>
+          {status === "loading" ? "Sending…" : submitLabel}
+        </button>
+      </div>
     </form>
   );
 }

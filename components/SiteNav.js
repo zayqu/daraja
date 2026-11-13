@@ -7,6 +7,7 @@ import { buildJobsUrl } from "@/lib/job-search";
 import { mobileDockEnabledPath } from "@/lib/mobile-navigation";
 import NavIcon from "@/components/ui/NavIcon";
 import { buildPublicNavigation } from "@/lib/public-navigation";
+import { postJobHref } from "@/lib/platform-roles";
 import styles from "./SiteNav.module.css";
 
 const DEFAULT_LINKS = buildPublicNavigation();
@@ -52,7 +53,7 @@ export default function SiteNav({
         const role = session?.user?.role;
         setAccount(
           session?.user
-            ? { signedIn: true, href: role === "ADMIN" ? "/admin" : role === "EMPLOYER" ? "/employer" : "/account", label: role === "ADMIN" ? "Admin panel" : "My account" }
+            ? { signedIn: true, role, href: role === "ADMIN" ? "/admin" : role === "EMPLOYER" ? "/employer" : "/account", label: role === "ADMIN" ? "Admin panel" : "My account" }
             : { signedIn: false }
         );
       })
@@ -165,7 +166,7 @@ export default function SiteNav({
             {right ??
               (showEmployerCta ? (
                 <Link
-                  href="/post-job"
+                  href={postJobHref(account?.role)}
                   className={styles.cta}
                   onClick={() => setOpen(false)}
                 >

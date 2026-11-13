@@ -59,7 +59,11 @@ export default function EmployerVacancyForm({ companyName, categories = JOB_CATE
       if (!response.ok) throw new Error(payload.error || "Unable to submit vacancy");
       setForm(EMPTY_FORM);
       setStatus("success");
-      setMessage("Vacancy submitted for review. You can follow its status in your employer workspace.");
+      setMessage(
+        payload.job?.moderationStatus === "PUBLISHED"
+          ? "Your vacancy is live on Daraja. You can see it in your employer workspace."
+          : "Vacancy sent for review. You can follow its status in your employer workspace."
+      );
     } catch (error) {
       setStatus("error");
       setMessage(error.message || "Unable to submit vacancy. Please try again.");
@@ -71,7 +75,7 @@ export default function EmployerVacancyForm({ companyName, categories = JOB_CATE
       <div className="portal-field">
         <label htmlFor="vacancy-company">Employer</label>
         <input id="vacancy-company" value={companyName} readOnly aria-readonly="true" />
-        <small>The authenticated employer name is applied automatically.</small>
+        <small>Taken from your employer profile.</small>
       </div>
       <div className="portal-field">
         <label htmlFor="vacancy-title">Position title</label>
@@ -99,16 +103,18 @@ export default function EmployerVacancyForm({ companyName, categories = JOB_CATE
         <input id="vacancy-deadline" type="date" required min={todayInTanzania()} value={form.deadline} onChange={update("deadline")} />
         <small>Applications close at the end of this day (Tanzania time).</small>
       </div>
-      <fieldset className="portal-field">
+      <fieldset className="portal-field portal-choices">
         <legend>How candidates apply</legend>
-        <label>
-          <input type="radio" name="vacancy-apply-method" value="email" checked={form.applyMethod === "email"} onChange={update("applyMethod")} />
-          {" "}By email
-        </label>
-        <label>
-          <input type="radio" name="vacancy-apply-method" value="link" checked={form.applyMethod === "link"} onChange={update("applyMethod")} />
-          {" "}On our website
-        </label>
+        <div className="portal-choice-row">
+          <label>
+            <input type="radio" name="vacancy-apply-method" value="email" checked={form.applyMethod === "email"} onChange={update("applyMethod")} />
+            By email
+          </label>
+          <label>
+            <input type="radio" name="vacancy-apply-method" value="link" checked={form.applyMethod === "link"} onChange={update("applyMethod")} />
+            On our website
+          </label>
+        </div>
       </fieldset>
       {form.applyMethod === "email" ? (
         <div className="portal-field">

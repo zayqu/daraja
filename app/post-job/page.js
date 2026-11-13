@@ -5,7 +5,9 @@ import {
   employerPortalEnabled,
   getActor,
   isAdmin,
+  isSuspendedEmployer,
 } from "@/lib/employer-access";
+import { postJobHref } from "@/lib/platform-roles";
 import SiteNav from "@/components/SiteNav";
 import PageHero from "@/components/ui/PageHero";
 import WorkspaceShell from "@/components/ui/WorkspaceShell";
@@ -14,8 +16,8 @@ import styles from "../portal.module.css";
 import { getCategoryNames } from "@/lib/public-jobs";
 
 export const metadata = {
-  title: "Submit a verified vacancy",
-  description: "Submit a vacancy from an authenticated Daraja employer account.",
+  title: "Create a vacancy",
+  description: "Create a vacancy from your Daraja employer account.",
   robots: { index: false, follow: false },
 };
 
@@ -26,7 +28,11 @@ export default async function PostJobPage() {
 
   const actor = await getActor();
   if (!actor) redirect("/auth/signin?callbackUrl=/post-job");
+  // Administrators post from the admin panel; they never need an employer profile.
+  if (!actor.employer && isAdmin(actor)) redirect(postJobHref(actor.role));
   if (!actor.employer) redirect("/employer");
+  // The employer workspace explains the suspension; no new vacancies meanwhile.
+  if (isSuspendedEmployer(actor)) redirect("/employer");
 
   return (
     <div className={styles.page}>
@@ -34,22 +40,22 @@ export default async function PostJobPage() {
 
       <main id="main-content">
         <PageHero
-          eyebrow="Authenticated employer submission"
-          title="Create a vacancy for review."
-          description="Daraja applies your verified employer identity automatically and keeps publication behind the moderation workflow."
+          eyebrow="Employer workspace"
+          title="Create a vacancy"
+          description="Fill in the job details below. You can follow the vacancy's status in your employer workspace."
         />
 
         <WorkspaceShell className={styles.formScope}>
-          <EmployerPortalTabs showAdmin={isAdmin(actor)} />
+          <EmployerPortalTabs showAdmin={isAdmin(actor)} showCreateVacancy />
 
           <SurfaceCard className={styles.formCard} aria-labelledby="vacancy-form-title">
             <div className={styles.formIntro}>
               <span className={styles.cardLabel}>Position information</span>
               <h2 id="vacancy-form-title">Vacancy details</h2>
               <p>
-                Use the real role title, location, controlled professional
-                category and complete position description. Your employer name
-                is taken from the authenticated account.
+                Give the real job title, where the job is, its category and a
+                full description of the role. Your company name is added from
+                your employer profile.
               </p>
             </div>
 

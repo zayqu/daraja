@@ -31,7 +31,7 @@ function database(start) {
 const body = '<html><head><meta name="description" content="Channel • 13K followers"></head><body><h1>DARAJA | KAZI NA FURSA TANZANIA</h1><p>Channel • 13K followers</p></body></html>';
 
 test("extracts rounded public count without claiming it is exact", () => {
-  assert.deepEqual(parsePublicAudience(body), { label: "13K", lowerBound: 13000 });
+  assert.deepEqual(parsePublicAudience(body), { label: "13K" });
   assert.equal(parsePublicAudience(body.replace("DARAJA", "OTHER")), null);
   assert.equal(parsePublicAudience("Channel • 13K followers"), null);
   assert.equal(parsePublicAudience(body.replace("13K", "not-a-number")), null);

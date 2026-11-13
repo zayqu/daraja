@@ -27,6 +27,8 @@ jobs:
       RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
       JOB_ALERTS_FROM_EMAIL: ${{ vars.JOB_ALERTS_FROM_EMAIL }}
       SCRAPER_HEALTH_REPORT: scraper-health.json
+      # Rounded, public aggregate label only. The exact manually recorded audience is retained.
+      WHATSAPP_CHANNEL_SYNC_ENABLED: "true"
     steps:
       - uses: actions/checkout@v5
 

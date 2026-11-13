@@ -63,7 +63,7 @@ export async function PATCH(request) {
 
   const key = typeof body.key === "string" ? body.key : "";
   const definition = SITE_SETTINGS[key];
-  if (!definition || definition.type === "snapshot") return NextResponse.json({ error: "Unknown or read-only setting" }, { status: 400 });
+  if (!definition || definition.type === "snapshot") return NextResponse.json({ error: "Unknown setting" }, { status: 400 });
 
   if (body.reset === true) {
     await prisma.$transaction([

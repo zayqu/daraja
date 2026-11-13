@@ -3,7 +3,7 @@ import ResetPasswordForm from "@/components/auth/ResetPasswordForm";
 import styles from "../auth.module.css";
 
 export const metadata = {
-  title: "Choose a new password | Daraja",
+  title: "Choose a new password",
   robots: { index: false, follow: false },
 };
 

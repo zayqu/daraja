@@ -1,5 +1,5 @@
 import { Suspense } from "react";
-import { Nunito } from "next/font/google";
+import { Poppins } from "next/font/google";
 import "./globals.css";
 import PrivacyControls from "@/components/PrivacyControls";
 import SiteFooterLinks from "@/components/SiteFooterLinks";
@@ -33,8 +33,8 @@ function monetagZones() {
     : {};
 }
 
-const nunito = Nunito({
-  variable: "--font-nunito",
+const poppins = Poppins({
+  variable: "--font-poppins",
   subsets: ["latin"],
   weight: ["400", "500", "600", "700", "800"],
   display: "swap",
@@ -88,7 +88,7 @@ export default async function RootLayout({ children }) {
   const showCandidateProfile = candidateCareerEnabled();
   const session = await auth();
   const userRole = session?.user?.role || null;
-  const rootFontClass = `${nunito.variable} ${nunito.className}`;
+  const rootFontClass = `${poppins.variable} ${poppins.className}`;
 
   return (
     <html lang="en" className={rootFontClass}>
@@ -96,7 +96,7 @@ export default async function RootLayout({ children }) {
         <meta name="google-adsense-account" content={ADSENSE_CLIENT} />
         <meta name="monetag" content="24ec21c9a26eaee13c92a0b60e24c6c8" />
       </head>
-      <body className={nunito.className}>
+      <body className={poppins.className}>
         <a className="skip-link" href="#main-content">
           Skip to main content
         </a>

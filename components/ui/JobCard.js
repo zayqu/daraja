@@ -1,5 +1,6 @@
 "use client";
 
+import formatJobTitle from "@/lib/job-title.cjs";
 import Link from "next/link";
 import JobBrandMedia from "@/components/JobBrandMedia";
 import { trackEvent } from "@/lib/analytics";
@@ -110,6 +111,7 @@ export default function JobCard({
   const deadline = deadlineLabel(job.deadline);
   const posted = postedLabel(job.createdAt);
   const tags = factTags(job);
+  const displayTitle = formatJobTitle(job.title, job.source);
 
   return (
     <Link
@@ -143,7 +145,7 @@ export default function JobCard({
 
       <div className={styles.content}>
         <div className={styles.titleRow}>
-          <h3 className={styles.title} title={job.title}>{job.title}</h3>
+          <h3 className={styles.title} title={displayTitle}>{displayTitle}</h3>
           {job.featured && <span className={styles.featured}>Featured</span>}
         </div>
 

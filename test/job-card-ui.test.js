@@ -22,7 +22,8 @@ test("public job results use one shared hierarchy-first job card", async () => {
   assert.doesNotMatch(jobsPage, /className="job-card"/);
   assert.doesNotMatch(jobsPage, /JobBrandMedia/);
 
-  assert.match(card, /<h3 className=\{styles\.title\} title=\{job\.title\}>\{job\.title\}<\/h3>/);
+  assert.match(card, /<h3 className=\{styles\.title\} title=\{displayTitle\}>\{displayTitle\}<\/h3>/);
+  assert.match(card, /formatJobTitle\(job\.title, job\.source\)/);
   assert.match(card, /className=\{styles\.company\}>\{job\.company\}/);
   assert.match(card, /className=\{styles\.location\}>\{job\.location\}/);
   assert.match(card, /className=\{styles\.tags\}/);
@@ -88,5 +89,5 @@ test("job card titles are limited to two lines with the full title on hover", ()
   const titleBlock = css.slice(css.indexOf(".title {"), css.indexOf("}", css.indexOf(".title {")));
   assert.match(titleBlock, /-webkit-line-clamp: 2/);
   assert.match(titleBlock, /overflow: hidden/);
-  assert.match(js, /className=\{styles\.title\} title=\{job\.title\}/);
+  assert.match(js, /className=\{styles\.title\} title=\{displayTitle\}/);
 });

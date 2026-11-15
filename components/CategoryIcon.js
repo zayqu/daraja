@@ -130,23 +130,14 @@ const ICONS = {
   ),
 };
 
-// Soft tile background / icon colour pairs. Mid-saturation tones that sit
-// next to the teal brand accent without competing with it.
-const TONES = [
-  { bg: "#e6f8f4", fg: "#087f6c" },
-  { bg: "#eaf1fe", fg: "#2c5bc4" },
-  { bg: "#fdf0e3", fg: "#b45309" },
-  { bg: "#f3ecfd", fg: "#6d3fc0" },
-  { bg: "#fde9ee", fg: "#b42352" },
-  { bg: "#e8f6ea", fg: "#2f7d3a" },
-  { bg: "#e7f4f9", fg: "#0e6e8c" },
-  { bg: "#fbf3d9", fg: "#8a6400" },
-];
+// One consistent Ajira brand palette for every Browse by category tile.
+// The category's SVG glyph remains unique; colour no longer depends on order.
+const CATEGORY_BRAND_TONE = Object.freeze({ bg: "#1b2a3f", fg: "#01ffd4" });
 
 export const CATEGORY_ICON_NAMES = Object.keys(ICONS);
 
-export function categoryTone(index) {
-  return TONES[index % TONES.length];
+export function categoryTone() {
+  return CATEGORY_BRAND_TONE;
 }
 
 // Icons follow the category's stable slug too, so a category renamed in

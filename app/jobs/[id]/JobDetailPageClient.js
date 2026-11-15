@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import formatJobTitle from "@/lib/job-title.cjs";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import SiteNav from "@/components/SiteNav";
@@ -129,7 +130,7 @@ export default function JobDetailPageClient({ initialJob, showEmployerCta }) {
     return [
       "📢 New Job Opportunity",
       "",
-      `Position: ${job.title}`,
+      `Position: ${formatJobTitle(job.title, job.source)}`,
       `Organisation: ${job.company}`,
       `Location: ${job.location}`,
       `Category: ${job.category}`,
@@ -262,7 +263,7 @@ export default function JobDetailPageClient({ initialJob, showEmployerCta }) {
 
               <div className={styles.summaryMain}>
                 <p className={styles.company}>{job.company}</p>
-                <h1>{job.title}</h1>
+                <h1>{formatJobTitle(job.title, job.source)}</h1>
 
                 <div className={styles.summaryMeta}>
                   <span>{job.location}</span>

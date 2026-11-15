@@ -240,7 +240,13 @@ async function runScrapers({ dryRun = false, requestedSources = new Set() } = {}
         if (sourceHealth.unverified) {
           warnings.push({
             source: source.id,
-            warning: `${sourceHealth.unverified} government vacancy notice(s) could not be verified from a fully rendered original page`,
+            warning: `${sourceHealth.unverified} government vacancy notice(s) remain unverified` +
+              (sourceHealth.verificationFailures
+                ? `: ${sourceHealth.verificationFailures.missingDetailUrl} without a public detail link; ` +
+                  `${sourceHealth.verificationFailures.detailUnavailable} detail pages unavailable; ` +
+                  `${sourceHealth.verificationFailures.unsafeRedirect} unsafe redirects; ` +
+                  `${sourceHealth.verificationFailures.incompleteOrConflictingFacts} with incomplete or conflicting facts`
+                : ""),
           });
         }
         if (sourceHealth.unresolved) {

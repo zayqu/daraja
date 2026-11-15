@@ -1,6 +1,14 @@
 # Daraja Jobs production-readiness progress
 
-Last updated: 13 November 2026
+Last updated: 15 November 2026
+
+## Current batch: explain original-notice verification blockers
+
+- Read-only inspection of the current public PSRS vacancies page confirms the earlier 10 November audit: the visible rows show position, institution, closing date and Login to Apply, without public vacancy-detail links. Missing detail URLs remain review-only leads; this is not a Chromium installation failure.
+- The existing `enrichOfficialAjiraJobs` owner now counts missing detail URLs, unavailable detail pages (including failed renders), unsafe redirects and incomplete/conflicting facts. Each unverified notice gets one aggregate reason; raw exception text is not included.
+- `collectAjiraJobs` carries the counters into the existing health JSON, and the runner warning and GitHub health summary expose them. Existing verification/publication decisions, editorial approval, application destinations and production data are unchanged.
+- Validation: all 467 tests pass with the real generated Prisma client; the 22 focused Ajira/health tests pass. Lint/build validation is recorded in the PR checks. No schema, cron, provider or production change in this branch.
+- Remaining source dependency: a public official role-level notice or documented feed is needed to verify listing-only leads. Existing PSRS PDF tools remain manual-review aids; no guessed IDs, authenticated scraping or automatic PDF approval was added. ReliefWeb HTTP 406 remains a separate source availability issue.
 
 ## Current objective
 

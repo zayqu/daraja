@@ -117,6 +117,8 @@ missing page when the historical record can be found.
 
 ## Live PSRS browser audit outcome — 10 November 2026
 
+Rechecked on 15 November 2026: the current public table still exposes Login to Apply without vacancy-detail links. The collector now reports aggregate verification blockers in `verificationFailures`: `missingDetailUrl`, `detailUnavailable`, `unsafeRedirect` and `incompleteOrConflictingFacts`. These counts also appear in the GitHub health summary. They explain an unverified result; they never authorize publication. Fixture runs with verification disabled omit these counters rather than claiming a live verification attempt occurred.
+
 A dedicated GitHub-hosted Chromium workflow (no DATABASE_URL, no writes)
 confirmed that the public vacancies table can populate 10 rows. A sampled
 public row contained a real title (Assistant Meteorological Officer II),

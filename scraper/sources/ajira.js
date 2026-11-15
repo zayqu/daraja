@@ -264,7 +264,11 @@ async function collectAjiraJobs(options = {}) {
   if (options.verifyOfficial === true || (!options.rows && options.verifyOfficial !== false)) {
     const result = await enrichOfficialAjiraJobs(jobs, { fetchFn: options.fetchFn, render: options.render });
     jobs = result.jobs;
-    verification = { verified: result.verified, unverified: result.unverified };
+    verification = {
+      verified: result.verified,
+      unverified: result.unverified,
+      verificationFailures: result.verificationFailures,
+    };
   }
   console.log(
     `Ajira rendered listings: ${rows.length} rows; ${jobs.length} candidate vacancies; ${verification.verified} verified original notices; ${rejectedGenericTitles} invalid titles skipped`

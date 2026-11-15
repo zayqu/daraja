@@ -4,6 +4,7 @@ const {
   isOfficialDetailUrl, parseOfficialAjiraDetail, enrichOfficialAjiraJobs,
 } = require("../scraper/lib/ajira-official-detail");
 const { collectAjiraJobs } = require("../scraper/sources/ajira");
+const { createHealthReport, renderHealthSummary } = require("../scraper/lib/health");
 
 const original = "https://portal.ajira.go.tz/view-advert/abc%3D%3D";
 const row = {
@@ -130,4 +131,67 @@ test("Kiswahili government notices use the same verified facts and deadline poli
   assert.equal(detail.deadline.toISOString(), "2026-11-30T23:59:59.000Z");
   assert.match(detail.description, /Maintain records across council departments/);
   assert.match(detail.description, /diploma in records management/);
+});
+
+test("missing public detail links are counted without attempting a render", async () => {
+  let renders = 0;
+  const result = await collectAjiraJobs({
+    rows: [{ ...row, sourceUrl: "https://portal.ajira.go.tz/vacancies" }],
+    verifyOfficial: true,
+    render: async () => { renders += 1; return { html }; },
+  });
+  assert.equal(renders, 0);
+  assert.equal(result.health.verified, 0);
+  assert.equal(result[0].originalEvidence.verified, false);
+  assert.deepEqual(result.health.verificationFailures, {
+    missingDetailUrl: 1, detailUnavailable: 0, unsafeRedirect: 0,
+    incompleteOrConflictingFacts: 0,
+  });
+  const report = createHealthReport({
+    startedAt: new Date(), summaries: [{ source: "ajira", ...result.health }],
+    warnings: [{ source: "ajira", warning: "1 missing detail link" }],
+  });
+  assert.equal(report.status, "degraded");
+  assert.match(renderHealthSummary(report), /Original-notice verification blockers/);
+  assert.match(renderHealthSummary(report), /\| ajira \| 1 \| 0 \| 0 \| 0 \|/);
+});
+
+test("every unverified notice has exactly one blocker across concurrent reads", async () => {
+  const jobs = [
+    { ...row, sourceUrl: "https://portal.ajira.go.tz/vacancies" },
+    ...["unavailable", "redirect", "incomplete", "throws", "verified"].map(
+      (id) => ({ ...row, sourceUrl: `https://portal.ajira.go.tz/view-advert/${id}` })
+    ),
+  ];
+  const result = await enrichOfficialAjiraJobs(jobs, {
+    render: async (url) => {
+      if (url.endsWith("/unavailable")) return null;
+      if (url.endsWith("/redirect")) return { html, url: "https://other.test/" };
+      if (url.endsWith("/incomplete")) return { html: "<body>Loading</body>", url };
+      if (url.endsWith("/throws")) throw new Error("private network diagnostic");
+      return { html, url };
+    },
+  });
+  assert.equal(result.verified, 1);
+  assert.equal(result.unverified, 5);
+  assert.deepEqual(result.verificationFailures, {
+    missingDetailUrl: 1, detailUnavailable: 2, unsafeRedirect: 1,
+    incompleteOrConflictingFacts: 1,
+  });
+  assert.equal(Object.values(result.verificationFailures).reduce((sum, n) => sum + n, 0), result.unverified);
+  assert.doesNotMatch(JSON.stringify(result), /private network diagnostic/);
+  assert.equal(jobs[5].originalEvidence, undefined);
+});
+
+test("HTTP failures, redirects and conflicting facts have distinct blockers", async () => {
+  for (const [response, reason] of [
+    [{ ok: false, status: 503 }, "detailUnavailable"],
+    [{ ok: true, url: "https://other.test/" }, "unsafeRedirect"],
+    [{ ok: true, url: original, text: async () => html.replace("30/11/2026", "29/11/2026") }, "incompleteOrConflictingFacts"],
+  ]) {
+    const result = await enrichOfficialAjiraJobs([row], { fetchFn: async () => response });
+    assert.equal(result.verified, 0);
+    assert.equal(result.verificationFailures[reason], 1);
+    assert.equal(Object.values(result.verificationFailures).reduce((sum, n) => sum + n, 0), 1);
+  }
 });

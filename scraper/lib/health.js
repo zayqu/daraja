@@ -96,6 +96,18 @@ function renderHealthSummary(report) {
       `| Source | Classified | Needs review |\n` +
       `| --- | ---: | ---: |\n${classificationRows}\n`
     : "";
+  const verificationRows = report.sources
+    .filter((source) => source.verificationFailures)
+    .map(({ source, verificationFailures: reasons }) =>
+      `| ${source} | ${reasons.missingDetailUrl ?? 0} | ` +
+      `${reasons.detailUnavailable ?? 0} | ${reasons.unsafeRedirect ?? 0} | ` +
+      `${reasons.incompleteOrConflictingFacts ?? 0} |`
+    ).join("\n");
+  const verification = verificationRows
+    ? `\n### Original-notice verification blockers\n\n` +
+      `| Source | No detail link | Page unavailable | Unsafe redirect | Incomplete or conflicting facts |\n` +
+      `| --- | ---: | ---: | ---: | ---: |\n${verificationRows}\n`
+    : "";
 
   return `## ${icon} Daraja scraper health: ${report.status}
 
@@ -106,7 +118,7 @@ function renderHealthSummary(report) {
 | Source | Found | Created | Updated | Held for review | Blocked | Merged duplicates | Archived | Duration (ms) |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
 ${rows}
-${classifications}${warnings}${failures}`;
+${classifications}${verification}${warnings}${failures}`;
 }
 
 function writeHealthReport(report, {

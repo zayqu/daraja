@@ -97,14 +97,14 @@
     max-width: 100%;
     color: inherit;
     font-size: 0.68rem;
-    font-weight: 650;
+    font-weight: 500;
     line-height: 1;
     text-overflow: ellipsis;
     white-space: nowrap;
   }
 
   .active .label {
-    font-weight: 800;
+    font-weight: 600;
   }
 
   .sheetLayer {
@@ -164,7 +164,7 @@
   .sheetHeader span {
     color: var(--color-teal-deep);
     font-size: 0.62rem;
-    font-weight: 800;
+    font-weight: 600;
     letter-spacing: 0.1em;
     text-transform: uppercase;
   }
@@ -182,7 +182,7 @@
     background: #fff;
     color: var(--color-text-muted);
     font-size: 0.7rem;
-    font-weight: 750;
+    font-weight: 500;
   }
 
   .sheetLinks {
@@ -200,7 +200,7 @@
     background: #f7f8fa;
     color: var(--color-text-secondary);
     font-size: 0.8rem;
-    font-weight: 720;
+    font-weight: 500;
     text-decoration: none;
   }
 

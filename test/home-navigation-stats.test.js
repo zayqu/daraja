@@ -97,7 +97,7 @@ test("mobile dock follows compact bottom-navigation sizing", async () => {
   assert.match(styles, /font-size:\s*0\.68rem/);
   assert.match(styles, /\.active \.iconWrap/);
   assert.match(styles, /background:\s*rgba\(0, 201, 167, 0\.12\)/);
-  assert.match(styles, /\.active \.label[\s\S]*font-weight:\s*800/);
+  assert.match(styles, /\.active \.label[\s\S]*font-weight:\s*600/);
   assert.match(layout, /await auth\(\)/);
   assert.match(layout, /userRole=\{userRole\}/);
   assert.match(layout, /<Suspense fallback=\{null\}>[\s\S]*<MobileDock/);

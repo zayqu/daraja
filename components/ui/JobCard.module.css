@@ -67,7 +67,7 @@
   margin: 0;
   color: var(--color-text);
   font-size: var(--ajira-h3);
-  font-weight: 700;
+  font-weight: 600;
   line-height: 1.35;
   letter-spacing: -0.01em;
   /* Long vacancy titles stop at two lines; the full title is on the detail page. */
@@ -91,7 +91,7 @@
   background: #fff5dc;
   color: #8b6200;
   font-size: 0.6rem;
-  font-weight: 700;
+  font-weight: 600;
 }
 
 .company,
@@ -103,7 +103,7 @@
   margin-top: 0.28rem;
   color: var(--color-text-secondary);
   font-size: 0.78rem;
-  font-weight: 600;
+  font-weight: 500;
 }
 
 .location {
@@ -128,7 +128,7 @@
   background: #f1f4f6;
   color: #5f6b7a;
   font-size: 0.65rem;
-  font-weight: 650;
+  font-weight: 500;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
@@ -153,7 +153,7 @@
   background: #f4f6f8;
   color: var(--color-text-secondary);
   font-size: 0.68rem;
-  font-weight: 700;
+  font-weight: 500;
   white-space: nowrap;
 }
 

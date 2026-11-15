@@ -21,7 +21,7 @@
 
 .logo {
   font-size: 1.42rem;
-  font-weight: 800;
+  font-weight: 700;
   line-height: 1;
   color: var(--color-teal);
   letter-spacing: 0.1em;
@@ -173,7 +173,7 @@
   background: var(--color-danger);
   color: var(--color-surface);
   font-size: 0.52rem;
-  font-weight: 800;
+  font-weight: 600;
   line-height: 1;
 }
 

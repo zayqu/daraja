@@ -20,7 +20,9 @@ concurrency:
 
 jobs:
   scrape:
-    runs-on: ubuntu-latest
+    # Playwright 1.58 Chromium does not support the Ubuntu 26.04 runner image.
+    # Keep this scraper on a supported LTS until the browser stack is upgraded.
+    runs-on: ubuntu-24.04
     timeout-minutes: 15
     env:
       DATABASE_URL: ${{ secrets.DATABASE_URL }}

@@ -84,7 +84,7 @@ export default async function Home() {
         .section-kicker {
           color: var(--color-teal);
           font-size: .7rem;
-          font-weight: 700;
+          font-weight: 600;
           letter-spacing: .16em;
           text-transform: uppercase;
         }
@@ -216,7 +216,7 @@ export default async function Home() {
           border-radius: 12px;
           background: var(--color-teal);
           color: var(--color-navy);
-          font-weight: 800;
+          font-weight: 600;
           cursor: pointer;
         }
 
@@ -260,7 +260,7 @@ export default async function Home() {
           gap: .4rem;
           color: var(--color-teal-deep);
           font-size: .85rem;
-          font-weight: 700;
+          font-weight: 600;
           text-decoration: none;
           white-space: nowrap;
         }
@@ -282,7 +282,7 @@ export default async function Home() {
           border: 1.5px solid var(--color-navy);
           border-radius: 12px;
           color: var(--color-navy);
-          font-weight: 700;
+          font-weight: 600;
           text-decoration: none;
           transition: background .15s ease, color .15s ease;
         }
@@ -315,7 +315,7 @@ export default async function Home() {
           margin: 0 0 .4rem;
           color: var(--color-on-dark);
           font-size: var(--ajira-h2);
-          font-weight: 700;
+          font-weight: 600;
           letter-spacing: -.02em;
         }
 
@@ -333,7 +333,7 @@ export default async function Home() {
           border-radius: 12px;
           background: var(--color-teal);
           color: var(--color-navy);
-          font-weight: 800;
+          font-weight: 600;
           text-decoration: none;
           white-space: nowrap;
         }
@@ -356,7 +356,7 @@ export default async function Home() {
           margin-top: .45rem;
           color: var(--color-navy);
           font-size: clamp(1.7rem, 3vw, 2.2rem);
-          font-weight: 700;
+          font-weight: 600;
           line-height: 1.15;
           letter-spacing: -.03em;
         }
@@ -419,12 +419,13 @@ export default async function Home() {
           color: var(--color-navy);
           font-size: .86rem;
           line-height: 1.3;
-        }
+        
+          font-weight: 600;}
 
         .category-count {
           color: var(--color-teal-deep);
           font-size: .74rem;
-          font-weight: 700;
+          font-weight: 500;
         }
 
         .category-card.empty .category-count {
@@ -480,7 +481,7 @@ export default async function Home() {
           background: var(--color-navy);
           color: var(--color-teal);
           font-size: .75rem;
-          font-weight: 800;
+          font-weight: 600;
         }
 
         .how-card h3 {
@@ -528,7 +529,7 @@ export default async function Home() {
           background: var(--color-teal);
           color: var(--color-navy);
           font-size: .8rem;
-          font-weight: 800;
+          font-weight: 600;
           text-decoration: none;
         }
 

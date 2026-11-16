@@ -2,6 +2,12 @@
 
 Last updated: 15 November 2026
 
+## Owner-approved vacancy: SBC Digital Marketing Professional (16 November 2026)
+
+- Owner confirmed verification and explicitly authorised publication. Added one record through the existing owner-vacancy publisher, with SBC Tanzania Limited, Dar es Salaam, full-time, 19 November deadline and sbc-recruitment@sbc.co.tz (subject: Digital Marketing Professional).
+- Existing parseOwnerVacancy validation passed for the content, category, deadline and subject-encoded mailto. Source reference and approval evidence are retained in the JSON. No application code, schema, cron, provider or scraper configuration change.
+- Production publication and live readback are pending the normal publish workflow; PR #236 records final evidence.
+
 ## Current batch: explain original-notice verification blockers
 
 - Read-only inspection of the current public PSRS vacancies page confirms the earlier 10 November audit: the visible rows show position, institution, closing date and Login to Apply, without public vacancy-detail links. Missing detail URLs remain review-only leads; this is not a Chromium installation failure.

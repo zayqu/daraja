@@ -310,3 +310,29 @@ For agency-discovered vacancies:
 If these conditions cannot be verified, Daraja rejects the vacancy rather than
 publishing an incomplete or promotional listing.
 
+
+## Fursa discovery review queue (16 November 2026)
+
+The existing `fursa-tanzania` catalog entry uses the `discovery-feed` adapter
+to read at most 30 recent items from Fursa's public WP Job Manager RSS feed.
+This adapts the Fursa reader proposed in PR #186 to the current strict editorial
+policy; its older automatic publication and Frappe expansion are not enabled.
+
+Fursa is secondary discovery evidence, never original verification. Every lead
+retains its Fursa URL, position, stated employer/location/type/deadline and
+application candidate, including email-only applications. Unknown deadlines
+remain null. The stored description is an original factual review summary, not
+a copy of the article. Payment-risk wording is preserved for existing rejection
+rules. Every lead carries mandatory review reasons even if an admin changes
+the source auto-publish setting. Existing duplicate and moderation protection apply.
+
+No board-supplied application link is fetched or media-enriched. Missing leads
+in later feed windows never archive existing records. HTTP errors, malformed
+feeds and redirects fail visibly; one feed request has a 30-second timeout.
+Fursa's public robots.txt was inspected on 16 November 2026 and has an empty
+Disallow directive for User-agent: *. This is discovery of factual metadata only;
+it is not a claim of permission to republish third-party descriptions.
+
+Production acceptance: the hourly runner reports Fursa discoveries, new leads
+enter PENDING_REVIEW (or REJECTED for detected fees), approved existing vacancies
+remain intact, and no new Fursa lead appears publicly before editorial approval.

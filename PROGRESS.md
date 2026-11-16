@@ -2,6 +2,13 @@
 
 Last updated: 15 November 2026
 
+## Fursa discovery review reader (16 November 2026)
+
+- Adapted PR #186's feed reader to current strict publication rules, using the existing fursa-tanzania identity, runner and review queue. No automatic publication, employer-link fetching, copied descriptions or new infrastructure.
+- Live read-only dry run: 30 leads held for review, no failures. The feed includes SBC Digital Marketing Professional with its 19 November deadline and sbc-recruitment@sbc.co.tz. No production database changes.
+- Local validation: 475/475 tests pass; ESLint and Prisma validation pass. Build/CI evidence is recorded on the PR before release.
+- Separately reviewed #227 against current master: deployment/cron tests pass 17/17. Automatic approval review blocked its production-impacting merge pending explicit owner approval. Production queue acceptance remains pending approved merge and scheduled runner.
+
 ## Owner-approved vacancy: SBC Digital Marketing Professional (16 November 2026)
 
 - Owner confirmed verification and explicitly authorised publication. Added one record through the existing owner-vacancy publisher, with SBC Tanzania Limited, Dar es Salaam, full-time, 19 November deadline and sbc-recruitment@sbc.co.tz (subject: Digital Marketing Professional).

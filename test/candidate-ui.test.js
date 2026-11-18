@@ -118,3 +118,21 @@ test("candidate profile explains completion and links to real My Jobs after savi
   assert.match(styles, /\.profileProgress/);
   assert.match(styles, /\.nextLink/);
 });
+
+
+test("My Jobs withdrawal is explicit and owned by the authenticated candidate", async () => {
+  const career = await read("app/account/career/page.js");
+  const button = await read("components/ui/ApplicationWithdrawButton.js");
+  const api = await read("app/api/candidate/applications/[id]/route.js");
+  const styles = await read("components/ui/ApplicationWithdrawButton.module.css");
+
+  assert.match(career, /status === "PENDING" \|\| status === "REVIEWED"/);
+  assert.match(career, /<ApplicationWithdrawButton applicationId=\{id\} \/>/);
+  assert.match(button, /window\.confirm\(/);
+  assert.match(button, /method: "PATCH"/);
+  assert.match(button, /status: "WITHDRAWN"/);
+  assert.match(button, /router\.refresh\(\)/);
+  assert.match(api, /jobSeekerId: user\.jobSeeker\.id/);
+  assert.match(api, /status: \{ in: \["PENDING", "REVIEWED"\] \}/);
+  assert.match(styles, /\.action button/);
+});

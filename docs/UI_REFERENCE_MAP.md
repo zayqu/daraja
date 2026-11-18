@@ -102,7 +102,7 @@ Implementation is adapted into Daraja's existing Next.js routes, ownership
 checks and shared Poppins/navy/mint visual system. The diagram is a user
 journey reference, not authority to publish simulated functionality.
 
-- **Registration/login/search:** profile completion now shows a field-based indicator and a next-step link after saving, without changing verification or login security. Use and refine the existing authenticated
+- **Registration/login/search:** newly verified candidates and candidate OAuth signups go to the protected profile step when enabled; employer verification routes and existing sign-in destinations are preserved. Profile completion now shows a field-based indicator and a next-step link after saving, without changing verification or login security. Use and refine the existing authenticated
   Daraja journeys, retaining employer verification and public job browsing.
 - **Applications:** external vacancies retain the verified official Apply
   destination; Daraja-managed applications alone can show internal status.

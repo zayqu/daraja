@@ -91,3 +91,31 @@ Every adopted pattern must be rebuilt using the centralized Daraja UI system:
 
 Do not import a template's routing, CSS framework, fonts, demo content,
 authentication assumptions or unsupported product features.
+
+
+### Makarya — approved Daraja userflow reference (18 November 2026)
+
+Owner-approved userflow image covers: registration/onboarding, login,
+job search, job application, messages, My Jobs, profile upgrades and community.
+
+Implementation is adapted into Daraja's existing Next.js routes, ownership
+checks and shared Poppins/navy/mint visual system. The diagram is a user
+journey reference, not authority to publish simulated functionality.
+
+- **Registration/login/search:** use and refine the existing authenticated
+  Daraja journeys, retaining employer verification and public job browsing.
+- **Applications:** external vacancies retain the verified official Apply
+  destination; Daraja-managed applications alone can show internal status.
+- **My Jobs:** candidate career workspace now displays personally saved jobs
+  and personally owned Daraja-managed application progress. External
+  applications are explicitly not auto-tracked.
+- **Messages/community:** no pretend conversations, groups or chat controls
+  until authenticated, tenant-isolated, moderated backing systems exist.
+- **Profile upgrade/payment:** no paywall or live checkout without approved,
+  provider-verified billing and valid entitlement enforcement.
+- **Tenant model:** never infer organization access from visual navigation.
+  All private data is scoped server-side to the authenticated owner, and
+  employer workspaces continue to use employer ownership/verification rules.
+
+This is a phased implementation. Inspect and verify each screen against the
+live Figma design once detailed design access is available.

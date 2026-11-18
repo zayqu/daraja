@@ -2,7 +2,16 @@
 
 Last updated: 18 November 2026
 
-## Apple Sign In requested — blocked on external prerequisites (18 November 2026)
+## Apple Sign In implementation prepared (18 November 2026, pending real provider verification)
+
+- Product owner confirmed active Apple Developer Program membership. No new membership purchase is needed.
+- Added opt-in Apple provider to existing Auth.js database-session configuration. Requires server-only `AUTH_APPLE_ID`, signed JWT `AUTH_APPLE_SECRET` and explicit `AUTH_APPLE_ENABLED=true`; otherwise Apple sign-in is not offered.
+- Added conditional Apple buttons to sign-in and candidate sign-up alongside Google, LinkedIn and email/password. Existing provider configuration, session and role rules are preserved. No automatic cross-provider email linking for Apple (including private relay accounts).
+- Added exact Apple `form_post` callback handling under Auth.js OAuth state checking while preserving origin/rate protection for all other mutations.
+- Added targeted regressions and `docs/APPLE_SIGN_IN_SETUP.md` for Apple Developer Services ID, HTTPS callback, private relay, key renewal and release verification.
+- No secrets accessed or stored; Apple is not enabled in production. Full Apple login cannot be confirmed before actual Services ID and secret configuration and manual provider validation.
+
+## Earlier Apple readiness assessment (superseded by membership confirmation)
 
 - Product owner clarified that the planned login choices include **Apple** alongside LinkedIn, Google and email/password.
 - Code review: `auth.js` currently configures only Google and LinkedIn social providers; email/password uses the protected account API. No Apple provider or credentials have been verified.

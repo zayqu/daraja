@@ -9,15 +9,31 @@ async function actor() {
   return user ? { user } : { error: NextResponse.json({ error: "Sign in required" }, { status: 401 }) };
 }
 
-export async function GET() {
+export async function GET(request) {
   const { user, error } = await actor();
   if (error) return error;
+
+  const jobId = new URL(request.url).searchParams.get("jobId");
+  if (jobId !== null) {
+    if (!jobId || jobId.length > 128) {
+      return NextResponse.json({ error: "Invalid vacancy." }, { status: 400 });
+    }
+    const savedJob = await prisma.savedJob.findUnique({
+      where: { userId_jobId: { userId: user.id, jobId } },
+      select: { id: true },
+    });
+    return NextResponse.json(
+      { saved: Boolean(savedJob) },
+      { headers: { "Cache-Control": "private, no-store" } }
+    );
+  }
+
   const savedJobs = await prisma.savedJob.findMany({
     where: { userId: user.id },
     orderBy: { createdAt: "desc" },
     include: { job: { select: { slug: true, title: true, company: true, location: true, deadline: true, active: true } } },
   });
-  return NextResponse.json({ savedJobs });
+  return NextResponse.json({ savedJobs }, { headers: { "Cache-Control": "private, no-store" } });
 }
 
 export async function POST(request) {

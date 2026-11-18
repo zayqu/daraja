@@ -111,7 +111,7 @@ journey reference, not authority to publish simulated functionality.
   and personally owned Daraja-managed application progress. External
   applications are explicitly not auto-tracked.
 - **Application review:** eligible Daraja-managed applications now expose an explicit, confirmed Withdraw action in the candidate My Jobs area. Server-side owner checks permit withdrawal only from PENDING and REVIEWED. Other employers' application records remain inaccessible; external-site applications remain untracked.
-- **Authentication:** retain Google, LinkedIn and email/password. Apple Sign In is an additional requested option, but is **not currently configured**. Only show Apple after verified Apple Developer credentials and HTTPS callback setup, privacy/account-linking tests, and explicit approval of any membership cost. Any new flow must keep callback safety, email-verification rules, and employer/admin destinations intact.
+- **Authentication:** retain Google, LinkedIn and email/password. An existing Apple Developer Program membership is confirmed. Apple login is prepared behind an explicit enable flag and private server credentials; it is not yet operational or visible until the Services ID, signed client-secret JWT, HTTPS callback and account privacy tests are completed. Apple cannot silently link an existing Daraja account by matching email. Follow `docs/APPLE_SIGN_IN_SETUP.md` before activation; preserve employer/admin/candidate routing.
 - **Messages/community:** no pretend conversations, groups or chat controls
   until authenticated, tenant-isolated, moderated backing systems exist.
 - **Profile upgrade/payment:** no paywall or live checkout without approved,

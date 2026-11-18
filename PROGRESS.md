@@ -2,6 +2,14 @@
 
 Last updated: 18 November 2026
 
+## Candidate application withdrawal from My Jobs (18 November 2026, pending final checks)
+
+- Existing candidate-owned application withdrawal backend is now accessible from the candidate My Jobs list for PENDING/REVIEWED applications only.
+- Explicit confirmation is required before sending the protected PATCH action; the button updates from the stored application status after success, with error handling and accessible status.
+- Existing official external application links are unchanged and are not represented as Daraja-managed applications. Employer tenant access and candidate privacy checks continue server-side.
+- All three sign-in choices are preserved: LinkedIn OIDC, Google OAuth, and email/password. No authentication-provider settings, account linking rules, or redirects were changed by this batch.
+- UI and regression assertions added. Pending full test, lint, build, and responsive browser review. No live release.
+
 ## Saved-job state continuity (18 November 2026, pending validation)
 
 - The job-detail page now reads the existing candidate's saved state through the existing authenticated saved-jobs API, scoped to the signed-in user's record and sent with private/no-store headers.

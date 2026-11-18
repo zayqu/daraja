@@ -97,3 +97,15 @@ test("Apple sign-in is opt-in, requires both credentials, and never silently lin
   assert.match(styles, /\.apple \{/);
   assert.match(await read("components/auth/LoginForm.js"), /\/api\/account\/login/);
 });
+
+
+test("Apple form POST is restricted to the exact configured Auth.js callback", async () => {
+  const route = await read("app/api/auth/[...nextauth]/route.js");
+  assert.match(route, /AUTH_APPLE_ENABLED === "true"/);
+  assert.match(route, /url\.pathname === "\/api\/auth\/callback\/apple"/);
+  assert.match(route, /application\/x-www-form-urlencoded/);
+  assert.match(route, /https:\/\/appleid\.apple\.com/);
+  assert.match(route, /handlers\.POST\(request\)/);
+  assert.match(route, /protectMutation\(request/);
+  assert.match(route, /status: 403/);
+});

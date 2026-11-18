@@ -1,0 +1,51 @@
+.action {
+  display: grid;
+  justify-items: end;
+  gap: 0.35rem;
+  width: 100%;
+}
+
+.action button {
+  min-height: 34px;
+  padding: 0.4rem 0.65rem;
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-button);
+  background: var(--color-surface);
+  color: var(--color-navy);
+  font: inherit;
+  font-size: 0.72rem;
+  cursor: pointer;
+}
+
+.action button:hover,
+.action button:focus-visible {
+  border-color: var(--color-navy);
+  background: var(--color-surface-muted);
+}
+
+.action button:disabled {
+  opacity: 0.55;
+  cursor: progress;
+}
+
+.withdrawn {
+  font-size: 0.72rem;
+  color: var(--color-text-muted);
+}
+
+.error {
+  max-width: 18rem;
+  color: var(--color-danger);
+  font-size: 0.7rem;
+  text-align: right;
+  line-height: 1.4;
+}
+
+@media (max-width: 420px) {
+  .action {
+    justify-items: start;
+  }
+  .error {
+    text-align: left;
+  }
+}

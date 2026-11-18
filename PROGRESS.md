@@ -2,6 +2,14 @@
 
 Last updated: 18 November 2026
 
+## Apple Sign In requested — blocked on external prerequisites (18 November 2026)
+
+- Product owner clarified that the planned login choices include **Apple** alongside LinkedIn, Google and email/password.
+- Code review: `auth.js` currently configures only Google and LinkedIn social providers; email/password uses the protected account API. No Apple provider or credentials have been verified.
+- Apple web sign-in requires Apple Developer registration, a configured App ID and Services ID, verified HTTPS callback domain and signing key. Standard Apple Developer Program membership is USD 99/year (official Apple published price; possible organizational eligibility exceptions must be verified). Existing platform budget remains USD 0; do not enroll or spend without owner approval.
+- Do not add a dead Apple login button or allow unsafe automatic email linking, especially with Apple private relay emails. Preserve employer/tenant isolation.
+- Ready for implementation and testing if already-enrolled membership/credentials become available; never request private keys or secrets in chat.
+
 ## Candidate application withdrawal from My Jobs (18 November 2026, pending final checks)
 
 - Existing candidate-owned application withdrawal backend is now accessible from the candidate My Jobs list for PENDING/REVIEWED applications only.

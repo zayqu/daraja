@@ -1,6 +1,7 @@
 import NextAuth from "next-auth";
 import Google from "next-auth/providers/google";
 import LinkedIn from "next-auth/providers/linkedin";
+import Apple from "next-auth/providers/apple";
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import prisma from "@/lib/prisma";
 import { SESSION_MAX_AGE_SECONDS } from "@/lib/password-auth";
@@ -8,6 +9,21 @@ import { isOwnerEmail } from "@/lib/platform-roles";
 
 const providers = [];
 const SESSION_UPDATE_AGE_SECONDS = 24 * 60 * 60;
+
+// Keep Apple disabled until the web Services ID, signed client-secret JWT,
+// callback URL and provider safety checks have been verified for this deployment.
+// Apple private-relay email must never trigger unsafe automatic account linking.
+if (
+  process.env.AUTH_APPLE_ENABLED === "true" &&
+  process.env.AUTH_APPLE_ID &&
+  process.env.AUTH_APPLE_SECRET
+) {
+  providers.push(Apple({
+    clientId: process.env.AUTH_APPLE_ID,
+    clientSecret: process.env.AUTH_APPLE_SECRET,
+    allowDangerousEmailAccountLinking: false,
+  }));
+}
 
 if (process.env.AUTH_LINKEDIN_ID && process.env.AUTH_LINKEDIN_SECRET) {
   providers.push(LinkedIn({

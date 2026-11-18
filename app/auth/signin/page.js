@@ -22,7 +22,7 @@ export const dynamic = "force-dynamic";
 const ERRORS = {
   link: "That link has expired or was already used. Sign in, or request a new link.",
   AccessDenied: "This account cannot sign in. Contact Daraja support if you think this is a mistake.",
-  OAuthAccountNotLinked: "This email already has a Daraja account. Sign in with your password.",
+  OAuthAccountNotLinked: "This email is linked to another sign-in method. Use the method you previously used, or contact Daraja support.",
 };
 
 export default async function SignInPage({ searchParams }) {

@@ -630,13 +630,15 @@ shared kit in `components/dashboard/DashboardUi.js`.
   employer portal is off, matching `roleHome()`.
 - **Phones: one interaction rule.** Every dock tab goes straight to a page;
   only More opens a menu (a bottom sheet, never shown on desktop). Candidates:
-  Discover, Saved, Applications, Profile (`/account/profile`). Employers:
+  Discover, My jobs, CV (the CV Builder), Profile (`/account/profile`). Employers:
   Overview, Vacancies, Post job (a solid navy action button, so it never looks
   like the teal "you are here" state), Account (`/employer/profile`). Admins:
   Overview, Jobs, Employers (pending-review badges from
-  `getAdminQueueCounts`), More. Visitors: Home, Jobs, Freelance, More. The
-  Profile/Account page ends, on phones, with the rest of the role's menu and
-  Sign out at the very bottom; the admin More sheet lists Post a job and
+  `getAdminQueueCounts`), More. Visitors: Home, Jobs, Freelance, More. Profile and
+  Account pages follow the Makarya reference: a centred identity block, a
+  gear menu with Edit and Account settings, and for candidates Experience,
+  Skills and CVs tabs drawn from their own CVs. Account settings is a short
+  list ending with Sign out; the admin More sheet lists Post a job and
   Users, then rarely used tools as compact links, and ends with Sign out. The
   visitors' More offers Sign in / Create account and says job alerts need a
   free account. Menu labels use normal weight; semibold marks titles and the
@@ -650,9 +652,10 @@ shared kit in `components/dashboard/DashboardUi.js`.
   `AdminShell` are removed (D-026 primitives `PageHero`, `WorkspaceShell` and
   `SurfaceCard` remain for public pages).
 - **Candidates:** `/account` is the dashboard (the old `/account/career` page
-  redirects there), plus `/account/applications`, `/account/saved` (with a
-  Save button on job pages) and `/account/settings` for every role. The promo
-  card offers the free CV Builder; candidates are never charged (D-036).
+  redirects there), plus My jobs at `/account/jobs` (Saved, Applied and Closed
+  tabs with search; the old Saved jobs and Applications pages redirect there;
+  job pages have a Save button) and `/account/settings` for every role. The
+  promo card offers the free CV Builder; candidates are never charged (D-036).
 - **Employers:** `/employer` overview, `/employer/vacancies` (edit and send
   again a draft, in-review or not-approved vacancy, or close any open one) and
   `/employer/profile`. A published vacancy whose closing date has passed shows

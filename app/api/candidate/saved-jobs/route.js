@@ -20,9 +20,9 @@ export async function GET() {
     include: { job: { select: { slug: true, title: true, company: true, location: true, deadline: true, active: true } } },
   });
   // Job pages offer "Save job" only to accounts whose dashboard menu has
-  // "Saved jobs" (candidates), so nobody saves into a list they cannot open.
+  // "My jobs" (candidates), so nobody saves into a list they cannot open.
   const canSave = dashboardMenu(user.role, { employerPortal: employerPortalEnabled(), candidateCareer: true })
-    .main.some((item) => item.href === "/account/saved");
+    .main.some((item) => item.href === "/account/jobs");
   return NextResponse.json({ savedJobs, canSave });
 }
 

@@ -90,7 +90,7 @@ test("admins are sent to the admin job form, never the employer profile form", a
 test("each employer verification state has its own guidance", async () => {
   const employer = await read("app/employer/page.js");
   const notice = await read("components/EmployerVerificationNotice.js");
-  const profile = await read("app/employer/profile/page.js");
+  const profile = await read("app/employer/profile/edit/page.js");
   const access = await read("lib/employer-access.js");
 
   // No profile yet: the company details form and how posting works.
@@ -103,7 +103,8 @@ test("each employer verification state has its own guidance", async () => {
   // Rejected employers correct and resend the details Daraja already holds.
   assert.match(profile, /initial=\{employer\}/);
   assert.match(profile, /employer\.verificationStatus === "REJECTED" \? "Send updated details" : "Save changes"/);
-  assert.match(profile, /suspended \? \(/);
+  // Only an administrator lifts a suspension, so suspended employers cannot edit.
+  assert.match(profile, /if \(isSuspendedEmployer\(actor\)\) redirect\("\/employer\/profile"\)/);
   assert.match(access, /verificationNote: true/);
   assert.match(access, /industry: true/);
   assert.match(access, /website: true/);

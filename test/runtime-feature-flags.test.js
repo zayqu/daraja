@@ -12,10 +12,11 @@ test("protected feature-flag pages evaluate configuration at request time", () =
     "app/employer/vacancies/page.js",
     "app/employer/vacancies/[id]/page.js",
     "app/employer/profile/page.js",
+    "app/employer/profile/edit/page.js",
     "app/post-job/page.js",
     "app/account/page.js",
-    "app/account/applications/page.js",
-    "app/account/saved/page.js",
+    "app/account/jobs/page.js",
+    "app/account/profile/edit/page.js",
     "app/account/settings/page.js",
     "app/account/profile/page.js",
     "app/account/notifications/page.js",
@@ -28,7 +29,7 @@ test("runtime activation does not weaken account or role checks", () => {
   const admin = read("lib/admin-guard.js");
   const employer = read("app/employer/page.js");
   const postJob = read("app/post-job/page.js");
-  const applications = read("app/account/applications/page.js");
+  const applications = read("app/account/jobs/page.js");
   const profile = read("app/account/profile/page.js");
 
   assert.match(admin, /if \(!isAdmin\(actor\)\) notFound\(\)/);
@@ -38,6 +39,7 @@ test("runtime activation does not weaken account or role checks", () => {
     "app/employer/vacancies/page.js",
     "app/employer/vacancies/[id]/page.js",
     "app/employer/profile/page.js",
+    "app/employer/profile/edit/page.js",
   ]) {
     assert.match(read(path), /if \(!employerPortalEnabled\(\)\) notFound\(\)/, path);
   }
@@ -46,6 +48,6 @@ test("runtime activation does not weaken account or role checks", () => {
   assert.match(profile, /candidateCareerEnabled\(\)/);
   assert.match(
     applications,
-    /redirect\("\/auth\/signin\?callbackUrl=\/account\/applications"\)/
+    /redirect\("\/auth\/signin\?callbackUrl=\/account\/jobs"\)/
   );
 });

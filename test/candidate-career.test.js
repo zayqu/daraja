@@ -79,7 +79,7 @@ test("saved jobs are scoped to the signed-in candidate", () => {
   assert.match(route, /userId_jobId/);
   assert.match(route, /active: true/);
   // Job pages offer Save only to accounts whose menu has "Saved jobs".
-  assert.match(route, /\.main\.some\(\(item\) => item\.href === "\/account\/saved"\)/);
+  assert.match(route, /\.main\.some\(\(item\) => item\.href === "\/account\/jobs"\)/);
   assert.match(button, /if \(payload\.canSave === false\) return setState\("hidden"\)/);
   assert.match(button, /if \(response\.status === 404\) return setState\("hidden"\)/);
   assert.match(jobPage, /<SaveJobButton jobId=\{job\.id\}/);

@@ -8,7 +8,7 @@ export default function EmployerVerificationNotice({ employer, showProfileLink =
   const status = employer?.verificationStatus;
   const note = employer?.verificationNote ? `Daraja's note: ${employer.verificationNote}` : null;
   const profileLink = showProfileLink ? (
-    <Link className={styles.linkArrow} href="/employer/profile">Update company profile →</Link>
+    <Link className={styles.linkArrow} href="/employer/profile/edit">Update company details →</Link>
   ) : null;
 
   if (status === "PENDING") {

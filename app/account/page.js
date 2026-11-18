@@ -142,8 +142,8 @@ export default async function AccountPage() {
       <div className={dash.overviewTop}>
         <HighlightStats
           items={[
-            { icon: "document", value: applicationTotal, label: "Applications sent", href: "/account/applications" },
-            { icon: "bookmark", value: data.savedCount, label: "Saved jobs", href: "/account/saved" },
+            { icon: "document", value: applicationTotal, label: "Applications sent", href: "/account/jobs?tab=applied" },
+            { icon: "bookmark", value: data.savedCount, label: "Saved jobs", href: "/account/jobs?tab=saved" },
           ]}
         />
         <DonutCard
@@ -154,9 +154,9 @@ export default async function AccountPage() {
             { label: "Not selected", value: groups.closed, tone: "red" },
             { label: "Withdrawn", value: groups.withdrawn, tone: "gray" },
           ]}
-          footer={<Link href="/account/applications">View all applications →</Link>}
+          footer={<Link href="/account/jobs?tab=applied">View all applications →</Link>}
         />
-        <ListCard title="Closing soon" footer={<Link href="/account/saved">Saved jobs →</Link>}>
+        <ListCard title="Closing soon" footer={<Link href="/account/jobs?tab=saved">Saved jobs →</Link>}>
           {data.closingSoon.length ? (
             <ListRows>
               {data.closingSoon.map(({ id, job }) => (
@@ -176,7 +176,7 @@ export default async function AccountPage() {
       </div>
 
       <div className={dash.overviewBottom}>
-        <ListCard title="Recent applications" footer={<Link href="/account/applications">View all applications →</Link>}>
+        <ListCard title="Recent applications" footer={<Link href="/account/jobs?tab=applied">View all applications →</Link>}>
           {data.applications.length ? (
             <ListRows>
               {data.applications.map((application) => {
@@ -202,7 +202,7 @@ export default async function AccountPage() {
           )}
         </ListCard>
 
-        <ListCard title="Saved jobs" footer={<Link href="/account/saved">View saved jobs →</Link>}>
+        <ListCard title="Saved jobs" footer={<Link href="/account/jobs?tab=saved">View saved jobs →</Link>}>
           {data.savedJobs.length ? (
             <ListRows>
               {data.savedJobs.map(({ id, job }) => (

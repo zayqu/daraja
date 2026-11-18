@@ -70,7 +70,7 @@ test("each role gets task-first phone tabs and nothing twice", async () => {
   const candidate = dashboardMenu("JOB_SEEKER", { candidateCareer: true });
   const employer = dashboardMenu("EMPLOYER", { employerPortal: true });
   const admin = dashboardMenu("ADMIN");
-  assert.deepEqual(tabs(candidate), ["Discover", "Saved", "Applications", "Profile"]);
+  assert.deepEqual(tabs(candidate), ["Discover", "My jobs", "CV", "Profile"]);
   assert.deepEqual(tabs(employer), ["Overview", "Vacancies", "Post job", "Account"]);
   assert.deepEqual(tabs(admin), ["Overview", "Jobs", "Employers", "More"]);
   assert.deepEqual(tabs(dashboardMenu("JOB_SEEKER")), ["Discover", "Alerts", "Profile"]);
@@ -100,7 +100,6 @@ test("each role gets task-first phone tabs and nothing twice", async () => {
 test("only More opens a menu, and Sign out sits at the bottom", async () => {
   const dock = await read("components/ui/MobileDock.js");
   const list = await read("components/ui/MenuList.js");
-  const accountMenu = await read("components/dashboard/AccountMenu.js");
   const styles = await read("components/ui/MobileDock.module.css");
 
   assert.match(dock, /const hasMore = !menu \|\| !menu\.accountTab\.href;/);
@@ -108,11 +107,12 @@ test("only More opens a menu, and Sign out sits at the bottom", async () => {
   assert.match(dock, /if \(menu\.accountTab\.href\) tabs\.push/);
   assert.match(styles, /max-height: min\(75dvh/);
   assert.doesNotMatch(styles, /\.sheetMenu|\.sheetSignOut|\.headerActions/);
-  // Sign out comes last: after the Daraja links in More and on the account pages.
+  // Sign out comes last: after the Daraja links in More, and at the bottom of
+  // Account settings, which the Profile/Account page's gear menu opens.
   assert.match(dock, /<DarajaLinks onNavigate=\{close\} \/>\s*<SignOutButton \/>/);
-  assert.match(accountMenu, /<DarajaLinks[^>]*\/>\s*\{signOut \? <SignOutButton \/> : null\}/);
+  assert.match(await read("app/account/settings/page.js"), /<MenuRows items=\{rows\} \/>\s*<SignOutButton \/>/);
   for (const page of ["app/account/profile/page.js", "app/employer/profile/page.js"]) {
-    assert.match(await read(page), /<AccountMenu role=\{(user|actor)\.role\} \/>/, page);
+    assert.match(await read(page), /<ProfileMenu[\s\S]*href: "\/account\/settings", label: "Account settings"/, page);
   }
   // Clear labels, and visitors learn that job alerts need an account.
   assert.match(list, />About Daraja</);

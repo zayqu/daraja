@@ -38,13 +38,14 @@ Daraja decision:
 Current mobile navigation (task-first, D-038):
 - Rule: every tab opens a page; only More opens a menu
 - Visitors: Home, Jobs, Freelance, More
-- Candidates: Discover, Saved, Applications, Profile (page)
+- Candidates: Discover, My jobs (Saved / Applied / Closed), CV, Profile (page)
 - Employers: Overview, Vacancies, Post job (solid navy action button), Account (page)
 - Admins: Overview, Jobs, Employers (badges count pending reviews), More
-- Profile/Account pages end, on phones, with the rest of the role's menu from
-  `lib/dashboard-navigation.js` and Sign out at the very bottom; the admin
-  More sheet keeps rarely used tools as compact links (at most three quarters
-  of the screen, never a tile grid)
+- Profile/Account pages follow the Makarya reference (owner, Nov 2026): centred
+  identity, gear menu (Edit, Account settings), candidate tabs Experience /
+  Skills / CVs; Account settings is a short list ending with Sign out; the
+  admin More sheet keeps rarely used tools as compact links (at most three
+  quarters of the screen, never a tile grid)
 - Labels: "About Daraja", "WhatsApp Channel"; normal weight for menu labels,
   semibold only for titles and the current item
 - Header icons: Sign in for visitors, the notifications bell for candidates;

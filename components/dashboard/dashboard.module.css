@@ -1076,14 +1076,242 @@ a.highlightItem:hover strong {
   }
 }
 
-/* Phones only: the rest of the role's menu on the Profile/Account page. */
-.accountMenu {
+/* Search box at the top of a list page (My jobs). */
+.searchField {
+  min-height: 46px;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-bottom: var(--space-4);
+  padding: 0 0.9rem;
+  border: 1px solid var(--color-border-strong);
+  border-radius: 12px;
+  background: var(--color-surface);
+  color: var(--color-text-muted);
+}
+
+.searchField:focus-within {
+  border-color: var(--color-teal);
+}
+
+.searchField input[type="search"] {
+  flex: 1;
+  min-width: 0;
+  border: 0;
+  outline: none;
+  background: transparent;
+  color: var(--color-text);
+  font: inherit;
+  font-size: 0.86rem;
+}
+
+/* Profile/Account page (Makarya pattern): gear menu, centred identity and
+   underline tabs. */
+.gearMenu {
+  position: relative;
+}
+
+.gearMenu summary {
+  width: 42px;
+  height: 42px;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--color-border-strong);
+  border-radius: 50%;
+  background: var(--color-surface);
+  color: var(--color-text-secondary);
+  list-style: none;
+  cursor: pointer;
+}
+
+.gearMenu summary::-webkit-details-marker {
   display: none;
 }
 
-@media (max-width: 760px) {
-  .accountMenu {
-    display: block;
-    margin-top: var(--space-5);
-  }
+.gearMenu[open] summary,
+.gearMenu summary:hover,
+.gearMenu summary:focus-visible {
+  border-color: var(--color-teal);
+  color: var(--color-teal-deep);
+}
+
+.gearMenuList {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  z-index: 30;
+  min-width: 200px;
+  display: grid;
+  padding: 6px;
+  border: 1px solid var(--color-border);
+  border-radius: 14px;
+  background: var(--color-surface);
+  box-shadow: var(--shadow-raised);
+}
+
+.gearMenuList a {
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 10px;
+  border-radius: 10px;
+  color: var(--color-text-secondary);
+  font-size: 0.82rem;
+  text-decoration: none;
+}
+
+.gearMenuList a:hover,
+.gearMenuList a:focus-visible {
+  background: #f2fbf9;
+  color: var(--color-teal-deep);
+}
+
+.identity {
+  display: grid;
+  justify-items: center;
+  gap: 0.2rem;
+  margin: 0 0 var(--space-5);
+  text-align: center;
+}
+
+.identityAvatar {
+  width: 84px;
+  height: 84px;
+  display: grid;
+  place-items: center;
+  margin-bottom: 0.5rem;
+  border-radius: 50%;
+  background: var(--color-navy);
+  color: var(--color-teal);
+  font-size: 1.6rem;
+  font-weight: 600;
+}
+
+.identity h2 {
+  margin: 0;
+  color: var(--color-text);
+  font-size: 1.15rem;
+  font-weight: 600;
+}
+
+.identity p {
+  margin: 0;
+  color: var(--color-text-secondary);
+  font-size: 0.86rem;
+}
+
+.identity small {
+  color: var(--color-text-muted);
+  font-size: 0.78rem;
+}
+
+.underlineTabs {
+  display: flex;
+  margin-bottom: var(--space-4);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.underlineTabs a {
+  flex: 1;
+  min-height: 46px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  margin-bottom: -1px;
+  border-bottom: 2px solid transparent;
+  color: var(--color-text-muted);
+  font-size: 0.84rem;
+  text-decoration: none;
+}
+
+.underlineTabs .tabCurrent {
+  border-bottom-color: var(--color-teal);
+  color: var(--color-teal-deep);
+  font-weight: 600;
+}
+
+.experienceList {
+  display: grid;
+  gap: var(--space-4);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.experienceList > li + li {
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--color-border);
+}
+
+.experienceHead {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 0.2rem 1rem;
+}
+
+.experienceHead strong {
+  color: var(--color-text);
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.experienceHead span,
+.experienceMeta {
+  color: var(--color-text-muted);
+  font-size: 0.76rem;
+}
+
+.experienceList ul {
+  margin: 0.5rem 0 0;
+  padding-left: 1.1rem;
+  color: var(--color-text-secondary);
+  font-size: 0.8rem;
+  line-height: 1.6;
+  list-style: disc;
+}
+
+.skillPills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.skillPills span {
+  padding: 0.35rem 0.8rem;
+  border-radius: var(--radius-pill);
+  background: #e9f9f5;
+  color: var(--color-teal-deep);
+  font-size: 0.78rem;
+}
+
+/* Account settings (Makarya pattern): employers' promo card, then the list
+   of account pages ending with Sign out. */
+.promoCard {
+  display: grid;
+  justify-items: start;
+  gap: 0.4rem;
+  margin-bottom: var(--space-5);
+  padding: var(--space-5);
+  border-radius: var(--radius-card);
+  background: var(--color-navy);
+  color: var(--color-on-dark);
+}
+
+.promoCard strong {
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.promoCard p {
+  margin: 0 0 0.4rem;
+  color: rgba(255, 255, 255, 0.75);
+  font-size: 0.82rem;
+}
+
+.settingsList {
+  max-width: 640px;
+  margin-top: var(--space-5);
 }

@@ -106,3 +106,8 @@ For production emergencies, a bounded hotfix is acceptable when necessary to res
 When documents conflict, follow the precedence defined in `AGENTS.md` and resolve the inconsistency in the same workstream when practical.
 
 A model that cannot inspect the repository or run the required validation must say so rather than inventing implementation state.
+
+**Shared engineering process and Figma requirement:** follow
+`DEVELOPMENT_PROCESS.md` for every task, in addition to the rules above.
+Figma is required for UI design/implementation; preserve project-specific
+security and production controls.

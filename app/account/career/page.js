@@ -9,15 +9,54 @@ import CandidateAccountTabs from "@/components/CandidateAccountTabs";
 import PageHero from "@/components/ui/PageHero";
 import WorkspaceShell from "@/components/ui/WorkspaceShell";
 import styles from "./career.module.css";
+import prisma from "@/lib/prisma";
 
 export const metadata = { title: "Career workspace" };
 export const dynamic = "force-dynamic";
+
+const APPLICATION_LABELS = {
+  PENDING: "Submitted",
+  REVIEWED: "Under review",
+  SHORTLISTED: "Shortlisted",
+  OFFERED: "Offer received",
+  REJECTED: "Not selected",
+  WITHDRAWN: "Withdrawn",
+};
+
+function vacancyUrl(job) {
+  return `/jobs/${encodeURIComponent(job.slug)}`;
+}
 
 export default async function CareerPage() {
   if (!candidateCareerEnabled()) notFound();
 
   const user = await getCandidateUser();
   if (!user) redirect("/auth/signin?callbackUrl=/account/career");
+
+  // Only load private records belonging to this signed-in candidate.
+  const [savedJobs, applications] = await Promise.all([
+    prisma.savedJob.findMany({
+      where: { userId: user.id },
+      orderBy: { createdAt: "desc" },
+      take: 12,
+      select: {
+        id: true,
+        job: { select: { slug: true, title: true, company: true, active: true } },
+      },
+    }),
+    user.jobSeeker
+      ? prisma.application.findMany({
+          where: { jobSeekerId: user.jobSeeker.id },
+          orderBy: { createdAt: "desc" },
+          take: 12,
+          select: {
+            id: true,
+            status: true,
+            job: { select: { slug: true, title: true, company: true } },
+          },
+        })
+      : Promise.resolve([]),
+  ]);
 
   return (
     <>
@@ -43,6 +82,57 @@ export default async function CareerPage() {
             </div>
           </section>
 
+          <section id="my-jobs" className={styles.myJobs} aria-labelledby="my-jobs-title">
+            <div className={styles.myJobsHeading}>
+              <div>
+                <span className={styles.cardLabel}>My jobs</span>
+                <h2 id="my-jobs-title">Keep track of your opportunities</h2>
+              </div>
+              <Link href="/jobs" className={styles.browseLink}>Find more jobs</Link>
+            </div>
+            <div className={styles.myJobsGrid}>
+              <section className={styles.jobPanel} aria-labelledby="saved-jobs-title">
+                <div className={styles.jobPanelHeading}>
+                  <h3 id="saved-jobs-title">Saved jobs</h3>
+                  <span>{savedJobs.length}{savedJobs.length === 12 ? "+" : ""}</span>
+                </div>
+                {savedJobs.length ? (
+                  <ul className={styles.jobList}>
+                    {savedJobs.map(({ id, job }) => (
+                      <li key={id}>
+                        <Link href={vacancyUrl(job)}>
+                          <strong>{job.title}</strong>
+                          <span>{job.company}</span>
+                        </Link>
+                        <span className={styles.jobStatus}>{job.active ? "View vacancy" : "No longer open"}</span>
+                      </li>
+                    ))}
+                  </ul>
+                ) : <p className={styles.emptyState}>No saved jobs yet. Browse vacancies to find opportunities.</p>}
+              </section>
+              <section className={styles.jobPanel} aria-labelledby="applications-title">
+                <div className={styles.jobPanelHeading}>
+                  <h3 id="applications-title">Applications</h3>
+                  <span>{applications.length}{applications.length === 12 ? "+" : ""}</span>
+                </div>
+                {applications.length ? (
+                  <ul className={styles.jobList}>
+                    {applications.map(({ id, job, status }) => (
+                      <li key={id}>
+                        <Link href={vacancyUrl(job)}>
+                          <strong>{job.title}</strong>
+                          <span>{job.company}</span>
+                        </Link>
+                        <span className={styles.jobStatus}>{APPLICATION_LABELS[status] || "Status unavailable"}</span>
+                      </li>
+                    ))}
+                  </ul>
+                ) : <p className={styles.emptyState}>Applications submitted through Daraja will appear here.</p>}
+                <p className={styles.privacyNote}>Applications sent through external employer websites are not tracked automatically.</p>
+              </section>
+            </div>
+          </section>
+
           <section className={styles.grid} aria-label="Career tools">
             <article className={styles.card}>
               <span className={styles.cardLabel}>Profile</span>
@@ -60,7 +150,7 @@ export default async function CareerPage() {
                 Keep suitable vacancies together without changing their
                 original application destination.
               </p>
-              <Link href="/jobs">Browse vacancies →</Link>
+              <Link href="/account/career#my-jobs">View saved jobs →</Link>
             </article>
 
             <article className={styles.card}>

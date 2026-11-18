@@ -35,15 +35,18 @@ Daraja decision:
 - do not expose messages, application tracking, uploads or other template
   features until the corresponding Daraja backend/product feature exists
 
-Current mobile navigation:
-- Bottom dock: Home, Jobs, the signed-in user's dashboard (Account, Employer
-  or Admin; Freelance when signed out) and More
-- More sheet: the signed-in role's dashboard menu (the same items as the
-  desktop sidebar, from `lib/dashboard-navigation.js`) and Sign out, then
-  Internships, About, Contact, WhatsApp Channel and Privacy choices; signed-out
-  visitors get Sign in, Create account and Job alerts instead of the menu
-- dashboard pages hide their sidebar at the same width the dock appears, so
-  there is never a second hamburger (D-027, D-038)
+Current mobile navigation (task-first, D-038):
+- Bottom dock, signed out: Home, Jobs, Freelance, More
+- Candidates: Discover, Saved, Applications, Profile
+- Employers: Overview, Vacancies, Post job (highlighted main action), Account
+- Admins: Overview, Jobs, Employers (badges count pending reviews), More
+- The last tab opens a short list (no tile grid, at most three quarters of
+  the screen) with the rest of the role's menu from `lib/dashboard-navigation.js`
+  in two groups, a line of Daraja links, and a quiet Sign out beside the
+  account name; visitors get Sign in / Create account buttons instead
+- Header icons: Sign in for visitors, the notifications bell for candidates;
+  no second account icon or hamburger (D-027)
+- dashboard pages hide their sidebar at the same width the dock appears
 - respects iPhone safe-area insets and viewport-fit=cover
 
 ### Jobi — candidate/employer SaaS depth

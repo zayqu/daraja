@@ -13,6 +13,7 @@ import {
   monetagEnabled,
 } from "@/lib/features";
 import { auth } from "@/auth";
+import { getAdminQueueCounts } from "@/lib/admin-queue";
 import { SITE_ORIGIN } from "@/lib/site-config";
 
 const ADSENSE_CLIENT = "ca-pub-5101856964689063";
@@ -88,6 +89,9 @@ export default async function RootLayout({ children }) {
   const showCandidateProfile = candidateCareerEnabled();
   const session = await auth();
   const userRole = session?.user?.role || null;
+  const userName = session?.user ? session.user.name || session.user.email?.split("@")[0] || "" : null;
+  // Admins see how many reviews are waiting on their phone dock tabs.
+  const dockCounts = userRole === "ADMIN" ? await getAdminQueueCounts().catch(() => null) : null;
   const rootFontClass = `${poppins.variable} ${poppins.className}`;
 
   return (
@@ -107,6 +111,8 @@ export default async function RootLayout({ children }) {
             showEmployerCta={showEmployerCta}
             showCandidateProfile={showCandidateProfile}
             userRole={userRole}
+            userName={userName}
+            counts={dockCounts}
           />
         </Suspense>
         <Suspense fallback={null}>

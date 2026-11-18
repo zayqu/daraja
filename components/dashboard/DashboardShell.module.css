@@ -341,13 +341,10 @@
     text-transform: uppercase;
   }
 
+  /* The dock's Profile/Account/More tab replaces the name chip on phones. */
   .search,
-  .userText {
-    display: none;
-  }
-
   .userChip {
-    padding: 0;
+    display: none;
   }
 
   .main {

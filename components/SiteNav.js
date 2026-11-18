@@ -8,6 +8,7 @@ import { mobileDockEnabledPath } from "@/lib/mobile-navigation";
 import NavIcon from "@/components/ui/NavIcon";
 import { buildPublicNavigation } from "@/lib/public-navigation";
 import { postJobHref, roleHome } from "@/lib/platform-roles";
+import { dashboardMenu } from "@/lib/dashboard-navigation";
 import styles from "./SiteNav.module.css";
 
 const DEFAULT_LINKS = buildPublicNavigation();
@@ -93,31 +94,37 @@ export default function SiteNav({
           </form>
         )}
 
-        {dockManaged && (
-          <div className={styles.mobileAccountActions} aria-label="Candidate account">
-            <Link
-              href="/account/notifications"
-              className={styles.mobileIconButton}
-              aria-label="Notifications"
-              title="Notifications"
-            >
-              <NavIcon name="bell" />
-              {notificationCount > 0 ? (
-                <span className={styles.mobileBadge}>
-                  {notificationCount > 99 ? "99+" : notificationCount}
-                </span>
-              ) : null}
-            </Link>
-            {showCandidateProfile && (
+        {/* Phones: the dock owns the account menu (D-038), so the header only
+            offers sign-in to visitors and the bell to candidates. */}
+        {dockManaged && account && (
+          <div className={styles.mobileAccountActions}>
+            {!account.signedIn ? (
               <Link
-                href="/account"
+                href="/auth/signin"
                 className={styles.mobileIconButton}
-                aria-label="Account"
-                title="Account"
+                aria-label="Sign in"
+                title="Sign in"
               >
                 <NavIcon name="user" />
               </Link>
-            )}
+            ) : dashboardMenu(account.role, {
+                employerPortal: showEmployerCta,
+                candidateCareer: showCandidateProfile,
+              }).role === "JOB_SEEKER" ? (
+              <Link
+                href="/account/notifications"
+                className={styles.mobileIconButton}
+                aria-label="Notifications"
+                title="Notifications"
+              >
+                <NavIcon name="bell" />
+                {notificationCount > 0 ? (
+                  <span className={styles.mobileBadge}>
+                    {notificationCount > 99 ? "99+" : notificationCount}
+                  </span>
+                ) : null}
+              </Link>
+            ) : null}
           </div>
         )}
 

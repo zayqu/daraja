@@ -7,18 +7,22 @@ async function read(relativePath) {
   return readFile(path.join(__dirname, "..", relativePath), "utf8");
 }
 
-test("mobile header owns notification and account icon actions", async () => {
+test("mobile header offers sign-in to visitors and the bell to candidates", async () => {
   const publicNav = await read("components/PublicSiteNav.js");
   const nav = await read("components/SiteNav.js");
   const styles = await read("components/SiteNav.module.css");
 
   assert.match(publicNav, /showCandidateProfile=\{candidateCareerEnabled\(\)\}/);
-  assert.match(nav, /href="\/account\/notifications"/);
+  // Visitors: a sign-in shortcut. Signed-in users reach their account from
+  // the dock's Profile/Account/More tab, so the header does not repeat it.
+  assert.match(nav, /!account\.signedIn \? \(\s*<Link\s+href="\/auth\/signin"/);
+  assert.match(nav, /aria-label="Sign in"/);
+  assert.match(nav, /<NavIcon name="user" \/>/);
+  assert.doesNotMatch(nav, /aria-label="Account"/);
+  // Candidates keep the notifications bell.
+  assert.match(nav, /\}\)\.role === "JOB_SEEKER" \? \(\s*<Link\s+href="\/account\/notifications"/);
   assert.match(nav, /aria-label="Notifications"/);
   assert.match(nav, /<NavIcon name="bell" \/>/);
-  assert.match(nav, /href="\/account"/);
-  assert.match(nav, /aria-label="Account"/);
-  assert.match(nav, /<NavIcon name="user" \/>/);
   assert.match(styles, /\.mobileAccountActions/);
   assert.match(styles, /\.mobileIconButton/);
   assert.match(styles, /\.dockManaged\.nav\s*\{/);

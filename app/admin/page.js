@@ -3,6 +3,7 @@ import AdminJobReviewQueue from "@/components/AdminJobReviewQueue";
 import { Badge, PageHeader, Panel, StatCard, formatDate } from "@/components/dashboard/DashboardUi";
 import styles from "@/components/dashboard/dashboard.module.css";
 import { requireAdminPage } from "@/lib/admin-guard";
+import { getAdminQueueCounts } from "@/lib/admin-queue";
 import prisma from "@/lib/prisma";
 
 export const dynamic = "force-dynamic";
@@ -35,15 +36,14 @@ export default async function AdminOverviewPage() {
   const now = new Date();
   const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
 
-  const [liveJobs, pendingCount, newJobs, users, newUsers, employers, pendingEmployers, pendingJobs, activity] =
+  const [liveJobs, { pendingJobs: pendingCount, pendingEmployers }, newJobs, users, newUsers, employers, pendingJobs, activity] =
     await Promise.all([
       prisma.job.count({ where: { moderationStatus: "PUBLISHED", active: true } }),
-      prisma.job.count({ where: { moderationStatus: "PENDING_REVIEW" } }),
+      getAdminQueueCounts(),
       prisma.job.count({ where: { createdAt: { gte: weekAgo } } }),
       prisma.user.count(),
       prisma.user.count({ where: { createdAt: { gte: weekAgo } } }),
       prisma.employer.count(),
-      prisma.employer.count({ where: { verificationStatus: "PENDING" } }),
       prisma.job.findMany({
         where: { moderationStatus: "PENDING_REVIEW" },
         orderBy: { createdAt: "desc" },

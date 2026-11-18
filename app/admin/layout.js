@@ -1,6 +1,6 @@
 import DashboardFrame from "@/components/dashboard/DashboardFrame";
 import { requireAdminPage } from "@/lib/admin-guard";
-import prisma from "@/lib/prisma";
+import { getAdminQueueCounts } from "@/lib/admin-queue";
 
 export const metadata = {
   title: "Admin",
@@ -11,13 +11,10 @@ export const dynamic = "force-dynamic";
 
 export default async function AdminLayout({ children }) {
   await requireAdminPage();
-  const [pendingJobs, pendingEmployers] = await Promise.all([
-    prisma.job.count({ where: { moderationStatus: "PENDING_REVIEW" } }),
-    prisma.employer.count({ where: { verificationStatus: "PENDING" } }),
-  ]);
+  const counts = await getAdminQueueCounts();
 
   return (
-    <DashboardFrame counts={{ pendingJobs, pendingEmployers }}>
+    <DashboardFrame counts={counts}>
       {children}
     </DashboardFrame>
   );

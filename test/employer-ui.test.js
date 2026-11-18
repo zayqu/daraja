@@ -13,7 +13,7 @@ test("employer, admin and post-job pages share the signed-in dashboard frame", a
 
   assert.match(await read("app/employer/layout.js"), /<DashboardFrame>\{children\}<\/DashboardFrame>/);
   assert.match(await read("app/post-job/layout.js"), /<DashboardFrame>\{children\}<\/DashboardFrame>/);
-  assert.match(await read("app/admin/layout.js"), /await requireAdminPage\(\);[\s\S]*<DashboardFrame counts=\{\{ pendingJobs, pendingEmployers \}\}>/);
+  assert.match(await read("app/admin/layout.js"), /await requireAdminPage\(\);[\s\S]*const counts = await getAdminQueueCounts\(\);[\s\S]*<DashboardFrame counts=\{counts\}>/);
 
   // Each role gets its own menu; employers fall back to the candidate menu
   // while the employer portal is switched off, like roleHome().
@@ -34,7 +34,7 @@ test("dashboard menus mark exactly one page as current", async () => {
 
   assert.match(shell, /aria-current=\{active \? "page" : undefined\}/);
   assert.match(shell, /activeMenuHref\(\[\.\.\.menu\.main, \.\.\.menu\.settings\], pathname\)/);
-  assert.match(dock, /activeMenuHref\(menuItems, pathname\)/);
+  assert.match(dock, /activeHref = activeMenuHref\(/);
 
   const employer = items(dashboardMenu("EMPLOYER", { employerPortal: true }));
   assert.equal(activeMenuHref(employer, "/employer"), "/employer");

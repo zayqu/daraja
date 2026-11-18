@@ -210,6 +210,41 @@ export default function NavIcon({ name, size = 22 }) {
     );
   }
 
+  if (name === "close") {
+    return (
+      <svg {...common}>
+        <path d="m6.5 6.5 11 11M17.5 6.5l-11 11" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+      </svg>
+    );
+  }
+
+  if (name === "chevron") {
+    return (
+      <svg {...common}>
+        <path d="m9.5 6 6 6-6 6" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+      </svg>
+    );
+  }
+
+  if (name === "chat") {
+    return (
+      <svg {...common}>
+        <path d="M4.5 12a7.5 7.5 0 1 1 3.4 6.3L4 19.5l1.2-3.7A7.4 7.4 0 0 1 4.5 12Z" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round" />
+        <path d="M9 10.5h6M9 13.5h4" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+      </svg>
+    );
+  }
+
+  if (name === "info") {
+    return (
+      <svg {...common}>
+        <circle cx="12" cy="12" r="8.5" stroke="currentColor" strokeWidth="1.8" />
+        <path d="M12 11v5.5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+        <circle cx="12" cy="7.8" r="1" fill="currentColor" />
+      </svg>
+    );
+  }
+
   if (name === "internships") {
     return (
       <svg {...common}>

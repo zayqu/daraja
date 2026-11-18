@@ -60,3 +60,50 @@ test("mobile dock uses centralized Daraja design tokens", async () => {
   assert.match(styles, /var\(--mobile-dock-radius\)/);
   assert.match(styles, /var\(--mobile-dock-height\)/);
 });
+
+test("each role gets task-first phone tabs and a short menu without repeats", async () => {
+  const { accountSheetSections, dashboardMenu } = await import("../lib/dashboard-navigation.js");
+  const tabs = (menu) => [...menu.dock.map((item) => item.label), menu.accountTab.label];
+
+  const candidate = dashboardMenu("JOB_SEEKER", { candidateCareer: true });
+  const employer = dashboardMenu("EMPLOYER", { employerPortal: true });
+  const admin = dashboardMenu("ADMIN");
+  assert.deepEqual(tabs(candidate), ["Discover", "Saved", "Applications", "Profile"]);
+  assert.deepEqual(tabs(employer), ["Overview", "Vacancies", "Post job", "Account"]);
+  assert.deepEqual(tabs(admin), ["Overview", "Jobs", "Employers", "More"]);
+  assert.deepEqual(tabs(dashboardMenu("JOB_SEEKER")), ["Discover", "Alerts", "Profile"]);
+
+  // Posting is the employer's main action; admins see what waits for review.
+  assert.equal(employer.dock.find((item) => item.primary).href, "/post-job");
+  assert.deepEqual(admin.dock.filter((item) => item.count).map((item) => item.count), ["pendingJobs", "pendingEmployers"]);
+  // No applicant tab until Daraja-managed applications exist for employers.
+  assert.doesNotMatch(JSON.stringify(employer), /Applicants/);
+
+  for (const menu of [candidate, employer, admin, dashboardMenu("JOB_SEEKER")]) {
+    const dockHrefs = new Set(menu.dock.map((item) => item.href));
+    const sheet = accountSheetSections(menu).flatMap((section) => section.items);
+    assert.ok(menu.dock.length + 1 >= 3 && menu.dock.length + 1 <= 5, menu.role);
+    // Nothing appears twice, and nothing from the desktop menu is lost.
+    assert.ok(sheet.every((item) => !dockHrefs.has(item.href)), menu.role);
+    for (const item of [...menu.main, ...menu.settings]) {
+      assert.ok(dockHrefs.has(item.href) || sheet.includes(item), `${menu.role} ${item.href}`);
+    }
+  }
+});
+
+test("the phone menu is a short list with a quiet sign out", async () => {
+  const dock = await read("components/ui/MobileDock.js");
+  const styles = await read("components/ui/MobileDock.module.css");
+
+  assert.match(styles, /max-height: min\(75dvh/);
+  assert.match(styles, /\.sheetList \{/);
+  assert.doesNotMatch(styles, /\.sheetMenu|\.sheetSignOut/);
+  // Sign out sits beside the account name as plain text, not a coloured row.
+  assert.match(dock, /className=\{styles\.headerActions\}[\s\S]*<form action=\{signOutAction\}>/);
+  assert.match(styles, /\.signOut \{[^}]*background: none;/);
+  // Admin tabs carry the review counts, counted once per request.
+  assert.match(await read("app/layout.js"), /userRole === "ADMIN" \? await getAdminQueueCounts\(\)/);
+  assert.match(await read("lib/admin-queue.js"), /export const getAdminQueueCounts = cache\(/);
+  assert.match(await read("app/admin/page.js"), /getAdminQueueCounts\(\)/);
+  assert.match(dock, /<span className="sr-only">, \{item\.badge\} waiting<\/span>/);
+});

@@ -623,16 +623,27 @@ in the Daraja brand colours and Poppins. Pages build their content from the
 shared kit in `components/dashboard/DashboardUi.js`.
 
 - **One menu owner.** Each role's menu lives only in
-  `lib/dashboard-navigation.js` (`dashboardMenu`, `activeMenuHref`). The
-  desktop sidebar and the phone dock's "More" sheet both read it, so a role
-  sees the same items, with Sign out, on every screen. Employers use the
+  `lib/dashboard-navigation.js` (`dashboardMenu`, `accountSheetSections`,
+  `activeMenuHref`). The desktop sidebar shows all of it; the phone dock shows
+  the same menu split in two, so nothing appears twice. Employers use the
   candidate menu while the employer portal is off, matching `roleHome()`.
-- **Phones.** The sidebar hides at the dock's 760px breakpoint; the dock's
-  third slot opens the user's dashboard (Account, Employer or Admin) and More
-  carries the role menu. This supersedes the D-035 admin drawer and the
-  per-role tab bars: `WorkspaceTabs`, `CandidateAccountTabs`,
-  `EmployerPortalTabs` and `AdminShell` are retired (D-026 primitives
-  `PageHero`, `WorkspaceShell` and `SurfaceCard` remain for public pages).
+- **Phones: task-first tabs.** The dock shows each role's everyday tasks plus
+  one tab for everything else: candidates Discover, Saved, Applications,
+  Profile; employers Overview, Vacancies, Post job (the highlighted main
+  action), Account; admins Overview, Jobs, Employers (with pending-review
+  badges from `getAdminQueueCounts`), More. Visitors keep Home, Jobs,
+  Freelance, More. The last tab opens a short list (at most three quarters of
+  the screen, never a tile grid) with the rest of the role's menu in the
+  sidebar's two groups, a line of Daraja links and a quiet Sign out beside the
+  account name. No Applicants tab until employers have Daraja-managed
+  applications. The phone header no longer repeats the account icon: visitors
+  get a Sign in icon, candidates keep the notifications bell (this updates
+  the D-027 and D-028 header icons).
+- **Retired.** The sidebar hides at the dock's 760px breakpoint. This
+  supersedes the D-035 admin drawer and the per-role tab bars:
+  `WorkspaceTabs`, `CandidateAccountTabs`, `EmployerPortalTabs` and
+  `AdminShell` are removed (D-026 primitives `PageHero`, `WorkspaceShell` and
+  `SurfaceCard` remain for public pages).
 - **Candidates:** `/account` is the dashboard (the old `/account/career` page
   redirects there), plus `/account/applications`, `/account/saved` (with a
   Save button on job pages) and `/account/settings` for every role. The promo

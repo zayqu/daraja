@@ -134,11 +134,12 @@
     padding: 10px 14px 14px;
     border: 1px solid rgba(255, 255, 255, 0.7);
     border-radius: 24px;
-    background: rgba(255, 255, 255, 0.94);
+    background: rgba(245, 247, 250, 0.97);
     box-shadow: var(--shadow-raised);
     backdrop-filter: saturate(160%) blur(24px);
     -webkit-backdrop-filter: saturate(160%) blur(24px);
-    max-height: calc(100dvh - var(--mobile-dock-height) - 40px - env(safe-area-inset-bottom));
+    /* Never more than three quarters of the screen; longer lists scroll. */
+    max-height: min(75dvh, calc(100dvh - var(--mobile-dock-height) - 40px - env(safe-area-inset-bottom)));
     overflow-y: auto;
     overscroll-behavior: contain;
   }
@@ -159,12 +160,29 @@
     padding: 2px 2px 12px;
   }
 
-  .sheetHeader div {
+  .identity {
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .identity div {
+    min-width: 0;
     display: grid;
     gap: 1px;
   }
 
-  .sheetHeader span {
+  .identity strong {
+    overflow: hidden;
+    color: var(--color-navy);
+    font-size: 0.92rem;
+    font-weight: 600;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .identity span {
     color: var(--color-teal-deep);
     font-size: 0.62rem;
     font-weight: 600;
@@ -172,123 +190,217 @@
     text-transform: uppercase;
   }
 
-  .sheetHeader strong {
-    color: var(--color-navy);
-    font-size: 1rem;
+  .identityAvatar {
+    width: 40px;
+    height: 40px;
+    flex: none;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    background: var(--color-navy);
+    color: var(--color-teal);
+    font-size: 0.78rem;
+    font-weight: 700;
   }
 
-  .sheetHeader button {
-    min-height: 36px;
-    padding: 0 10px;
+  .headerActions {
+    flex: none;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .headerActions form {
+    margin: 0;
+  }
+
+  .closeButton {
+    width: 36px;
+    height: 36px;
+    flex: none;
+    display: grid;
+    place-items: center;
     border: 1px solid var(--color-border-strong);
-    border-radius: 10px;
+    border-radius: 50%;
     background: #fff;
     color: var(--color-text-muted);
-    font-size: 0.7rem;
-    font-weight: 500;
-  }
-
-  /* Signed-in users: their dashboard menu (lib/dashboard-navigation.js). */
-  .sheetMenu {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 6px;
-  }
-
-  .sheetMenu a {
-    min-width: 0;
-    min-height: 46px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 0 10px;
-    border-radius: 12px;
-    background: #f7f8fa;
-    color: var(--color-text-secondary);
-    font-size: 0.78rem;
-    font-weight: 500;
-    text-decoration: none;
-  }
-
-  .sheetMenu a svg {
-    flex: none;
-  }
-
-  .sheetMenu a span {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-
-  .sheetMenu a:hover,
-  .sheetMenu a:focus-visible {
-    background: #eefbf8;
-    color: var(--color-teal-deep);
-  }
-
-  .sheetMenu .sheetMenuActive {
-    background: rgba(0, 201, 167, 0.12);
-    color: var(--color-teal-deep);
-    font-weight: 600;
-  }
-
-  .sheetSignOut {
-    margin: 6px 0 10px;
-    padding-bottom: 10px;
-    border-bottom: 1px solid var(--color-border);
-  }
-
-  .sheetSignOut button {
-    width: 100%;
-    min-height: 46px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 0 10px;
-    border: 0;
-    border-radius: 12px;
-    background: #fef3f2;
-    color: var(--color-danger);
-    font: inherit;
-    font-size: 0.78rem;
-    font-weight: 600;
     cursor: pointer;
   }
 
-  .sheetLinks {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 6px;
+  /* One short list per group (no tile grid), so the sheet stays compact. */
+  .sheetSection + .sheetSection {
+    margin-top: 10px;
   }
 
-  .sheetLinks a,
-  .sheetLinks button {
-    min-height: 46px;
+  .sheetLabel {
+    margin: 0 0 6px;
+    padding: 0 4px;
+    color: var(--color-text-muted);
+    font-size: 0.6rem;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+
+  .sheetList {
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    border: 1px solid var(--color-border);
+    border-radius: 14px;
+    background: #fff;
+    list-style: none;
+  }
+
+  .sheetList li + li {
+    border-top: 1px solid var(--color-border);
+  }
+
+  .sheetList a {
+    min-height: 44px;
     display: flex;
     align-items: center;
+    gap: 10px;
     padding: 0 12px;
-    border-radius: 12px;
-    background: #f7f8fa;
     color: var(--color-text-secondary);
     font-size: 0.8rem;
     font-weight: 500;
     text-decoration: none;
   }
 
-  .sheetLinks button {
-    width: 100%;
+  .sheetList a span {
+    flex: 1;
+  }
+
+  .sheetList a svg:last-child {
+    color: var(--color-text-faint);
+  }
+
+  .sheetList a:hover,
+  .sheetList a:focus-visible {
+    background: #f7fbfa;
+    color: var(--color-teal-deep);
+  }
+
+  .sheetList .rowActive {
+    background: rgba(0, 201, 167, 0.1);
+    color: var(--color-teal-deep);
+    font-weight: 600;
+  }
+
+  .authActions {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+    margin-bottom: 10px;
+  }
+
+  .authPrimary,
+  .authSecondary {
+    min-height: 44px;
+    display: grid;
+    place-items: center;
+    border-radius: 12px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-decoration: none;
+  }
+
+  .authPrimary {
+    background: var(--color-teal);
+    color: var(--color-navy);
+  }
+
+  .authSecondary {
+    border: 1px solid var(--color-border-strong);
+    background: #fff;
+    color: var(--color-navy);
+  }
+
+  .footerLinks {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2px 14px;
+    margin-top: 8px;
+    padding: 0 4px;
+  }
+
+  .footerLinks a,
+  .footerLinks button {
+    min-height: 32px;
+    display: inline-flex;
+    align-items: center;
+    padding: 0;
     border: 0;
+    background: none;
+    color: var(--color-text-muted);
     font-family: inherit;
-    text-align: left;
+    font-size: 0.7rem;
+    font-weight: 500;
+    text-decoration: none;
     cursor: pointer;
   }
 
-  .sheetLinks a:hover,
-  .sheetLinks a:focus-visible,
-  .sheetLinks button:hover,
-  .sheetLinks button:focus-visible {
-    background: #eefbf8;
+  .footerLinks a:hover,
+  .footerLinks a:focus-visible,
+  .footerLinks button:hover,
+  .footerLinks button:focus-visible {
     color: var(--color-teal-deep);
+  }
+
+  /* Present but quiet: signing out is not an everyday task. */
+  .signOut {
+    min-height: 32px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 0;
+    border: 0;
+    background: none;
+    color: var(--color-text-muted);
+    font-family: inherit;
+    font-size: 0.7rem;
+    font-weight: 500;
+    cursor: pointer;
+  }
+
+  .signOut:hover,
+  .signOut:focus-visible {
+    color: var(--color-danger);
+  }
+
+  /* Employers' "Post job" tab is the one main action. */
+  .primary .iconWrap {
+    background: var(--color-teal);
+    color: var(--color-navy);
+  }
+
+  .primary.active .iconWrap {
+    background: var(--color-teal);
+    box-shadow: 0 0 0 3px rgba(0, 201, 167, 0.25);
+  }
+
+  .primary .label {
+    color: var(--color-navy);
+    font-weight: 600;
+  }
+
+  .badge {
+    position: absolute;
+    top: -4px;
+    right: -6px;
+    min-width: 17px;
+    height: 17px;
+    display: grid;
+    place-items: center;
+    padding: 0 4px;
+    border: 2px solid #fff;
+    border-radius: var(--radius-pill);
+    background: #d92d20;
+    color: #fff;
+    font-size: 0.56rem;
+    font-weight: 700;
+    line-height: 1;
   }
 }
 

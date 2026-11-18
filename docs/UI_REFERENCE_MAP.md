@@ -106,7 +106,7 @@ journey reference, not authority to publish simulated functionality.
   Daraja journeys, retaining employer verification and public job browsing.
 - **Applications:** external vacancies retain the verified official Apply
   destination; Daraja-managed applications alone can show internal status.
-- **My Jobs:** candidate career workspace now displays personally saved jobs
+- **My Jobs:** job detail can save a vacancy through the authenticated candidate API. The candidate career workspace displays personally saved jobs
   and personally owned Daraja-managed application progress. External
   applications are explicitly not auto-tracked.
 - **Messages/community:** no pretend conversations, groups or chat controls

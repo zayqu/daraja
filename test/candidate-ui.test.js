@@ -84,3 +84,18 @@ test("My Jobs shows only the signed-in candidate's saved jobs and applications",
   assert.match(styles, /\.myJobsGrid/);
   assert.match(styles, /@media \(max-width: 760px\)/);
 });
+
+
+test("job detail saves through the protected candidate API and preserves official Apply", async () => {
+  const detail = await read("app/jobs/[id]/JobDetailPageClient.js");
+  const page = await read("app/jobs/[id]/page.js");
+  const styles = await read("app/jobs/[id]/job-detail.module.css");
+  assert.match(detail, /fetch\("\/api\/candidate\/saved-jobs"/);
+  assert.match(detail, /method: "POST"/);
+  assert.match(detail, /credentials: "same-origin"/);
+  assert.match(detail, /showCandidateSave && <button/);
+  assert.match(detail, /setJobSaved\(true\)/);
+  assert.match(detail, /href=\{applicationHref\}/);
+  assert.match(page, /showCandidateSave=\{candidateCareerEnabled\(\)\}/);
+  assert.match(styles, /\.saveJobAction/);
+});

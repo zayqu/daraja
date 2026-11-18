@@ -1,6 +1,23 @@
 # Daraja Jobs production-readiness progress
 
-Last updated: 15 November 2026
+Last updated: 18 November 2026
+
+## Candidate My Jobs userflow implementation (18 November 2026, pending validation)
+
+- Used owner-supplied Makarya userflow diagram as the journey reference.
+- Updated the existing candidate career workspace to show saved vacancies and
+  Daraja-managed applications with persisted statuses, bounded to 12 items per
+  list and scoped server-side to the authenticated candidate.
+- Added a My Jobs entry to the existing candidate account home, linked back
+  to the canonical career workspace instead of creating a duplicate route.
+- Kept external employer applications distinct; no fake application status.
+- Added responsive styles and regression assertions for ownership and links.
+- No database migration, payments, messaging, community, provider traffic,
+  tenant schema change or production deployment.
+- Pending: execute relevant automated tests, lint and build; visually verify
+  mobile/desktop output; full Figma interaction inspection remains limited.
+- Future work: registration/profile completion UX, search/apply flow polishing,
+  and separately approved protected messaging/community/billing.
 
 ## Fursa discovery review reader (16 November 2026)
 

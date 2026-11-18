@@ -2,6 +2,13 @@
 
 Last updated: 18 November 2026
 
+## Candidate registration to profile setup userflow (18 November 2026, pending validation)
+
+- Existing email-verification success route now guides newly verified candidate accounts to the protected profile editor when candidate career functionality is enabled; employer/admin role home and existing login callback policies remain unchanged.
+- Candidate OAuth signup buttons use the same private profile start destination when available; no new registration handler, tenant model, schema, or provider is introduced.
+- Added regression assertions for candidate destination, feature gating, employer signup destination and existing sign-in redirect safety.
+- Pending build/test and browser validation; no production release.
+
 ## Candidate My Jobs userflow implementation (18 November 2026, pending validation)
 
 - Used owner-supplied Makarya userflow diagram as the journey reference.

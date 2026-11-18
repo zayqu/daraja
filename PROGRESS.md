@@ -2,6 +2,26 @@
 
 Last updated: 18 November 2026
 
+## Apple environment readiness and application integrity (18 November 2026, pending latest CI)
+
+- Added credential-free `config/apple-auth.env.example`, offline
+  `scripts/check-apple-auth-config.cjs`, and the
+  `npm run auth:apple:check` command. The checker reports missing/invalid
+  Services ID, signed JWT structure/expiry and HTTPS origin without exposing
+  sensitive values. Passing format checks is not Apple authentication
+  verification. Corresponding tests in `test/apple-auth-config.test.js`.
+- The existing candidate application API now refuses to create a tracked
+  Daraja application if **either** an employer website/email application URL
+  or an external source URL exists. Previously it checked only sourceUrl,
+  risking a misleading internal application for email-only employer posts.
+  Preserves the official destination in the conflict response.
+- Existing Google, LinkedIn and email/password login flows stay in place.
+  Apple remains off until verified Apple Developer settings and end-to-end
+  authentication, including private relay behavior, are approved.
+- No actual credentials, database migrations, provider calls, or production
+  deployment. Latest automated checks and responsive browser verification
+  still required.
+
 ## Apple Sign In implementation prepared (18 November 2026, pending real provider verification)
 
 - Product owner confirmed active Apple Developer Program membership. No new membership purchase is needed.

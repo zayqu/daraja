@@ -2,7 +2,7 @@
 
 Last updated: 18 November 2026
 
-## Apple environment readiness and application integrity (18 November 2026, pending latest CI)
+## Apple environment readiness and application integrity (18 November 2026, CI passed)
 
 - Added credential-free `config/apple-auth.env.example`, offline
   `scripts/check-apple-auth-config.cjs`, and the
@@ -19,8 +19,11 @@ Last updated: 18 November 2026
   Apple remains off until verified Apple Developer settings and end-to-end
   authentication, including private relay behavior, are approved.
 - No actual credentials, database migrations, provider calls, or production
-  deployment. Latest automated checks and responsive browser verification
-  still required.
+  deployment. On 18 November, GitHub validation run 44334143657 passed
+  automated tests, ESLint, schema validation, production bundle, packaged
+  runtime and smoke test. Vercel preview also built successfully.
+  Responsive browser verification and actual Apple sign-in with a configured
+  Services ID/client secret remain outstanding.
 
 ## Apple Sign In implementation prepared (18 November 2026, pending real provider verification)
 

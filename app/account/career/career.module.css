@@ -269,3 +269,19 @@
     text-align: left;
   }
 }
+
+.applicationActions {
+  display: grid;
+  gap: 0.45rem;
+  justify-items: end;
+  flex: 0 0 auto;
+  max-width: 190px;
+}
+
+@media (max-width: 420px) {
+  .applicationActions {
+    justify-items: start;
+    width: 100%;
+    max-width: 100%;
+  }
+}

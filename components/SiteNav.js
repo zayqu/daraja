@@ -7,7 +7,7 @@ import { buildJobsUrl } from "@/lib/job-search";
 import { mobileDockEnabledPath } from "@/lib/mobile-navigation";
 import NavIcon from "@/components/ui/NavIcon";
 import { buildPublicNavigation } from "@/lib/public-navigation";
-import { postJobHref } from "@/lib/platform-roles";
+import { postJobHref, roleHome } from "@/lib/platform-roles";
 import styles from "./SiteNav.module.css";
 
 const DEFAULT_LINKS = buildPublicNavigation();
@@ -53,7 +53,7 @@ export default function SiteNav({
         const role = session?.user?.role;
         setAccount(
           session?.user
-            ? { signedIn: true, role, href: role === "ADMIN" ? "/admin" : role === "EMPLOYER" ? "/employer" : "/account", label: role === "ADMIN" ? "Admin panel" : "My account" }
+            ? { signedIn: true, role, href: roleHome(role, { employerPortal: showEmployerCta }) }
             : { signedIn: false }
         );
       })
@@ -61,7 +61,7 @@ export default function SiteNav({
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [showEmployerCta]);
 
   function handleSearch(event) {
     event.preventDefault();
@@ -155,7 +155,7 @@ export default function SiteNav({
                 className={styles.link}
                 onClick={() => setOpen(false)}
               >
-                {account.signedIn ? account.label : "Sign in"}
+                {account.signedIn ? "Dashboard" : "Sign in"}
               </Link>
             ) : null}
             {account && !account.signedIn && !right ? (

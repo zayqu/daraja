@@ -1,109 +1,7 @@
-/* Daraja admin dashboard: sidebar shell, page header, stat cards, tables,
-   forms and badges. Uses the shared design tokens from styles/tokens.css. */
-
-.shell {
-  min-height: 100vh;
-  display: grid;
-  grid-template-columns: 248px minmax(0, 1fr);
-  background: var(--color-surface-muted, #f5f7f9);
-  color: var(--color-text);
-}
-
-.sidebar {
-  position: sticky;
-  top: 0;
-  height: 100vh;
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-4);
-  padding: var(--space-5) var(--space-4);
-  background: var(--color-navy);
-  color: #fff;
-}
-
-.brand {
-  display: flex;
-  align-items: baseline;
-  gap: 0.5rem;
-  padding: 0 0.5rem;
-  color: var(--color-teal);
-  font-weight: 850;
-  letter-spacing: 0.12em;
-  text-decoration: none;
-}
-
-.brand small {
-  color: rgba(255, 255, 255, 0.6);
-  font-size: 0.68rem;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-}
-
-.nav {
-  display: grid;
-  gap: 0.2rem;
-}
-
-.navLink {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.6rem;
-  padding: 0.62rem 0.75rem;
-  border-radius: 10px;
-  color: rgba(255, 255, 255, 0.78);
-  font-size: 0.84rem;
-  font-weight: 650;
-  text-decoration: none;
-}
-
-.navLink:hover {
-  background: rgba(255, 255, 255, 0.07);
-  color: #fff;
-}
-
-.navActive {
-  background: rgba(45, 212, 191, 0.16);
-  color: #fff;
-}
-
-.navCount {
-  min-width: 1.4rem;
-  padding: 0.1rem 0.45rem;
-  border-radius: 999px;
-  background: var(--color-teal);
-  color: var(--color-navy);
-  font-size: 0.68rem;
-  font-weight: 800;
-  text-align: center;
-}
-
-.sidebarFoot {
-  margin-top: auto;
-  display: grid;
-  gap: 0.5rem;
-  padding: 0.75rem 0.5rem 0;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
-  font-size: 0.75rem;
-  color: rgba(255, 255, 255, 0.65);
-}
-
-.sidebarFoot a,
-.sidebarFoot button {
-  color: rgba(255, 255, 255, 0.85);
-  background: none;
-  border: 0;
-  padding: 0;
-  font: inherit;
-  text-align: left;
-  text-decoration: none;
-  cursor: pointer;
-}
-
-.main {
-  min-width: 0;
-  padding: var(--space-6) var(--space-6) var(--space-12);
-}
+/* Daraja dashboard kit shared by the admin, employer and candidate
+   dashboards: page header, panels, stat cards, lists, tables, forms and
+   badges. The sidebar and top bar live in DashboardShell.module.css. Uses the
+   shared design tokens from styles/tokens.css. */
 
 .pageHeader {
   display: flex;
@@ -251,7 +149,7 @@ a.stat:hover {
   background: #f9fafb;
   color: var(--color-text-muted);
   font-size: 0.72rem;
-  font-weight: 750;
+  font-weight: 600;
   letter-spacing: 0.05em;
   text-align: left;
   text-transform: uppercase;
@@ -308,7 +206,7 @@ a.stat:hover {
   color: var(--color-navy);
   font: inherit;
   font-size: 0.78rem;
-  font-weight: 750;
+  font-weight: 600;
   text-decoration: none;
   white-space: nowrap;
   cursor: pointer;
@@ -348,7 +246,7 @@ a.stat:hover {
   background: #f2f4f7;
   color: #344054;
   font-size: 0.7rem;
-  font-weight: 750;
+  font-weight: 600;
   white-space: nowrap;
 }
 
@@ -391,7 +289,7 @@ a.stat:hover {
   margin-bottom: 0.35rem;
   color: var(--color-text-secondary);
   font-size: 0.78rem;
-  font-weight: 750;
+  font-weight: 600;
 }
 
 .field .input,
@@ -529,7 +427,7 @@ a.stat:hover {
   border: 1px solid var(--color-border-strong);
   border-radius: var(--radius-button, 10px);
   background: #fff;
-  font-weight: 800;
+  font-weight: 600;
   list-style: none;
   cursor: pointer;
 }
@@ -641,7 +539,7 @@ a.stat:hover {
 }
 
 .settingText label {
-  font-weight: 750;
+  font-weight: 600;
 }
 
 .settingControl {
@@ -666,57 +564,420 @@ a.stat:hover {
   justify-self: start;
 }
 
-/* Mobile drawer button (hidden on desktop) */
-.drawerToggle {
-  display: none;
+/* Overview widgets (employer and candidate dashboards) */
+.overviewTop {
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr) minmax(0, 1fr);
+  gap: var(--space-5);
+  margin-bottom: var(--space-5);
+}
+
+.overviewBottom {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-5);
+  margin-bottom: var(--space-5);
+}
+
+.card {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  padding: var(--space-5);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-card);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-soft);
+}
+
+.cardHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: var(--space-3);
+}
+
+.cardTitle {
+  margin: 0 0 var(--space-3);
+  font-size: 1.05rem;
+  font-weight: 600;
+}
+
+.cardHead .cardTitle {
+  margin: 0;
+}
+
+.cardFooter {
+  margin-top: auto;
+  padding-top: var(--space-4);
+}
+
+.cardFooter a,
+.linkArrow {
+  color: var(--color-teal-deep);
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.cardFooter a:hover,
+.linkArrow:hover {
+  text-decoration: underline;
+}
+
+.highlight {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-content: center;
+  gap: var(--space-4);
+  padding: var(--space-5);
+  border: 1px solid #cdeee6;
+  border-radius: var(--radius-card);
+  background: #effaf7;
+}
+
+.highlightItem {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  color: var(--color-navy);
+  text-decoration: none;
+}
+
+.highlightIcon {
+  width: 52px;
+  height: 52px;
+  display: grid;
+  place-items: center;
+  margin-bottom: var(--space-4);
+  border-radius: 50%;
+  background: var(--color-navy);
+  color: var(--color-teal);
+}
+
+.highlightItem:nth-child(2) .highlightIcon {
+  background: var(--color-teal);
+  color: var(--color-navy);
+}
+
+.highlightItem strong {
+  font-size: 2.6rem;
+  font-weight: 600;
+  line-height: 1;
+}
+
+.highlightItem > span:last-child {
+  color: var(--color-text-secondary);
+  font-size: 0.82rem;
+}
+
+a.highlightItem:hover strong {
+  color: var(--color-teal-deep);
+}
+
+.donutRow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-5);
+}
+
+.donut {
+  position: relative;
+  width: 112px;
+  height: 112px;
+  flex: none;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+}
+
+.donut::after {
+  content: "";
+  position: absolute;
+  inset: 18px;
+  border-radius: 50%;
+  background: var(--color-surface);
+}
+
+.donut span {
+  position: relative;
+  z-index: 1;
+  font-size: 1.3rem;
+  font-weight: 600;
+}
+
+.legend {
+  min-width: 0;
+  display: grid;
+  gap: 0.45rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 0.78rem;
+  color: var(--color-text-secondary);
+}
+
+.legend li {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.legend strong {
+  margin-left: auto;
+  padding-left: 0.5rem;
+  color: var(--color-text);
+}
+
+.legendDot {
+  width: 10px;
+  height: 10px;
+  flex: none;
+  border-radius: 50%;
+}
+
+.listRows {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.listRow {
+  display: grid;
+  grid-template-columns: 40px minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: 0.45rem 0.85rem;
+  padding: 0.8rem 0;
+  border-top: 1px solid var(--color-border);
+}
+
+.listRows .listRow:first-child {
+  border-top: 0;
+  padding-top: 0.2rem;
+}
+
+.rowAvatar {
+  width: 40px;
+  height: 40px;
+  display: grid;
+  place-items: center;
+  border-radius: 12px;
+  background: #eef2f6;
+  color: var(--color-navy);
+  font-size: 0.74rem;
+  font-weight: 700;
+}
+
+.rowMain {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.rowMain a,
+.rowMain strong {
+  overflow-wrap: anywhere;
+  color: var(--color-text);
+  font-size: 0.88rem;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.rowMain a:hover,
+.rowMain a:focus-visible {
+  color: var(--color-teal-deep);
+  text-decoration: underline;
+}
+
+.rowMain span {
+  color: var(--color-text-muted);
+  font-size: 0.74rem;
+}
+
+.rowBadge {
+  display: flex;
+}
+
+/* The top-row cards are narrow: the badge goes under the name instead of
+   squeezing it onto several lines. */
+.overviewTop .listRow {
+  grid-template-columns: 40px minmax(0, 1fr);
+}
+
+.overviewTop .rowBadge {
+  grid-column: 2;
+}
+
+.rowActionsInline {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 0.4rem;
+}
+
+.rowNote {
+  grid-column: 2 / -1;
+  margin: 0;
+  padding: 0.55rem 0.75rem;
+  border-radius: 10px;
+  background: #fef3f2;
+  color: var(--color-danger);
+  font-size: 0.76rem;
+  line-height: 1.5;
+}
+
+.emptyState {
+  display: grid;
+  justify-items: start;
+  gap: 0.5rem;
+  padding: var(--space-4) 0;
+}
+
+.emptyState strong {
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.emptyState p {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: 0.8rem;
+  line-height: 1.6;
+}
+
+.noticeBox {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem 1rem;
+  margin-bottom: var(--space-5);
+  padding: 0.9rem 1.1rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-panel);
+  background: var(--color-surface);
+}
+
+.noticeBox strong {
+  display: block;
+  font-size: 0.88rem;
+  font-weight: 600;
+}
+
+.noticeBox p {
+  margin: 0.2rem 0 0;
+  color: var(--color-text-secondary);
+  font-size: 0.8rem;
+  line-height: 1.55;
+}
+
+.noticeInfo {
+  border-color: #cdeee6;
+  background: #effaf7;
+}
+
+.noticeWarning {
+  border-color: #fde7c2;
+  background: #fffaeb;
+}
+
+.noticeDanger {
+  border-color: #f8d7d4;
+  background: #fef3f2;
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.chip {
+  min-height: 34px;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.35rem 0.8rem;
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-pill);
+  background: var(--color-surface);
+  color: var(--color-text-secondary);
+  font-size: 0.76rem;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.chip:hover {
+  border-color: var(--color-teal);
+}
+
+.chipActive,
+.chipActive:hover {
+  border-color: var(--color-navy);
+  background: var(--color-navy);
+  color: var(--color-on-dark);
+}
+
+.detailList {
+  display: grid;
+  gap: 0.75rem;
+  margin: 0;
+}
+
+.detailList div {
+  display: grid;
+  grid-template-columns: 9rem minmax(0, 1fr);
+  gap: 0.75rem;
+  font-size: 0.82rem;
+}
+
+.detailList dt {
+  color: var(--color-text-muted);
+}
+
+.detailList dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 1180px) {
+  .overviewTop {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .overviewTop > :first-child {
+    grid-column: 1 / -1;
+  }
 }
 
 @media (max-width: 960px) {
-  .shell {
-    grid-template-columns: 1fr;
+  .overviewTop,
+  .overviewBottom {
+    grid-template-columns: minmax(0, 1fr);
   }
 
-  .sidebar {
-    position: sticky;
-    z-index: 30;
-    height: auto;
-    flex-direction: row;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0.7rem var(--space-4);
+  .card {
+    padding: var(--space-4);
   }
 
-  .drawerToggle {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.4rem;
-    padding: 0.45rem 0.75rem;
-    border: 1px solid rgba(255, 255, 255, 0.25);
-    border-radius: 10px;
-    background: transparent;
-    color: #fff;
-    font: inherit;
-    font-size: 0.8rem;
-    font-weight: 750;
+  .highlightItem strong {
+    font-size: 2.1rem;
   }
 
-  .nav,
-  .sidebarFoot {
-    display: none;
+  .listRow {
+    grid-template-columns: 36px minmax(0, 1fr) auto;
   }
 
-  .sidebarOpen {
-    flex-wrap: wrap;
+  .rowActionsInline {
+    grid-column: 2 / -1;
+    justify-content: flex-start;
   }
 
-  .sidebarOpen .nav,
-  .sidebarOpen .sidebarFoot {
-    display: grid;
-    flex-basis: 100%;
-  }
-
-  .main {
-    padding: var(--space-4) var(--space-4) 7rem;
+  .detailList div {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.15rem;
   }
 
   .pageHeader h1 {

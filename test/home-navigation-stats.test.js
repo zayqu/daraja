@@ -26,15 +26,17 @@ test("public navigation uses one shared source of truth", async () => {
   assert.match(mobileDock, /icon: "freelance"/);
   assert.match(mobileDock, /useSearchParams/);
   assert.match(mobileDock, /searchParams\.get\("type"\) === "FREELANCE"/);
-  assert.match(mobileDock, /userRole === "JOB_SEEKER"/);
-  assert.match(mobileDock, /userRole === "EMPLOYER"/);
+  // Signed-in users get their own dashboard in the dock and their dashboard
+  // menu, with Sign out, in the "More" sheet (D-038).
   assert.match(mobileDock, /userRole === "ADMIN"/);
-  assert.match(mobileDock, /label: "Career"/);
+  assert.match(mobileDock, /dashboardMenu\(userRole, \{ employerPortal: showEmployerCta, candidateCareer: showCandidateProfile \}\)/);
+  assert.match(mobileDock, /menu\?\.role === "EMPLOYER"/);
+  assert.match(mobileDock, /label: "Account"/);
   assert.match(mobileDock, /label: "Employer"/);
   assert.match(mobileDock, /label: "Admin"/);
+  assert.match(mobileDock, /<form action=\{signOutAction\}/);
   assert.match(mobileDock, /size=\{24\}/);
   assert.match(mobileDock, />\s*Internships\s*</);
-  assert.match(mobileDock, />\s*Employer workspace\s*</);
 });
 
 test("homepage sends live platform counters to the shared navy footer", async () => {

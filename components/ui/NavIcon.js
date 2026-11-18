@@ -118,6 +118,98 @@ export default function NavIcon({ name, size = 22 }) {
     );
   }
 
+  if (name === "dashboard") {
+    return (
+      <svg {...common}>
+        <rect x="3.5" y="3.5" width="7" height="7" rx="2" stroke="currentColor" strokeWidth="1.8" />
+        <rect x="13.5" y="3.5" width="7" height="7" rx="2" stroke="currentColor" strokeWidth="1.8" />
+        <rect x="3.5" y="13.5" width="7" height="7" rx="2" stroke="currentColor" strokeWidth="1.8" />
+        <rect x="13.5" y="13.5" width="7" height="7" rx="2" stroke="currentColor" strokeWidth="1.8" />
+      </svg>
+    );
+  }
+
+  if (name === "plus") {
+    return (
+      <svg {...common}>
+        <rect x="3.5" y="3.5" width="17" height="17" rx="4" stroke="currentColor" strokeWidth="1.8" />
+        <path d="M12 8v8M8 12h8" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+      </svg>
+    );
+  }
+
+  if (name === "users") {
+    return (
+      <svg {...common}>
+        <circle cx="9" cy="8.5" r="3" stroke="currentColor" strokeWidth="1.8" />
+        <path d="M3.5 19c.5-3.4 2.4-5.1 5.5-5.1s5 1.7 5.5 5.1M15.5 5.8a3 3 0 0 1 0 5.4M17.5 14.2c1.6.6 2.6 2.2 3 4.8" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+      </svg>
+    );
+  }
+
+  if (name === "categories") {
+    return (
+      <svg {...common}>
+        <path d="M4 6.5h16M4 12h16M4 17.5h10" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+      </svg>
+    );
+  }
+
+  if (name === "sources") {
+    return (
+      <svg {...common}>
+        <circle cx="12" cy="12" r="8.5" stroke="currentColor" strokeWidth="1.8" />
+        <path d="M3.5 12h17M12 3.5c2.4 2.4 3.5 5.2 3.5 8.5s-1.1 6.1-3.5 8.5c-2.4-2.4-3.5-5.2-3.5-8.5S9.6 5.9 12 3.5Z" stroke="currentColor" strokeWidth="1.6" strokeLinejoin="round" />
+      </svg>
+    );
+  }
+
+  if (name === "settings") {
+    return (
+      <svg {...common}>
+        <circle cx="12" cy="12" r="3" stroke="currentColor" strokeWidth="1.8" />
+        <path d="M12 3.5v2.2M12 18.3v2.2M20.5 12h-2.2M5.7 12H3.5M18 6l-1.6 1.6M7.6 16.4 6 18M18 18l-1.6-1.6M7.6 7.6 6 6" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+      </svg>
+    );
+  }
+
+  if (name === "help") {
+    return (
+      <svg {...common}>
+        <circle cx="12" cy="12" r="8.5" stroke="currentColor" strokeWidth="1.8" />
+        <path d="M9.6 9.4a2.5 2.5 0 0 1 4.8.9c0 1.7-2.4 2.1-2.4 3.7" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+        <circle cx="12" cy="17" r="1" fill="currentColor" />
+      </svg>
+    );
+  }
+
+  if (name === "bookmark") {
+    return (
+      <svg {...common}>
+        <path d="M6.5 4h11v16.5L12 16.8l-5.5 3.7V4Z" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round" />
+      </svg>
+    );
+  }
+
+  if (name === "cv") {
+    return (
+      <svg {...common}>
+        <rect x="4.5" y="3.5" width="15" height="17" rx="2.5" stroke="currentColor" strokeWidth="1.8" />
+        <circle cx="12" cy="9" r="2.2" stroke="currentColor" strokeWidth="1.6" />
+        <path d="M8.5 15c.6-1.6 1.8-2.4 3.5-2.4s2.9.8 3.5 2.4M8.5 17.8h7" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+      </svg>
+    );
+  }
+
+  if (name === "search") {
+    return (
+      <svg {...common}>
+        <circle cx="11" cy="11" r="6.5" stroke="currentColor" strokeWidth="1.8" />
+        <path d="m16 16 4.5 4.5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+      </svg>
+    );
+  }
+
   if (name === "internships") {
     return (
       <svg {...common}>

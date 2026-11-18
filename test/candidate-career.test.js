@@ -73,9 +73,16 @@ test("candidate document download and delete remain owner-scoped", () => {
 
 test("saved jobs are scoped to the signed-in candidate", () => {
   const route = read("app/api/candidate/saved-jobs/route.js");
+  const button = read("components/SaveJobButton.js");
+  const jobPage = read("app/jobs/[id]/JobDetailPageClient.js");
   assert.match(route, /where: \{ userId: user\.id \}/);
   assert.match(route, /userId_jobId/);
   assert.match(route, /active: true/);
+  // Job pages offer Save only to accounts whose menu has "Saved jobs".
+  assert.match(route, /\.main\.some\(\(item\) => item\.href === "\/account\/saved"\)/);
+  assert.match(button, /if \(payload\.canSave === false\) return setState\("hidden"\)/);
+  assert.match(button, /if \(response\.status === 404\) return setState\("hidden"\)/);
+  assert.match(jobPage, /<SaveJobButton jobId=\{job\.id\}/);
 });
 
 test("applications preserve official external application destinations", () => {

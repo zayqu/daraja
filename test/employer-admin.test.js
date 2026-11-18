@@ -32,17 +32,32 @@ test("admin verification and moderation require RBAC and audit decisions", () =>
 test("employers can only list and edit their own reviewable vacancies", () => {
   const list = read("app/api/employer/jobs/route.js");
   const edit = read("app/api/employer/jobs/[id]/route.js");
+  const rules = read("lib/employer-vacancy.js");
   assert.match(list, /employerId: actor\.employer\.id/);
   assert.match(edit, /canManageEmployer\(actor, existing\.employerId\)/);
-  assert.match(edit, /EDITABLE\.has\(existing\.moderationStatus\)/);
+  assert.match(rules, /EMPLOYER_EDITABLE_STATUSES = new Set\(\["DRAFT", "PENDING_REVIEW", "REJECTED"\]\)/);
+  assert.match(edit, /actor\.role !== "ADMIN" && !EMPLOYER_EDITABLE_STATUSES\.has\(existing\.moderationStatus\)/);
   assert.match(edit, /JOB_SUBMITTED_FOR_REVIEW/);
+  // Closing a vacancy takes it off the board and is audited.
+  assert.match(edit, /body\.action === "withdraw"/);
+  assert.match(edit, /data: \{ moderationStatus: "ARCHIVED", active: false \}/);
+  assert.match(edit, /JOB_WITHDRAWN_BY_EMPLOYER/);
 });
 
 test("new employer vacancies use the authenticated employer and enter review", () => {
   const route = read("app/api/employer/jobs/route.js");
+  const access = read("lib/employer-access.js");
   assert.match(route, /company: actor\.employer\.companyName/);
   assert.match(route, /moderationStatus: "PENDING_REVIEW"/);
   assert.match(route, /submittedById: actor\.id/);
+  // Only verified employers an admin trusts skip review (one owner for the
+  // rule), and their live vacancy refreshes the public job lists at once.
+  assert.match(access, /return Boolean\(employer\?\.autoPublish && employer\.verificationStatus === "VERIFIED"\)/);
+  assert.match(route, /\.\.\.\(publishesWithoutReview\(actor\.employer\)/);
+  assert.match(route, /if \(job\.moderationStatus === "PUBLISHED"\) revalidateTag\(PUBLIC_JOBS_CACHE_TAG, "seconds"\)/);
+  for (const page of ["app/employer/page.js", "app/employer/profile/page.js", "app/post-job/page.js"]) {
+    assert.match(read(page), /publishesWithoutReview\((actor\.)?employer\)/, page);
+  }
 });
 
 test("migration preserves current public jobs and creates indexed audit history", () => {

@@ -1,3 +1,5 @@
+import DashboardFrame from "@/components/dashboard/DashboardFrame";
+
 export const metadata = {
   title: "Post a Job",
   description:
@@ -8,5 +10,5 @@ export const metadata = {
 };
 
 export default function PostJobLayout({ children }) {
-  return children;
+  return <DashboardFrame>{children}</DashboardFrame>;
 }

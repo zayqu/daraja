@@ -20,47 +20,56 @@ test("Daraja design tokens have one shared source", async () => {
   assert.doesNotMatch(globals, /--color-navy:\s*#1b2a3f/);
 });
 
-test("candidate and employer navigation use one workspace tabs primitive", async () => {
-  const candidate = await read("components/CandidateAccountTabs.js");
-  const employer = await read("components/EmployerPortalTabs.js");
-  const shared = await read("components/ui/WorkspaceTabs.js");
+test("every signed-in role uses one dashboard shell and one menu owner", async () => {
+  const shell = await read("components/dashboard/DashboardShell.js");
+  const frame = await read("components/dashboard/DashboardFrame.js");
+  const dock = await read("components/ui/MobileDock.js");
 
-  assert.match(candidate, /WorkspaceTabs/);
-  assert.match(employer, /WorkspaceTabs/);
-  assert.match(shared, /aria-label=\{label\}/);
+  assert.match(frame, /<DashboardShell/);
+  assert.match(shell, /dashboardMenu\(role, \{ employerPortal, candidateCareer \}\)/);
+  assert.match(dock, /dashboardMenu\(userRole/);
+  assert.match(shell, /<form action=\{signOutAction\}>/);
+  assert.match(dock, /<form action=\{signOutAction\}/);
 
-  await assert.rejects(
-    access(path.join(__dirname, "..", "components", "CandidateAccountTabs.module.css")),
-  );
-  await assert.rejects(
-    access(path.join(__dirname, "..", "components", "EmployerPortalTabs.module.css")),
-  );
+  // The old per-role tab bars and the separate admin shell are gone.
+  for (const removed of [
+    "components/CandidateAccountTabs.js",
+    "components/EmployerPortalTabs.js",
+    "components/ui/WorkspaceTabs.js",
+    "components/admin/AdminShell.js",
+  ]) {
+    await assert.rejects(access(path.join(__dirname, "..", removed)), removed);
+  }
 });
 
-test("protected workspaces use shared hero and shell primitives", async () => {
-  const pages = await Promise.all([
-    read("app/account/career/page.js"),
-    read("app/account/alerts/page.js"),
-    read("app/account/privacy/page.js"),
-    read("app/employer/page.js"),
-    read("app/post-job/page.js"),
-  ]);
-
-  for (const page of pages) {
-    assert.match(page, /PageHero/);
-    assert.match(page, /WorkspaceShell/);
+test("protected workspaces use the shared dashboard page kit", async () => {
+  for (const page of [
+    "app/account/page.js",
+    "app/account/alerts/page.js",
+    "app/account/privacy/page.js",
+    "app/employer/page.js",
+    "app/employer/vacancies/page.js",
+    "app/employer/profile/page.js",
+    "app/post-job/page.js",
+    "app/admin/page.js",
+  ]) {
+    const source = await read(page);
+    assert.match(source, /from "@\/components\/dashboard\/DashboardUi"/, page);
+    assert.match(source, /<PageHeader/, page);
+    assert.doesNotMatch(source, /PageHero|WorkspaceShell|PublicSiteNav/, page);
   }
 });
 
 test("shared surface cards own common card chrome", async () => {
   const card = await read("components/ui/SurfaceCard.module.css");
   const privacy = await read("app/account/privacy/page.js");
-  const employer = await read("app/employer/page.js");
   const auth = await read("components/auth/AuthLayout.js");
+  const dashboard = await read("components/dashboard/dashboard.module.css");
 
   assert.match(card, /border: 1px solid var\(--color-border-strong\)/);
   assert.match(card, /border-radius: var\(--radius-card\)/);
   assert.match(privacy, /SurfaceCard/);
-  assert.match(employer, /SurfaceCard/);
   assert.match(auth, /SurfaceCard/);
+  // Dashboard cards use the same card radius token.
+  assert.match(dashboard, /\.card \{[^}]*border-radius: var\(--radius-card\)/);
 });

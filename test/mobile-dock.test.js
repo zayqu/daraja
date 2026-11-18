@@ -33,14 +33,20 @@ test("mobile dock is the single primary mobile navigation across routes", async 
   const routeRules = await read("lib/mobile-navigation.js");
   const siteNav = await read("components/SiteNav.js");
   const siteNavStyles = await read("components/SiteNav.module.css");
-  const workspaceTabs = await read("components/ui/WorkspaceTabs.module.css");
+  const dockStyles = await read("components/ui/MobileDock.module.css");
+  const shellStyles = await read("components/dashboard/DashboardShell.module.css");
 
   assert.match(routeRules, /return true/);
   assert.match(siteNav, /mobileDockEnabledPath/);
   assert.match(siteNav, /styles\.dockManaged/);
   assert.match(siteNavStyles, /\.dockManaged \.toggle/);
   assert.match(siteNavStyles, /\.dockManaged \.links/);
-  assert.match(workspaceTabs, /@media \(max-width: 760px\)[\s\S]*\.tabs\s*\{[\s\S]*display:\s*none/);
+  // The dashboard sidebar hides at the same width the dock appears, so every
+  // screen size has exactly one menu (no second hamburger, D-027).
+  assert.match(dockStyles, /@media \(max-width: 760px\)/);
+  assert.match(shellStyles, /@media \(max-width: 760px\)[\s\S]*\.sidebar\s*\{\s*display:\s*none/);
+  // A long role menu scrolls inside the sheet instead of running off screen.
+  assert.match(dockStyles, /\.sheet \{[^}]*max-height:[^}]*overflow-y: auto/);
 });
 
 test("mobile dock uses centralized Daraja design tokens", async () => {

@@ -1,6 +1,6 @@
 # Daraja Jobs production-readiness progress
 
-Last updated: 13 November 2026
+Last updated: 16 November 2026
 
 ## Current objective
 
@@ -8,6 +8,17 @@ Build Daraja into a secure Tanzania-first work marketplace through small,
 tested vertical releases. The current priority is Phase 0 security and privacy
 hardening before expanding candidate CV, employer, freelance, payment or AI
 workflows.
+
+## Current batch: dashboards for every signed-in role (D-038)
+
+- Owner request (13 Nov 2026, from the live `/employer` page): a stuck "Test Vacancy - Please Ignore" read "Closes 31 Oct 2026" after that date, could not be edited or closed, and the dashboards had no login/profile/settings/sign-out entry points. Reference: a job-seeker dashboard with a dark sidebar, top bar, stat cards, donut chart and lists; keep Daraja colours; one menu per role, also on the phone dock.
+- One frame for admins, employers and candidates: `components/dashboard/DashboardShell.js` (navy sidebar, Settings/Help/Sign out, promo card, top bar with search, bell for candidates and the signed-in name), mounted by the `/admin`, `/employer`, `/post-job` and `/account` layouts through `DashboardFrame`. Role menus have one owner, `lib/dashboard-navigation.js`, read by the sidebar and the phone "More" sheet; `activeMenuHref` highlights exactly one item. `AdminShell`, `WorkspaceTabs`, `CandidateAccountTabs` and `EmployerPortalTabs` were removed; `components/admin/AdminUi.js` and `admin.module.css` moved to `components/dashboard/` and gained the dashboard cards (stats, donut, lists, notices, days-left badges).
+- Employers: new overview at `/employer`, `/employer/vacancies` (filters; edit and send again draft, in-review or not-approved vacancies; close any open one, audited `JOB_WITHDRAWN_BY_EMPLOYER`), `/employer/vacancies/[id]` and `/employer/profile`. Past closing dates read "Closed <date>", and a published vacancy past its closing date is Closed, as on the public board. Creating and editing share `parseEmployerVacancy` (`lib/employer-vacancy.js`). `publishesWithoutReview` (`lib/employer-access.js`) is the one trusted-employer rule; trusted employers see "Publish vacancy" and their instant publish now refreshes the public job lists. Suspended employers are not shown the paid promo card.
+- Candidates: `/account` is a real dashboard (applications donut, closing-soon saved jobs, recent applications, saved jobs, CV and alert status; the old `/account/career` page redirects there), plus `/account/applications` (withdraw while pending or in review) and `/account/saved`. Job pages have a Save button for accounts whose menu has Saved jobs. `/account/settings` serves every role (sign-in methods, password link, notifications, data, sign out).
+- Phones: the dock's third slot opens the user's dashboard (Account, Employer, Admin) and More shows the role menu plus Sign out; dashboard sidebars hide at the dock's 760px breakpoint so tablets always keep a menu. Fixed the "Privacy choices" button rendering at 16px in the sheet. The header link for signed-in users now reads "Dashboard" and respects the employer-portal switch (`roleHome`).
+- Not in this batch (needs new tables and a Neon restore point first): Apply on Daraja, the employer applicant list, interviews and messages.
+- Tests: updated the navigation, employer, candidate, CV, feature-flag, skip-link and UI-system suites for the new structure and added behaviour tests for `parseEmployerVacancy`, `vacancyState`, `vacancyFormValues` and `activeMenuHref`. `npm test`: 394 pass; the 12 failures are the existing suites that need a generated Prisma client (blocked in the sandbox; CI generates it). ESLint clean. Production build (`next build --webpack`, stubbed database) passes; every role checked visually at desktop, tablet and iPhone widths, including the More sheet.
+- No schema change, no migration, no provider or cron change.
 
 ## Current batch: employer workspace fixes and page titles
 

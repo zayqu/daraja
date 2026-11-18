@@ -1,4 +1,4 @@
-import { PageHeader, Panel } from "@/components/admin/AdminUi";
+import { PageHeader, Panel } from "@/components/dashboard/DashboardUi";
 import SettingField from "@/components/admin/SettingField";
 import { requireAdminPage } from "@/lib/admin-guard";
 import { SITE_SETTINGS } from "@/lib/features";

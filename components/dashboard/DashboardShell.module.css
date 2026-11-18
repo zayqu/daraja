@@ -1,0 +1,356 @@
+/* Signed-in dashboard frame (D-038): navy sidebar with the role menu, a top
+   bar with search, notifications and the signed-in user, and the page area.
+   On phones the sidebar is hidden; the shared mobile dock and its "More"
+   sheet carry the same role menu (D-027). */
+
+.shell {
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: 264px minmax(0, 1fr);
+  background: var(--color-bg);
+  color: var(--color-text);
+}
+
+.sidebar {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  padding: 1.5rem 1rem 1.25rem;
+  background: var(--color-navy);
+  color: var(--color-on-dark);
+}
+
+.brand {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  padding: 0 0.8rem 1.4rem;
+  color: var(--color-teal);
+  font-size: 1.3rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-decoration: none;
+}
+
+.brand small {
+  color: rgba(255, 255, 255, 0.55);
+  font-size: 0.6rem;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.nav {
+  display: grid;
+  gap: 0.25rem;
+}
+
+.nav form {
+  margin: 0;
+}
+
+.navLink {
+  width: 100%;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.6rem 0.8rem;
+  border: 0;
+  border-radius: 12px;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.78);
+  font: inherit;
+  font-size: 0.85rem;
+  font-weight: 500;
+  text-align: left;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.navLink:hover,
+.navLink:focus-visible {
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--color-on-dark);
+}
+
+.navActive,
+.navActive:hover,
+.navActive:focus-visible {
+  background: var(--color-teal);
+  color: var(--color-navy);
+  font-weight: 600;
+}
+
+.navCount {
+  min-width: 1.45rem;
+  margin-left: auto;
+  padding: 0.1rem 0.45rem;
+  border-radius: var(--radius-pill);
+  background: var(--color-teal);
+  color: var(--color-navy);
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-align: center;
+}
+
+.navActive .navCount {
+  background: var(--color-navy);
+  color: var(--color-on-dark);
+}
+
+.navLabel {
+  margin: 1.4rem 0 0.4rem;
+  padding: 0 0.8rem;
+  color: rgba(255, 255, 255, 0.45);
+  font-size: 0.62rem;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.promo {
+  margin-top: auto;
+  padding: 1rem 1rem 1.1rem;
+  border-radius: var(--radius-card);
+  background: var(--color-surface);
+  color: var(--color-navy);
+}
+
+/* Keeps space between the menu and the promo card on short screens. */
+.settingsNav {
+  margin-bottom: 1.5rem;
+}
+
+.promoTag {
+  display: inline-block;
+  margin-bottom: 0.6rem;
+  padding: 0.15rem 0.55rem;
+  border-radius: var(--radius-pill);
+  background: var(--color-navy);
+  color: var(--color-teal);
+  font-size: 0.58rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.promo strong {
+  display: block;
+  font-size: 0.95rem;
+  font-weight: 600;
+  line-height: 1.35;
+}
+
+.promo strong em {
+  color: var(--color-teal-deep);
+  font-style: normal;
+}
+
+.promo p {
+  margin: 0.45rem 0 0.85rem;
+  color: var(--color-text-muted);
+  font-size: 0.72rem;
+  line-height: 1.55;
+}
+
+.promoAction {
+  min-height: 40px;
+  display: inline-flex;
+  align-items: center;
+  padding: 0.5rem 0.9rem;
+  border-radius: 10px;
+  background: var(--color-teal);
+  color: var(--color-navy);
+  font-size: 0.74rem;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.promoAction:hover,
+.promoAction:focus-visible {
+  background: #08b99d;
+}
+
+.body {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  min-height: 72px;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.85rem 2rem;
+  border-bottom: 1px solid var(--color-border);
+  background: rgba(247, 248, 250, 0.94);
+  backdrop-filter: blur(10px);
+}
+
+.mobileBrand {
+  display: none;
+}
+
+.search {
+  flex: 1 1 auto;
+  max-width: 440px;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0 0.9rem;
+  border: 1px solid var(--color-border-strong);
+  border-radius: 12px;
+  background: var(--color-surface);
+  color: var(--color-text-muted);
+}
+
+.search:focus-within {
+  border-color: var(--color-teal);
+}
+
+.search input {
+  flex: 1;
+  min-width: 0;
+  border: 0;
+  outline: none;
+  background: transparent;
+  color: var(--color-text);
+  font: inherit;
+  font-size: 0.84rem;
+}
+
+.topActions {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.iconButton {
+  width: 42px;
+  height: 42px;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--color-border-strong);
+  border-radius: 50%;
+  background: var(--color-surface);
+  color: var(--color-text-secondary);
+}
+
+.iconButton:hover,
+.iconButton:focus-visible {
+  border-color: var(--color-teal);
+  color: var(--color-teal-deep);
+}
+
+.userChip {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.25rem 0.75rem 0.25rem 0.25rem;
+  border-radius: var(--radius-pill);
+  color: inherit;
+  text-decoration: none;
+}
+
+.userChip:hover,
+.userChip:focus-visible {
+  background: var(--color-surface);
+}
+
+.avatar {
+  width: 40px;
+  height: 40px;
+  flex: none;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--color-navy);
+  color: var(--color-teal);
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.userText {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.25;
+}
+
+.userText strong {
+  max-width: 200px;
+  overflow: hidden;
+  font-size: 0.84rem;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.userText small {
+  color: var(--color-text-muted);
+  font-size: 0.7rem;
+}
+
+.main {
+  width: 100%;
+  max-width: 1240px;
+  flex: 1;
+  padding: 2rem 2rem 4rem;
+}
+
+/* Same breakpoint as the mobile dock, so a menu is always on screen. */
+@media (max-width: 760px) {
+  .shell {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .sidebar {
+    display: none;
+  }
+
+  .topbar {
+    min-height: 64px;
+    padding: 0.7rem 1rem;
+  }
+
+  .mobileBrand {
+    display: flex;
+    flex-direction: column;
+    gap: 0.1rem;
+    color: var(--color-teal);
+    font-size: 1.15rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-decoration: none;
+  }
+
+  .mobileBrand small {
+    color: var(--color-text-faint);
+    font-size: 0.56rem;
+    font-weight: 600;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+  }
+
+  .search,
+  .userText {
+    display: none;
+  }
+
+  .userChip {
+    padding: 0;
+  }
+
+  .main {
+    padding: 1.25rem 1rem 2rem;
+  }
+}

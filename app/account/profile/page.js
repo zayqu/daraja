@@ -1,10 +1,7 @@
 import { notFound, redirect } from "next/navigation";
-import PublicSiteNav from "@/components/PublicSiteNav";
-import CandidateAccountTabs from "@/components/CandidateAccountTabs";
 import CandidateProfileForm from "@/components/CandidateProfileForm";
-import PageHero from "@/components/ui/PageHero";
+import { PageHeader } from "@/components/dashboard/DashboardUi";
 import SurfaceCard from "@/components/ui/SurfaceCard";
-import WorkspaceShell from "@/components/ui/WorkspaceShell";
 import {
   candidateCareerEnabled,
   getCandidateUser,
@@ -45,33 +42,24 @@ export default async function CandidateProfilePage() {
     };
 
   return (
-    <div className={styles.page}>
-      <PublicSiteNav />
-      <main id="main-content">
-        <PageHero
-          eyebrow="Candidate account"
-          title="Build the profile Daraja can use for your career tools."
-          description="Keep your core candidate information accurate in one private profile. Nothing here is made public by default."
-          maxWidth="narrow"
-        />
+    <>
+      <PageHeader
+        title="My profile"
+        description="Your private candidate details. Nothing here is public by default."
+      />
 
-        <WorkspaceShell width="narrow">
-          <CandidateAccountTabs showCareer />
+      <SurfaceCard>
+        <div className={styles.heading}>
+          <span>Private candidate profile</span>
+          <h2>Your details</h2>
+          <p>
+            Daraja uses this information only inside authorised candidate,
+            application and future career workflows.
+          </p>
+        </div>
 
-          <SurfaceCard>
-            <div className={styles.heading}>
-              <span>Private candidate profile</span>
-              <h2>Your details</h2>
-              <p>
-                Daraja uses this information only inside authorised candidate,
-                application and future career workflows.
-              </p>
-            </div>
-
-            <CandidateProfileForm initialProfile={initialProfile} />
-          </SurfaceCard>
-        </WorkspaceShell>
-      </main>
-    </div>
+        <CandidateProfileForm initialProfile={initialProfile} />
+      </SurfaceCard>
+    </>
   );
 }

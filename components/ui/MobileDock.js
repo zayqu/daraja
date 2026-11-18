@@ -4,7 +4,8 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
 import { mobileDockEnabledPath } from "@/lib/mobile-navigation";
-import { postJobHref } from "@/lib/platform-roles";
+import { activeMenuHref, dashboardMenu } from "@/lib/dashboard-navigation";
+import { signOutAction } from "@/app/actions/sign-out";
 import NavIcon from "@/components/ui/NavIcon";
 import { PRIVACY_SETTINGS_EVENT } from "@/lib/google-services";
 import { WHATSAPP_CHANNEL_URL } from "@/lib/site-config";
@@ -21,8 +22,6 @@ export default function MobileDock({
   const [moreOpen, setMoreOpen] = useState(false);
   const freelanceActive =
     pathname.startsWith("/jobs") && searchParams.get("type") === "FREELANCE";
-  const isCandidate = userRole === "JOB_SEEKER";
-  const isEmployer = userRole === "EMPLOYER";
   const isAdmin = userRole === "ADMIN";
 
   useEffect(() => {
@@ -38,36 +37,31 @@ export default function MobileDock({
 
   if (!mobileDockEnabledPath(pathname)) return null;
 
-  const roleItem =
-    isAdmin
+  // Signed-in users get their dashboard in the dock and their dashboard menu
+  // (the same one as the desktop sidebar) in the "More" sheet (D-038).
+  const menu = userRole
+    ? dashboardMenu(userRole, { employerPortal: showEmployerCta, candidateCareer: showCandidateProfile })
+    : null;
+  const roleItem = isAdmin
+    ? { href: "/admin", label: "Admin", icon: "admin", active: pathname.startsWith("/admin") }
+    : menu?.role === "EMPLOYER"
       ? {
-          href: "/admin",
-          label: "Admin",
-          icon: "admin",
-          active: pathname.startsWith("/admin"),
+          href: "/employer",
+          label: "Employer",
+          icon: "employer",
+          active: pathname.startsWith("/employer") || pathname.startsWith("/post-job"),
         }
-      : isEmployer && showEmployerCta
-        ? {
-            href: "/employer",
-            label: "Employer",
-            icon: "employer",
-            active:
-              pathname.startsWith("/employer") ||
-              pathname.startsWith("/post-job"),
-          }
-        : isCandidate && showCandidateProfile
-          ? {
-              href: "/account/career",
-              label: "Career",
-              icon: "user",
-              active: pathname.startsWith("/account/career"),
-            }
-          : {
-              href: "/jobs?type=FREELANCE",
-              label: "Freelance",
-              icon: "freelance",
-              active: freelanceActive,
-            };
+      : menu
+        ? { href: "/account", label: "Account", icon: "user", active: pathname.startsWith("/account") }
+        : {
+            href: "/jobs?type=FREELANCE",
+            label: "Freelance",
+            icon: "freelance",
+            active: freelanceActive,
+          };
+  const menuItems = menu ? [...menu.main, ...menu.settings] : [];
+  const activeHref = activeMenuHref(menuItems, pathname);
+  const menuHas = (href) => menuItems.some((item) => item.href === href);
 
   const items = [
     { href: "/", label: "Home", icon: "home", active: pathname === "/" },
@@ -98,7 +92,7 @@ export default function MobileDock({
             <div className={styles.sheetHandle} aria-hidden="true" />
             <div className={styles.sheetHeader}>
               <div>
-                <span>Daraja</span>
+                <span>{menu ? `${menu.roleLabel} menu` : "Daraja"}</span>
                 <strong>More</strong>
               </div>
               <button type="button" onClick={() => setMoreOpen(false)}>
@@ -106,7 +100,32 @@ export default function MobileDock({
               </button>
             </div>
 
-            <nav className={styles.sheetLinks}>
+            {menu ? (
+              <>
+                <nav className={styles.sheetMenu} aria-label={`${menu.roleLabel} menu`}>
+                  {menuItems.map((item) => (
+                    <Link
+                      key={item.href}
+                      href={item.href}
+                      className={item.href === activeHref ? styles.sheetMenuActive : undefined}
+                      aria-current={item.href === activeHref ? "page" : undefined}
+                      onClick={() => setMoreOpen(false)}
+                    >
+                      <NavIcon name={item.icon} size={18} />
+                      <span>{item.label}</span>
+                    </Link>
+                  ))}
+                </nav>
+                <form action={signOutAction} className={styles.sheetSignOut}>
+                  <button type="submit">
+                    <NavIcon name="logout" size={18} />
+                    <span>Sign out</span>
+                  </button>
+                </form>
+              </>
+            ) : null}
+
+            <nav className={styles.sheetLinks} aria-label="Daraja">
               {!userRole && (
                 <Link href="/auth/signin" onClick={() => setMoreOpen(false)}>
                   Sign in
@@ -117,27 +136,21 @@ export default function MobileDock({
                   Create account
                 </Link>
               )}
-              {showCandidateProfile && (
-                <Link href="/account" onClick={() => setMoreOpen(false)}>
-                  My account
+              {!userRole && (
+                <Link href="/account/alerts" onClick={() => setMoreOpen(false)}>
+                  Job alerts
                 </Link>
               )}
-              {showCandidateProfile && (
-                <Link href="/account/career/cv" onClick={() => setMoreOpen(false)}>
-                  CV Builder
-                </Link>
-              )}
-              {showCandidateProfile && isCandidate && (
-                <Link href="/account/career" onClick={() => setMoreOpen(false)}>
-                  Career workspace
-                </Link>
-              )}
-              <Link href="/account/alerts" onClick={() => setMoreOpen(false)}>
-                Job alerts
+              <Link href="/jobs?category=Internships%20%26%20Graduate%20Programs" onClick={() => setMoreOpen(false)}>
+                Internships
               </Link>
-              <Link href="/account/privacy" onClick={() => setMoreOpen(false)}>
-                Privacy & data
-              </Link>
+              <Link href="/about" onClick={() => setMoreOpen(false)}>About Daraja</Link>
+              {!menuHas("/contact") && (
+                <Link href="/contact" onClick={() => setMoreOpen(false)}>Contact</Link>
+              )}
+              <a href={WHATSAPP_CHANNEL_URL} target="_blank" rel="noopener noreferrer" onClick={() => setMoreOpen(false)}>
+                WhatsApp Channel
+              </a>
               <button
                 type="button"
                 onClick={() => {
@@ -147,29 +160,6 @@ export default function MobileDock({
               >
                 Privacy choices
               </button>
-              {showEmployerCta && (isEmployer || isAdmin) && (
-                <Link href="/employer" onClick={() => setMoreOpen(false)}>
-                  Employer workspace
-                </Link>
-              )}
-              {isAdmin && (
-                <Link href="/admin" onClick={() => setMoreOpen(false)}>
-                  Admin
-                </Link>
-              )}
-              <Link href="/jobs?category=Internships%20%26%20Graduate%20Programs" onClick={() => setMoreOpen(false)}>
-                Internships
-              </Link>
-              <Link href="/about" onClick={() => setMoreOpen(false)}>About Daraja</Link>
-              <Link href="/contact" onClick={() => setMoreOpen(false)}>Contact</Link>
-              <a href={WHATSAPP_CHANNEL_URL} target="_blank" rel="noopener noreferrer" onClick={() => setMoreOpen(false)}>
-                WhatsApp Channel
-              </a>
-              {showEmployerCta && (isEmployer || isAdmin) && (
-                <Link href={postJobHref(userRole)} onClick={() => setMoreOpen(false)}>
-                  Post a Job
-                </Link>
-              )}
             </nav>
           </section>
         </div>

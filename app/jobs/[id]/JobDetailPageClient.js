@@ -7,6 +7,7 @@ import { useParams } from "next/navigation";
 import SiteNav from "@/components/SiteNav";
 import SiteFooter from "@/components/SiteFooter";
 import JobBrandMedia from "@/components/JobBrandMedia";
+import SaveJobButton from "@/components/SaveJobButton";
 import { trackEvent } from "@/lib/analytics";
 import { structureJobDescription } from "@/lib/job-description";
 import { buildJobQuickGuide } from "@/lib/job-quick-guide";
@@ -458,6 +459,8 @@ export default function JobDetailPageClient({ initialJob, showEmployerCta }) {
                   )}
                 </>
               )}
+
+              <SaveJobButton jobId={job.id} className={styles.cvAction} />
 
               <Link
                 href={`/account/career/cv?job=${encodeURIComponent(job.id)}`}

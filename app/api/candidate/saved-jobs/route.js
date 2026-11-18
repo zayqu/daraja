@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { candidateCareerEnabled, getCandidateUser } from "@/lib/candidate-access";
+import { dashboardMenu } from "@/lib/dashboard-navigation";
+import { employerPortalEnabled } from "@/lib/features";
 import { readProtectedJson } from "@/lib/request-security";
 
 async function actor() {
@@ -17,7 +19,11 @@ export async function GET() {
     orderBy: { createdAt: "desc" },
     include: { job: { select: { slug: true, title: true, company: true, location: true, deadline: true, active: true } } },
   });
-  return NextResponse.json({ savedJobs });
+  // Job pages offer "Save job" only to accounts whose dashboard menu has
+  // "Saved jobs" (candidates), so nobody saves into a list they cannot open.
+  const canSave = dashboardMenu(user.role, { employerPortal: employerPortalEnabled(), candidateCareer: true })
+    .main.some((item) => item.href === "/account/saved");
+  return NextResponse.json({ savedJobs, canSave });
 }
 
 export async function POST(request) {

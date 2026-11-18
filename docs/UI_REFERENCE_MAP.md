@@ -30,18 +30,20 @@ Useful patterns observed:
 
 Daraja decision:
 - adopt a shared floating mobile bottom dock now
-- keep the dock Daraja-owned: Nunito, Daraja navy/teal, no template branding
+- keep the dock Daraja-owned: Poppins, Daraja navy/teal, no template branding
 - use only routes Daraja actually owns today
 - do not expose messages, application tracking, uploads or other template
   features until the corresponding Daraja backend/product feature exists
 
 Current mobile navigation:
-- Bottom dock: Home, Jobs, Internships, More
-- Top-right header icons: Notifications (bell), Profile (user)
-- More sheet: Career workspace, Job Alerts, Privacy & Data, About, Contact,
-  WhatsApp Channel and conditional Post a Job
-- hidden from employer, admin, post-job and authentication surfaces until
-  dedicated workspace navigation is designed for those roles
+- Bottom dock: Home, Jobs, the signed-in user's dashboard (Account, Employer
+  or Admin; Freelance when signed out) and More
+- More sheet: the signed-in role's dashboard menu (the same items as the
+  desktop sidebar, from `lib/dashboard-navigation.js`) and Sign out, then
+  Internships, About, Contact, WhatsApp Channel and Privacy choices; signed-out
+  visitors get Sign in, Create account and Job alerts instead of the menu
+- dashboard pages hide their sidebar at the same width the dock appears, so
+  there is never a second hamburger (D-027, D-038)
 - respects iPhone safe-area insets and viewport-fit=cover
 
 ### Jobi — candidate/employer SaaS depth
@@ -64,29 +66,31 @@ Useful employer patterns:
 - messaging
 - membership/billing
 
-Daraja mapping:
-- candidate profile/account foundation: exists
-- job alerts: exists
-- saved jobs/application foundation: exists
-- CV Builder/resume: future candidate phase
-- candidate messaging: future, not invented from template
-- employer profile/verification: exists
-- vacancy submission/moderation: exists
-- full jobs management/ATS: future employer phase
+Daraja mapping (signed-in dashboards, D-038):
+- candidate dashboard overview (`/account`): exists, with real counts only
+- candidate profile, job alerts, notifications and settings: exist
+- saved jobs (`/account/saved`, Save button on job pages): exists
+- Daraja-managed applications (`/account/applications`): exists
+- CV Builder/resume: exists (`/account/career/cv`)
+- candidate and employer messaging, interviews, Apply on Daraja and the
+  employer applicant list: next phase; they need new database tables and are
+  not shown until they exist
+- employer dashboard overview, company profile and verification: exist
+- vacancy submission, edit, send again and close (`/employer/vacancies`): exist
+- full ATS: future employer phase
 - saved-candidate access: future and must respect candidate consent/privacy
-- employer messaging: future
-- membership/billing: draft billing work remains parked until separately
-  approved
+- membership/billing: candidates are never charged (D-036); employers can buy
+  a featured vacancy at `/advertise`
 
 ## Implementation rule
 
 Every adopted pattern must be rebuilt using the centralized Daraja UI system:
 
 - `styles/tokens.css`
-- `components/ui/PageHero`
-- `components/ui/WorkspaceShell`
+- `components/ui/PageHero` and `components/ui/WorkspaceShell` (public content pages)
 - `components/ui/SurfaceCard`
-- `components/ui/WorkspaceTabs`
+- `components/dashboard/DashboardShell`, `components/dashboard/DashboardUi` and
+  `lib/dashboard-navigation.js` (every signed-in dashboard)
 - `components/ui/MobileDock`
 
 Do not import a template's routing, CSS framework, fonts, demo content,

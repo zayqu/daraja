@@ -103,7 +103,6 @@ test("every public page provides a valid target for the global skip link", async
     "app/page.js",
     "app/jobs/JobsPageClient.js",
     "app/jobs/[id]/JobDetailPageClient.js",
-    "app/post-job/page.js",
     "app/alerts/unsubscribe/page.js",
     "app/alerts/unsubscribed/page.js",
     "components/ContentPage.js",
@@ -113,6 +112,14 @@ test("every public page provides a valid target for the global skip link", async
     const source = await readFile(path.join(__dirname, "..", page), "utf8");
     assert.match(source, /<main[\s\S]*?id="main-content"/, page);
   }
+
+  // Signed-in dashboards (/account, /employer, /post-job, /admin) get the
+  // target from the shared dashboard frame.
+  const shell = await readFile(
+    path.join(__dirname, "..", "components", "dashboard", "DashboardShell.js"),
+    "utf8"
+  );
+  assert.match(shell, /<main id="main-content"/);
 
   const privacyPage = await readFile(
     path.join(__dirname, "..", "app", "privacy", "page.js"),

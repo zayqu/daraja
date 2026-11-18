@@ -1,7 +1,7 @@
 import Link from "next/link";
 import AdminJobReviewQueue from "@/components/AdminJobReviewQueue";
-import { Badge, PageHeader, Panel, StatCard, formatDate } from "@/components/admin/AdminUi";
-import styles from "@/components/admin/admin.module.css";
+import { Badge, PageHeader, Panel, StatCard, formatDate } from "@/components/dashboard/DashboardUi";
+import styles from "@/components/dashboard/dashboard.module.css";
 import { requireAdminPage } from "@/lib/admin-guard";
 import prisma from "@/lib/prisma";
 

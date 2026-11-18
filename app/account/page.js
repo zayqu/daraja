@@ -1,62 +1,78 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { auth, signOut } from "@/auth";
-import PublicSiteNav from "@/components/PublicSiteNav";
-import NavIcon from "@/components/ui/NavIcon";
+import { auth } from "@/auth";
 import { candidateCareerEnabled } from "@/lib/candidate-access";
 import { employerPortalEnabled } from "@/lib/features";
 import { roleHome } from "@/lib/platform-roles";
-import { candidateProfileSelect } from "@/lib/candidate-profile";
+import {
+  applicationState,
+  candidateProfileSelect,
+  profileProgress,
+} from "@/lib/candidate-profile";
+import {
+  Badge,
+  DaysLeftBadge,
+  DonutCard,
+  EmptyState,
+  HighlightStats,
+  ListCard,
+  ListRow,
+  ListRows,
+  Notice,
+  PageHeader,
+  formatDate,
+} from "@/components/dashboard/DashboardUi";
+import dash from "@/components/dashboard/dashboard.module.css";
 import prisma from "@/lib/prisma";
-import styles from "./account.module.css";
 
 export const metadata = {
   title: "My account",
-  description: "Manage your Daraja candidate account and career tools.",
+  description: "Your Daraja job search dashboard: applications, saved jobs, CVs and alerts.",
   robots: { index: false, follow: false },
 };
 
 export const dynamic = "force-dynamic";
 
-function initials(name, email) {
-  const source = String(name || email || "D").trim();
-  const parts = source.split(/\s+/).filter(Boolean);
-  if (parts.length > 1) {
-    return `${parts[0][0] || ""}${parts[1][0] || ""}`.toUpperCase();
-  }
-  return source.slice(0, 2).toUpperCase();
-}
+const JOB_FIELDS = { id: true, slug: true, title: true, company: true, location: true, deadline: true, active: true };
+const jobHref = (job) => `/jobs/${job.slug || job.id}`;
 
-function profileProgress(profile) {
-  if (!profile) return { complete: 0, total: 6 };
-  const fields = [
-    profile.fullName,
-    profile.phone,
-    profile.headline,
-    profile.location,
-    profile.experienceLevel,
-    profile.workArrangement,
-  ];
-  return {
-    complete: fields.filter(Boolean).length,
-    total: fields.length,
-  };
-}
-
-function AccountLink({ href, icon, title, description, meta }) {
-  return (
-    <Link className={styles.item} href={href}>
-      <span className={styles.itemIcon} aria-hidden="true">
-        <NavIcon name={icon} size={20} />
-      </span>
-      <span className={styles.itemBody}>
-        <strong>{title}</strong>
-        <span>{description}</span>
-      </span>
-      {meta ? <span className={styles.itemMeta}>{meta}</span> : null}
-      <span className={styles.chevron} aria-hidden="true">›</span>
-    </Link>
-  );
+async function loadCandidateDashboard(userId, now) {
+  const profile = await prisma.jobSeeker.findUnique({
+    where: { userId },
+    select: candidateProfileSelect,
+  });
+  const [applications, statusCounts, savedJobs, savedCount, closingSoon, cvCount] = await Promise.all([
+    profile
+      ? prisma.application.findMany({
+          where: { jobSeekerId: profile.id },
+          orderBy: { createdAt: "desc" },
+          take: 5,
+          select: { id: true, status: true, createdAt: true, job: { select: JOB_FIELDS } },
+        })
+      : [],
+    profile
+      ? prisma.application.groupBy({
+          by: ["status"],
+          where: { jobSeekerId: profile.id },
+          _count: { _all: true },
+        })
+      : [],
+    prisma.savedJob.findMany({
+      where: { userId },
+      orderBy: { createdAt: "desc" },
+      take: 5,
+      select: { id: true, job: { select: JOB_FIELDS } },
+    }),
+    prisma.savedJob.count({ where: { userId } }),
+    prisma.savedJob.findMany({
+      where: { userId, job: { active: true, deadline: { gte: now } } },
+      orderBy: { job: { deadline: "asc" } },
+      take: 3,
+      select: { id: true, job: { select: JOB_FIELDS } },
+    }),
+    profile ? prisma.candidateCv.count({ where: { jobSeekerId: profile.id } }) : 0,
+  ]);
+  return { profile, applications, statusCounts, savedJobs, savedCount, closingSoon, cvCount };
 }
 
 export default async function AccountPage() {
@@ -70,132 +86,160 @@ export default async function AccountPage() {
   if (home !== "/account") redirect(home);
 
   const careerEnabled = candidateCareerEnabled();
+  const alert = await prisma.jobAlertSubscriber.findUnique({
+    where: { userId: session.user.id },
+    select: { active: true },
+  });
 
-  const [profile, cvCount, alert] = await Promise.all([
-    careerEnabled
-      ? prisma.jobSeeker.findUnique({
-          where: { userId: session.user.id },
-          select: candidateProfileSelect,
-        })
-      : Promise.resolve(null),
-    careerEnabled
-      ? prisma.candidateCv.count({
-          where: { jobSeeker: { userId: session.user.id } },
-        })
-      : Promise.resolve(0),
-    prisma.jobAlertSubscriber.findUnique({
-      where: { userId: session.user.id },
-      select: { active: true },
-    }),
-  ]);
+  if (!careerEnabled) {
+    return (
+      <>
+        <PageHeader title="Dashboard" description="Manage your job alerts and account." />
+        <div className={dash.overviewBottom}>
+          <ListCard title="Job alerts" footer={<Link href="/account/alerts">Manage job alerts →</Link>}>
+            <EmptyState
+              title={alert?.active ? "Your job alerts are on" : "Job alerts are off"}
+              text="Choose the kinds of jobs Daraja should email you about."
+            />
+          </ListCard>
+          <ListCard title="Account" footer={<Link href="/account/settings">Settings →</Link>}>
+            <EmptyState title={session.user.email} text="Update your password, download your data or sign out." />
+          </ListCard>
+        </div>
+      </>
+    );
+  }
 
-  const progress = profileProgress(profile);
-  const displayName = profile?.fullName || session.user.name || "Daraja user";
-  const profileReady = progress.complete === progress.total;
+  const now = new Date();
+  const data = await loadCandidateDashboard(session.user.id, now);
+  const progress = profileProgress(data.profile);
+  const firstName = (data.profile?.fullName || session.user.name || "").trim().split(/\s+/)[0];
+  const groups = { review: 0, shortlisted: 0, closed: 0, withdrawn: 0 };
+  let applicationTotal = 0;
+  for (const row of data.statusCounts) {
+    groups[applicationState(row.status).group] += row._count._all;
+    applicationTotal += row._count._all;
+  }
 
   return (
-    <div className={styles.page}>
-      <PublicSiteNav />
+    <>
+      <PageHeader
+        title="Dashboard"
+        description={`${firstName ? `Welcome back, ${firstName}. ` : ""}Here is your job search at a glance.`}
+        actions={<Link className={dash.buttonPrimary} href="/jobs">Find jobs</Link>}
+      />
 
-      <main className={styles.main} id="main-content">
-        <section className={styles.accountCard} aria-labelledby="account-title">
-          <header className={styles.profileHeader}>
-            <div className={styles.avatar} aria-hidden="true">
-              {initials(displayName, session.user.email)}
-            </div>
-            <div className={styles.identity}>
-              <span>My account</span>
-              <h1 id="account-title">{displayName}</h1>
-              <p>{session.user.email}</p>
-              {profile?.headline || profile?.location ? (
-                <small>
-                  {[profile?.headline, profile?.location].filter(Boolean).join(" · ")}
-                </small>
-              ) : null}
-            </div>
-          </header>
+      {progress.complete < progress.total ? (
+        <Notice
+          tone="info"
+          title={`Your profile is ${progress.complete} of ${progress.total} complete`}
+          action={<Link className={dash.linkArrow} href="/account/profile">Complete your profile →</Link>}
+        >
+          A complete profile fills your CV for you and helps employers understand you when you apply.
+        </Notice>
+      ) : null}
 
-          {careerEnabled ? (
-            <div className={styles.profileStatus}>
-              <div>
-                <span>Profile</span>
-                <strong>{profileReady ? "Ready" : `${progress.complete}/${progress.total} complete`}</strong>
-              </div>
-              <Link href="/account/profile">
-                {profileReady ? "Review" : "Complete profile"}
-              </Link>
-            </div>
-          ) : null}
-
-          <nav className={styles.menu} aria-label="Account">
-            {careerEnabled ? (
-              <>
-                <AccountLink
-                  href="/account/profile"
-                  icon="user"
-                  title="Personal information"
-                  description="Name, contact details and career preferences"
+      <div className={dash.overviewTop}>
+        <HighlightStats
+          items={[
+            { icon: "document", value: applicationTotal, label: "Applications sent", href: "/account/applications" },
+            { icon: "bookmark", value: data.savedCount, label: "Saved jobs", href: "/account/saved" },
+          ]}
+        />
+        <DonutCard
+          title="Your applications"
+          segments={[
+            { label: "In review", value: groups.review, tone: "amber" },
+            { label: "Shortlisted", value: groups.shortlisted, tone: "teal" },
+            { label: "Not selected", value: groups.closed, tone: "red" },
+            { label: "Withdrawn", value: groups.withdrawn, tone: "gray" },
+          ]}
+          footer={<Link href="/account/applications">View all applications →</Link>}
+        />
+        <ListCard title="Closing soon" footer={<Link href="/account/saved">Saved jobs →</Link>}>
+          {data.closingSoon.length ? (
+            <ListRows>
+              {data.closingSoon.map(({ id, job }) => (
+                <ListRow
+                  key={id}
+                  title={job.title}
+                  href={jobHref(job)}
+                  subtitle={job.company}
+                  badge={<DaysLeftBadge date={job.deadline} now={now} />}
                 />
-                <AccountLink
-                  href="/account/career/cv"
-                  icon="document"
-                  title="CV Builder"
-                  description="Build, tailor and download your CV"
-                  meta={cvCount ? `${cvCount} CV${cvCount === 1 ? "" : "s"}` : undefined}
+              ))}
+            </ListRows>
+          ) : (
+            <EmptyState title="Nothing closing soon" text="Save jobs to see their closing dates here." />
+          )}
+        </ListCard>
+      </div>
+
+      <div className={dash.overviewBottom}>
+        <ListCard title="Recent applications" footer={<Link href="/account/applications">View all applications →</Link>}>
+          {data.applications.length ? (
+            <ListRows>
+              {data.applications.map((application) => {
+                const state = applicationState(application.status);
+                return (
+                  <ListRow
+                    key={application.id}
+                    title={application.job.title}
+                    href={jobHref(application.job)}
+                    subtitle={application.job.company}
+                    meta={[application.job.location, `Applied ${formatDate(application.createdAt)}`]}
+                    badge={<Badge tone={state.tone}>{state.label}</Badge>}
+                  />
+                );
+              })}
+            </ListRows>
+          ) : (
+            <EmptyState
+              title="No applications on Daraja yet"
+              text="Applications you send through Daraja appear here with their status. Many vacancies take you to the employer's own application page instead."
+              action={<Link className={dash.button} href="/jobs">Browse jobs</Link>}
+            />
+          )}
+        </ListCard>
+
+        <ListCard title="Saved jobs" footer={<Link href="/account/saved">View saved jobs →</Link>}>
+          {data.savedJobs.length ? (
+            <ListRows>
+              {data.savedJobs.map(({ id, job }) => (
+                <ListRow
+                  key={id}
+                  title={job.title}
+                  href={jobHref(job)}
+                  subtitle={job.company}
+                  meta={[job.location]}
+                  badge={job.active ? <DaysLeftBadge date={job.deadline} now={now} /> : <Badge tone="gray">Closed</Badge>}
                 />
-                <AccountLink
-                  href="/account/career"
-                  icon="career"
-                  title="Career workspace"
-                  description="Your Daraja career tools in one place"
-                />
-              </>
-            ) : null}
-
-            <AccountLink
-              href="/account/alerts"
-              icon="alert"
-              title="Job alerts"
-              description="Choose the jobs Daraja should send you"
-              meta={alert?.active ? "Active" : undefined}
+              ))}
+            </ListRows>
+          ) : (
+            <EmptyState
+              title="No saved jobs yet"
+              text="Tap Save on any job to keep it here and see when it closes."
+              action={<Link className={dash.button} href="/jobs">Browse jobs</Link>}
             />
-            <AccountLink
-              href="/account/notifications"
-              icon="bell"
-              title="Notifications"
-              description="Account and career updates"
-            />
-            <AccountLink
-              href="/account/privacy"
-              icon="privacy"
-              title="Privacy & data"
-              description="Export your data or manage your account"
-            />
-          </nav>
+          )}
+        </ListCard>
+      </div>
 
-          <form
-            className={styles.signOutRow}
-            action={async () => {
-              "use server";
-              await signOut({ redirectTo: "/" });
-            }}
-          >
-            <button type="submit">
-              <span className={styles.itemIcon} aria-hidden="true">
-                <NavIcon name="logout" size={20} />
-              </span>
-              <span>
-                <strong>Sign out</strong>
-                <small>Sign out of this device</small>
-              </span>
-            </button>
-          </form>
-        </section>
-
-        <p className={styles.support}>
-          Need help? <Link href="/contact">Contact Daraja</Link>
-        </p>
-      </main>
-    </div>
+      <div className={dash.overviewBottom}>
+        <ListCard title="CV Builder" footer={<Link href="/account/career/cv">Open CV Builder →</Link>}>
+          <EmptyState
+            title={data.cvCount ? `${data.cvCount} CV${data.cvCount === 1 ? "" : "s"} ready` : "Build your first CV"}
+            text="Create an ATS-ready CV from your profile and tailor a copy for each job."
+          />
+        </ListCard>
+        <ListCard title="Job alerts" footer={<Link href="/account/alerts">Manage job alerts →</Link>}>
+          <EmptyState
+            title={alert?.active ? "Your job alerts are on" : "Job alerts are off"}
+            text="Choose the kinds of jobs Daraja should email you about, and pause them whenever you like."
+          />
+        </ListCard>
+      </div>
+    </>
   );
 }

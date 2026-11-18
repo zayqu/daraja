@@ -608,3 +608,42 @@ employer profile and vacancy APIs; the pages only mirror it.
 Administrators never need an employer profile: "Post a Job" leads them to
 `/admin/jobs/new` (`postJobHref` in `lib/platform-roles.js`), and `/employer`
 shows them admin shortcuts instead of the employer profile form.
+
+
+## D-038 - One dashboard frame for every signed-in role, with role menus
+
+**Status:** accepted (owner request, 13-16 November 2026)
+
+Admins, employers and candidates share one dashboard frame
+(`components/dashboard/DashboardShell.js`, mounted by the `/admin`,
+`/employer`, `/post-job` and `/account` layouts through `DashboardFrame`): a
+navy sidebar with the role's menu, Settings, Help and Sign out, a top bar with
+search, notifications (candidates) and the signed-in name, and the page area,
+in the Daraja brand colours and Poppins. Pages build their content from the
+shared kit in `components/dashboard/DashboardUi.js`.
+
+- **One menu owner.** Each role's menu lives only in
+  `lib/dashboard-navigation.js` (`dashboardMenu`, `activeMenuHref`). The
+  desktop sidebar and the phone dock's "More" sheet both read it, so a role
+  sees the same items, with Sign out, on every screen. Employers use the
+  candidate menu while the employer portal is off, matching `roleHome()`.
+- **Phones.** The sidebar hides at the dock's 760px breakpoint; the dock's
+  third slot opens the user's dashboard (Account, Employer or Admin) and More
+  carries the role menu. This supersedes the D-035 admin drawer and the
+  per-role tab bars: `WorkspaceTabs`, `CandidateAccountTabs`,
+  `EmployerPortalTabs` and `AdminShell` are retired (D-026 primitives
+  `PageHero`, `WorkspaceShell` and `SurfaceCard` remain for public pages).
+- **Candidates:** `/account` is the dashboard (the old `/account/career` page
+  redirects there), plus `/account/applications`, `/account/saved` (with a
+  Save button on job pages) and `/account/settings` for every role. The promo
+  card offers the free CV Builder; candidates are never charged (D-036).
+- **Employers:** `/employer` overview, `/employer/vacancies` (edit and send
+  again a draft, in-review or not-approved vacancy, or close any open one) and
+  `/employer/profile`. A published vacancy whose closing date has passed shows
+  as Closed, as on the public board. Live vacancies still change only through
+  an administrator. The promo card links to `/advertise` and is hidden while
+  the employer is suspended. Admins without an employer profile who open
+  `/employer` go to `/admin` (replaces the D-037 shortcut panel).
+- **Not yet:** Apply on Daraja, the employer applicant list, interviews and
+  messages need new database tables. They stay out of the menus until those
+  tables and their privacy rules exist (D-027, D-028).

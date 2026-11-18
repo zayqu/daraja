@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import styles from "./admin.module.css";
+import styles from "@/components/dashboard/dashboard.module.css";
 
 // Buttons that call an admin API, optionally after a confirmation or a typed
 // reason, then refresh the server-rendered list.

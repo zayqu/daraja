@@ -33,11 +33,17 @@ export async function POST(request) {
       active: true,
       deadline: { gte: new Date() },
     },
-    select: { id: true, sourceUrl: true },
+    select: { id: true, sourceUrl: true, applicationUrl: true },
   });
   if (!job) return NextResponse.json({ error: "This vacancy is no longer accepting applications" }, { status: 409 });
-  if (job.sourceUrl) {
-    return NextResponse.json({ error: "Apply through the official employer destination", applyUrl: job.sourceUrl }, { status: 409 });
+  // An email/website destination is external even when the vacancy was
+  // submitted by a verified employer through Daraja. Do not manufacture an
+  // internal Application record for an action completed outside Daraja.
+  if (job.applicationUrl || job.sourceUrl) {
+    return NextResponse.json({
+      error: "Apply through the official employer destination",
+      applyUrl: job.applicationUrl || job.sourceUrl,
+    }, { status: 409 });
   }
   try {
     const application = await prisma.$transaction(async (tx) => {

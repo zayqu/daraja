@@ -55,3 +55,21 @@ test("LinkedIn sign-in is identity-only and does not request posting permission"
   assert.match(button, /signIn\("linkedin"/);
   assert.match(button, /Continue with LinkedIn/);
 });
+
+
+test("new candidates continue to protected profile setup without changing employer login", async () => {
+  const signUp = await read("app/auth/signup/page.js");
+  const verify = await read("app/api/account/verify-email/route.js");
+  const signIn = await read("app/auth/signin/page.js");
+  const login = await read("app/api/account/login/route.js");
+
+  assert.match(signUp, /candidateCareerEnabled\(\) \? "\/account\/profile" : "\/account"/);
+  assert.match(signUp, /callbackUrl=\{candidateStart\}/);
+  assert.match(signUp, /socialEmployer=/);
+  assert.match(signUp, /callbackUrl="\/employer"/);
+  assert.match(verify, /user\.role === "JOB_SEEKER" && candidateCareerEnabled\(\)/);
+  assert.match(verify, /new URL\(destination, url\)/);
+  assert.match(verify, /startSession\(response, request, user\.id\)/);
+  assert.match(login, /safeRedirectPath\(body\.callbackUrl, home\)/);
+  assert.match(signIn, /safeRedirectPath\(params\?\.callbackUrl, ""\)/);
+});

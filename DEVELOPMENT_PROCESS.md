@@ -40,6 +40,18 @@ rigid order of internal thought or a reason to duplicate work.
    Record detailed paths, commits, failures and technical commands in the repo
    instead of flooding owner-facing messages.
 
+## Daraja's approved Figma reference
+
+- Working design and userflow:
+  https://www.figma.com/design/n1MJpDntHvuhosip0rZQl5/Daraja---UI-UX-Design
+- Approved Makarya study reference:
+  https://www.figma.com/design/t08PbXMelVGfdLIDNKcVlP/Makarya---Job-Finder-Mobile-App
+- The Daraja design is the implementation reference; licensed Makarya material
+  informs interaction patterns, not asset/code copying. Preserve Daraja Poppins,
+  navy `#1B2A3F` and mint `#01FFD4`, and existing product/tenant rules.
+- If Figma access fails, use the owner-supplied userflow export for a scoped
+  review, note which screens were not inspected and do not claim design fidelity.
+
 ## Figma requirement for UI/UX
 
 - **Figma is the design source of truth for new or changed visual interfaces.**

@@ -81,7 +81,9 @@ test("saved jobs are scoped to the signed-in candidate", () => {
 test("applications preserve official external application destinations", () => {
   const route = read("app/api/candidate/applications/route.js");
   assert.match(route, /Apply through the official employer destination/);
-  assert.match(route, /applyUrl: job\.sourceUrl/);
+  assert.match(route, /if \(job\.applicationUrl \|\| job\.sourceUrl\)/);
+  assert.match(route, /applyUrl: job\.applicationUrl \|\| job\.sourceUrl/);
+  assert.match(route, /select: \{ id: true, sourceUrl: true, applicationUrl: true \}/);
   assert.match(route, /deadline: \{ gte: new Date\(\) \}/);
 });
 

@@ -9,6 +9,33 @@ production.
 Security, privacy and trust are platform requirements. Models must not treat
 security as a final hardening task after feature work.
 
+## Owner-facing communication (mandatory)
+
+The Daraja product owner is not a developer. Communicate in clear, everyday language
+focused on the product, not software-development mechanics.
+
+- In messages to the owner, explain **what now works**, **what is not yet working**,
+  **what happens next**, and **whether a decision or approval is needed**.
+- Do not routinely mention PR numbers, branches, commit hashes, CI statuses,
+  deployment pipelines, migrations, test counts, Markdown filenames or implementation
+  jargon. Keep these details in GitHub pull requests, `PROGRESS.md`, technical
+  handoffs and other repository records for developers and AI collaborators.
+- Translate necessary technical issues into their practical meaning. For example,
+  say "The new design is prepared but is not yet visible on the live website,"
+  rather than "PR #238 is still a draft."
+- Do **not** hide material risks or claim unverified work is complete. State clearly
+  when a feature is only designed, built but not tested, or available to customers.
+- Ask the owner only about decisions with a meaningful product, cost, security,
+  privacy, legal, or production consequence. Own routine low-risk engineering
+  decisions without requesting approval for every technical step.
+- Provide technical identifiers or detailed engineering status **when the owner
+  explicitly asks**, or when an exact identifier is genuinely needed to take action.
+- Avoid making the owner operate GitHub, copy commands, interpret logs, or read
+  technical documentation unless there is no safe alternative.
+- This is a communication rule, not a relaxation of engineering discipline:
+  all technical evidence, status, tests, reviews, and deployment checks must
+  still be documented accurately for the development team.
+
 ## Mandatory task start
 
 Every model or contributor must begin every implementation task by reading

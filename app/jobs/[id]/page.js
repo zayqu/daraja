@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import JobDetailPageClient from "./JobDetailPageClient";
-import { employerPortalEnabled } from "@/lib/features";
+import { employerPortalEnabled, candidateCareerEnabled } from "@/lib/features";
 import ClosedJobNotice from "@/components/ClosedJobNotice";
 import {
   findClosedPublicJob,
@@ -43,6 +43,7 @@ export default async function JobDetailPage({ params }) {
       <JobDetailPageClient
         initialJob={serializePublicJob(job)}
         showEmployerCta={employerPortalEnabled()}
+        showCandidateSave={candidateCareerEnabled()}
       />
     </>
   );

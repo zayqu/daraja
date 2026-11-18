@@ -99,3 +99,17 @@ test("job detail saves through the protected candidate API and preserves officia
   assert.match(page, /showCandidateSave=\{candidateCareerEnabled\(\)\}/);
   assert.match(styles, /\.saveJobAction/);
 });
+
+
+test("candidate profile explains completion and links to real My Jobs after saving", async () => {
+  const form = await read("components/CandidateProfileForm.js");
+  const styles = await read("components/CandidateProfileForm.module.css");
+
+  assert.match(form, /coreFields\.filter/);
+  assert.match(form, /<progress value=\{completedFields\} max=\{coreFields\.length\}/);
+  assert.match(form, /Your profile stays private/);
+  assert.match(form, /status === "success"/);
+  assert.match(form, /href="\/account\/career#my-jobs"/);
+  assert.match(styles, /\.profileProgress/);
+  assert.match(styles, /\.nextLink/);
+});

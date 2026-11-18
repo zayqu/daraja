@@ -196,3 +196,14 @@ Current intended topology:
 
 Do not move the production database into shared cPanel merely to colocate the
 stack. That would be a separate high-risk migration requiring explicit review.
+
+## Shared programming process and Figma design requirement (18 November 2026)
+
+Read `DEVELOPMENT_PROCESS.md` before each implementation task. It defines
+six required engineering outcomes: analyze, design, implement, compile or
+interpret, test/debug, and document/maintain. For UI/UX work, inspect the
+approved project-specific Figma userflow and screens *before* coding, then
+visually verify the implementation. Existing security, finance, deployment,
+tenancy and repository-specific rules override generic process guidance.
+Figma access limitations must be documented, not bypassed with invented UI.
+Backend-only changes do not require decorative Figma steps.

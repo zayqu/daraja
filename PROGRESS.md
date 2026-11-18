@@ -8,6 +8,7 @@ Last updated: 18 November 2026
 - Updated the existing candidate career workspace to show saved vacancies and
   Daraja-managed applications with persisted statuses, bounded to 12 items per
   list and scoped server-side to the authenticated candidate.
+- Updated candidate profile onboarding with a field-based completion indicator, private-data explanation and a post-save link to My Jobs. No new profile data fields or uploads.
 - Added a real 'Save to My Jobs' button to job details, using the existing protected saved-jobs API and the candidate feature flag. Signed-out visitors are directed to sign in; external Apply links remain unchanged.
 - Added a My Jobs entry to the existing candidate account home, linked back
   to the canonical career workspace instead of creating a duplicate route.

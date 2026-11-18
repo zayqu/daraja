@@ -30,6 +30,9 @@ export default function JobDetailPageClient({ initialJob, showEmployerCta }) {
   const [loadError, setLoadError] = useState(false);
   const [emailFallbackOpen, setEmailFallbackOpen] = useState(false);
   const [copyStatus, setCopyStatus] = useState("");
+  const [savingJob, setSavingJob] = useState(false);
+  const [jobSaved, setJobSaved] = useState(false);
+  const [saveError, setSaveError] = useState("");
 
   const fetchJob = useCallback(async function fetchJob() {
     setLoading(true);
@@ -179,6 +182,34 @@ export default function JobDetailPageClient({ initialJob, showEmployerCta }) {
       setCopyStatus("Copied");
     } catch {
       setCopyStatus("Copy unavailable");
+    }
+  }
+
+  async function saveCurrentJob() {
+    if (!job?.id || savingJob || jobSaved) return;
+    setSavingJob(true);
+    setSaveError("");
+    try {
+      const response = await fetch("/api/candidate/saved-jobs", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "same-origin",
+        body: JSON.stringify({ jobId: job.id }),
+      });
+      if (response.status === 401) {
+        const path = `/jobs/${encodeURIComponent(job.slug || job.id)}`;
+        window.location.assign(`/auth/signin?callbackUrl=${encodeURIComponent(path)}`);
+        return;
+      }
+      if (!response.ok) {
+        const data = await response.json().catch(() => ({}));
+        throw new Error(data.error || "Unable to save this vacancy");
+      }
+      setJobSaved(true);
+    } catch {
+      setSaveError("This job could not be saved. Please try again.");
+    } finally {
+      setSavingJob(false);
     }
   }
 
@@ -458,6 +489,17 @@ export default function JobDetailPageClient({ initialJob, showEmployerCta }) {
                   )}
                 </>
               )}
+
+              <button
+                type="button"
+                className={styles.saveJobAction}
+                disabled={savingJob || jobSaved}
+                onClick={saveCurrentJob}
+                aria-live="polite"
+              >
+                {jobSaved ? "Saved to My Jobs" : savingJob ? "Saving…" : "Save to My Jobs"}
+              </button>
+              {saveError && <p className={styles.saveError} role="alert">{saveError}</p>}
 
               <Link
                 href={`/account/career/cv?job=${encodeURIComponent(job.id)}`}

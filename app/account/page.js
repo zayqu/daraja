@@ -149,6 +149,12 @@ export default async function AccountPage() {
                   title="Career workspace"
                   description="Your Daraja career tools in one place"
                 />
+                <AccountLink
+                  href="/account/career#my-jobs"
+                  icon="jobs"
+                  title="My jobs"
+                  description="Saved vacancies and your Daraja application progress"
+                />
               </>
             ) : null}
 

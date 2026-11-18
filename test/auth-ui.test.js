@@ -17,8 +17,10 @@ test("sign in and create account share one Daraja auth layout", async () => {
     assert.match(page, /<AuthLayout/);
     assert.match(page, /authProviders\.includes\("google"\)/);
     assert.match(page, /authProviders\.includes\("linkedin"\)/);
+    assert.match(page, /authProviders\.includes\("apple"\)/);
     assert.match(page, /<GoogleButton/);
     assert.match(page, /<LinkedInButton/);
+    assert.match(page, /<AppleButton/);
     assert.doesNotMatch(page, /<style>/);
   }
   assert.match(signIn, /<LoginForm/);
@@ -72,4 +74,26 @@ test("new candidates continue to protected profile setup without changing employ
   assert.match(verify, /startSession\(response, request, user\.id\)/);
   assert.match(login, /safeRedirectPath\(body\.callbackUrl, home\)/);
   assert.match(signIn, /safeRedirectPath\(params\?\.callbackUrl, ""\)/);
+});
+
+
+test("Apple sign-in is opt-in, requires both credentials, and never silently links accounts", async () => {
+  const auth = await read("auth.js");
+  const button = await read("components/auth/AppleButton.js");
+  const signup = await read("app/auth/signup/page.js");
+  const signin = await read("app/auth/signin/page.js");
+  const styles = await read("app/auth/auth.module.css");
+
+  assert.match(auth, /next-auth\/providers\/apple/);
+  assert.match(auth, /AUTH_APPLE_ENABLED === "true"/);
+  assert.match(auth, /process\.env\.AUTH_APPLE_ID/);
+  assert.match(auth, /process\.env\.AUTH_APPLE_SECRET/);
+  assert.match(auth, /allowDangerousEmailAccountLinking: false/);
+  assert.doesNotMatch(auth, /\["google", "linkedin", "apple"\]/);
+  assert.match(button, /signIn\("apple", \{ redirectTo: callbackUrl \}\)/);
+  assert.match(signin, /appleEnabled \? \(/);
+  assert.match(signin, /callbackUrl=\{callbackUrl \|\| "\/account"\}/);
+  assert.match(signup, /callbackUrl=\{candidateStart\}/);
+  assert.match(styles, /\.apple \{/);
+  assert.match(await read("components/auth/LoginForm.js"), /\/api\/account\/login/);
 });

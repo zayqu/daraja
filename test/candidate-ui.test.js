@@ -94,7 +94,13 @@ test("job detail saves through the protected candidate API and preserves officia
   assert.match(detail, /method: "POST"/);
   assert.match(detail, /credentials: "same-origin"/);
   assert.match(detail, /showCandidateSave && <button/);
-  assert.match(detail, /setJobSaved\(true\)/);
+  assert.match(detail, /setJobSaved\(!jobSaved\)/);
+  assert.match(detail, /method: jobSaved \? "DELETE" : "POST"/);
+  assert.match(detail, /aria-pressed=\{jobSaved\}/);
+  assert.match(detail, /Checking saved jobs/);
+  const savedApi = await read("app/api/candidate/saved-jobs/route.js");
+  assert.match(savedApi, /where: \{ userId_jobId: \{ userId: user\.id, jobId \} \}/);
+  assert.match(savedApi, /Cache-Control/);
   assert.match(detail, /href=\{applicationHref\}/);
   assert.match(page, /showCandidateSave=\{candidateCareerEnabled\(\)\}/);
   assert.match(styles, /\.saveJobAction/);

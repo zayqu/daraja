@@ -66,3 +66,21 @@ test("shared job-alert styling uses an explicit CSS module", async () => {
   assert.match(styles, /\.whatsappCard/);
   assert.match(styles, /@media \(max-width: 640px\)/);
 });
+
+
+test("My Jobs shows only the signed-in candidate's saved jobs and applications", async () => {
+  const career = await read("app/account/career/page.js");
+  const account = await read("app/account/page.js");
+  const styles = await read("app/account/career/career.module.css");
+
+  assert.match(career, /where: \{ userId: user\.id \}/);
+  assert.match(career, /where: \{ jobSeekerId: user\.jobSeeker\.id \}/);
+  assert.match(career, /user\.jobSeeker\s*\?/);
+  assert.match(career, /take: 12/g);
+  assert.match(career, /APPLICATION_LABELS/);
+  assert.match(career, /Applications sent through external employer websites are not tracked automatically/);
+  assert.match(career, /id="my-jobs"/);
+  assert.match(account, /href="\/account\/career#my-jobs"/);
+  assert.match(styles, /\.myJobsGrid/);
+  assert.match(styles, /@media \(max-width: 760px\)/);
+});

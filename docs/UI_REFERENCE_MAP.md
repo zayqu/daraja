@@ -110,6 +110,8 @@ journey reference, not authority to publish simulated functionality.
 - **My Jobs:** job detail can save a vacancy through the authenticated candidate API. The candidate career workspace displays personally saved jobs
   and personally owned Daraja-managed application progress. External
   applications are explicitly not auto-tracked.
+- **Application review:** eligible Daraja-managed applications now expose an explicit, confirmed Withdraw action in the candidate My Jobs area. Server-side owner checks permit withdrawal only from PENDING and REVIEWED. Other employers' application records remain inaccessible; external-site applications remain untracked.
+- **Authentication:** retain Google, LinkedIn and email/password. Any new flow must keep callback safety, email-verification rules, and employer/admin destinations intact.
 - **Messages/community:** no pretend conversations, groups or chat controls
   until authenticated, tenant-isolated, moderated backing systems exist.
 - **Profile upgrade/payment:** no paywall or live checkout without approved,

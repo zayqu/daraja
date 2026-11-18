@@ -22,7 +22,7 @@ function experienceLabel({ experienceMinYears: min, experienceMaxYears: max }) {
   return `${min}–${max} years`;
 }
 
-export default function JobDetailPageClient({ initialJob, showEmployerCta }) {
+export default function JobDetailPageClient({ initialJob, showEmployerCta, showCandidateSave = false }) {
   const { id } = useParams();
   const [job, setJob] = useState(initialJob || null);
   const [loading, setLoading] = useState(!initialJob);
@@ -490,7 +490,7 @@ export default function JobDetailPageClient({ initialJob, showEmployerCta }) {
                 </>
               )}
 
-              <button
+              {showCandidateSave && <button
                 type="button"
                 className={styles.saveJobAction}
                 disabled={savingJob || jobSaved}
@@ -498,7 +498,7 @@ export default function JobDetailPageClient({ initialJob, showEmployerCta }) {
                 aria-live="polite"
               >
                 {jobSaved ? "Saved to My Jobs" : savingJob ? "Saving…" : "Save to My Jobs"}
-              </button>
+              </button>}
               {saveError && <p className={styles.saveError} role="alert">{saveError}</p>}
 
               <Link

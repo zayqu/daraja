@@ -8,6 +8,7 @@ import PublicSiteNav from "@/components/PublicSiteNav";
 import CandidateAccountTabs from "@/components/CandidateAccountTabs";
 import PageHero from "@/components/ui/PageHero";
 import WorkspaceShell from "@/components/ui/WorkspaceShell";
+import ApplicationWithdrawButton from "@/components/ui/ApplicationWithdrawButton";
 import styles from "./career.module.css";
 import prisma from "@/lib/prisma";
 
@@ -123,7 +124,12 @@ export default async function CareerPage() {
                           <strong>{job.title}</strong>
                           <span>{job.company}</span>
                         </Link>
-                        <span className={styles.jobStatus}>{APPLICATION_LABELS[status] || "Status unavailable"}</span>
+                        <div className={styles.applicationActions}>
+                          <span className={styles.jobStatus}>{APPLICATION_LABELS[status] || "Status unavailable"}</span>
+                          {(status === "PENDING" || status === "REVIEWED") ? (
+                            <ApplicationWithdrawButton applicationId={id} />
+                          ) : null}
+                        </div>
                       </li>
                     ))}
                   </ul>

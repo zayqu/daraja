@@ -4,6 +4,15 @@ This is the mandatory entry point for every model or contributor before changing
 
 Do not rely on chat history or memory. The repository is the source of truth.
 
+## Reporting to the product owner
+
+Follow the owner-facing communication rules in `AGENTS.md`. Give concise
+non-technical updates about the user experience, work completed, pending
+functionality, risks and any genuinely required decisions. Record branch names,
+PR numbers, technical checks and handoff details in the repository rather
+than making them the default content of owner-facing messages. Never call
+untested work finished or conceal a production-impacting risk.
+
 ## Required start sequence
 
 For every task, before proposing or editing code:

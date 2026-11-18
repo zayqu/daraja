@@ -1075,3 +1075,15 @@ a.highlightItem:hover strong {
     right: auto;
   }
 }
+
+/* Phones only: the rest of the role's menu on the Profile/Account page. */
+.accountMenu {
+  display: none;
+}
+
+@media (max-width: 760px) {
+  .accountMenu {
+    display: block;
+    margin-top: var(--space-5);
+  }
+}

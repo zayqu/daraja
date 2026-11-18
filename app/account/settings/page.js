@@ -3,9 +3,12 @@ import { redirect } from "next/navigation";
 import { auth } from "@/auth";
 import { signOutAction } from "@/app/actions/sign-out";
 import PasswordResetButton from "@/components/PasswordResetButton";
+import AccountMenu from "@/components/dashboard/AccountMenu";
 import { ListCard, PageHeader } from "@/components/dashboard/DashboardUi";
 import dash from "@/components/dashboard/dashboard.module.css";
 import { ROLE_LABELS } from "@/lib/platform-roles";
+import { dashboardMenu } from "@/lib/dashboard-navigation";
+import { candidateCareerEnabled, employerPortalEnabled } from "@/lib/features";
 import prisma from "@/lib/prisma";
 
 export const metadata = {
@@ -92,6 +95,14 @@ export default async function SettingsPage() {
           </div>
         </ListCard>
       </div>
+
+      {/* This page is the candidates' Profile tab while the profile tools are off. */}
+      {dashboardMenu(user.role, {
+        employerPortal: employerPortalEnabled(),
+        candidateCareer: candidateCareerEnabled(),
+      }).accountTab.href === "/account/settings" ? (
+        <AccountMenu role={user.role} signOut={false} />
+      ) : null}
 
       <ListCard title="Sign out">
         <p className={dash.help}>Sign out of Daraja on this device.</p>

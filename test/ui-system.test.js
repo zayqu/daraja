@@ -29,7 +29,8 @@ test("every signed-in role uses one dashboard shell and one menu owner", async (
   assert.match(shell, /dashboardMenu\(role, \{ employerPortal, candidateCareer \}\)/);
   assert.match(dock, /dashboardMenu\(userRole/);
   assert.match(shell, /<form action=\{signOutAction\}>/);
-  assert.match(dock, /<form action=\{signOutAction\}/);
+  assert.match(dock, /<SignOutButton \/>/);
+  assert.match(await read("components/ui/MenuList.js"), /<form action=\{signOutAction\}/);
 
   // The old per-role tab bars and the separate admin shell are gone.
   for (const removed of [

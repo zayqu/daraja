@@ -30,10 +30,11 @@ test("public navigation uses one shared source of truth", async () => {
   // the rest of their menu, all from lib/dashboard-navigation.js (D-038).
   assert.match(mobileDock, /dashboardMenu\(userRole, \{ employerPortal: showEmployerCta, candidateCareer: showCandidateProfile \}\)/);
   assert.match(mobileDock, /tabs = menu\.dock\.map/);
-  assert.match(mobileDock, /accountSheetSections\(menu\)/);
-  assert.match(mobileDock, /<form action=\{signOutAction\}>/);
+  assert.match(mobileDock, /secondaryMenuSections\(menu\)/);
+  assert.match(mobileDock, /<SignOutButton \/>/);
   assert.match(mobileDock, /size=\{24\}/);
-  assert.match(mobileDock, />\s*Internships\s*</);
+  assert.match(mobileDock, /label: "Internships"/);
+  assert.match(await source("components/ui/MenuList.js"), />\s*Internships\s*</);
 });
 
 test("homepage sends live platform counters to the shared navy footer", async () => {

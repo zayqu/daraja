@@ -162,13 +162,6 @@
 
   .identity {
     min-width: 0;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-
-  .identity div {
-    min-width: 0;
     display: grid;
     gap: 1px;
   }
@@ -190,33 +183,9 @@
     text-transform: uppercase;
   }
 
-  .identityAvatar {
+  .closeButton {
     width: 40px;
     height: 40px;
-    flex: none;
-    display: grid;
-    place-items: center;
-    border-radius: 50%;
-    background: var(--color-navy);
-    color: var(--color-teal);
-    font-size: 0.78rem;
-    font-weight: 700;
-  }
-
-  .headerActions {
-    flex: none;
-    display: flex;
-    align-items: center;
-    gap: 16px;
-  }
-
-  .headerActions form {
-    margin: 0;
-  }
-
-  .closeButton {
-    width: 36px;
-    height: 36px;
     flex: none;
     display: grid;
     place-items: center;
@@ -227,81 +196,20 @@
     cursor: pointer;
   }
 
-  /* One short list per group (no tile grid), so the sheet stays compact. */
-  .sheetSection + .sheetSection {
-    margin-top: 10px;
-  }
-
-  .sheetLabel {
-    margin: 0 0 6px;
-    padding: 0 4px;
-    color: var(--color-text-muted);
-    font-size: 0.6rem;
-    font-weight: 600;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-  }
-
-  .sheetList {
-    margin: 0;
-    padding: 0;
-    overflow: hidden;
-    border: 1px solid var(--color-border);
-    border-radius: 14px;
-    background: #fff;
-    list-style: none;
-  }
-
-  .sheetList li + li {
-    border-top: 1px solid var(--color-border);
-  }
-
-  .sheetList a {
-    min-height: 44px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 0 12px;
-    color: var(--color-text-secondary);
-    font-size: 0.8rem;
-    font-weight: 500;
-    text-decoration: none;
-  }
-
-  .sheetList a span {
-    flex: 1;
-  }
-
-  .sheetList a svg:last-child {
-    color: var(--color-text-faint);
-  }
-
-  .sheetList a:hover,
-  .sheetList a:focus-visible {
-    background: #f7fbfa;
-    color: var(--color-teal-deep);
-  }
-
-  .sheetList .rowActive {
-    background: rgba(0, 201, 167, 0.1);
-    color: var(--color-teal-deep);
-    font-weight: 600;
-  }
-
   .authActions {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 8px;
-    margin-bottom: 10px;
+    margin-bottom: 12px;
   }
 
   .authPrimary,
   .authSecondary {
-    min-height: 44px;
+    min-height: 46px;
     display: grid;
     place-items: center;
     border-radius: 12px;
-    font-size: 0.8rem;
+    font-size: 0.82rem;
     font-weight: 600;
     text-decoration: none;
   }
@@ -317,72 +225,21 @@
     color: var(--color-navy);
   }
 
-  .footerLinks {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 2px 14px;
-    margin-top: 8px;
-    padding: 0 4px;
-  }
-
-  .footerLinks a,
-  .footerLinks button {
-    min-height: 32px;
-    display: inline-flex;
-    align-items: center;
-    padding: 0;
-    border: 0;
-    background: none;
-    color: var(--color-text-muted);
-    font-family: inherit;
-    font-size: 0.7rem;
-    font-weight: 500;
-    text-decoration: none;
-    cursor: pointer;
-  }
-
-  .footerLinks a:hover,
-  .footerLinks a:focus-visible,
-  .footerLinks button:hover,
-  .footerLinks button:focus-visible {
-    color: var(--color-teal-deep);
-  }
-
-  /* Present but quiet: signing out is not an everyday task. */
-  .signOut {
-    min-height: 32px;
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    padding: 0;
-    border: 0;
-    background: none;
-    color: var(--color-text-muted);
-    font-family: inherit;
-    font-size: 0.7rem;
-    font-weight: 500;
-    cursor: pointer;
-  }
-
-  .signOut:hover,
-  .signOut:focus-visible {
-    color: var(--color-danger);
-  }
-
-  /* Employers' "Post job" tab is the one main action. */
+  /* Employers' "Post job" is one solid action button, unlike the soft teal
+     tint that marks the page you are on, so the two never compete. */
   .primary .iconWrap {
-    background: var(--color-teal);
-    color: var(--color-navy);
+    width: 40px;
+    height: 40px;
+    margin-top: -6px;
+    border-radius: 50%;
+    background: var(--color-navy);
+    color: var(--color-teal);
+    box-shadow: 0 6px 14px rgba(27, 42, 63, 0.22);
   }
 
   .primary.active .iconWrap {
-    background: var(--color-teal);
-    box-shadow: 0 0 0 3px rgba(0, 201, 167, 0.25);
-  }
-
-  .primary .label {
-    color: var(--color-navy);
-    font-weight: 600;
+    background: var(--color-navy);
+    transform: none;
   }
 
   .badge {

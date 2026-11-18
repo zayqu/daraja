@@ -9,6 +9,7 @@ import {
 } from "@/lib/employer-access";
 import EmployerProfileForm from "@/components/EmployerProfileForm";
 import EmployerVerificationNotice from "@/components/EmployerVerificationNotice";
+import AccountMenu from "@/components/dashboard/AccountMenu";
 import { Badge, ListCard, PageHeader } from "@/components/dashboard/DashboardUi";
 import dash from "@/components/dashboard/dashboard.module.css";
 import portal from "../../portal.module.css";
@@ -96,6 +97,8 @@ export default async function EmployerProfilePage() {
           </dl>
         </ListCard>
       </div>
+
+      <AccountMenu role={actor.role} />
     </>
   );
 }

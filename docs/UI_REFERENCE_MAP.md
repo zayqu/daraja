@@ -36,17 +36,19 @@ Daraja decision:
   features until the corresponding Daraja backend/product feature exists
 
 Current mobile navigation (task-first, D-038):
-- Bottom dock, signed out: Home, Jobs, Freelance, More
-- Candidates: Discover, Saved, Applications, Profile
-- Employers: Overview, Vacancies, Post job (highlighted main action), Account
+- Rule: every tab opens a page; only More opens a menu
+- Visitors: Home, Jobs, Freelance, More
+- Candidates: Discover, Saved, Applications, Profile (page)
+- Employers: Overview, Vacancies, Post job (solid navy action button), Account (page)
 - Admins: Overview, Jobs, Employers (badges count pending reviews), More
-- The last tab opens a short list (no tile grid, at most three quarters of
-  the screen) with the rest of the role's menu from `lib/dashboard-navigation.js`
-  in two groups, a line of Daraja links, and a quiet Sign out beside the
-  account name; visitors get Sign in / Create account buttons instead
+- Profile/Account pages end, on phones, with the rest of the role's menu from
+  `lib/dashboard-navigation.js` and Sign out at the very bottom; the admin
+  More sheet keeps rarely used tools as compact links (at most three quarters
+  of the screen, never a tile grid)
+- Labels: "About Daraja", "WhatsApp Channel"; normal weight for menu labels,
+  semibold only for titles and the current item
 - Header icons: Sign in for visitors, the notifications bell for candidates;
   no second account icon or hamburger (D-027)
-- dashboard pages hide their sidebar at the same width the dock appears
 - respects iPhone safe-area insets and viewport-fit=cover
 
 ### Jobi — candidate/employer SaaS depth

@@ -623,22 +623,27 @@ in the Daraja brand colours and Poppins. Pages build their content from the
 shared kit in `components/dashboard/DashboardUi.js`.
 
 - **One menu owner.** Each role's menu lives only in
-  `lib/dashboard-navigation.js` (`dashboardMenu`, `accountSheetSections`,
-  `activeMenuHref`). The desktop sidebar shows all of it; the phone dock shows
-  the same menu split in two, so nothing appears twice. Employers use the
-  candidate menu while the employer portal is off, matching `roleHome()`.
-- **Phones: task-first tabs.** The dock shows each role's everyday tasks plus
-  one tab for everything else: candidates Discover, Saved, Applications,
-  Profile; employers Overview, Vacancies, Post job (the highlighted main
-  action), Account; admins Overview, Jobs, Employers (with pending-review
-  badges from `getAdminQueueCounts`), More. Visitors keep Home, Jobs,
-  Freelance, More. The last tab opens a short list (at most three quarters of
-  the screen, never a tile grid) with the rest of the role's menu in the
-  sidebar's two groups, a line of Daraja links and a quiet Sign out beside the
-  account name. No Applicants tab until employers have Daraja-managed
-  applications. The phone header no longer repeats the account icon: visitors
-  get a Sign in icon, candidates keep the notifications bell (this updates
-  the D-027 and D-028 header icons).
+  `lib/dashboard-navigation.js` (`dashboardMenu`, `secondaryMenuSections`,
+  `activeMenuHref`). The desktop sidebar shows all of it; on phones the dock
+  shows the everyday tasks and `secondaryMenuSections` lists the rest once,
+  so nothing appears twice. Employers use the candidate menu while the
+  employer portal is off, matching `roleHome()`.
+- **Phones: one interaction rule.** Every dock tab goes straight to a page;
+  only More opens a menu (a bottom sheet, never shown on desktop). Candidates:
+  Discover, Saved, Applications, Profile (`/account/profile`). Employers:
+  Overview, Vacancies, Post job (a solid navy action button, so it never looks
+  like the teal "you are here" state), Account (`/employer/profile`). Admins:
+  Overview, Jobs, Employers (pending-review badges from
+  `getAdminQueueCounts`), More. Visitors: Home, Jobs, Freelance, More. The
+  Profile/Account page ends, on phones, with the rest of the role's menu and
+  Sign out at the very bottom; the admin More sheet lists Post a job and
+  Users, then rarely used tools as compact links, and ends with Sign out. The
+  visitors' More offers Sign in / Create account and says job alerts need a
+  free account. Menu labels use normal weight; semibold marks titles and the
+  current item only. No Applicants tab until employers have Daraja-managed
+  applications. The phone header no longer repeats the account icon:
+  visitors get a Sign in icon, candidates keep the notifications bell (this
+  updates the D-027 and D-028 header icons).
 - **Retired.** The sidebar hides at the dock's 760px breakpoint. This
   supersedes the D-035 admin drawer and the per-role tab bars:
   `WorkspaceTabs`, `CandidateAccountTabs`, `EmployerPortalTabs` and

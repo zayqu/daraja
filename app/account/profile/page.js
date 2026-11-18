@@ -1,5 +1,6 @@
 import { notFound, redirect } from "next/navigation";
 import CandidateProfileForm from "@/components/CandidateProfileForm";
+import AccountMenu from "@/components/dashboard/AccountMenu";
 import { PageHeader } from "@/components/dashboard/DashboardUi";
 import SurfaceCard from "@/components/ui/SurfaceCard";
 import {
@@ -60,6 +61,8 @@ export default async function CandidateProfilePage() {
 
         <CandidateProfileForm initialProfile={initialProfile} />
       </SurfaceCard>
+
+      <AccountMenu role={user.role} />
     </>
   );
 }

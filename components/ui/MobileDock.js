@@ -4,25 +4,27 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
 import { mobileDockEnabledPath } from "@/lib/mobile-navigation";
-import { accountSheetSections, activeMenuHref, dashboardMenu } from "@/lib/dashboard-navigation";
-import { signOutAction } from "@/app/actions/sign-out";
+import { activeMenuHref, dashboardMenu, secondaryMenuSections } from "@/lib/dashboard-navigation";
 import NavIcon from "@/components/ui/NavIcon";
-import { PRIVACY_SETTINGS_EVENT } from "@/lib/google-services";
-import { WHATSAPP_CHANNEL_URL } from "@/lib/site-config";
+import { DarajaLinks, INTERNSHIPS_HREF, MenuRows, MenuSections, SignOutButton } from "@/components/ui/MenuList";
 import styles from "./MobileDock.module.css";
 
-const INTERNSHIPS_HREF = "/jobs?category=Internships%20%26%20Graduate%20Programs";
+// Visitors need an account for job alerts, so the row says so and signs in first.
+const GUEST_ROWS = [
+  {
+    href: "/auth/signin?callbackUrl=/account/alerts",
+    label: "Job alerts",
+    hint: "Free account needed",
+    icon: "alert",
+  },
+  { href: INTERNSHIPS_HREF, label: "Internships", icon: "internships" },
+  { href: "/contact", label: "Contact", icon: "help" },
+];
 
-function initialsOf(name) {
-  const parts = String(name || "").trim().split(/\s+/).filter(Boolean);
-  if (parts.length > 1) return `${parts[0][0]}${parts[1][0]}`.toUpperCase();
-  return (parts[0] || "D").slice(0, 2).toUpperCase();
-}
-
-// Phone navigation (D-027, D-038). Signed-in users get their role's everyday
-// tasks as tabs plus one tab ("Profile", "Account" or "More") that opens a
-// short list with the rest of their menu; visitors get Home, Jobs, Freelance
-// and More. Desktop uses the dashboard sidebar instead.
+// Phone navigation (D-027, D-038). Every tab goes straight to a page except
+// More, the only tab that opens a menu (admins and visitors). Candidates and
+// employers find the rest of their menu on their Profile/Account page.
+// Desktop uses the dashboard sidebar instead.
 export default function MobileDock({
   showEmployerCta = false,
   showCandidateProfile = false,
@@ -34,14 +36,14 @@ export default function MobileDock({
   const searchParams = useSearchParams();
   const [sheetOpen, setSheetOpen] = useState(false);
   const closeButtonRef = useRef(null);
-  const sheetTabRef = useRef(null);
+  const moreButtonRef = useRef(null);
   const freelanceActive =
     pathname.startsWith("/jobs") && searchParams.get("type") === "FREELANCE";
 
   useEffect(() => {
     if (!sheetOpen) return undefined;
     closeButtonRef.current?.focus();
-    const sheetTab = sheetTabRef.current;
+    const moreButton = moreButtonRef.current;
 
     function onKeyDown(event) {
       if (event.key === "Escape") setSheetOpen(false);
@@ -50,7 +52,7 @@ export default function MobileDock({
     window.addEventListener("keydown", onKeyDown);
     return () => {
       window.removeEventListener("keydown", onKeyDown);
-      sheetTab?.focus();
+      moreButton?.focus();
     };
   }, [sheetOpen]);
 
@@ -63,20 +65,23 @@ export default function MobileDock({
 
   let tabs;
   let activeHref = null;
-  let sheetTabActive = false;
+  let accountAreaActive = false;
   if (menu) {
     // The home page belongs to no tab (it is only the admin's "View the site").
     activeHref = activeMenuHref(
       [...menu.dock, ...menu.main, ...menu.settings].filter((item) => item.href !== "/"),
       pathname
     );
+    // Any menu page outside the dock belongs to the Profile/Account/More tab.
+    accountAreaActive =
+      pathname === menu.accountTab.href ||
+      (Boolean(activeHref) && !menu.dock.some((item) => item.href === activeHref));
     tabs = menu.dock.map((item) => ({
       ...item,
       active: item.href === activeHref,
       badge: item.count ? Number(counts?.[item.count] || 0) : 0,
     }));
-    // A page from the sheet (e.g. Settings) lights up the sheet's tab.
-    sheetTabActive = Boolean(activeHref) && !menu.dock.some((item) => item.href === activeHref);
+    if (menu.accountTab.href) tabs.push({ ...menu.accountTab, active: accountAreaActive });
   } else {
     tabs = [
       { href: "/", label: "Home", icon: "home", active: pathname === "/" },
@@ -84,19 +89,13 @@ export default function MobileDock({
       { href: "/jobs?type=FREELANCE", label: "Freelance", icon: "freelance", active: freelanceActive },
     ];
   }
-  const sheetTab = menu ? menu.accountTab : { label: "More", icon: "more" };
-  const sections = menu ? accountSheetSections(menu) : [];
-
-  function openPrivacyChoices() {
-    close();
-    window.dispatchEvent(new Event(PRIVACY_SETTINGS_EVENT));
-  }
+  const hasMore = !menu || !menu.accountTab.href;
 
   return (
     <>
       <div className={styles.spacer} aria-hidden="true" />
 
-      {sheetOpen && (
+      {hasMore && sheetOpen && (
         <div className={styles.sheetLayer}>
           <button
             type="button"
@@ -113,66 +112,32 @@ export default function MobileDock({
           >
             <div className={styles.sheetHandle} aria-hidden="true" />
             <div className={styles.sheetHeader}>
-              {menu ? (
-                <div className={styles.identity}>
-                  <span className={styles.identityAvatar} aria-hidden="true">{initialsOf(userName)}</span>
-                  <div>
-                    <strong>{userName || "Your account"}</strong>
-                    <span>{menu.roleLabel}</span>
-                  </div>
-                </div>
-              ) : (
-                <div className={styles.identity}>
-                  <div>
-                    <strong>Daraja</strong>
-                    <span>Kazi na fursa Tanzania</span>
-                  </div>
-                </div>
-              )}
-              <div className={styles.headerActions}>
-                {/* Next to who is signed in, small and quiet: not an everyday task. */}
-                {menu ? (
-                  <form action={signOutAction}>
-                    <button type="submit" className={styles.signOut}>
-                      <NavIcon name="logout" size={16} />
-                      <span>Sign out</span>
-                    </button>
-                  </form>
-                ) : null}
-                <button
-                  ref={closeButtonRef}
-                  type="button"
-                  className={styles.closeButton}
-                  aria-label="Close menu"
-                  onClick={close}
-                >
-                  <NavIcon name="close" size={18} />
-                </button>
+              <div className={styles.identity}>
+                <strong>{menu ? userName || "Your account" : "Daraja"}</strong>
+                <span>{menu ? menu.roleLabel : "Kazi na fursa Tanzania"}</span>
               </div>
+              <button
+                ref={closeButtonRef}
+                type="button"
+                className={styles.closeButton}
+                aria-label="Close menu"
+                onClick={close}
+              >
+                <NavIcon name="close" size={18} />
+              </button>
             </div>
 
             {menu ? (
-              sections.map((section) => (
-                <div key={section.label || "main"} className={styles.sheetSection}>
-                  {section.label ? <p className={styles.sheetLabel}>{section.label}</p> : null}
-                  <ul className={styles.sheetList}>
-                    {section.items.map((item) => (
-                      <li key={item.href}>
-                        <Link
-                          href={item.href}
-                          className={item.href === activeHref ? styles.rowActive : undefined}
-                          aria-current={item.href === activeHref ? "page" : undefined}
-                          onClick={close}
-                        >
-                          <NavIcon name={item.icon} size={18} />
-                          <span>{item.label}</span>
-                          <NavIcon name="chevron" size={16} />
-                        </Link>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              ))
+              <>
+                <MenuSections
+                  sections={secondaryMenuSections(menu)}
+                  activeHref={activeHref}
+                  onNavigate={close}
+                  compactSettings
+                />
+                <DarajaLinks onNavigate={close} />
+                <SignOutButton />
+              </>
             ) : (
               <>
                 <div className={styles.authActions}>
@@ -183,68 +148,16 @@ export default function MobileDock({
                     Create account
                   </Link>
                 </div>
-                <ul className={styles.sheetList}>
-                  <li>
-                    <Link href="/account/alerts" onClick={close}>
-                      <NavIcon name="alert" size={18} />
-                      <span>Job alerts</span>
-                      <NavIcon name="chevron" size={16} />
-                    </Link>
-                  </li>
-                  <li>
-                    <Link href={INTERNSHIPS_HREF} onClick={close}>
-                      <NavIcon name="internships" size={18} />
-                      <span>Internships</span>
-                      <NavIcon name="chevron" size={16} />
-                    </Link>
-                  </li>
-                  <li>
-                    <Link href="/about" onClick={close}>
-                      <NavIcon name="info" size={18} />
-                      <span>About Daraja</span>
-                      <NavIcon name="chevron" size={16} />
-                    </Link>
-                  </li>
-                  <li>
-                    <Link href="/contact" onClick={close}>
-                      <NavIcon name="help" size={18} />
-                      <span>Contact</span>
-                      <NavIcon name="chevron" size={16} />
-                    </Link>
-                  </li>
-                  <li>
-                    <a href={WHATSAPP_CHANNEL_URL} target="_blank" rel="noopener noreferrer" onClick={close}>
-                      <NavIcon name="chat" size={18} />
-                      <span>WhatsApp Channel</span>
-                      <NavIcon name="chevron" size={16} />
-                    </a>
-                  </li>
-                </ul>
+                <MenuRows items={GUEST_ROWS} onNavigate={close} />
+                <DarajaLinks onNavigate={close} />
               </>
             )}
-
-            <nav className={styles.footerLinks} aria-label="More from Daraja">
-              {menu ? (
-                <>
-                  {menu.role === "JOB_SEEKER" ? (
-                    <Link href={INTERNSHIPS_HREF} onClick={close}>Internships</Link>
-                  ) : null}
-                  <Link href="/about" onClick={close}>About</Link>
-                  <a href={WHATSAPP_CHANNEL_URL} target="_blank" rel="noopener noreferrer" onClick={close}>
-                    WhatsApp
-                  </a>
-                </>
-              ) : null}
-              <button type="button" onClick={openPrivacyChoices}>
-                Privacy choices
-              </button>
-            </nav>
           </section>
         </div>
       )}
 
       <nav className={styles.dockWrap} aria-label="Mobile navigation">
-        <div className={styles.dock} style={{ "--dock-item-count": tabs.length + 1 }}>
+        <div className={styles.dock} style={{ "--dock-item-count": tabs.length + (hasMore ? 1 : 0) }}>
           {tabs.map((item) => (
             <Link
               key={item.href}
@@ -254,7 +167,7 @@ export default function MobileDock({
               onClick={close}
             >
               <span className={styles.iconWrap}>
-                <NavIcon name={item.icon} size={24} />
+                <NavIcon name={item.icon} size={item.primary ? 22 : 24} />
                 {item.badge > 0 ? (
                   <span className={styles.badge} aria-hidden="true">
                     {item.badge > 99 ? "99+" : item.badge}
@@ -266,19 +179,21 @@ export default function MobileDock({
             </Link>
           ))}
 
-          <button
-            ref={sheetTabRef}
-            type="button"
-            className={`${styles.item} ${sheetOpen || sheetTabActive ? styles.active : ""}`}
-            aria-expanded={sheetOpen}
-            aria-haspopup="dialog"
-            onClick={() => setSheetOpen((value) => !value)}
-          >
-            <span className={styles.iconWrap}>
-              <NavIcon name={sheetTab.icon} size={24} />
-            </span>
-            <span className={styles.label}>{sheetTab.label}</span>
-          </button>
+          {hasMore ? (
+            <button
+              ref={moreButtonRef}
+              type="button"
+              className={`${styles.item} ${sheetOpen || accountAreaActive ? styles.active : ""}`}
+              aria-expanded={sheetOpen}
+              aria-haspopup="dialog"
+              onClick={() => setSheetOpen((value) => !value)}
+            >
+              <span className={styles.iconWrap}>
+                <NavIcon name="more" size={24} />
+              </span>
+              <span className={styles.label}>More</span>
+            </button>
+          ) : null}
         </div>
       </nav>
     </>

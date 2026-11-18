@@ -53,6 +53,21 @@ configured for this site. Do not enable without live callback tests.
   All other writes retain the regular origin/rate protections.
 - Never turn on the provider merely because the button renders successfully.
 
+## Prepared environment files and offline check
+
+- `config/apple-auth.env.example` documents the server-only variable names
+  with the Apple feature disabled by default. It contains no credentials.
+- `npm run auth:apple:check` runs `scripts/check-apple-auth-config.cjs`.
+  Disabled is an expected safe state. If enabled, the command checks presence,
+  HTTPS origin, Apple JWT header/claims and expiry, without logging token or
+  private key material. **It cannot verify JWT signatures or Apple Developer
+  configuration.** A successful format check never authorizes activation.
+- `test/apple-auth-config.test.js` covers disabled, invalid, expiring and
+  structurally valid configurations. The positive test uses an intentionally
+  fake signing value and does not exercise live Apple authentication.
+- Provider setup and secret injection are deferred to an authorized owner of
+  the Apple Developer account and the host's protected environment interface.
+
 ## Release verification checklist
 
 - Existing password, LinkedIn and Google logins still work.

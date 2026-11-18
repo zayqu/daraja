@@ -523,7 +523,7 @@ export default function JobDetailPageClient({ initialJob, showEmployerCta, showC
                 aria-pressed={jobSaved}
                 aria-live="polite"
               >
-                {!saveStateLoaded ? "Checking saved jobs…" : savingJob ? "Updating…" : jobSaved ? "Remove from My Jobs" : "Save to My Jobs"
+                {!saveStateLoaded ? "Checking saved jobs…" : savingJob ? "Updating…" : jobSaved ? "Remove from My Jobs" : "Save to My Jobs"}
               </button>}
               {saveError && <p className={styles.saveError} role="alert">{saveError}</p>}
 

@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { auth, authProviders } from "@/auth";
 import AuthLayout from "@/components/auth/AuthLayout";
 import GoogleButton from "@/components/auth/GoogleButton";
+import AppleButton from "@/components/auth/AppleButton";
 import LinkedInButton from "@/components/auth/LinkedInButton";
 import SignupForm from "@/components/auth/SignupForm";
 import { candidateCareerEnabled, employerPortalEnabled } from "@/lib/features";
@@ -25,6 +26,7 @@ export default async function SignUpPage({ searchParams }) {
   if (session?.user) redirect(roleHome(session.user.role, { employerPortal: employerEnabled }));
 
   const googleEnabled = authProviders.includes("google");
+  const appleEnabled = authProviders.includes("apple");
   const linkedinEnabled = authProviders.includes("linkedin");
 
   return (
@@ -40,6 +42,13 @@ export default async function SignUpPage({ searchParams }) {
         initialType={params?.type === "employer" ? "employer" : "candidate"}
         socialCandidate={
           <>
+            {appleEnabled ? (
+              <AppleButton
+                callbackUrl={candidateStart}
+                label="Sign up with Apple"
+                withDivider={!googleEnabled && !linkedinEnabled}
+              />
+            ) : null}
             {linkedinEnabled ? (
               <LinkedInButton
                 callbackUrl={candidateStart}

@@ -2,6 +2,13 @@
 
 Last updated: 18 November 2026
 
+## Saved-job state continuity (18 November 2026, pending validation)
+
+- The job-detail page now reads the existing candidate's saved state through the existing authenticated saved-jobs API, scoped to the signed-in user's record and sent with private/no-store headers.
+- Candidates can save or remove a vacancy on the same detail page; the button announces its current state rather than always showing Save after reload.
+- Preserved external Apply destinations, account sign-in handoff and candidate feature flags. No new database table, tenant model or provider.
+- Regression assertions added for read ownership, save/remove behavior and UI state. The latest build and browser review remain required.
+
 ## Candidate registration to profile setup userflow (18 November 2026, pending validation)
 
 - Existing email-verification success route now guides newly verified candidate accounts to the protected profile editor when candidate career functionality is enabled; employer/admin role home and existing login callback policies remain unchanged.

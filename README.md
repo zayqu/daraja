@@ -108,10 +108,27 @@ Daraja publishes the confirmed Google publisher authorization record at
 Terms pages. Advertising remains visually separated from vacancy content and
 application actions.
 
+## Apple sign-in readiness (not live)
+
+An Apple Developer Program membership is available, but the Apple web Services
+ID and signed client secret have **not** yet been configured or verified for
+Daraja. Do not enable Apple sign-in or expose a button before end-to-end
+provider verification.
+
+- Offline reference only: `config/apple-auth.env.example` (contains no secrets).
+- Setup steps, exact callback and privacy checks: `docs/APPLE_SIGN_IN_SETUP.md`.
+- Inspect the environment safely with `npm run auth:apple:check`. It only
+  checks settings and JWT format/expiry; it cannot validate Apple's signature
+  or replace a real sign-in test.
+- Existing LinkedIn, Google and email/password login are unaffected.
+- Never put Apple private keys, JWTs or production environment values in
+  commits, issue comments, chat or build logs.
+
 ## Job-alert configuration
 
 Public job browsing remains open. Saving job-alert preferences requires a
-verified candidate account using Google OAuth or a passwordless email link.
+signed-in, verified candidate account. Daraja supports email/password,
+Google and LinkedIn; Apple is a gated additional provider.
 Configure the following Vercel variables for Preview and Production:
 
 - `AUTH_SECRET`

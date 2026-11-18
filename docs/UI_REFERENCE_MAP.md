@@ -91,3 +91,38 @@ Every adopted pattern must be rebuilt using the centralized Daraja UI system:
 
 Do not import a template's routing, CSS framework, fonts, demo content,
 authentication assumptions or unsupported product features.
+
+
+### Makarya — approved Daraja userflow reference (18 November 2026)
+
+Owner-approved userflow image covers: registration/onboarding, login,
+job search, job application, messages, My Jobs, profile upgrades and community.
+
+Implementation is adapted into Daraja's existing Next.js routes, ownership
+checks and shared Poppins/navy/mint visual system. The diagram is a user
+journey reference, not authority to publish simulated functionality.
+
+- **Registration/login/search:** newly verified candidates and candidate OAuth signups go to the protected profile step when enabled; employer verification routes and existing sign-in destinations are preserved. Profile completion now shows a field-based indicator and a next-step link after saving, without changing verification or login security. Use and refine the existing authenticated
+  Daraja journeys, retaining employer verification and public job browsing.
+- **Applications:** external vacancies retain the verified official Apply
+  destination; Daraja-managed applications alone can show internal status.
+- **Saved-job continuity:** the job-detail Save control checks the authenticated candidate's saved state and allows removal from the list using the existing saved-jobs API, without a parallel store.
+- **My Jobs:** job detail can save a vacancy through the authenticated candidate API. The candidate career workspace displays personally saved jobs
+  and personally owned Daraja-managed application progress. External
+  applications are explicitly not auto-tracked.
+- **Application review:** eligible Daraja-managed applications now expose an explicit, confirmed Withdraw action in the candidate My Jobs area. Server-side owner checks permit withdrawal only from PENDING and REVIEWED. Other employers' application records remain inaccessible; external-site applications remain untracked.
+- **Authentication:** retain Google, LinkedIn and email/password. An existing Apple Developer Program membership is confirmed. Apple login is prepared behind an explicit enable flag and private server credentials; it is not yet operational or visible until the Services ID, signed client-secret JWT, HTTPS callback and account privacy tests are completed. Apple cannot silently link an existing Daraja account by matching email. Follow `docs/APPLE_SIGN_IN_SETUP.md` before activation; preserve employer/admin/candidate routing.
+- **External application truth:** even a vacancy submitted by a verified
+  Daraja employer must use the official email/website destination when one is
+  configured; the candidate API must not create an internally tracked
+  application for that external action.
+- **Messages/community:** no pretend conversations, groups or chat controls
+  until authenticated, tenant-isolated, moderated backing systems exist.
+- **Profile upgrade/payment:** no paywall or live checkout without approved,
+  provider-verified billing and valid entitlement enforcement.
+- **Tenant model:** never infer organization access from visual navigation.
+  All private data is scoped server-side to the authenticated owner, and
+  employer workspaces continue to use employer ownership/verification rules.
+
+This is a phased implementation. Inspect and verify each screen against the
+live Figma design once detailed design access is available.

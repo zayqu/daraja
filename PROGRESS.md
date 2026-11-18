@@ -1,6 +1,87 @@
 # Daraja Jobs production-readiness progress
 
-Last updated: 15 November 2026
+Last updated: 18 November 2026
+
+## Apple environment readiness and application integrity (18 November 2026, CI passed)
+
+- Added credential-free `config/apple-auth.env.example`, offline
+  `scripts/check-apple-auth-config.cjs`, and the
+  `npm run auth:apple:check` command. The checker reports missing/invalid
+  Services ID, signed JWT structure/expiry and HTTPS origin without exposing
+  sensitive values. Passing format checks is not Apple authentication
+  verification. Corresponding tests in `test/apple-auth-config.test.js`.
+- The existing candidate application API now refuses to create a tracked
+  Daraja application if **either** an employer website/email application URL
+  or an external source URL exists. Previously it checked only sourceUrl,
+  risking a misleading internal application for email-only employer posts.
+  Preserves the official destination in the conflict response.
+- Existing Google, LinkedIn and email/password login flows stay in place.
+  Apple remains off until verified Apple Developer settings and end-to-end
+  authentication, including private relay behavior, are approved.
+- No actual credentials, database migrations, provider calls, or production
+  deployment. On 18 November, GitHub validation run 44334143657 passed
+  automated tests, ESLint, schema validation, production bundle, packaged
+  runtime and smoke test. Vercel preview also built successfully.
+  Responsive browser verification and actual Apple sign-in with a configured
+  Services ID/client secret remain outstanding.
+
+## Apple Sign In implementation prepared (18 November 2026, pending real provider verification)
+
+- Product owner confirmed active Apple Developer Program membership. No new membership purchase is needed.
+- Added opt-in Apple provider to existing Auth.js database-session configuration. Requires server-only `AUTH_APPLE_ID`, signed JWT `AUTH_APPLE_SECRET` and explicit `AUTH_APPLE_ENABLED=true`; otherwise Apple sign-in is not offered.
+- Added conditional Apple buttons to sign-in and candidate sign-up alongside Google, LinkedIn and email/password. Existing provider configuration, session and role rules are preserved. No automatic cross-provider email linking for Apple (including private relay accounts).
+- Added exact Apple `form_post` callback handling under Auth.js OAuth state checking while preserving origin/rate protection for all other mutations.
+- Added targeted regressions and `docs/APPLE_SIGN_IN_SETUP.md` for Apple Developer Services ID, HTTPS callback, private relay, key renewal and release verification.
+- No secrets accessed or stored; Apple is not enabled in production. Full Apple login cannot be confirmed before actual Services ID and secret configuration and manual provider validation.
+
+## Earlier Apple readiness assessment (superseded by membership confirmation)
+
+- Product owner clarified that the planned login choices include **Apple** alongside LinkedIn, Google and email/password.
+- Code review: `auth.js` currently configures only Google and LinkedIn social providers; email/password uses the protected account API. No Apple provider or credentials have been verified.
+- Apple web sign-in requires Apple Developer registration, a configured App ID and Services ID, verified HTTPS callback domain and signing key. Standard Apple Developer Program membership is USD 99/year (official Apple published price; possible organizational eligibility exceptions must be verified). Existing platform budget remains USD 0; do not enroll or spend without owner approval.
+- Do not add a dead Apple login button or allow unsafe automatic email linking, especially with Apple private relay emails. Preserve employer/tenant isolation.
+- Ready for implementation and testing if already-enrolled membership/credentials become available; never request private keys or secrets in chat.
+
+## Candidate application withdrawal from My Jobs (18 November 2026, pending final checks)
+
+- Existing candidate-owned application withdrawal backend is now accessible from the candidate My Jobs list for PENDING/REVIEWED applications only.
+- Explicit confirmation is required before sending the protected PATCH action; the button updates from the stored application status after success, with error handling and accessible status.
+- Existing official external application links are unchanged and are not represented as Daraja-managed applications. Employer tenant access and candidate privacy checks continue server-side.
+- All three sign-in choices are preserved: LinkedIn OIDC, Google OAuth, and email/password. No authentication-provider settings, account linking rules, or redirects were changed by this batch.
+- UI and regression assertions added. Pending full test, lint, build, and responsive browser review. No live release.
+
+## Saved-job state continuity (18 November 2026, pending validation)
+
+- The job-detail page now reads the existing candidate's saved state through the existing authenticated saved-jobs API, scoped to the signed-in user's record and sent with private/no-store headers.
+- Candidates can save or remove a vacancy on the same detail page; the button announces its current state rather than always showing Save after reload.
+- Preserved external Apply destinations, account sign-in handoff and candidate feature flags. No new database table, tenant model or provider.
+- Regression assertions added for read ownership, save/remove behavior and UI state. The latest build and browser review remain required.
+
+## Candidate registration to profile setup userflow (18 November 2026, pending validation)
+
+- Existing email-verification success route now guides newly verified candidate accounts to the protected profile editor when candidate career functionality is enabled; employer/admin role home and existing login callback policies remain unchanged.
+- Candidate OAuth signup buttons use the same private profile start destination when available; no new registration handler, tenant model, schema, or provider is introduced.
+- Added regression assertions for candidate destination, feature gating, employer signup destination and existing sign-in redirect safety.
+- Pending build/test and browser validation; no production release.
+
+## Candidate My Jobs userflow implementation (18 November 2026, pending validation)
+
+- Used owner-supplied Makarya userflow diagram as the journey reference.
+- Updated the existing candidate career workspace to show saved vacancies and
+  Daraja-managed applications with persisted statuses, bounded to 12 items per
+  list and scoped server-side to the authenticated candidate.
+- Updated candidate profile onboarding with a field-based completion indicator, private-data explanation and a post-save link to My Jobs. No new profile data fields or uploads.
+- Added a real 'Save to My Jobs' button to job details, using the existing protected saved-jobs API and the candidate feature flag. Signed-out visitors are directed to sign in; external Apply links remain unchanged.
+- Added a My Jobs entry to the existing candidate account home, linked back
+  to the canonical career workspace instead of creating a duplicate route.
+- Kept external employer applications distinct; no fake application status.
+- Added responsive styles and regression assertions for ownership and links.
+- No database migration, payments, messaging, community, provider traffic,
+  tenant schema change or production deployment.
+- Pending: execute relevant automated tests, lint and build; visually verify
+  mobile/desktop output; full Figma interaction inspection remains limited.
+- Future work: registration/profile completion UX, search/apply flow polishing,
+  and separately approved protected messaging/community/billing.
 
 ## Fursa discovery review reader (16 November 2026)
 

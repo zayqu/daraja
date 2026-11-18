@@ -22,7 +22,7 @@ function experienceLabel({ experienceMinYears: min, experienceMaxYears: max }) {
   return `${min}–${max} years`;
 }
 
-export default function JobDetailPageClient({ initialJob, showEmployerCta }) {
+export default function JobDetailPageClient({ initialJob, showEmployerCta, showCandidateSave = false }) {
   const { id } = useParams();
   const [job, setJob] = useState(initialJob || null);
   const [loading, setLoading] = useState(!initialJob);
@@ -30,6 +30,10 @@ export default function JobDetailPageClient({ initialJob, showEmployerCta }) {
   const [loadError, setLoadError] = useState(false);
   const [emailFallbackOpen, setEmailFallbackOpen] = useState(false);
   const [copyStatus, setCopyStatus] = useState("");
+  const [savingJob, setSavingJob] = useState(false);
+  const [jobSaved, setJobSaved] = useState(false);
+  const [saveStateLoaded, setSaveStateLoaded] = useState(false);
+  const [saveError, setSaveError] = useState("");
 
   const fetchJob = useCallback(async function fetchJob() {
     setLoading(true);
@@ -83,6 +87,33 @@ export default function JobDetailPageClient({ initialJob, showEmployerCta }) {
     if (initialJob || !id) return;
     void fetchJob();
   }, [id, initialJob, fetchJob]);
+
+  useEffect(() => {
+    if (!showCandidateSave || !job?.id) return undefined;
+    const controller = new AbortController();
+    setSaveStateLoaded(false);
+    setSaveError("");
+    fetch(`/api/candidate/saved-jobs?jobId=${encodeURIComponent(job.id)}`, {
+      credentials: "same-origin",
+      cache: "no-store",
+      signal: controller.signal,
+    })
+      .then(async (response) => {
+        if (response.status === 401) return { saved: false };
+        if (!response.ok) throw new Error("Saved-job status unavailable");
+        return response.json();
+      })
+      .then((result) => {
+        if (!controller.signal.aborted) setJobSaved(result.saved === true);
+      })
+      .catch(() => {
+        if (!controller.signal.aborted) setSaveError("Saved jobs could not be checked. Please try reloading.");
+      })
+      .finally(() => {
+        if (!controller.signal.aborted) setSaveStateLoaded(true);
+      });
+    return () => controller.abort();
+  }, [showCandidateSave, job?.id]);
 
   function formatDate(value) {
     if (!value) return null;
@@ -179,6 +210,31 @@ export default function JobDetailPageClient({ initialJob, showEmployerCta }) {
       setCopyStatus("Copied");
     } catch {
       setCopyStatus("Copy unavailable");
+    }
+  }
+
+  async function saveCurrentJob() {
+    if (!job?.id || savingJob || !saveStateLoaded) return;
+    setSavingJob(true);
+    setSaveError("");
+    try {
+      const response = await fetch("/api/candidate/saved-jobs", {
+        method: jobSaved ? "DELETE" : "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "same-origin",
+        body: JSON.stringify({ jobId: job.id }),
+      });
+      if (response.status === 401) {
+        const path = `/jobs/${encodeURIComponent(job.slug || job.id)}`;
+        window.location.assign(`/auth/signin?callbackUrl=${encodeURIComponent(path)}`);
+        return;
+      }
+      if (!response.ok) throw new Error("Saved-job update failed");
+      setJobSaved(!jobSaved);
+    } catch {
+      setSaveError("Your saved jobs could not be updated. Please try again.");
+    } finally {
+      setSavingJob(false);
     }
   }
 
@@ -458,6 +514,18 @@ export default function JobDetailPageClient({ initialJob, showEmployerCta }) {
                   )}
                 </>
               )}
+
+              {showCandidateSave && <button
+                type="button"
+                className={styles.saveJobAction}
+                disabled={savingJob || !saveStateLoaded}
+                onClick={saveCurrentJob}
+                aria-pressed={jobSaved}
+                aria-live="polite"
+              >
+                {!saveStateLoaded ? "Checking saved jobs…" : savingJob ? "Updating…" : jobSaved ? "Remove from My Jobs" : "Save to My Jobs"}
+              </button>}
+              {saveError && <p className={styles.saveError} role="alert">{saveError}</p>}
 
               <Link
                 href={`/account/career/cv?job=${encodeURIComponent(job.id)}`}

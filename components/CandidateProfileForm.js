@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { candidateProfileFormValue } from "@/lib/candidate-profile";
 import styles from "./CandidateProfileForm.module.css";
 
@@ -39,12 +40,24 @@ export default function CandidateProfileForm({ initialProfile }) {
     }
   }
 
+  const coreFields = ["fullName", "phone", "headline", "location", "experienceLevel", "workArrangement"];
+  const completedFields = coreFields.filter((field) => String(form[field] || "").trim()).length;
   const messageClassName = [styles.message, styles[status]]
     .filter(Boolean)
     .join(" ");
 
   return (
     <form className={styles.form} onSubmit={save}>
+      <section className={styles.profileProgress} aria-label="Profile completion">
+        <div>
+          <strong>Complete your profile</strong>
+          <span>{completedFields} of {coreFields.length} details</span>
+        </div>
+        <progress value={completedFields} max={coreFields.length}>
+          {completedFields} of {coreFields.length}
+        </progress>
+        <p>Start with your name, then add the details that help you prepare for opportunities. Your profile stays private.</p>
+      </section>
       <div className={styles.grid}>
         <label className={styles.field}>
           <span>Full name</span>
@@ -141,6 +154,11 @@ export default function CandidateProfileForm({ initialProfile }) {
         <button type="submit" disabled={status === "loading"}>
           {status === "loading" ? "Saving..." : "Save profile"}
         </button>
+        {status === "success" ? (
+          <Link className={styles.nextLink} href="/account/career#my-jobs">
+            Continue to My Jobs
+          </Link>
+        ) : null}
       </div>
     </form>
   );

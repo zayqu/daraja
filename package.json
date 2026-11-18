@@ -7,6 +7,7 @@
     "build": "prisma generate && next build",
     "start": "next start",
     "lint": "eslint",
+    "auth:apple:check": "node scripts/check-apple-auth-config.cjs",
     "test": "node --test",
     "scrape": "node scraper/run.js",
     "scrape:dry": "node scraper/run.js --dry-run",

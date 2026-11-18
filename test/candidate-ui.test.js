@@ -91,7 +91,7 @@ test("job detail saves through the protected candidate API and preserves officia
   const page = await read("app/jobs/[id]/page.js");
   const styles = await read("app/jobs/[id]/job-detail.module.css");
   assert.match(detail, /fetch\("\/api\/candidate\/saved-jobs"/);
-  assert.match(detail, /method: "POST"/);
+  assert.match(detail, /method: jobSaved \\? "DELETE" : "POST"/);
   assert.match(detail, /credentials: "same-origin"/);
   assert.match(detail, /showCandidateSave && <button/);
   assert.match(detail, /setJobSaved\(!jobSaved\)/);

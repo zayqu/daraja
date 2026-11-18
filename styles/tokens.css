@@ -5,12 +5,12 @@
   /* Brand */
   --color-navy: #1b2a3f;
   --color-navy-soft: rgba(255, 255, 255, 0.6);
-  --color-teal: #00c9a7;
+  --color-teal: #01ffd4;
   --color-teal-deep: #087f6c;
   --color-bg: #f7f8fa;
   --color-surface: #ffffff;
   --color-surface-muted: #f8fafb;
-  --color-surface-warm: #fbfaf7;
+  --color-surface-warm: #f7fbfa;
   --color-on-dark: #ffffff;
   --color-border: #e8ecf0;
   --color-border-strong: #e3e8ee;
@@ -51,7 +51,7 @@
   --radius-pill: 999px;
 
   /* Elevation */
-  --shadow-soft: 0 2px 12px rgba(0, 201, 167, 0.08);
+  --shadow-soft: 0 2px 12px rgba(1, 255, 212, 0.08);
   --shadow-card: 0 9px 20px rgba(15, 23, 42, 0.06);
   --shadow-raised: 0 16px 38px rgba(27, 42, 63, 0.08);
 

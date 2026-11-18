@@ -36,9 +36,9 @@
     align-items: center;
     gap: 4px;
     padding: 6px;
-    border: 1px solid rgba(255, 255, 255, 0.7);
+    border: 1px solid #e3eeec;
     border-radius: var(--mobile-dock-radius);
-    background: rgba(255, 255, 255, 0.84);
+    background: rgba(255, 255, 255, 0.96);
     box-shadow:
       0 14px 34px rgba(27, 42, 63, 0.14),
       0 2px 6px rgba(27, 42, 63, 0.06);
@@ -72,7 +72,7 @@
   }
 
   .active {
-    color: var(--color-teal-deep);
+    color: var(--color-navy);
   }
 
   .iconWrap {
@@ -88,7 +88,7 @@
   }
 
   .active .iconWrap {
-    background: rgba(0, 201, 167, 0.12);
+    background: rgba(1, 255, 212, 0.2);
     transform: translateY(-1px);
   }
 

@@ -55,7 +55,7 @@ export const metadata = {
   },
   description:
     "Find current government, NGO, finance, health, education, IT and engineering jobs across Tanzania.",
-  applicationName: "Daraja Jobs",
+  applicationName: "Daraja",
   manifest: "/manifest.webmanifest",
   icons: {
     icon: [{ url: "/icon.png", type: "image/png" }],
@@ -66,7 +66,7 @@ export const metadata = {
   openGraph: {
     type: "website",
     locale: "en_TZ",
-    siteName: "Daraja Jobs",
+    siteName: "Daraja",
     title: "Daraja | Kazi na Fursa Tanzania",
     description:
       "Find current jobs and career opportunities across Tanzania.",

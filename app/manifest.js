@@ -1,6 +1,6 @@
 export default function manifest() {
   return {
-    name: "Daraja Jobs",
+    name: "Daraja",
     short_name: "Daraja",
     description: "Find current jobs and career opportunities across Tanzania.",
     start_url: "/",

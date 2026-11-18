@@ -42,7 +42,7 @@
   padding: var(--space-4) var(--space-5);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-card);
-  background: var(--color-surface, #fff);
+  background: var(--color-surface, var(--color-surface));
   color: inherit;
   text-decoration: none;
   box-shadow: var(--shadow-soft);
@@ -79,7 +79,7 @@ a.stat:hover {
   margin-bottom: var(--space-6);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-card);
-  background: var(--color-surface, #fff);
+  background: var(--color-surface, var(--color-surface));
   box-shadow: var(--shadow-soft);
 }
 
@@ -116,7 +116,7 @@ a.stat:hover {
   padding: 0.5rem 0.75rem;
   border: 1px solid var(--color-border-strong);
   border-radius: var(--radius-input, 10px);
-  background: #fff;
+  background: var(--color-surface);
   color: var(--color-text);
   font: inherit;
   font-size: 0.85rem;
@@ -146,7 +146,7 @@ a.stat:hover {
 .table th {
   padding: 0.7rem var(--space-4);
   border-bottom: 1px solid var(--color-border);
-  background: #f9fafb;
+  background: var(--color-surface-muted);
   color: var(--color-text-muted);
   font-size: 0.72rem;
   font-weight: 600;
@@ -158,7 +158,7 @@ a.stat:hover {
 
 .table td {
   padding: 0.8rem var(--space-4);
-  border-bottom: 1px solid #f0f2f4;
+  border-bottom: 1px solid var(--color-border);
   vertical-align: top;
 }
 
@@ -167,12 +167,12 @@ a.stat:hover {
 }
 
 .table tbody tr:hover {
-  background: #fafbfc;
+  background: var(--color-surface-muted);
 }
 
 .primaryCell {
   font-weight: 700;
-  color: var(--color-navy);
+  color: var(--color-text);
   text-decoration: none;
 }
 
@@ -202,8 +202,8 @@ a.stat:hover {
   padding: 0.45rem 0.85rem;
   border: 1px solid var(--color-border-strong);
   border-radius: var(--radius-button, 10px);
-  background: #fff;
-  color: var(--color-navy);
+  background: var(--color-surface);
+  color: var(--color-text);
   font: inherit;
   font-size: 0.78rem;
   font-weight: 600;
@@ -218,12 +218,12 @@ a.stat:hover {
 }
 
 .buttonDanger {
-  border-color: #fda29b;
-  color: #b42318;
+  border-color: var(--color-danger-border);
+  color: var(--color-danger);
 }
 
 .buttonDanger:hover {
-  background: #fef3f2;
+  background: var(--color-surface-muted);
 }
 
 .buttonGhost {
@@ -243,18 +243,18 @@ a.stat:hover {
   align-items: center;
   padding: 0.18rem 0.55rem;
   border-radius: 999px;
-  background: #f2f4f7;
-  color: #344054;
+  background: var(--color-surface-muted);
+  color: var(--color-text-secondary);
   font-size: 0.7rem;
   font-weight: 600;
   white-space: nowrap;
 }
 
-.badgeGreen { background: #ecfdf3; color: #027a48; }
-.badgeAmber { background: #fffaeb; color: #b54708; }
-.badgeRed { background: #fef3f2; color: #b42318; }
-.badgeBlue { background: #eff8ff; color: #175cd3; }
-.badgeGray { background: #f2f4f7; color: #475467; }
+.badgeGreen { background: var(--color-surface-muted); color: var(--color-link); }
+.badgeAmber { background: var(--color-surface-muted); color: var(--color-warning); }
+.badgeRed { background: var(--color-surface-muted); color: var(--color-danger); }
+.badgeBlue { background: var(--color-surface-muted); color: var(--color-info); }
+.badgeGray { background: var(--color-surface-muted); color: var(--color-text-secondary); }
 
 .pagination {
   display: flex;
@@ -319,8 +319,8 @@ a.stat:hover {
   font-size: 0.82rem;
 }
 
-.alert { background: #fef3f2; color: #b42318; }
-.notice { background: #ecfdf3; color: #027a48; }
+.alert { background: var(--color-surface-muted); color: var(--color-danger); }
+.notice { background: var(--color-surface-muted); color: var(--color-link); }
 
 .activity {
   display: grid;
@@ -334,7 +334,7 @@ a.stat:hover {
   justify-content: space-between;
   gap: 1rem;
   padding: 0.65rem var(--space-5);
-  border-bottom: 1px solid #f0f2f4;
+  border-bottom: 1px solid var(--color-border);
   font-size: 0.82rem;
 }
 
@@ -348,7 +348,7 @@ a.stat:hover {
   height: 24px;
   border: 0;
   border-radius: 999px;
-  background: #d0d5dd;
+  background: var(--color-border);
   cursor: pointer;
 }
 
@@ -360,7 +360,7 @@ a.stat:hover {
   width: 18px;
   height: 18px;
   border-radius: 999px;
-  background: #fff;
+  background: var(--color-surface);
   transition: transform 0.15s;
 }
 
@@ -376,7 +376,7 @@ a.stat:hover {
 .errorText {
   display: block;
   margin: 0.35rem 0 0;
-  color: #b42318;
+  color: var(--color-danger);
   font-size: 0.75rem;
 }
 
@@ -389,7 +389,7 @@ a.stat:hover {
   padding: var(--space-4);
   border: 1px solid var(--color-border);
   border-radius: 12px;
-  background: #fafbfc;
+  background: var(--color-surface-muted);
 }
 
 .disclosure > summary {
@@ -405,7 +405,7 @@ a.stat:hover {
   margin-top: var(--space-3);
   padding: var(--space-3) var(--space-4);
   border-radius: 10px;
-  background: #f0fdf9;
+  background: var(--color-surface-muted);
   font-size: 0.8rem;
 }
 
@@ -426,7 +426,7 @@ a.stat:hover {
   place-items: center;
   border: 1px solid var(--color-border-strong);
   border-radius: var(--radius-button, 10px);
-  background: #fff;
+  background: var(--color-surface);
   font-weight: 600;
   list-style: none;
   cursor: pointer;
@@ -445,7 +445,7 @@ a.stat:hover {
   padding: 0.35rem;
   border: 1px solid var(--color-border);
   border-radius: 12px;
-  background: #fff;
+  background: var(--color-surface);
   box-shadow: var(--shadow-raised);
 }
 
@@ -457,7 +457,7 @@ a.stat:hover {
   border: 0;
   border-radius: 8px;
   background: none;
-  color: var(--color-navy);
+  color: var(--color-text);
   font: inherit;
   font-size: 0.82rem;
   text-align: left;
@@ -467,11 +467,11 @@ a.stat:hover {
 
 .menuList a:hover,
 .menuList button:hover {
-  background: #f2f4f7;
+  background: var(--color-surface-muted);
 }
 
 .menuDanger {
-  color: #b42318 !important;
+  color: var(--color-danger) !important;
 }
 
 /* Bulk selection */
@@ -482,7 +482,7 @@ a.stat:hover {
   gap: 0.5rem;
   padding: var(--space-3) var(--space-5);
   border-bottom: 1px solid var(--color-border);
-  background: #fafbfc;
+  background: var(--color-surface-muted);
 }
 
 .bulkAll {
@@ -508,7 +508,7 @@ a.stat:hover {
   justify-content: space-between;
   gap: 0.75rem;
   padding: var(--space-3) var(--space-5);
-  border-bottom: 1px solid #f0f2f4;
+  border-bottom: 1px solid var(--color-border);
 }
 
 .categoryRow:last-child {
@@ -531,7 +531,7 @@ a.stat:hover {
   grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr);
   gap: var(--space-4);
   padding: var(--space-4) 0;
-  border-bottom: 1px solid #f0f2f4;
+  border-bottom: 1px solid var(--color-border);
 }
 
 .settingRow:last-child {
@@ -615,7 +615,7 @@ a.stat:hover {
 
 .cardFooter a,
 .linkArrow {
-  color: var(--color-teal-deep);
+  color: var(--color-link);
   font-size: 0.8rem;
   font-weight: 600;
   text-decoration: none;
@@ -632,16 +632,16 @@ a.stat:hover {
   align-content: center;
   gap: var(--space-4);
   padding: var(--space-5);
-  border: 1px solid #cdeee6;
+  border: 1px solid var(--color-border);
   border-radius: var(--radius-card);
-  background: #effaf7;
+  background: var(--color-surface-muted);
 }
 
 .highlightItem {
   display: flex;
   flex-direction: column;
   gap: 0.35rem;
-  color: var(--color-navy);
+  color: var(--color-text);
   text-decoration: none;
 }
 
@@ -673,7 +673,7 @@ a.stat:hover {
 }
 
 a.highlightItem:hover strong {
-  color: var(--color-teal-deep);
+  color: var(--color-link);
 }
 
 .donutRow {
@@ -763,8 +763,8 @@ a.highlightItem:hover strong {
   display: grid;
   place-items: center;
   border-radius: 12px;
-  background: #eef2f6;
-  color: var(--color-navy);
+  background: var(--color-surface-muted);
+  color: var(--color-text);
   font-size: 0.74rem;
   font-weight: 700;
 }
@@ -787,7 +787,7 @@ a.highlightItem:hover strong {
 
 .rowMain a:hover,
 .rowMain a:focus-visible {
-  color: var(--color-teal-deep);
+  color: var(--color-link);
   text-decoration: underline;
 }
 
@@ -822,7 +822,7 @@ a.highlightItem:hover strong {
   margin: 0;
   padding: 0.55rem 0.75rem;
   border-radius: 10px;
-  background: #fef3f2;
+  background: var(--color-surface-muted);
   color: var(--color-danger);
   font-size: 0.76rem;
   line-height: 1.5;
@@ -874,18 +874,18 @@ a.highlightItem:hover strong {
 }
 
 .noticeInfo {
-  border-color: #cdeee6;
-  background: #effaf7;
+  border-color: var(--color-border);
+  background: var(--color-surface-muted);
 }
 
 .noticeWarning {
-  border-color: #fde7c2;
-  background: #fffaeb;
+  border-color: var(--color-warning-border);
+  background: var(--color-surface-muted);
 }
 
 .noticeDanger {
-  border-color: #f8d7d4;
-  background: #fef3f2;
+  border-color: var(--color-border);
+  background: var(--color-surface-muted);
 }
 
 .chips {
@@ -915,7 +915,7 @@ a.highlightItem:hover strong {
 
 .chipActive,
 .chipActive:hover {
-  border-color: var(--color-navy);
+  border-color: var(--color-text);
   background: var(--color-navy);
   color: var(--color-on-dark);
 }
@@ -1132,7 +1132,7 @@ a.highlightItem:hover strong {
 .gearMenu summary:hover,
 .gearMenu summary:focus-visible {
   border-color: var(--color-teal);
-  color: var(--color-teal-deep);
+  color: var(--color-link);
 }
 
 .gearMenuList {
@@ -1163,8 +1163,8 @@ a.highlightItem:hover strong {
 
 .gearMenuList a:hover,
 .gearMenuList a:focus-visible {
-  background: #f2fbf9;
-  color: var(--color-teal-deep);
+  background: var(--color-surface-muted);
+  color: var(--color-link);
 }
 
 .identity {
@@ -1228,7 +1228,7 @@ a.highlightItem:hover strong {
 
 .underlineTabs .tabCurrent {
   border-bottom-color: var(--color-teal);
-  color: var(--color-teal-deep);
+  color: var(--color-link);
   font-weight: 600;
 }
 
@@ -1282,8 +1282,8 @@ a.highlightItem:hover strong {
 .skillPills span {
   padding: 0.35rem 0.8rem;
   border-radius: var(--radius-pill);
-  background: #e9f9f5;
-  color: var(--color-teal-deep);
+  background: var(--color-surface-muted);
+  color: var(--color-link);
   font-size: 0.78rem;
 }
 

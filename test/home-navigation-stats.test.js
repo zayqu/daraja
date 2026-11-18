@@ -68,7 +68,7 @@ test("homepage sends live platform counters to the shared navy footer", async ()
   assert.match(trafficNumbers, /traffic\.pageViews/);
   assert.match(formatter, /suffix: "K"/);
   assert.match(formatter, /suffix: "M"/);
-  assert.match(footerStyles, /\.insights \{[\s\S]*background:\s*#1b2a3f/);
+  assert.match(footerStyles, /\.insights \{[\s\S]*background:\s*var\(--color-navy\)/);
   assert.match(footerStyles, /\.platformInsights/);
   assert.match(footerStyles, /\.visitorInsights/);
   assert.match(footerStyles, /\.trafficMeta/);

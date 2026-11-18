@@ -6,6 +6,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { buildJobsUrl } from "@/lib/job-search";
 import { mobileDockEnabledPath } from "@/lib/mobile-navigation";
 import NavIcon from "@/components/ui/NavIcon";
+import { ThemeToggle } from "@/components/ThemeControls";
 import { buildPublicNavigation } from "@/lib/public-navigation";
 import { postJobHref, roleHome } from "@/lib/platform-roles";
 import { dashboardMenu } from "@/lib/dashboard-navigation";
@@ -156,6 +157,7 @@ export default function SiteNav({
             </Link>
           ))}
           <div className={styles.right}>
+            <ThemeToggle className={styles.themeToggle} />
             {account ? (
               <Link
                 href={account.signedIn ? account.href : "/auth/signin"}

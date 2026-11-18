@@ -45,7 +45,7 @@
 
 .sideHeading button {
   padding: .45rem .65rem;
-  color: var(--color-teal-deep);
+  color: var(--color-link);
   background: rgba(0, 201, 167, .09);
   font-size: .7rem;
   font-weight: 800;
@@ -120,7 +120,7 @@
   padding: .8rem 1rem;
   border: 1px solid var(--color-border);
   border-radius: var(--radius-panel);
-  background: rgba(255, 255, 255, .96);
+  background: color-mix(in srgb, var(--color-surface) 96%, transparent);
   backdrop-filter: blur(12px);
 }
 
@@ -130,7 +130,7 @@
 }
 
 .toolbar > div:first-child span {
-  color: var(--color-teal-deep);
+  color: var(--color-link);
   font-size: .62rem;
   font-weight: 800;
   letter-spacing: .08em;
@@ -300,7 +300,7 @@
 }
 
 .addButton {
-  color: var(--color-teal-deep);
+  color: var(--color-link);
   background: rgba(0, 201, 167, .09);
 }
 
@@ -616,7 +616,7 @@
 }
 
 .empty > span {
-  color: var(--color-teal-deep);
+  color: var(--color-link);
   font-size: .66rem;
   font-weight: 800;
   letter-spacing: .09em;

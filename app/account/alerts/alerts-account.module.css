@@ -7,13 +7,13 @@
 
 .accountStatus {
   padding-bottom: 1.3rem;
-  border-bottom: 1px solid #eef1f4;
+  border-bottom: 1px solid var(--color-border);
 }
 
 .accountStatus span {
   display: block;
   margin-bottom: 0.2rem;
-  color: #98a1ad;
+  color: var(--color-text-faint);
   font-size: 0.64rem;
   font-weight: 750;
   letter-spacing: 0.08em;

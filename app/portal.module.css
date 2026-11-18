@@ -28,8 +28,8 @@
   display: grid;
   place-items: center;
   border-radius: 50%;
-  background: #f0faf7;
-  color: var(--color-teal-deep);
+  background: var(--color-surface-muted);
+  color: var(--color-link);
   font-size: 0.74rem;
   font-weight: 600;
 }
@@ -37,7 +37,7 @@
 .formIntro {
   max-width: 700px;
   padding-bottom: 1.25rem;
-  border-bottom: 1px solid #eef1f4;
+  border-bottom: 1px solid var(--color-border);
 }
 
 .formIntro p {
@@ -85,9 +85,9 @@
   width: 100%;
   min-height: 46px;
   padding: 0.7rem 0.8rem;
-  border: 1px solid #cfd8e3;
+  border: 1px solid var(--color-border);
   border-radius: 10px;
-  background: #fff;
+  background: var(--color-surface);
   color: var(--color-text);
   font: inherit;
 }
@@ -99,8 +99,8 @@
 }
 
 .formScope :global(.portal-field input[readonly]) {
-  background: #f2f4f7;
-  color: #526071;
+  background: var(--color-surface-muted);
+  color: var(--color-text-muted);
 }
 
 .formScope :global(.portal-field small) {
@@ -134,9 +134,9 @@
   align-items: center;
   gap: 0.55rem;
   padding: 0.6rem 0.9rem;
-  border: 1px solid #cfd8e3;
+  border: 1px solid var(--color-border);
   border-radius: 10px;
-  background: #fff;
+  background: var(--color-surface);
   color: var(--color-text-secondary);
   font-size: 0.8rem;
   font-weight: 700;
@@ -145,8 +145,8 @@
 
 .formScope :global(.portal-choice-row label:has(input:checked)) {
   border-color: var(--color-teal);
-  background: #effcf9;
-  color: var(--color-teal-deep);
+  background: var(--color-surface-muted);
+  color: var(--color-link);
 }
 
 /* Undo the text-input box styling above for the radio buttons themselves. */
@@ -170,12 +170,12 @@
 }
 
 .formScope :global(.portal-message.success) {
-  background: #ecfdf3;
-  color: #067647;
+  background: var(--color-surface-muted);
+  color: var(--color-link);
 }
 
 .formScope :global(.portal-message.error) {
-  background: #fef3f2;
+  background: var(--color-surface-muted);
   color: var(--color-danger);
 }
 
@@ -187,7 +187,7 @@
 }
 
 .formScope :global(.portal-actions a) {
-  color: var(--color-teal-deep);
+  color: var(--color-link);
   font-size: 0.76rem;
   font-weight: 600;
 }

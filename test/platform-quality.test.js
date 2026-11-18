@@ -331,7 +331,7 @@ test("shared navigation and layout use the centralized light UI system", async (
   );
 
   assert.match(nav, /\.nav\s*\{[\s\S]*position:\s*sticky/);
-  assert.match(nav, /background:\s*rgba\(255, 255, 255, \.96\)/);
+  assert.match(nav, /background:\s*color-mix\(in srgb, var\(--color-surface\) 96%, transparent\)/);
   assert.match(nav, /\.logo span[\s\S]*margin-top:\s*\.38rem/);
   assert.match(tokens, /--content-max:\s*1120px/);
   assert.match(tokens, /--section-padding-block:/);
@@ -361,7 +361,7 @@ test("Daraja PWA manifest owns installed-app branding", async () => {
   assert.match(manifestSource, /src: "\/daraja-app-icon\.svg"/);
   assert.match(manifestSource, /purpose: "any maskable"/);
   assert.match(layout, /manifest: "\/manifest\.webmanifest"/);
-  assert.match(layout, /themeColor: "#1b2a3f"/);
+  assert.match(layout, /themeColor: \[[\s\S]*color: "#1b2a3f"[\s\S]*color: "#000000"/);
   assert.match(appIcon, /data:image\/png;base64/);
   assert.doesNotMatch(manifestSource, /vercel/i);
 });

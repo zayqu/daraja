@@ -51,7 +51,7 @@ export default async function Home() {
   return (
     <>
       <style>{`
-        .home { background: var(--color-bg); min-height: 100vh; color: var(--color-navy); }
+        .home { background: var(--color-bg); min-height: 100vh; color: var(--color-text); }
 
         .hero {
           position: relative;
@@ -91,11 +91,11 @@ export default async function Home() {
 
         .hero h1 {
           max-width: 760px;
-          margin: .8rem 0 1rem;
-          color: #1b1f23;
+          margin: .8rem 0 2rem;
+          color: var(--color-text);
           font-size: clamp(2.55rem, 5.8vw, 4.65rem);
           font-weight: 700;
-          line-height: .98;
+          line-height: 1.08;
           letter-spacing: -.045em;
         }
 
@@ -187,17 +187,17 @@ export default async function Home() {
           padding: .7rem;
           border-radius: 18px;
           background: var(--color-surface);
-          border: 1px solid #e4e1da;
+          border: 1px solid var(--color-border);
           box-shadow: 0 18px 45px rgba(27, 31, 35, .08);
         }
 
         .hero-field {
           min-height: 54px;
           width: 100%;
-          border: 1px solid #e5e9ef;
+          border: 1px solid var(--color-border);
           border-radius: 12px;
           background: var(--color-surface);
-          color: var(--color-navy);
+          color: var(--color-text);
           padding: 0 1rem;
           outline: none;
           font: inherit;
@@ -225,12 +225,12 @@ export default async function Home() {
           flex-wrap: wrap;
           gap: .55rem 1rem;
           margin-top: 1rem;
-          color: #98a2b3;
+          color: var(--color-text-faint);
           font-size: .75rem;
         }
 
         .quick-links a {
-          color: #475467;
+          color: var(--color-text-secondary);
           text-decoration: none;
         }
 
@@ -279,9 +279,9 @@ export default async function Home() {
           justify-content: center;
           min-height: 48px;
           padding: 0 1.6rem;
-          border: 1.5px solid var(--color-navy);
+          border: 1.5px solid var(--color-text);
           border-radius: 12px;
-          color: var(--color-navy);
+          color: var(--color-text);
           font-weight: 600;
           text-decoration: none;
           transition: background .15s ease, color .15s ease;
@@ -354,7 +354,7 @@ export default async function Home() {
 
         .section-title {
           margin-top: .45rem;
-          color: var(--color-navy);
+          color: var(--color-text);
           font-size: clamp(1.7rem, 3vw, 2.2rem);
           font-weight: 600;
           line-height: 1.15;
@@ -363,7 +363,7 @@ export default async function Home() {
 
         .section-head p {
           max-width: 470px;
-          color: #7a8492;
+          color: var(--color-text-muted);
           font-size: .84rem;
           line-height: 1.65;
         }
@@ -416,7 +416,7 @@ export default async function Home() {
         }
 
         .category-card strong {
-          color: var(--color-navy);
+          color: var(--color-text);
           font-size: .86rem;
           line-height: 1.3;
         
@@ -468,7 +468,7 @@ export default async function Home() {
           padding: 1.6rem;
           border: 1px solid var(--color-border);
           border-radius: 16px;
-          background: #f9fafb;
+          background: var(--color-surface-muted);
         }
 
         .how-num {
@@ -490,7 +490,7 @@ export default async function Home() {
         }
 
         .how-card p {
-          color: #7a8492;
+          color: var(--color-text-muted);
           font-size: .8rem;
           line-height: 1.65;
         }
@@ -570,7 +570,7 @@ export default async function Home() {
             margin: .5rem 0 .8rem;
             font-size: clamp(2.05rem, 9vw, 2.4rem);
             font-weight: 700;
-            line-height: 1.02;
+            line-height: 1.08;
             letter-spacing: -.04em;
           }
 

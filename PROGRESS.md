@@ -1,6 +1,6 @@
 # Daraja Jobs production-readiness progress
 
-Last updated: 16 November 2026
+Last updated: 18 November 2026
 
 ## Current objective
 
@@ -8,6 +8,16 @@ Build Daraja into a secure Tanzania-first work marketplace through small,
 tested vertical releases. The current priority is Phase 0 security and privacy
 hardening before expanding candidate CV, employer, freelance, payment or AI
 workflows.
+
+## Current batch: Phase 1 design foundation (D-039, D-025)
+
+- Owner approved the Figma design (phone, tablet, desktop, Daraja CV, dark mode, prototypes, user flows) on 18 Nov 2026; Phase 1 implements it step by step.
+- Step 1 (this change): Material Symbols icons in `NavIcon`, `CategoryIcon` and the job card (bookmark/clock); fonts Inter + Plus Jakarta Sans replace Poppins (`app/layout.js`, `--font-daraja`, new `--font-display` for headings); tokens aligned to Figma (radius input 8 / card 12, borders, text colours) and new status/link tokens.
+- All raw hex colours in component CSS and inline styles moved to tokens (about 190 values; CV paper preview and brand-specific colours like WhatsApp green kept). `color: var(--color-navy)` on text became `--color-text` so text stays readable in dark mode.
+- Dark mode: Apple-style palette in `styles/tokens.css` (device setting by default), `components/ThemeControls.js` (header moon/sun button and Device/Light/Dark in Account settings), no-flash inline script in the root layout, theme colour for both schemes.
+- Home hero headline spacing adjusted for the taller Plus Jakarta Sans.
+- Checks: `npm test` 396 pass, 12 fail (the known Prisma-environment suites); lint clean; light and dark screenshots of home, jobs and account settings on desktop and phone checked in the local preview.
+- Next steps: EN/SW language switch and translations, desktop/tablet layouts and role menus from Figma (incl. freelancer), sign-in with Apple/LinkedIn, guest sign-in prompts, CV Builder steps; then Daraja CV, freelancer proposals, messaging and community (need new tables and a Neon restore point first).
 
 ## Current batch: dashboards for every signed-in role (D-038)
 

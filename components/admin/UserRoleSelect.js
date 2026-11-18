@@ -49,7 +49,7 @@ export default function UserRoleSelect({ userId, role, locked }) {
           <option key={key} value={key}>{label}</option>
         ))}
       </select>
-      {error ? <span className={styles.subtle} role="alert" style={{ color: "#b42318" }}>{error}</span> : null}
+      {error ? <span className={styles.subtle} role="alert" style={{ color: "var(--color-danger)" }}>{error}</span> : null}
     </>
   );
 }

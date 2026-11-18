@@ -2,7 +2,7 @@
   position: sticky;
   top: 0;
   z-index: 900;
-  background: rgba(255, 255, 255, .96);
+  background: color-mix(in srgb, var(--color-surface) 96%, transparent);
   border-bottom: 1px solid var(--color-border);
   box-shadow: 0 8px 28px rgba(27, 42, 63, .06);
   backdrop-filter: blur(18px);
@@ -57,7 +57,7 @@
   border-right: none;
   border-radius: var(--radius-input) 0 0 var(--radius-input);
   background: var(--color-bg);
-  color: var(--color-navy);
+  color: var(--color-text);
   font-size: 0.82rem;
   outline: none;
 }
@@ -108,7 +108,7 @@
 
 .link:hover,
 .link:focus-visible {
-  color: var(--color-navy);
+  color: var(--color-text);
 }
 
 .right {
@@ -168,7 +168,7 @@
   display: grid;
   place-items: center;
   padding: 0 3px;
-  border: 2px solid #fff;
+  border: 2px solid var(--color-surface);
   border-radius: var(--radius-pill);
   background: var(--color-danger);
   color: var(--color-surface);
@@ -321,4 +321,8 @@
 
 .open .toggleBar:nth-child(3) {
   transform: translateY(-7px) rotate(-45deg);
+}
+
+.themeToggle {
+  color: var(--color-text-muted);
 }

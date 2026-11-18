@@ -25,7 +25,7 @@
 .inner h1 {
   max-width: 780px;
   margin: 0.5rem 0 0.85rem;
-  color: var(--color-navy);
+  color: var(--color-text);
   font-size: clamp(2rem, 5vw, 3.25rem);
   line-height: 1.06;
   font-weight: 700;

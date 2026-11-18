@@ -1,13 +1,13 @@
 .heading {
   margin-bottom: var(--space-5);
   padding-bottom: var(--space-4);
-  border-bottom: 1px solid #eef1f4;
+  border-bottom: 1px solid var(--color-border);
 }
 
 .heading span {
   display: block;
   margin-bottom: 0.3rem;
-  color: var(--color-teal-deep);
+  color: var(--color-link);
   font-size: 0.64rem;
   font-weight: 800;
   letter-spacing: 0.11em;

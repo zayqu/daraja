@@ -158,7 +158,7 @@ export default function JobsPageClient({
         .jobs-page {
           min-height: 100vh;
           background: var(--color-bg);
-          color: var(--color-navy);
+          color: var(--color-text);
         }
 
         .jobs-hero {
@@ -182,7 +182,7 @@ export default function JobsPageClient({
 
         .jobs-hero h1 {
           margin: .55rem 0 1.45rem;
-          color: var(--color-navy);
+          color: var(--color-text);
           font-size: clamp(2rem, 5vw, 3.25rem);
           font-weight: 700;
           line-height: 1.05;
@@ -203,9 +203,9 @@ export default function JobsPageClient({
           min-width: 0;
           min-height: 50px;
           padding: 0 .95rem;
-          border: 1px solid #e4e8ed;
+          border: 1px solid var(--color-border);
           border-radius: 11px;
-          color: var(--color-navy);
+          color: var(--color-text);
           outline: 0;
         }
 
@@ -289,7 +289,7 @@ export default function JobsPageClient({
         .filter-label {
           display: block;
           margin-bottom: .45rem;
-          color: #5f6b7a;
+          color: var(--color-text-muted);
           font-size: .7rem;
           font-weight: 700;
         }
@@ -298,10 +298,10 @@ export default function JobsPageClient({
           width: 100%;
           min-height: 44px;
           padding: 0 .75rem;
-          border: 1px solid #dfe4e9;
+          border: 1px solid var(--color-border);
           border-radius: 10px;
           background: var(--color-surface);
-          color: var(--color-navy);
+          color: var(--color-text);
           outline: 0;
         }
 
@@ -328,7 +328,7 @@ export default function JobsPageClient({
         }
 
         .results-count strong {
-          color: var(--color-navy);
+          color: var(--color-text);
         }
 
         .results-actions {
@@ -354,19 +354,19 @@ export default function JobsPageClient({
           border: 1px solid var(--color-border-strong);
           border-radius: 16px;
           background: var(--color-surface);
-          color: #7a8492;
+          color: var(--color-text-muted);
           text-align: center;
         }
 
         .state strong {
           display: block;
           margin-bottom: .35rem;
-          color: var(--color-navy);
+          color: var(--color-text);
           font-size: 1rem;
         }
 
         .state.error {
-          color: #b42318;
+          color: var(--color-danger);
         }
 
         .retry-btn {
@@ -390,10 +390,10 @@ export default function JobsPageClient({
         .page-btn {
           min-height: 42px;
           padding: 0 .85rem;
-          border: 1px solid #dfe4e9;
+          border: 1px solid var(--color-border);
           border-radius: 10px;
           background: var(--color-surface);
-          color: #5f6b7a;
+          color: var(--color-text-muted);
           cursor: pointer;
         }
 
@@ -536,8 +536,8 @@ export default function JobsPageClient({
             min-height: 34px;
             padding: 0 .7rem;
             border-radius: 9px;
-            background: #eef2f5;
-            color: #344054;
+            background: var(--color-surface-muted);
+            color: var(--color-text-secondary);
             font-size: .7rem;
           }
 
@@ -556,7 +556,7 @@ export default function JobsPageClient({
             border: 1px solid var(--color-border-strong);
             border-radius: 999px;
             background: var(--color-surface);
-            color: var(--color-navy);
+            color: var(--color-text);
             font-size: .72rem;
           }
 

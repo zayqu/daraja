@@ -11,7 +11,7 @@
 
 .heading > span,
 .kicker {
-  color: var(--color-teal-deep);
+  color: var(--color-link);
   font-size: 0.68rem;
   font-weight: 800;
   letter-spacing: 0.14em;
@@ -20,7 +20,7 @@
 
 .heading h2 {
   margin: 0.45rem 0;
-  color: var(--color-navy);
+  color: var(--color-text);
   font-size: clamp(1.45rem, 3vw, 1.9rem);
   line-height: 1.25;
   letter-spacing: -0.025em;
@@ -53,7 +53,7 @@
 
 .card h3 {
   margin: 0.45rem 0;
-  color: var(--color-navy);
+  color: var(--color-text);
   font-size: 1rem;
   line-height: 1.4;
 }
@@ -80,12 +80,12 @@
 }
 
 .whatsappCard {
-  border-color: #b7ebc8;
-  background: #f4fff7;
+  border-color: var(--color-success-border);
+  background: var(--color-surface-muted);
 }
 
 .whatsappAction {
-  background: #167b3c;
+  background: var(--color-teal-deep);
   color: var(--color-on-dark);
 }
 

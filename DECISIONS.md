@@ -306,33 +306,25 @@ second frontend or a new application stack.
 
 ## D-025 - Daraja uses one canonical application typeface
 
-**Status:** accepted, updated 15 November 2026
+**Status:** accepted, updated 18 November 2026
 
-Daraja UI work must preserve one shared application-wide typeface rather than
-allowing individual pages or licensed references to introduce their own fonts.
+Daraja UI work must preserve one shared application-wide type system rather
+than allowing individual pages or licensed references to introduce their own
+fonts.
 
-The canonical Ajira web typeface is **Poppins**, loaded once through
-`next/font/google` in the root layout and exposed through the shared
-`--font-daraja` design token.
+The canonical Ajira web typefaces are **Inter** (body text, controls, labels)
+and **Plus Jakarta Sans** (headings h1-h6), matching the approved Figma design
+("Daraja - UI/UX Design"). Both are loaded once through `next/font/google` in
+the root layout and exposed through the shared `--font-daraja` (Inter) and
+`--font-display` (Plus Jakarta Sans) design tokens. Poppins was retired on
+18 November 2026 because it reads poorly at small app sizes.
 
-All public, candidate, employer, admin and authentication surfaces inherit
-Poppins through that token. Arial/Helvetica remain fallback fonts only.
-Licensed templates may influence layout and interaction, but they must not
-replace or override Daraja typography page by page.
-
-This is a non-negotiable platform rule. New page/component CSS must inherit
-`--font-daraja`; it must not introduce another UI font. The only intentional
-exceptions are generated CV document typography chosen by the candidate and
-HTML email markup that requires mail-client-safe fallback fonts.
-
-Typography changes are incomplete until the shared Poppins regression test
-passes and the live production release marker is verified to include the change.
-
-On 15 November 2026, the product owner explicitly restored **Poppins** as the
-canonical Ajira website font. This supersedes the 14 October 2026 choice of
-Nunito. The centralized typography rule itself remains unchanged: all UI
-surfaces inherit one shared font token, without per-page overrides.
-
+All public, candidate, employer, freelancer, admin and authentication surfaces
+inherit these tokens. Arial/Helvetica remain fallback fonts only. Licensed
+templates may influence layout and interaction, but they must not
+replace or override Daraja typography page by page. The CV Builder paper
+preview is the only exception: it renders the candidate's chosen ATS-safe CV
+font.
 
 ## D-026 - Daraja UI uses shared tokens and primitives
 
@@ -666,3 +658,31 @@ shared kit in `components/dashboard/DashboardUi.js`.
 - **Not yet:** Apply on Daraja, the employer applicant list, interviews and
   messages need new database tables. They stay out of the menus until those
   tables and their privacy rules exist (D-027, D-028).
+
+## D-039 - Design system follows the Figma file; dark mode is Apple-style
+
+**Status:** accepted, 18 November 2026
+
+The owner-approved Figma file "Daraja - UI/UX Design" is the visual source of
+truth for Ajira, Daraja CV and the coming freelancer, community and messaging
+screens (phone, tablet and desktop, with clickable prototypes and user flows).
+
+- **Icons:** Google Material Symbols (Outlined, weight 400) only, through
+  `components/ui/NavIcon.js` and `components/CategoryIcon.js`. No other icon
+  sets or hand-drawn SVG icons.
+- **Fonts:** Inter + Plus Jakarta Sans (D-025).
+- **Colours:** components use the tokens in `styles/tokens.css`, never raw hex
+  values. Status colours have `-bg` and `-border` tokens; link text uses
+  `--color-link`; `--color-navy` is for surfaces, not text.
+- **Dark mode:** Apple-style. True black page, flat grey surfaces (#1C1C1E,
+  #2C2C2E) without borders or shadows, white/grey text, Daraja teal kept for
+  filled buttons and a calm teal (#3DAE9A) for links. It follows the device
+  unless the person chooses Light or Dark (header button or Account settings);
+  the choice is kept in `localStorage` (`daraja-theme`) and applied before
+  paint by the inline script in `app/layout.js`. CV paper and other documents
+  stay white.
+- **Language:** the app will be bilingual (English and Kiswahili) with an
+  EN | SW switch in every header; translation work is a separate step.
+- **Explore first:** visitors browse jobs, freelance work and the community
+  without an account; sign-in is asked for only at save, apply, alerts,
+  posting, proposals and messaging, with a "Not now" option.

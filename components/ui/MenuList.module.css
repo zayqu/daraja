@@ -20,7 +20,7 @@
   overflow: hidden;
   border: 1px solid var(--color-border);
   border-radius: 14px;
-  background: #fff;
+  background: var(--color-surface);
   list-style: none;
 }
 
@@ -63,17 +63,17 @@
 
 .list a:hover,
 .list a:focus-visible {
-  background: #f7fbfa;
+  background: var(--color-surface-muted);
 }
 
 .list .rowActive {
   background: rgba(0, 201, 167, 0.1);
-  color: var(--color-teal-deep);
+  color: var(--color-link);
   font-weight: 600;
 }
 
 .list .rowActive > svg:first-child {
-  color: var(--color-teal-deep);
+  color: var(--color-link);
 }
 
 /* Infrequent links stay one tap away without making the menu taller. */
@@ -91,7 +91,7 @@
   padding: 0 12px;
   border: 1px solid var(--color-border);
   border-radius: var(--radius-pill);
-  background: #fff;
+  background: var(--color-surface);
   color: var(--color-text-secondary);
   font-size: 0.76rem;
   font-weight: 400;
@@ -105,7 +105,7 @@
 .compact .compactActive {
   border-color: rgba(0, 201, 167, 0.5);
   background: rgba(0, 201, 167, 0.1);
-  color: var(--color-teal-deep);
+  color: var(--color-link);
   font-weight: 600;
 }
 
@@ -137,7 +137,7 @@
 .links a:focus-visible,
 .links button:hover,
 .links button:focus-visible {
-  color: var(--color-teal-deep);
+  color: var(--color-link);
 }
 
 .signOutForm {

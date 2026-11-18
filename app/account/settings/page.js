@@ -5,6 +5,7 @@ import PasswordResetButton from "@/components/PasswordResetButton";
 import { ListCard, PageHeader } from "@/components/dashboard/DashboardUi";
 import dash from "@/components/dashboard/dashboard.module.css";
 import { MenuRows, SignOutButton } from "@/components/ui/MenuList";
+import { AppearanceSetting } from "@/components/ThemeControls";
 import { ROLE_LABELS } from "@/lib/platform-roles";
 import { dashboardMenu } from "@/lib/dashboard-navigation";
 import { candidateCareerEnabled, employerPortalEnabled } from "@/lib/features";
@@ -106,6 +107,13 @@ export default async function SettingsPage() {
               : "Add a password so you can also sign in without Google or LinkedIn."}
           </p>
           <PasswordResetButton email={user.email} />
+        </div>
+      </ListCard>
+
+      <ListCard title="Appearance">
+        <div className={dash.cardFooter}>
+          <p className={dash.help}>Use your device setting, or always light or dark.</p>
+          <AppearanceSetting />
         </div>
       </ListCard>
 

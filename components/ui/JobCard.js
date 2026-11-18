@@ -1,4 +1,5 @@
 "use client";
+import NavIcon from "@/components/ui/NavIcon";
 
 import formatJobTitle from "@/lib/job-title.cjs";
 import Link from "next/link";
@@ -138,9 +139,7 @@ export default function JobCard({
       />
 
       <span className={styles.saveVisual} aria-hidden="true">
-        <svg viewBox="0 0 24 24" focusable="false">
-          <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 0 0 0-7.78Z" />
-        </svg>
+        <NavIcon name="bookmark" size={20} />
       </span>
 
       <div className={styles.content}>
@@ -167,9 +166,7 @@ export default function JobCard({
         {deadline && (
           <span className={`${styles.deadline} ${deadlineTone(job.deadline)}`}>
             <span>{deadline}</span>
-            <svg className={styles.calendarIcon} viewBox="0 0 24 24" focusable="false" aria-hidden="true">
-              <path d="M7 3v3M17 3v3M4 9h16M5 5h14a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1Z" />
-            </svg>
+            <span className={styles.calendarIcon}><NavIcon name="schedule" size={14} /></span>
           </span>
         )}
         {posted && (

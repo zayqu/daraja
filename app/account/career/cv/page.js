@@ -29,9 +29,10 @@ export default async function CvBuilderPage() {
       <PublicSiteNav />
       <main id="main-content">
         <PageHero
-          eyebrow="Candidate workspace"
-          title="Build a CV for the job you want."
-          description="Create a Master CV, tailor role-specific versions, check ATS readiness and export a clean PDF without giving up your own facts or design preferences."
+          eyebrow="CV Builder"
+          title="Build, tailor and export your CV."
+          description="Keep your career facts in one place, improve each section, preview the result and download an ATS-ready PDF."
+          variant="compact"
         />
 
         <WorkspaceShell width="wide">

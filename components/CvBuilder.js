@@ -131,6 +131,7 @@ export default function CvBuilder() {
   const [status, setStatus] = useState("");
   const [busy, setBusy] = useState(false);
   const [pdfBusy, setPdfBusy] = useState(false);
+  const [workspaceView, setWorkspaceView] = useState("content");
 
   const loadList = useCallback(async () => {
     const response = await fetch("/api/candidate/cv", { cache: "no-store" });
@@ -395,7 +396,7 @@ export default function CvBuilder() {
   const personal = cv.content.personal || {};
 
   return (
-    <div className={styles.builder}>
+    <div className={styles.builder} data-view={workspaceView}>
       <aside className={styles.sidebar}>
         <div className={styles.sideHeading}>
           <span>Your CVs</span>
@@ -433,6 +434,25 @@ export default function CvBuilder() {
       </aside>
 
       <div className={styles.workspace}>
+        <div className={styles.viewTabs} role="tablist" aria-label="CV Builder view">
+          {[
+            ["content", "Content"],
+            ["design", "Design"],
+            ["preview", "Preview"],
+          ].map(([value, label]) => (
+            <button
+              key={value}
+              type="button"
+              role="tab"
+              aria-selected={workspaceView === value}
+              className={workspaceView === value ? styles.activeViewTab : ""}
+              onClick={() => setWorkspaceView(value)}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+
         <div className={styles.toolbar}>
           <div>
             <span>Daraja Smart CV</span>
@@ -493,7 +513,7 @@ export default function CvBuilder() {
               </div>
             </details>
 
-            <details open>
+            <details>
               <summary>Professional summary</summary>
               <div className={styles.panel}>
                 <TextArea
@@ -506,7 +526,7 @@ export default function CvBuilder() {
               </div>
             </details>
 
-            <details open>
+            <details>
               <summary>Experience</summary>
               <div className={styles.panel}>
                 {cv.content.experience.map((item, index) => (
@@ -592,7 +612,7 @@ export default function CvBuilder() {
               </details>
             ))}
 
-            <details open>
+            <details className={styles.designDetails} open={workspaceView === "design"}>
               <summary>Design Studio</summary>
               <div className={styles.panel}>
                 <div className={styles.designIntro}>

@@ -14,6 +14,7 @@ export default function PageHero({
         styles.hero,
         variant === "overlap" ? styles.overlap : "",
         variant === "dark" ? styles.dark : "",
+        variant === "compact" ? styles.compact : "",
       ].filter(Boolean).join(" ")}
     >
       <div

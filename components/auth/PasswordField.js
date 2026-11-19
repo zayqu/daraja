@@ -2,8 +2,10 @@
 
 import { useState } from "react";
 import styles from "@/app/auth/auth.module.css";
+import { useT } from "@/components/LanguageProvider";
 
 export default function PasswordField({ id, label, autoComplete, value, onChange, hint, aside }) {
+  const t = useT();
   const [visible, setVisible] = useState(false);
   return (
     <div className={styles.field}>
@@ -26,9 +28,9 @@ export default function PasswordField({ id, label, autoComplete, value, onChange
           type="button"
           className={styles.showToggle}
           onClick={() => setVisible((current) => !current)}
-          aria-label={visible ? "Hide password" : "Show password"}
+          aria-label={t(visible ? "Hide password" : "Show password")}
         >
-          {visible ? "Hide" : "Show"}
+          {t(visible ? "Hide" : "Show")}
         </button>
       </div>
       {hint ? <p className={styles.hint}>{hint}</p> : null}

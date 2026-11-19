@@ -17,5 +17,5 @@ export function useLocale() {
 
 export function useT() {
   const locale = useContext(LanguageContext);
-  return (text) => translate(locale, text);
+  return (text, values) => translate(locale, text, values);
 }

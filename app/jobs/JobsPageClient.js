@@ -9,6 +9,7 @@ import SiteFooter from "@/components/SiteFooter";
 import JobCard from "@/components/ui/JobCard";
 import { trackEvent } from "@/lib/analytics";
 import { JOB_CATEGORIES } from "@/lib/job-categories";
+import { useT } from "@/components/LanguageProvider";
 import {
   JOB_TYPES,
   buildJobsUrl,
@@ -22,6 +23,14 @@ const JOB_TYPE_LABELS = {
   FREELANCE: "Freelance",
 };
 
+// "12 open jobs", "1 expired job", "40 jobs" (all statuses).
+function resultCountLabel(total, status, t) {
+  const one = total === 1;
+  if (status === "active") return t(one ? "{n} open job" : "{n} open jobs", { n: total });
+  if (status === "expired") return t(one ? "{n} expired job" : "{n} expired jobs", { n: total });
+  return t(one ? "{n} job" : "{n} jobs", { n: total });
+}
+
 export default function JobsPageClient({
   showEmployerCta,
   showCandidateCv,
@@ -31,6 +40,7 @@ export default function JobsPageClient({
   initialError = "",
   categories = JOB_CATEGORIES,
 }) {
+  const t = useT();
   const [jobs, setJobs] = useState(initialJobs);
   const [pagination, setPagination] = useState(initialPagination);
   const [loading, setLoading] = useState(false);
@@ -582,22 +592,22 @@ export default function JobsPageClient({
 
         <header className="jobs-hero">
           <div className="jobs-hero-inner">
-            <div className="jobs-eyebrow">Find your next opportunity</div>
-            <h1>Jobs across Tanzania</h1>
+            <div className="jobs-eyebrow">{t("Find your next opportunity")}</div>
+            <h1>{t("Jobs across Tanzania")}</h1>
 
             <form className="search-shell" onSubmit={handleSearch} role="search">
               <label htmlFor="job-search" className="sr-only">
-                Search by job title, company, or keyword
+                {t("Search by job title, company, or keyword")}
               </label>
               <input
                 id="job-search"
                 className="search-input"
                 type="search"
-                placeholder="Job title, company or keyword"
+                placeholder={t("Job title, company or keyword")}
                 value={search}
                 onChange={(event) => setSearch(event.target.value)}
               />
-              <button className="search-btn" type="submit">Search jobs</button>
+              <button className="search-btn" type="submit">{t("Search jobs")}</button>
             </form>
           </div>
         </header>
@@ -608,15 +618,15 @@ export default function JobsPageClient({
               <button
                 type="button"
                 className="filters-backdrop"
-                aria-label="Close filters"
+                aria-label={t("Close filters")}
                 onClick={() => setFiltersOpen(false)}
               />
             )}
 
-            <aside className={`filters ${filtersOpen ? "filters-open" : ""}`} aria-label="Job filters">
+            <aside className={`filters ${filtersOpen ? "filters-open" : ""}`} aria-label={t("Job filters")}>
               <div className="filters-handle" aria-hidden="true" />
               <div className="filters-head">
-                <h2>Filter jobs</h2>
+                <h2>{t("Filter jobs")}</h2>
                 <div className="filters-head-actions">
                   <button type="button" className="clear-btn" onClick={clearFilters}>
                     Clear all
@@ -632,7 +642,7 @@ export default function JobsPageClient({
               </div>
 
               <div className="filter-group">
-                <label className="filter-label" htmlFor="category-filter">Category</label>
+                <label className="filter-label" htmlFor="category-filter">{t("Category")}</label>
                 <select
                   id="category-filter"
                   className="filter-control"
@@ -642,20 +652,20 @@ export default function JobsPageClient({
                     setPage(1);
                   }}
                 >
-                  <option value="">All categories</option>
+                  <option value="">{t("All categories")}</option>
                   {categories.map((item) => (
-                    <option key={item} value={item}>{item}</option>
+                    <option key={item} value={item}>{t(item)}</option>
                   ))}
                 </select>
               </div>
 
               <div className="filter-group">
-                <label className="filter-label" htmlFor="location-filter">Location</label>
+                <label className="filter-label" htmlFor="location-filter">{t("Location")}</label>
                 <input
                   id="location-filter"
                   className="filter-control"
                   type="search"
-                  placeholder="e.g. Dar es Salaam"
+                  placeholder={t("e.g. Dar es Salaam")}
                   value={location}
                   onChange={(event) => {
                     setLocation(event.target.value);
@@ -665,7 +675,7 @@ export default function JobsPageClient({
               </div>
 
               <div className="filter-group">
-                <label className="filter-label" htmlFor="type-filter">Job type</label>
+                <label className="filter-label" htmlFor="type-filter">{t("Job type")}</label>
                 <select
                   id="type-filter"
                   className="filter-control"
@@ -675,15 +685,15 @@ export default function JobsPageClient({
                     setPage(1);
                   }}
                 >
-                  <option value="">All job types</option>
+                  <option value="">{t("All job types")}</option>
                   {JOB_TYPES.map((item) => (
-                    <option key={item} value={item}>{JOB_TYPE_LABELS[item]}</option>
+                    <option key={item} value={item}>{t(JOB_TYPE_LABELS[item])}</option>
                   ))}
                 </select>
               </div>
 
               <div className="filter-group">
-                <label className="filter-label" htmlFor="status-filter">Status</label>
+                <label className="filter-label" htmlFor="status-filter">{t("Status")}</label>
                 <select
                   id="status-filter"
                   className="filter-control"
@@ -693,9 +703,9 @@ export default function JobsPageClient({
                     setPage(1);
                   }}
                 >
-                  <option value="active">Open jobs</option>
-                  <option value="expired">Expired jobs</option>
-                  <option value="all">All jobs</option>
+                  <option value="active">{t("Open jobs")}</option>
+                  <option value="expired">{t("Expired jobs")}</option>
+                  <option value="all">{t("All jobs")}</option>
                 </select>
               </div>
 
@@ -704,17 +714,17 @@ export default function JobsPageClient({
                 className="filter-results-btn"
                 onClick={() => setFiltersOpen(false)}
               >
-                Show {pagination.total || 0} opportunities
+                {t("Show {n} opportunities", { n: pagination.total || 0 })}
               </button>
             </aside>
 
-            <section className="results" aria-label="Job search results">
+            <section className="results" aria-label={t("Job search results")}>
               <div className="results-head">
                 <div className="results-count" aria-live="polite">
                   {loading ? (
-                    "Loading opportunities..."
+                    t("Loading opportunities...")
                   ) : (
-                    <><strong>{pagination.total || 0}</strong> {status === "active" ? "open" : status} job{pagination.total === 1 ? "" : "s"}</>
+                    <strong>{resultCountLabel(pagination.total || 0, status, t)}</strong>
                   )}
                 </div>
                 <div className="results-actions">
@@ -724,26 +734,28 @@ export default function JobsPageClient({
                     onClick={() => setFiltersOpen(true)}
                     aria-expanded={filtersOpen}
                   >
-                    Filters
+                    {t("Filters")}
                   </button>
                   <div className="result-context">
-                    Page {pagination.page || page}{pagination.pages ? ` of ${pagination.pages}` : ""}
+                    {pagination.pages
+                      ? t("Page {n} of {total}", { n: pagination.page || page, total: pagination.pages })
+                      : t("Page {n}", { n: pagination.page || page })}
                   </div>
                 </div>
               </div>
 
               {loading ? (
-                <div className="state" role="status">Loading jobs...</div>
+                <div className="state" role="status">{t("Loading jobs...")}</div>
               ) : error ? (
                 <div className="state error" role="alert">
-                  <strong>Jobs did not load</strong>
-                  <p>{error}</p>
-                  <button className="retry-btn" type="button" onClick={fetchJobs}>Try again</button>
+                  <strong>{t("Jobs did not load")}</strong>
+                  <p>{t(error)}</p>
+                  <button className="retry-btn" type="button" onClick={fetchJobs}>{t("Try again")}</button>
                 </div>
               ) : jobs.length === 0 ? (
                 <div className="state">
-                  <strong>No positions found</strong>
-                  <p>Try another keyword or clear one of the filters.</p>
+                  <strong>{t("No positions found")}</strong>
+                  <p>{t("Try another keyword or clear one of the filters.")}</p>
                 </div>
               ) : (
                 <div className="job-list">
@@ -758,14 +770,14 @@ export default function JobsPageClient({
               )}
 
               {pagination.pages > 1 && (
-                <nav className="pager" aria-label="Job results pagination">
+                <nav className="pager" aria-label={t("Job results pagination")}>
                   <button
                     className="page-btn"
                     type="button"
                     onClick={() => setPage((current) => Math.max(1, current - 1))}
                     disabled={page === 1}
                   >
-                    ← Previous
+                    {t("← Previous")}
                   </button>
                   <span className="page-status" aria-current="page">
                     {page} / {pagination.pages}
@@ -776,7 +788,7 @@ export default function JobsPageClient({
                     onClick={() => setPage((current) => Math.min(pagination.pages, current + 1))}
                     disabled={page === pagination.pages}
                   >
-                    Next →
+                    {t("Next →")}
                   </button>
                 </nav>
               )}

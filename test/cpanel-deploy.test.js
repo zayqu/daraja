@@ -131,10 +131,22 @@ test("cPanel deployment automatically restores the previous runtime on failure",
 test("production release applies Prisma migrations outside cPanel", () => {
   assert.match(
     releaseWorkflow,
-    /name: Apply production migrations[\s\S]*if: github\.event_name != 'pull_request'[\s\S]*npx prisma migrate deploy/,
+    /name: Apply production migrations[\s\S]*if: github\.event_name == 'push' && github\.ref == 'refs\/heads\/master'[\s\S]*npx prisma migrate deploy/,
   );
   assert.doesNotMatch(deployScript, /prisma (?:migrate|db push)/);
   assert.doesNotMatch(autoDeployScript, /prisma (?:migrate|db push)/);
+  assert.match(
+    releaseWorkflow,
+    /DATABASE_URL: .*github\.event_name == 'push' && github\.ref == 'refs\/heads\/master'.*secrets\.DATABASE_URL/,
+  );
+  for (const name of ["Publish stable cPanel release", "Hand off release to cPanel pull deployer"]) {
+    const i = releaseWorkflow.indexOf("name: " + name);
+    assert.ok(i >= 0, "missing release step: " + name);
+    assert.match(
+      releaseWorkflow.slice(i, i + 200),
+      /if: github\.event_name == 'push' && github\.ref == 'refs\/heads\/master'/,
+    );
+  }
 });
 
 test("cPanel release packages and smoke-tests a standalone runtime", () => {

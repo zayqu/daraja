@@ -80,11 +80,20 @@ async function enrichOfficialAjiraJobs(jobs, {
   const results = Array.from(jobs);
   let cursor = 0;
   let verified = 0;
+  const verificationFailures = {
+    missingDetailUrl: 0,
+    detailUnavailable: 0,
+    unsafeRedirect: 0,
+    incompleteOrConflictingFacts: 0,
+  };
   const worker = async () => {
     while (cursor < results.length) {
       const index = cursor++;
       const job = results[index];
-      if (!isOfficialDetailUrl(job.sourceUrl)) continue;
+      if (!isOfficialDetailUrl(job.sourceUrl)) {
+        verificationFailures.missingDetailUrl += 1;
+        continue;
+      }
       try {
         // PSRS serves a client-rendered shell to normal HTTP fetches. The
         // runner's shared Playwright renderer supplies the fully loaded DOM.
@@ -92,7 +101,14 @@ async function enrichOfficialAjiraJobs(jobs, {
         let documentHtml;
         if (render) {
           const page = await render(job.sourceUrl);
-          if (!page || (page.url && !isOfficialDetailUrl(page.url))) continue;
+          if (!page) {
+            verificationFailures.detailUnavailable += 1;
+            continue;
+          }
+          if (page.url && !isOfficialDetailUrl(page.url)) {
+            verificationFailures.unsafeRedirect += 1;
+            continue;
+          }
           documentHtml = page.html;
         } else {
           // Dependency-injected HTTP path for tests/static fixtures only.
@@ -101,20 +117,31 @@ async function enrichOfficialAjiraJobs(jobs, {
             redirect: "follow",
             signal: AbortSignal.timeout(20000),
           });
-          if (!response.ok || !isOfficialDetailUrl(response.url || job.sourceUrl)) continue;
+          if (!response.ok) {
+            verificationFailures.detailUnavailable += 1;
+            continue;
+          }
+          if (!isOfficialDetailUrl(response.url || job.sourceUrl)) {
+            verificationFailures.unsafeRedirect += 1;
+            continue;
+          }
           documentHtml = await response.text();
         }
         const official = parseOfficialAjiraDetail(documentHtml, job);
-        if (!official) continue;
+        if (!official) {
+          verificationFailures.incompleteOrConflictingFacts += 1;
+          continue;
+        }
         results[index] = { ...job, ...official };
         verified += 1;
       } catch {
         // Failed or contradictory evidence must remain a review-only lead.
+        verificationFailures.detailUnavailable += 1;
       }
     }
   };
   await Promise.all(Array.from({ length: Math.min(concurrency, jobs.length || 1) }, worker));
-  return { jobs: results, verified, unverified: results.length - verified };
+  return { jobs: results, verified, unverified: results.length - verified, verificationFailures };
 }
 
 module.exports = { isOfficialDetailUrl, parseOfficialAjiraDetail, enrichOfficialAjiraJobs };

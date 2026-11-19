@@ -13,6 +13,7 @@ const {
   sanitizeError,
   writeHealthReport,
 } = require("./lib/health");
+const { collectDiscoveryFeedJobs } = require("./sources/discovery-feed");
 const { collectAjiraJobs } = require("./sources/ajira");
 const { collectAjiraWebJobs } = require("./sources/ajiraweb");
 const { collectCrdbJobs } = require("./sources/crdb");
@@ -77,6 +78,7 @@ const {
 } = require("./lib/employer-media");
 
 const adapters = {
+  "discovery-feed": (source) => collectDiscoveryFeedJobs(source),
   ajira: (_source, { renderer }) => collectAjiraJobs({ render: renderer.render }),
   ajiraweb: () => collectAjiraWebJobs(),
   crdb: () => collectCrdbJobs(),
@@ -175,15 +177,19 @@ async function runScrapers({ dryRun = false, requestedSources = new Set() } = {}
         const collect = adapters[source.adapter];
         if (!collect) throw new Error(`Unknown adapter: ${source.adapter}`);
         const jobs = await collect(source, { renderer });
-        await deepenApplicationUrls(jobs, { render: renderer.render });
-        await enrichJobsWithOfficialEmployerMedia(jobs, {
-          source: source.id,
-          prisma,
-          searchBudget: mediaSearchBudget,
-          blockedHosts: source.publishPolicy?.hideSourceBranding
-            ? source.discovery?.allowedHosts || []
-            : [],
-        });
+        // Discovery leads remain unverified: do not follow board-supplied links
+        // or collect employer media before an administrator verifies them.
+        if (source.adapter !== "discovery-feed") {
+          await deepenApplicationUrls(jobs, { render: renderer.render });
+          await enrichJobsWithOfficialEmployerMedia(jobs, {
+            source: source.id,
+            prisma,
+            searchBudget: mediaSearchBudget,
+            blockedHosts: source.publishPolicy?.hideSourceBranding
+              ? source.discovery?.allowedHosts || []
+              : [],
+          });
+        }
         const sourceHealth = jobs.health || {};
         const prepared = prepareVerifiedVacancies(jobs);
         if (prepared.held.length) {
@@ -240,7 +246,13 @@ async function runScrapers({ dryRun = false, requestedSources = new Set() } = {}
         if (sourceHealth.unverified) {
           warnings.push({
             source: source.id,
-            warning: `${sourceHealth.unverified} government vacancy notice(s) could not be verified from a fully rendered original page`,
+            warning: `${sourceHealth.unverified} government vacancy notice(s) remain unverified` +
+              (sourceHealth.verificationFailures
+                ? `: ${sourceHealth.verificationFailures.missingDetailUrl} without a public detail link; ` +
+                  `${sourceHealth.verificationFailures.detailUnavailable} detail pages unavailable; ` +
+                  `${sourceHealth.verificationFailures.unsafeRedirect} unsafe redirects; ` +
+                  `${sourceHealth.verificationFailures.incompleteOrConflictingFacts} with incomplete or conflicting facts`
+                : ""),
           });
         }
         if (sourceHealth.unresolved) {

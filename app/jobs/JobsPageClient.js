@@ -196,7 +196,7 @@ export default function JobsPageClient({
           font-size: clamp(2rem, 5vw, 3.25rem);
           font-weight: 700;
           line-height: 1.05;
-          letter-spacing: -.04em;
+          letter-spacing: -.02em;
         }
 
         .search-shell {

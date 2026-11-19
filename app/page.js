@@ -85,13 +85,13 @@ export default async function Home() {
         }
 
         .hero h1 {
-          max-width: 760px;
-          margin: .8rem 0 2rem;
+          max-width: 640px;
+          margin: .8rem 0 2.75rem;
           color: var(--color-text);
           font-size: clamp(2.55rem, 5.8vw, 4.65rem);
           font-weight: 700;
           line-height: 1.08;
-          letter-spacing: -.045em;
+          letter-spacing: -.02em;
         }
 
         .hero h1 .hero-word {
@@ -353,7 +353,7 @@ export default async function Home() {
           font-size: clamp(1.7rem, 3vw, 2.2rem);
           font-weight: 600;
           line-height: 1.15;
-          letter-spacing: -.03em;
+          letter-spacing: -.015em;
         }
 
         .section-head p {
@@ -562,11 +562,11 @@ export default async function Home() {
 
           .hero h1 {
             max-width: 100%;
-            margin: .5rem 0 .8rem;
+            margin: .5rem 0 1.1rem;
             font-size: clamp(2.05rem, 9vw, 2.4rem);
             font-weight: 700;
             line-height: 1.08;
-            letter-spacing: -.04em;
+            letter-spacing: -.02em;
           }
 
           .hero h1 .hero-word {

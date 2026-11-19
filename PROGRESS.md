@@ -17,6 +17,7 @@ workflows.
 - Dark mode: Apple-style palette in `styles/tokens.css` (device setting by default), `components/ThemeControls.js` (header moon/sun button and Device/Light/Dark in Account settings), no-flash inline script in the root layout, theme colour for both schemes.
 - Home hero headline spacing adjusted for the taller Plus Jakarta Sans.
 - Checks: `npm test` 396 pass, 12 fail (the known Prisma-environment suites); lint clean; light and dark screenshots of home, jobs and account settings on desktop and phone checked in the local preview.
+- Security: Next.js 16.4.1 -> 16.4.6 (npm audit: moderate cache-leak advisories fixed from 16.4.5); `npm audit --omit=dev` now reports 0 vulnerabilities. eslint-config-next stays 16.3.6 so lint rules do not change in this fix.
 - Next steps: EN/SW language switch and translations, desktop/tablet layouts and role menus from Figma (incl. freelancer), sign-in with Apple/LinkedIn, guest sign-in prompts, CV Builder steps; then Daraja CV, freelancer proposals, messaging and community (need new tables and a Neon restore point first).
 
 ## Current batch: dashboards for every signed-in role (D-038)

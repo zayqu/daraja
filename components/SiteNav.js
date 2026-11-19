@@ -7,6 +7,8 @@ import { buildJobsUrl } from "@/lib/job-search";
 import { mobileDockEnabledPath } from "@/lib/mobile-navigation";
 import NavIcon from "@/components/ui/NavIcon";
 import { ThemeToggle } from "@/components/ThemeControls";
+import LanguageSwitch from "@/components/LanguageSwitch";
+import { useT } from "@/components/LanguageProvider";
 import { buildPublicNavigation } from "@/lib/public-navigation";
 import { postJobHref, roleHome } from "@/lib/platform-roles";
 import { dashboardMenu } from "@/lib/dashboard-navigation";
@@ -39,6 +41,7 @@ export default function SiteNav({
   showCandidateProfile = false,
   notificationCount = 0,
 }) {
+  const t = useT();
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
   const router = useRouter();
@@ -84,13 +87,13 @@ export default function SiteNav({
             <input
               type="search"
               className={styles.searchInput}
-              placeholder="Search job title or company"
+              placeholder={t("Search job title or company")}
               value={query}
               onChange={(event) => setQuery(event.target.value)}
-              aria-label="Search jobs"
+              aria-label={t("Search jobs")}
             />
-            <button type="submit" className={styles.searchBtn} aria-label="Search">
-              Search
+            <button type="submit" className={styles.searchBtn} aria-label={t("Search")}>
+              {t("Search")}
             </button>
           </form>
         )}
@@ -103,8 +106,8 @@ export default function SiteNav({
               <Link
                 href="/auth/signin"
                 className={styles.mobileIconButton}
-                aria-label="Sign in"
-                title="Sign in"
+                aria-label={t("Sign in")}
+                title={t("Sign in")}
               >
                 <NavIcon name="user" />
               </Link>
@@ -115,8 +118,8 @@ export default function SiteNav({
               <Link
                 href="/account/notifications"
                 className={styles.mobileIconButton}
-                aria-label="Notifications"
-                title="Notifications"
+                aria-label={t("Notifications")}
+                title={t("Notifications")}
               >
                 <NavIcon name="bell" />
                 {notificationCount > 0 ? (
@@ -134,7 +137,7 @@ export default function SiteNav({
           className={`${styles.toggle} ${open ? styles.open : ""}`}
           aria-expanded={open}
           aria-controls="site-nav-menu"
-          aria-label={open ? "Close menu" : "Open menu"}
+          aria-label={t(open ? "Close menu" : "Open menu")}
           onClick={() => setOpen((value) => !value)}
         >
           <span className={styles.toggleBar} />
@@ -153,10 +156,11 @@ export default function SiteNav({
               className={styles.link}
               onClick={() => setOpen(false)}
             >
-              {link.label}
+              {t(link.label)}
             </Link>
           ))}
           <div className={styles.right}>
+            <LanguageSwitch />
             <ThemeToggle className={styles.themeToggle} />
             {account ? (
               <Link
@@ -164,12 +168,12 @@ export default function SiteNav({
                 className={styles.link}
                 onClick={() => setOpen(false)}
               >
-                {account.signedIn ? "Dashboard" : "Sign in"}
+                {t(account.signedIn ? "Dashboard" : "Sign in")}
               </Link>
             ) : null}
             {account && !account.signedIn && !right ? (
               <Link href="/auth/signup" className={styles.cta} onClick={() => setOpen(false)}>
-                Create account
+                {t("Create account")}
               </Link>
             ) : null}
             {right ??
@@ -179,7 +183,7 @@ export default function SiteNav({
                   className={styles.cta}
                   onClick={() => setOpen(false)}
                 >
-                  Post a Job
+                  {t("Post a Job")}
                 </Link>
               ) : null)}
           </div>

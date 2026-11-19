@@ -115,7 +115,7 @@ test("only More opens a menu, and Sign out sits at the bottom", async () => {
     assert.match(await read(page), /<ProfileMenu[\s\S]*href: "\/account\/settings", label: "Account settings"/, page);
   }
   // Clear labels, and visitors learn that job alerts need an account.
-  assert.match(list, />About Daraja</);
+  assert.match(list, /\{t\("About Daraja"\)\}/);
   assert.match(list, /WhatsApp Channel/);
   assert.match(dock, /href: "\/auth\/signin\?callbackUrl=\/account\/alerts"[\s\S]*hint: "Free account needed"/);
   // Admin tabs carry the review counts, counted once per request.

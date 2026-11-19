@@ -6,6 +6,7 @@ import NavIcon from "@/components/ui/NavIcon";
 import { signOutAction } from "@/app/actions/sign-out";
 import { activeMenuHref, dashboardMenu } from "@/lib/dashboard-navigation";
 import styles from "./DashboardShell.module.css";
+import { useT } from "@/components/LanguageProvider";
 
 // One promotional card per role, linking to real Daraja products only.
 // Candidates are never charged (D-036), so theirs points to a free tool.
@@ -35,6 +36,7 @@ const PROMOS = {
 };
 
 function MenuLink({ item, active, counts }) {
+  const t = useT();
   const count = item.count ? counts[item.count] : 0;
   return (
     <Link
@@ -43,7 +45,7 @@ function MenuLink({ item, active, counts }) {
       aria-current={active ? "page" : undefined}
     >
       <NavIcon name={item.icon} size={20} />
-      <span>{item.label}</span>
+      <span>{t(item.label)}</span>
       {count ? <span className={styles.navCount}>{count > 99 ? "99+" : count}</span> : null}
     </Link>
   );
@@ -59,6 +61,7 @@ export default function DashboardShell({
   showPromo = true,
   children,
 }) {
+  const t = useT();
   const pathname = usePathname() || "";
   const menu = dashboardMenu(role, { employerPortal, candidateCareer });
   const activeHref = activeMenuHref([...menu.main, ...menu.settings], pathname);
@@ -84,7 +87,7 @@ export default function DashboardShell({
           ))}
         </nav>
 
-        <p className={styles.navLabel}>Settings</p>
+        <p className={styles.navLabel}>{t("Settings")}</p>
         <nav className={`${styles.nav} ${styles.settingsNav}`} aria-label="Settings and support">
           {menu.settings.map((item) => (
             <MenuLink key={item.href} item={item} active={item.href === activeHref} counts={counts} />
@@ -92,7 +95,7 @@ export default function DashboardShell({
           <form action={signOutAction}>
             <button type="submit" className={styles.navLink}>
               <NavIcon name="logout" size={20} />
-              <span>Sign out</span>
+              <span>{t("Sign out")}</span>
             </button>
           </form>
         </nav>
@@ -128,7 +131,7 @@ export default function DashboardShell({
 
           <div className={styles.topActions}>
             {notificationsHref ? (
-              <Link href={notificationsHref} className={styles.iconButton} aria-label="Notifications" title="Notifications">
+              <Link href={notificationsHref} className={styles.iconButton} aria-label={t("Notifications")} title={t("Notifications")}>
                 <NavIcon name="bell" size={20} />
               </Link>
             ) : null}

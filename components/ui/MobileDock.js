@@ -6,6 +6,8 @@ import { usePathname, useSearchParams } from "next/navigation";
 import { mobileDockEnabledPath } from "@/lib/mobile-navigation";
 import { activeMenuHref, dashboardMenu, secondaryMenuSections } from "@/lib/dashboard-navigation";
 import NavIcon from "@/components/ui/NavIcon";
+import LanguageSwitch from "@/components/LanguageSwitch";
+import { useT } from "@/components/LanguageProvider";
 import { DarajaLinks, INTERNSHIPS_HREF, MenuRows, MenuSections, SignOutButton } from "@/components/ui/MenuList";
 import styles from "./MobileDock.module.css";
 
@@ -32,6 +34,7 @@ export default function MobileDock({
   userName = null,
   counts = null,
 }) {
+  const t = useT();
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const [sheetOpen, setSheetOpen] = useState(false);
@@ -108,19 +111,19 @@ export default function MobileDock({
             className={styles.sheet}
             role="dialog"
             aria-modal="true"
-            aria-label={menu ? `${menu.roleLabel} menu` : "Daraja menu"}
+            aria-label={menu ? `${t(menu.roleLabel)} · ${t("Menu")}` : t("Daraja menu")}
           >
             <div className={styles.sheetHandle} aria-hidden="true" />
             <div className={styles.sheetHeader}>
               <div className={styles.identity}>
-                <strong>{menu ? userName || "Your account" : "Daraja"}</strong>
-                <span>{menu ? menu.roleLabel : "Kazi na fursa Tanzania"}</span>
+                <strong>{menu ? userName || t("Your account") : "Daraja"}</strong>
+                <span>{menu ? t(menu.roleLabel) : "Kazi na fursa Tanzania"}</span>
               </div>
               <button
                 ref={closeButtonRef}
                 type="button"
                 className={styles.closeButton}
-                aria-label="Close menu"
+                aria-label={t("Close menu")}
                 onClick={close}
               >
                 <NavIcon name="close" size={18} />
@@ -135,6 +138,7 @@ export default function MobileDock({
                   onNavigate={close}
                   compactSettings
                 />
+                <LanguageSwitch full />
                 <DarajaLinks onNavigate={close} />
                 <SignOutButton />
               </>
@@ -142,13 +146,14 @@ export default function MobileDock({
               <>
                 <div className={styles.authActions}>
                   <Link href="/auth/signin" className={styles.authPrimary} onClick={close}>
-                    Sign in
+                    {t("Sign in")}
                   </Link>
                   <Link href="/auth/signup" className={styles.authSecondary} onClick={close}>
-                    Create account
+                    {t("Create account")}
                   </Link>
                 </div>
                 <MenuRows items={GUEST_ROWS} onNavigate={close} />
+                <LanguageSwitch full />
                 <DarajaLinks onNavigate={close} />
               </>
             )}
@@ -174,7 +179,7 @@ export default function MobileDock({
                   </span>
                 ) : null}
               </span>
-              <span className={styles.label}>{item.label}</span>
+              <span className={styles.label}>{t(item.label)}</span>
               {item.badge > 0 ? <span className="sr-only">, {item.badge} waiting</span> : null}
             </Link>
           ))}
@@ -191,7 +196,7 @@ export default function MobileDock({
               <span className={styles.iconWrap}>
                 <NavIcon name="more" size={24} />
               </span>
-              <span className={styles.label}>More</span>
+              <span className={styles.label}>{t("More")}</span>
             </button>
           ) : null}
         </div>

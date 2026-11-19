@@ -16,12 +16,12 @@ test("mobile header offers sign-in to visitors and the bell to candidates", asyn
   // Visitors: a sign-in shortcut. Signed-in users reach their account from
   // the dock's Profile/Account/More tab, so the header does not repeat it.
   assert.match(nav, /!account\.signedIn \? \(\s*<Link\s+href="\/auth\/signin"/);
-  assert.match(nav, /aria-label="Sign in"/);
+  assert.match(nav, /aria-label=\{t\("Sign in"\)\}/);
   assert.match(nav, /<NavIcon name="user" \/>/);
   assert.doesNotMatch(nav, /aria-label="Account"/);
   // Candidates keep the notifications bell.
   assert.match(nav, /\}\)\.role === "JOB_SEEKER" \? \(\s*<Link\s+href="\/account\/notifications"/);
-  assert.match(nav, /aria-label="Notifications"/);
+  assert.match(nav, /aria-label=\{t\("Notifications"\)\}/);
   assert.match(nav, /<NavIcon name="bell" \/>/);
   assert.match(styles, /\.mobileAccountActions/);
   assert.match(styles, /\.mobileIconButton/);

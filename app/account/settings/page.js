@@ -6,6 +6,9 @@ import { ListCard, PageHeader } from "@/components/dashboard/DashboardUi";
 import dash from "@/components/dashboard/dashboard.module.css";
 import { MenuRows, SignOutButton } from "@/components/ui/MenuList";
 import { AppearanceSetting } from "@/components/ThemeControls";
+import LanguageSwitch from "@/components/LanguageSwitch";
+import { cookies } from "next/headers";
+import { LOCALE_COOKIE, normalizeLocale, translate } from "@/lib/i18n";
 import { ROLE_LABELS } from "@/lib/platform-roles";
 import { dashboardMenu } from "@/lib/dashboard-navigation";
 import { candidateCareerEnabled, employerPortalEnabled } from "@/lib/features";
@@ -42,6 +45,8 @@ export default async function SettingsPage() {
   ]);
   if (!user) redirect("/auth/signin?callbackUrl=/account/settings");
 
+  const locale = normalizeLocale((await cookies()).get(LOCALE_COOKIE)?.value);
+  const t = (text) => translate(locale, text);
   const candidateCareer = candidateCareerEnabled();
   const menu = dashboardMenu(user.role, { employerPortal: employerPortalEnabled(), candidateCareer });
   const candidate = menu.role === "JOB_SEEKER";
@@ -110,9 +115,16 @@ export default async function SettingsPage() {
         </div>
       </ListCard>
 
-      <ListCard title="Appearance">
+      <ListCard title={t("Language")}>
         <div className={dash.cardFooter}>
-          <p className={dash.help}>Use your device setting, or always light or dark.</p>
+          <p className={dash.help}>{t("Choose the language for menus and pages.")}</p>
+          <LanguageSwitch full />
+        </div>
+      </ListCard>
+
+      <ListCard title={t("Appearance")}>
+        <div className={dash.cardFooter}>
+          <p className={dash.help}>{t("Use your device setting, or always light or dark.")}</p>
           <AppearanceSetting />
         </div>
       </ListCard>

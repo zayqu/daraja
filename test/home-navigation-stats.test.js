@@ -34,7 +34,7 @@ test("public navigation uses one shared source of truth", async () => {
   assert.match(mobileDock, /<SignOutButton \/>/);
   assert.match(mobileDock, /size=\{24\}/);
   assert.match(mobileDock, /label: "Internships"/);
-  assert.match(await source("components/ui/MenuList.js"), />\s*Internships\s*</);
+  assert.match(await source("components/ui/MenuList.js"), /\{t\("Internships"\)\}/);
 });
 
 test("homepage sends live platform counters to the shared navy footer", async () => {

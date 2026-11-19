@@ -12,7 +12,10 @@ import {
   loadSiteSettings,
   monetagEnabled,
 } from "@/lib/features";
+import { cookies } from "next/headers";
 import { auth } from "@/auth";
+import { LanguageProvider } from "@/components/LanguageProvider";
+import { LOCALE_COOKIE, normalizeLocale, translate } from "@/lib/i18n";
 import { getAdminQueueCounts } from "@/lib/admin-queue";
 import { SITE_ORIGIN } from "@/lib/site-config";
 
@@ -105,9 +108,10 @@ export default async function RootLayout({ children }) {
   // Admins see how many reviews are waiting on their phone dock tabs.
   const dockCounts = userRole === "ADMIN" ? await getAdminQueueCounts().catch(() => null) : null;
   const rootFontClass = `${inter.variable} ${jakarta.variable}`;
+  const locale = normalizeLocale((await cookies()).get(LOCALE_COOKIE)?.value);
 
   return (
-    <html lang="en" className={rootFontClass} suppressHydrationWarning>
+    <html lang={locale} className={rootFontClass} suppressHydrationWarning>
       <head>
         <meta name="google-adsense-account" content={ADSENSE_CLIENT} />
         <meta name="monetag" content="24ec21c9a26eaee13c92a0b60e24c6c8" />
@@ -120,8 +124,9 @@ export default async function RootLayout({ children }) {
         />
       </head>
       <body>
+        <LanguageProvider locale={locale}>
         <a className="skip-link" href="#main-content">
-          Skip to main content
+          {translate(locale, "Skip to main content")}
         </a>
         {children}
         <SiteFooterLinks />
@@ -143,6 +148,7 @@ export default async function RootLayout({ children }) {
           adsenseClient={adsenseClient}
           monetagZones={monetagZones()}
         />
+        </LanguageProvider>
       </body>
     </html>
   );

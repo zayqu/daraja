@@ -18,7 +18,8 @@ workflows.
 - Home hero headline spacing adjusted for the taller Plus Jakarta Sans.
 - Checks: `npm test` 396 pass, 12 fail (the known Prisma-environment suites); lint clean; light and dark screenshots of home, jobs and account settings on desktop and phone checked in the local preview.
 - Security: Next.js 16.4.1 -> 16.4.6 (npm audit: moderate cache-leak advisories fixed from 16.4.5); `npm audit --omit=dev` now reports 0 vulnerabilities. eslint-config-next stays 16.3.6 so lint rules do not change in this fix.
-- Next steps: EN/SW language switch and translations, desktop/tablet layouts and role menus from Figma (incl. freelancer), sign-in with Apple/LinkedIn, guest sign-in prompts, CV Builder steps; then Daraja CV, freelancer proposals, messaging and community (need new tables and a Neon restore point first).
+- Step 2: English/Kiswahili switch (D-039). `lib/i18n.js` (English text as keys, Kiswahili dictionary, English fallback), `components/LanguageProvider.js` (root layout reads the `daraja-lang` cookie, so pages render in the chosen language without a flash; `<html lang>` follows), `components/LanguageSwitch.js` (EN | SW in the header, English/Kiswahili in the phone menu and Account settings). Translated: header, footer links, dashboard sidebar, phone dock and menus, theme and language settings. Page content follows step by step; Kiswahili wording needs a fluent reviewer before launch. Test: `test/i18n.test.js`.
+- Next steps: translate page content, desktop/tablet layouts and role menus from Figma (incl. freelancer), sign-in with Apple/LinkedIn, guest sign-in prompts, CV Builder steps; then Daraja CV, freelancer proposals, messaging and community (need new tables and a Neon restore point first).
 
 ## Current batch: dashboards for every signed-in role (D-038)
 

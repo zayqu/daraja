@@ -2,6 +2,7 @@
 
 import { useSyncExternalStore } from "react";
 import NavIcon from "@/components/ui/NavIcon";
+import { useT } from "@/components/LanguageProvider";
 import styles from "./ThemeControls.module.css";
 
 // Light/dark appearance (D-039). "system" follows the device; "light" and
@@ -58,14 +59,15 @@ function isDarkNow() {
 
 // One-tap switch for headers: shows a sun in dark mode and a moon in light mode.
 export function ThemeToggle({ className = "" }) {
+  const t = useT();
   const dark = useSyncExternalStore(subscribe, isDarkNow, () => false);
 
   return (
     <button
       type="button"
       className={`${styles.toggle} ${className}`}
-      aria-label={dark ? "Switch to light mode" : "Switch to dark mode"}
-      title={dark ? "Light mode" : "Dark mode"}
+      aria-label={t(dark ? "Switch to light mode" : "Switch to dark mode")}
+      title={t(dark ? "Light" : "Dark")}
       onClick={() => {
         applyChoice(dark ? "light" : "dark");
       }}
@@ -77,10 +79,11 @@ export function ThemeToggle({ className = "" }) {
 
 // Three-way choice for Account settings.
 export function AppearanceSetting() {
+  const t = useT();
   const choice = useSyncExternalStore(subscribe, readChoice, () => "system");
 
   return (
-    <div className={styles.segmented} role="radiogroup" aria-label="Appearance">
+    <div className={styles.segmented} role="radiogroup" aria-label={t("Appearance")}>
       {CHOICES.map(([value, label]) => (
         <button
           key={value}
@@ -90,7 +93,7 @@ export function AppearanceSetting() {
           className={choice === value ? styles.selected : undefined}
           onClick={() => applyChoice(value)}
         >
-          {label}
+          {t(label)}
         </button>
       ))}
     </div>

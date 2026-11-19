@@ -1,11 +1,7 @@
 import { redirect } from "next/navigation";
-import { auth, signOut } from "@/auth";
+import { auth } from "@/auth";
 import AlertPreferencesForm from "@/components/AlertPreferencesForm";
-import CandidateAccountTabs from "@/components/CandidateAccountTabs";
-import PublicSiteNav from "@/components/PublicSiteNav";
-import PageHero from "@/components/ui/PageHero";
-import WorkspaceShell from "@/components/ui/WorkspaceShell";
-import { candidateCareerEnabled } from "@/lib/candidate-access";
+import { PageHeader } from "@/components/dashboard/DashboardUi";
 import prisma from "@/lib/prisma";
 import styles from "./alerts-account.module.css";
 import { getCategoryNames } from "@/lib/public-jobs";
@@ -35,47 +31,25 @@ export default async function AlertAccountPage() {
     },
   });
 
-  const signOutForm = (
-    <form
-      className={styles.signOut}
-      action={async () => {
-        "use server";
-        await signOut({ redirectTo: "/jobs" });
-      }}
-    >
-      <button type="submit">Sign out</button>
-    </form>
-  );
-
   return (
-    <div className={styles.page}>
-      <PublicSiteNav right={signOutForm} />
+    <>
+      <PageHeader
+        title="Job alerts"
+        description="Choose your job categories, add optional refinements and decide whether Daraja emails you."
+      />
 
-      <main id="main-content">
-        <PageHero
-          eyebrow="Candidate account"
-          title="Alerts built around the work you want."
-          description="Select your core job categories, add optional refinements and keep full control over whether Daraja sends you email alerts."
-          maxWidth="narrow"
-        />
+      <section className={styles.accountCard}>
+        <div className={styles.accountStatus}>
+          <span>Signed in as</span>
+          <strong>{session.user.email}</strong>
+          <p>
+            Alerts are private to this account and can be changed or paused
+            whenever you want.
+          </p>
+        </div>
 
-        <WorkspaceShell width="narrow">
-          <CandidateAccountTabs showCareer={candidateCareerEnabled()} />
-
-          <section className={styles.accountCard}>
-            <div className={styles.accountStatus}>
-              <span>Signed in as</span>
-              <strong>{session.user.email}</strong>
-              <p>
-                Alerts are private to this account and can be changed or paused
-                whenever you want.
-              </p>
-            </div>
-
-            <AlertPreferencesForm initialPreferences={subscriber} categoryOptions={await getCategoryNames()} />
-          </section>
-        </WorkspaceShell>
-      </main>
-    </div>
+        <AlertPreferencesForm initialPreferences={subscriber} categoryOptions={await getCategoryNames()} />
+      </section>
+    </>
   );
 }

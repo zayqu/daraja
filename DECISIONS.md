@@ -306,33 +306,25 @@ second frontend or a new application stack.
 
 ## D-025 - Daraja uses one canonical application typeface
 
-**Status:** accepted, updated 15 November 2026
+**Status:** accepted, updated 18 November 2026
 
-Daraja UI work must preserve one shared application-wide typeface rather than
-allowing individual pages or licensed references to introduce their own fonts.
+Daraja UI work must preserve one shared application-wide type system rather
+than allowing individual pages or licensed references to introduce their own
+fonts.
 
-The canonical Ajira web typeface is **Poppins**, loaded once through
-`next/font/google` in the root layout and exposed through the shared
-`--font-daraja` design token.
+The canonical Ajira web typefaces are **Inter** (body text, controls, labels)
+and **Plus Jakarta Sans** (headings h1-h6), matching the approved Figma design
+("Daraja - UI/UX Design"). Both are loaded once through `next/font/google` in
+the root layout and exposed through the shared `--font-daraja` (Inter) and
+`--font-display` (Plus Jakarta Sans) design tokens. Poppins was retired on
+18 November 2026 because it reads poorly at small app sizes.
 
-All public, candidate, employer, admin and authentication surfaces inherit
-Poppins through that token. Arial/Helvetica remain fallback fonts only.
-Licensed templates may influence layout and interaction, but they must not
-replace or override Daraja typography page by page.
-
-This is a non-negotiable platform rule. New page/component CSS must inherit
-`--font-daraja`; it must not introduce another UI font. The only intentional
-exceptions are generated CV document typography chosen by the candidate and
-HTML email markup that requires mail-client-safe fallback fonts.
-
-Typography changes are incomplete until the shared Poppins regression test
-passes and the live production release marker is verified to include the change.
-
-On 15 November 2026, the product owner explicitly restored **Poppins** as the
-canonical Ajira website font. This supersedes the 14 October 2026 choice of
-Nunito. The centralized typography rule itself remains unchanged: all UI
-surfaces inherit one shared font token, without per-page overrides.
-
+All public, candidate, employer, freelancer, admin and authentication surfaces
+inherit these tokens. Arial/Helvetica remain fallback fonts only. Licensed
+templates may influence layout and interaction, but they must not
+replace or override Daraja typography page by page. The CV Builder paper
+preview is the only exception: it renders the candidate's chosen ATS-safe CV
+font.
 
 ## D-026 - Daraja UI uses shared tokens and primitives
 
@@ -608,3 +600,89 @@ employer profile and vacancy APIs; the pages only mirror it.
 Administrators never need an employer profile: "Post a Job" leads them to
 `/admin/jobs/new` (`postJobHref` in `lib/platform-roles.js`), and `/employer`
 shows them admin shortcuts instead of the employer profile form.
+
+
+## D-038 - One dashboard frame for every signed-in role, with role menus
+
+**Status:** accepted (owner request, 13-16 November 2026)
+
+Admins, employers and candidates share one dashboard frame
+(`components/dashboard/DashboardShell.js`, mounted by the `/admin`,
+`/employer`, `/post-job` and `/account` layouts through `DashboardFrame`): a
+navy sidebar with the role's menu, Settings, Help and Sign out, a top bar with
+search, notifications (candidates) and the signed-in name, and the page area,
+in the Daraja brand colours and Poppins. Pages build their content from the
+shared kit in `components/dashboard/DashboardUi.js`.
+
+- **One menu owner.** Each role's menu lives only in
+  `lib/dashboard-navigation.js` (`dashboardMenu`, `secondaryMenuSections`,
+  `activeMenuHref`). The desktop sidebar shows all of it; on phones the dock
+  shows the everyday tasks and `secondaryMenuSections` lists the rest once,
+  so nothing appears twice. Employers use the candidate menu while the
+  employer portal is off, matching `roleHome()`.
+- **Phones: one interaction rule.** Every dock tab goes straight to a page;
+  only More opens a menu (a bottom sheet, never shown on desktop). Candidates:
+  Discover, My jobs, CV (the CV Builder), Profile (`/account/profile`). Employers:
+  Overview, Vacancies, Post job (a solid navy action button, so it never looks
+  like the teal "you are here" state), Account (`/employer/profile`). Admins:
+  Overview, Jobs, Employers (pending-review badges from
+  `getAdminQueueCounts`), More. Visitors: Home, Jobs, Freelance, More. Profile and
+  Account pages follow the Makarya reference: a centred identity block, a
+  gear menu with Edit and Account settings, and for candidates Experience,
+  Skills and CVs tabs drawn from their own CVs. Account settings is a short
+  list ending with Sign out; the admin More sheet lists Post a job and
+  Users, then rarely used tools as compact links, and ends with Sign out. The
+  visitors' More offers Sign in / Create account and says job alerts need a
+  free account. Menu labels use normal weight; semibold marks titles and the
+  current item only. No Applicants tab until employers have Daraja-managed
+  applications. The phone header no longer repeats the account icon:
+  visitors get a Sign in icon, candidates keep the notifications bell (this
+  updates the D-027 and D-028 header icons).
+- **Retired.** The sidebar hides at the dock's 760px breakpoint. This
+  supersedes the D-035 admin drawer and the per-role tab bars:
+  `WorkspaceTabs`, `CandidateAccountTabs`, `EmployerPortalTabs` and
+  `AdminShell` are removed (D-026 primitives `PageHero`, `WorkspaceShell` and
+  `SurfaceCard` remain for public pages).
+- **Candidates:** `/account` is the dashboard (the old `/account/career` page
+  redirects there), plus My jobs at `/account/jobs` (Saved, Applied and Closed
+  tabs with search; the old Saved jobs and Applications pages redirect there;
+  job pages have a Save button) and `/account/settings` for every role. The
+  promo card offers the free CV Builder; candidates are never charged (D-036).
+- **Employers:** `/employer` overview, `/employer/vacancies` (edit and send
+  again a draft, in-review or not-approved vacancy, or close any open one) and
+  `/employer/profile`. A published vacancy whose closing date has passed shows
+  as Closed, as on the public board. Live vacancies still change only through
+  an administrator. The promo card links to `/advertise` and is hidden while
+  the employer is suspended. Admins without an employer profile who open
+  `/employer` go to `/admin` (replaces the D-037 shortcut panel).
+- **Not yet:** Apply on Daraja, the employer applicant list, interviews and
+  messages need new database tables. They stay out of the menus until those
+  tables and their privacy rules exist (D-027, D-028).
+
+## D-039 - Design system follows the Figma file; dark mode is Apple-style
+
+**Status:** accepted, 18 November 2026
+
+The owner-approved Figma file "Daraja - UI/UX Design" is the visual source of
+truth for Ajira, Daraja CV and the coming freelancer, community and messaging
+screens (phone, tablet and desktop, with clickable prototypes and user flows).
+
+- **Icons:** Google Material Symbols (Outlined, weight 400) only, through
+  `components/ui/NavIcon.js` and `components/CategoryIcon.js`. No other icon
+  sets or hand-drawn SVG icons.
+- **Fonts:** Inter + Plus Jakarta Sans (D-025).
+- **Colours:** components use the tokens in `styles/tokens.css`, never raw hex
+  values. Status colours have `-bg` and `-border` tokens; link text uses
+  `--color-link`; `--color-navy` is for surfaces, not text.
+- **Dark mode:** Apple-style. True black page, flat grey surfaces (#1C1C1E,
+  #2C2C2E) without borders or shadows, white/grey text, Daraja teal kept for
+  filled buttons and a calm teal (#3DAE9A) for links. It follows the device
+  unless the person chooses Light or Dark (header button or Account settings);
+  the choice is kept in `localStorage` (`daraja-theme`) and applied before
+  paint by the inline script in `app/layout.js`. CV paper and other documents
+  stay white.
+- **Language:** the app will be bilingual (English and Kiswahili) with an
+  EN | SW switch in every header; translation work is a separate step.
+- **Explore first:** visitors browse jobs, freelance work and the community
+  without an account; sign-in is asked for only at save, apply, alerts,
+  posting, proposals and messaging, with a "Not now" option.

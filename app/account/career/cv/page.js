@@ -4,10 +4,7 @@ import {
   candidateCareerEnabled,
   getCandidateUser,
 } from "@/lib/candidate-access";
-import PublicSiteNav from "@/components/PublicSiteNav";
-import CandidateAccountTabs from "@/components/CandidateAccountTabs";
-import PageHero from "@/components/ui/PageHero";
-import WorkspaceShell from "@/components/ui/WorkspaceShell";
+import { PageHeader } from "@/components/dashboard/DashboardUi";
 import CvBuilder from "@/components/CvBuilder";
 
 export const metadata = {
@@ -26,21 +23,13 @@ export default async function CvBuilderPage() {
 
   return (
     <>
-      <PublicSiteNav />
-      <main id="main-content">
-        <PageHero
-          eyebrow="Candidate workspace"
-          title="Build a CV for the job you want."
-          description="Create a Master CV, tailor role-specific versions, check ATS readiness and export a clean PDF without giving up your own facts or design preferences."
-        />
-
-        <WorkspaceShell width="wide">
-          <CandidateAccountTabs showCareer />
-          <Suspense fallback={<p>Loading CV Builder…</p>}>
-            <CvBuilder />
-          </Suspense>
-        </WorkspaceShell>
-      </main>
+      <PageHeader
+        title="CV Builder"
+        description="Create a Master CV, tailor role-specific versions, check ATS readiness and export a clean PDF without giving up your own facts or design preferences."
+      />
+      <Suspense fallback={<p>Loading CV Builder…</p>}>
+        <CvBuilder />
+      </Suspense>
     </>
   );
 }

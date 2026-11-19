@@ -26,15 +26,15 @@ test("public navigation uses one shared source of truth", async () => {
   assert.match(mobileDock, /icon: "freelance"/);
   assert.match(mobileDock, /useSearchParams/);
   assert.match(mobileDock, /searchParams\.get\("type"\) === "FREELANCE"/);
-  assert.match(mobileDock, /userRole === "JOB_SEEKER"/);
-  assert.match(mobileDock, /userRole === "EMPLOYER"/);
-  assert.match(mobileDock, /userRole === "ADMIN"/);
-  assert.match(mobileDock, /label: "Career"/);
-  assert.match(mobileDock, /label: "Employer"/);
-  assert.match(mobileDock, /label: "Admin"/);
+  // Signed-in users get their role's everyday tasks as tabs plus one tab with
+  // the rest of their menu, all from lib/dashboard-navigation.js (D-038).
+  assert.match(mobileDock, /dashboardMenu\(userRole, \{ employerPortal: showEmployerCta, candidateCareer: showCandidateProfile \}\)/);
+  assert.match(mobileDock, /tabs = menu\.dock\.map/);
+  assert.match(mobileDock, /secondaryMenuSections\(menu\)/);
+  assert.match(mobileDock, /<SignOutButton \/>/);
   assert.match(mobileDock, /size=\{24\}/);
-  assert.match(mobileDock, />\s*Internships\s*</);
-  assert.match(mobileDock, />\s*Employer workspace\s*</);
+  assert.match(mobileDock, /label: "Internships"/);
+  assert.match(await source("components/ui/MenuList.js"), /\{t\("Internships"\)\}/);
 });
 
 test("homepage sends live platform counters to the shared navy footer", async () => {
@@ -68,7 +68,7 @@ test("homepage sends live platform counters to the shared navy footer", async ()
   assert.match(trafficNumbers, /traffic\.pageViews/);
   assert.match(formatter, /suffix: "K"/);
   assert.match(formatter, /suffix: "M"/);
-  assert.match(footerStyles, /\.insights \{[\s\S]*background:\s*#1b2a3f/);
+  assert.match(footerStyles, /\.insights \{[\s\S]*background:\s*var\(--color-navy\)/);
   assert.match(footerStyles, /\.platformInsights/);
   assert.match(footerStyles, /\.visitorInsights/);
   assert.match(footerStyles, /\.trafficMeta/);

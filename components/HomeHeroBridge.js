@@ -1,3 +1,4 @@
+import { getServerT } from "@/lib/i18n-server";
 import styles from "./HomeHeroBridge.module.css";
 
 const ARCH = { start: [20, 220], c1: [90, 70], c2: [270, 70], end: [340, 220] };
@@ -27,7 +28,9 @@ const CATEGORIES = [
  * ("bridge") to opportunity. Pure CSS, server-rendered, hidden from assistive
  * technology and disabled for visitors who prefer reduced motion.
  */
-export default function HomeHeroBridge() {
+// Server-rendered (decorative); labels follow the language cookie.
+export default async function HomeHeroBridge() {
+  const { t } = await getServerT();
   return (
     <div className={styles.bridge} aria-hidden="true">
       <svg className={styles.svg} viewBox="0 0 360 260" focusable="false">
@@ -52,13 +55,13 @@ export default function HomeHeroBridge() {
         <circle className={`${styles.traveller} ${styles.travellerTwo}`} r="4" style={{ offsetPath: `path("${ARCH_PATH}")` }} />
       </svg>
 
-      <span className={`${styles.label} ${styles.labelStart}`}>Talent</span>
-      <span className={`${styles.label} ${styles.labelEnd}`}>Opportunity</span>
+      <span className={`${styles.label} ${styles.labelStart}`}>{t("Talent")}</span>
+      <span className={`${styles.label} ${styles.labelEnd}`}>{t("Opportunity")}</span>
 
       {CATEGORIES.map((category) => (
         <span key={category.label} className={`${styles.card} ${category.className}`}>
           <b>{category.mark}</b>
-          {category.label}
+          {t(category.label)}
         </span>
       ))}
     </div>

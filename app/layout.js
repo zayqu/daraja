@@ -1,5 +1,5 @@
 import { Suspense } from "react";
-import { Poppins } from "next/font/google";
+import { Inter, Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
 import PrivacyControls from "@/components/PrivacyControls";
 import SiteFooterLinks from "@/components/SiteFooterLinks";
@@ -12,7 +12,11 @@ import {
   loadSiteSettings,
   monetagEnabled,
 } from "@/lib/features";
+import { cookies } from "next/headers";
 import { auth } from "@/auth";
+import { LanguageProvider } from "@/components/LanguageProvider";
+import { LOCALE_COOKIE, normalizeLocale, translate } from "@/lib/i18n";
+import { getAdminQueueCounts } from "@/lib/admin-queue";
 import { SITE_ORIGIN } from "@/lib/site-config";
 
 const ADSENSE_CLIENT = "ca-pub-5101856964689063";
@@ -33,10 +37,19 @@ function monetagZones() {
     : {};
 }
 
-const poppins = Poppins({
-  variable: "--font-poppins",
+// Two families, loaded once (D-025): Inter for text, Plus Jakarta Sans for
+// headings. Pages use the --font-daraja / --font-display tokens, never a font name.
+const inter = Inter({
+  variable: "--font-inter",
   subsets: ["latin"],
-  weight: ["400", "500", "600", "700", "800"],
+  weight: ["400", "500", "600"],
+  display: "swap",
+});
+
+const jakarta = Plus_Jakarta_Sans({
+  variable: "--font-jakarta",
+  subsets: ["latin"],
+  weight: ["600", "700", "800"],
   display: "swap",
 });
 
@@ -44,7 +57,10 @@ export const viewport = {
   width: "device-width",
   initialScale: 1,
   viewportFit: "cover",
-  themeColor: "#1b2a3f",
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#1b2a3f" },
+    { media: "(prefers-color-scheme: dark)", color: "#000000" },
+  ],
 };
 
 export const metadata = {
@@ -88,17 +104,29 @@ export default async function RootLayout({ children }) {
   const showCandidateProfile = candidateCareerEnabled();
   const session = await auth();
   const userRole = session?.user?.role || null;
-  const rootFontClass = `${poppins.variable} ${poppins.className}`;
+  const userName = session?.user ? session.user.name || session.user.email?.split("@")[0] || "" : null;
+  // Admins see how many reviews are waiting on their phone dock tabs.
+  const dockCounts = userRole === "ADMIN" ? await getAdminQueueCounts().catch(() => null) : null;
+  const rootFontClass = `${inter.variable} ${jakarta.variable}`;
+  const locale = normalizeLocale((await cookies()).get(LOCALE_COOKIE)?.value);
 
   return (
-    <html lang="en" className={rootFontClass}>
+    <html lang={locale} className={rootFontClass} suppressHydrationWarning>
       <head>
         <meta name="google-adsense-account" content={ADSENSE_CLIENT} />
         <meta name="monetag" content="24ec21c9a26eaee13c92a0b60e24c6c8" />
+        {/* Applies a saved Light/Dark choice before paint (D-039). */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html:
+              'try{var t=localStorage.getItem("daraja-theme");if(t==="light"||t==="dark")document.documentElement.dataset.theme=t}catch(e){}',
+          }}
+        />
       </head>
-      <body className={poppins.className}>
+      <body>
+        <LanguageProvider locale={locale}>
         <a className="skip-link" href="#main-content">
-          Skip to main content
+          {translate(locale, "Skip to main content")}
         </a>
         {children}
         <SiteFooterLinks />
@@ -107,6 +135,8 @@ export default async function RootLayout({ children }) {
             showEmployerCta={showEmployerCta}
             showCandidateProfile={showCandidateProfile}
             userRole={userRole}
+            userName={userName}
+            counts={dockCounts}
           />
         </Suspense>
         <Suspense fallback={null}>
@@ -118,6 +148,7 @@ export default async function RootLayout({ children }) {
           adsenseClient={adsenseClient}
           monetagZones={monetagZones()}
         />
+        </LanguageProvider>
       </body>
     </html>
   );

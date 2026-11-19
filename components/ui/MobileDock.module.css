@@ -38,7 +38,7 @@
     padding: 6px;
     border: 1px solid rgba(255, 255, 255, 0.7);
     border-radius: var(--mobile-dock-radius);
-    background: rgba(255, 255, 255, 0.84);
+    background: color-mix(in srgb, var(--color-surface) 84%, transparent);
     box-shadow:
       0 14px 34px rgba(27, 42, 63, 0.14),
       0 2px 6px rgba(27, 42, 63, 0.06);
@@ -59,7 +59,7 @@
     border: 0;
     border-radius: 14px;
     background: transparent;
-    color: #7a8492;
+    color: var(--color-text-muted);
     font: inherit;
     text-decoration: none;
     cursor: pointer;
@@ -68,11 +68,11 @@
 
   .item:hover,
   .item:focus-visible {
-    color: var(--color-navy);
+    color: var(--color-text);
   }
 
   .active {
-    color: var(--color-teal-deep);
+    color: var(--color-link);
   }
 
   .iconWrap {
@@ -134,10 +134,14 @@
     padding: 10px 14px 14px;
     border: 1px solid rgba(255, 255, 255, 0.7);
     border-radius: 24px;
-    background: rgba(255, 255, 255, 0.94);
+    background: rgba(245, 247, 250, 0.97);
     box-shadow: var(--shadow-raised);
     backdrop-filter: saturate(160%) blur(24px);
     -webkit-backdrop-filter: saturate(160%) blur(24px);
+    /* Never more than three quarters of the screen; longer lists scroll. */
+    max-height: min(75dvh, calc(100dvh - var(--mobile-dock-height) - 40px - env(safe-area-inset-bottom)));
+    overflow-y: auto;
+    overscroll-behavior: contain;
   }
 
   .sheetHandle {
@@ -145,7 +149,7 @@
     height: 4px;
     margin: 0 auto 10px;
     border-radius: var(--radius-pill);
-    background: #d5dbe2;
+    background: var(--color-border);
   }
 
   .sheetHeader {
@@ -156,68 +160,104 @@
     padding: 2px 2px 12px;
   }
 
-  .sheetHeader div {
+  .identity {
+    min-width: 0;
     display: grid;
     gap: 1px;
   }
 
-  .sheetHeader span {
-    color: var(--color-teal-deep);
+  .identity strong {
+    overflow: hidden;
+    color: var(--color-text);
+    font-size: 0.92rem;
+    font-weight: 600;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .identity span {
+    color: var(--color-link);
     font-size: 0.62rem;
     font-weight: 600;
     letter-spacing: 0.1em;
     text-transform: uppercase;
   }
 
-  .sheetHeader strong {
-    color: var(--color-navy);
-    font-size: 1rem;
-  }
-
-  .sheetHeader button {
-    min-height: 36px;
-    padding: 0 10px;
-    border: 1px solid var(--color-border-strong);
-    border-radius: 10px;
-    background: #fff;
-    color: var(--color-text-muted);
-    font-size: 0.7rem;
-    font-weight: 500;
-  }
-
-  .sheetLinks {
+  .closeButton {
+    width: 40px;
+    height: 40px;
+    flex: none;
     display: grid;
-    gap: 6px;
-  }
-
-  .sheetLinks a,
-  .sheetLinks button {
-    min-height: 46px;
-    display: flex;
-    align-items: center;
-    padding: 0 12px;
-    border-radius: 12px;
-    background: #f7f8fa;
-    color: var(--color-text-secondary);
-    font-size: 0.8rem;
-    font-weight: 500;
-    text-decoration: none;
-  }
-
-  .sheetLinks button {
-    width: 100%;
-    border: 0;
-    font: inherit;
-    text-align: left;
+    place-items: center;
+    border: 1px solid var(--color-border-strong);
+    border-radius: 50%;
+    background: var(--color-surface);
+    color: var(--color-text-muted);
     cursor: pointer;
   }
 
-  .sheetLinks a:hover,
-  .sheetLinks a:focus-visible,
-  .sheetLinks button:hover,
-  .sheetLinks button:focus-visible {
-    background: #eefbf8;
-    color: var(--color-teal-deep);
+  .authActions {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+
+  .authPrimary,
+  .authSecondary {
+    min-height: 46px;
+    display: grid;
+    place-items: center;
+    border-radius: 12px;
+    font-size: 0.82rem;
+    font-weight: 600;
+    text-decoration: none;
+  }
+
+  .authPrimary {
+    background: var(--color-teal);
+    color: var(--color-navy);
+  }
+
+  .authSecondary {
+    border: 1px solid var(--color-border-strong);
+    background: var(--color-surface);
+    color: var(--color-text);
+  }
+
+  /* Employers' "Post job" is one solid action button, unlike the soft teal
+     tint that marks the page you are on, so the two never compete. */
+  .primary .iconWrap {
+    width: 40px;
+    height: 40px;
+    margin-top: -6px;
+    border-radius: 50%;
+    background: var(--color-navy);
+    color: var(--color-teal);
+    box-shadow: 0 6px 14px rgba(27, 42, 63, 0.22);
+  }
+
+  .primary.active .iconWrap {
+    background: var(--color-navy);
+    transform: none;
+  }
+
+  .badge {
+    position: absolute;
+    top: -4px;
+    right: -6px;
+    min-width: 17px;
+    height: 17px;
+    display: grid;
+    place-items: center;
+    padding: 0 4px;
+    border: 2px solid var(--color-surface);
+    border-radius: var(--radius-pill);
+    background: var(--color-danger);
+    color: var(--color-on-dark);
+    font-size: 0.56rem;
+    font-weight: 700;
+    line-height: 1;
   }
 }
 

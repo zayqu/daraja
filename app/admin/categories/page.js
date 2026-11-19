@@ -1,6 +1,6 @@
-import { PageHeader, Panel } from "@/components/admin/AdminUi";
+import { PageHeader, Panel } from "@/components/dashboard/DashboardUi";
 import { CategoryCreateForm, CategoryMoveForm, CategoryRow } from "@/components/admin/CategoryControls";
-import styles from "@/components/admin/admin.module.css";
+import styles from "@/components/dashboard/dashboard.module.css";
 import { requireAdminPage } from "@/lib/admin-guard";
 import prisma from "@/lib/prisma";
 

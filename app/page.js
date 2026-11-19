@@ -8,18 +8,12 @@ import { getHomeStats, getLatestJobs } from "@/lib/home-stats";
 import { getCategoryList } from "@/lib/public-jobs";
 import JobCard from "@/components/ui/JobCard";
 import CategoryIcon, { categoryTone } from "@/components/CategoryIcon";
+import { HERO_HEADLINE } from "@/lib/i18n";
+import { getServerT } from "@/lib/i18n-server";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
-const HERO_HEADLINE = [
-  { word: "Find" },
-  { word: "work" },
-  { word: "that" },
-  { word: "moves", accent: true },
-  { word: "you", accent: true },
-  { word: "forward.", accent: true, underline: true },
-];
 
 // Busiest categories first so the grid leads with real openings;
 // "General" always closes the list.
@@ -33,13 +27,14 @@ function orderCategories(categoryList, counts) {
     });
 }
 
-function formatOpenJobs(count) {
-  if (!count) return "New roles soon";
-  return `${count.toLocaleString("en-US")} open ${count === 1 ? "job" : "jobs"}`;
+function formatOpenJobs(count, t) {
+  if (!count) return t("New roles soon");
+  return t(count === 1 ? "{n} open job" : "{n} open jobs", { n: count.toLocaleString("en-US") });
 }
 
 export default async function Home() {
   const employerEnabled = employerPortalEnabled();
+  const { t, locale } = await getServerT();
   const [stats, latestJobs, categoryList] = await Promise.all([
     getHomeStats(),
     getLatestJobs(),
@@ -51,7 +46,7 @@ export default async function Home() {
   return (
     <>
       <style>{`
-        .home { background: var(--color-bg); min-height: 100vh; color: var(--color-navy); }
+        .home { background: var(--color-bg); min-height: 100vh; color: var(--color-text); }
 
         .hero {
           position: relative;
@@ -90,13 +85,13 @@ export default async function Home() {
         }
 
         .hero h1 {
-          max-width: 760px;
-          margin: .8rem 0 1rem;
-          color: #1b1f23;
+          max-width: 640px;
+          margin: .8rem 0 2.75rem;
+          color: var(--color-text);
           font-size: clamp(2.55rem, 5.8vw, 4.65rem);
           font-weight: 700;
-          line-height: .98;
-          letter-spacing: -.045em;
+          line-height: 1.08;
+          letter-spacing: -.02em;
         }
 
         .hero h1 .hero-word {
@@ -187,17 +182,17 @@ export default async function Home() {
           padding: .7rem;
           border-radius: 18px;
           background: var(--color-surface);
-          border: 1px solid #e4e1da;
+          border: 1px solid var(--color-border);
           box-shadow: 0 18px 45px rgba(27, 31, 35, .08);
         }
 
         .hero-field {
           min-height: 54px;
           width: 100%;
-          border: 1px solid #e5e9ef;
+          border: 1px solid var(--color-border);
           border-radius: 12px;
           background: var(--color-surface);
-          color: var(--color-navy);
+          color: var(--color-text);
           padding: 0 1rem;
           outline: none;
           font: inherit;
@@ -225,12 +220,12 @@ export default async function Home() {
           flex-wrap: wrap;
           gap: .55rem 1rem;
           margin-top: 1rem;
-          color: #98a2b3;
+          color: var(--color-text-faint);
           font-size: .75rem;
         }
 
         .quick-links a {
-          color: #475467;
+          color: var(--color-text-secondary);
           text-decoration: none;
         }
 
@@ -279,9 +274,9 @@ export default async function Home() {
           justify-content: center;
           min-height: 48px;
           padding: 0 1.6rem;
-          border: 1.5px solid var(--color-navy);
+          border: 1.5px solid var(--color-text);
           border-radius: 12px;
-          color: var(--color-navy);
+          color: var(--color-text);
           font-weight: 600;
           text-decoration: none;
           transition: background .15s ease, color .15s ease;
@@ -354,16 +349,16 @@ export default async function Home() {
 
         .section-title {
           margin-top: .45rem;
-          color: var(--color-navy);
+          color: var(--color-text);
           font-size: clamp(1.7rem, 3vw, 2.2rem);
           font-weight: 600;
           line-height: 1.15;
-          letter-spacing: -.03em;
+          letter-spacing: -.015em;
         }
 
         .section-head p {
           max-width: 470px;
-          color: #7a8492;
+          color: var(--color-text-muted);
           font-size: .84rem;
           line-height: 1.65;
         }
@@ -416,7 +411,7 @@ export default async function Home() {
         }
 
         .category-card strong {
-          color: var(--color-navy);
+          color: var(--color-text);
           font-size: .86rem;
           line-height: 1.3;
         
@@ -468,7 +463,7 @@ export default async function Home() {
           padding: 1.6rem;
           border: 1px solid var(--color-border);
           border-radius: 16px;
-          background: #f9fafb;
+          background: var(--color-surface-muted);
         }
 
         .how-num {
@@ -490,7 +485,7 @@ export default async function Home() {
         }
 
         .how-card p {
-          color: #7a8492;
+          color: var(--color-text-muted);
           font-size: .8rem;
           line-height: 1.65;
         }
@@ -567,11 +562,11 @@ export default async function Home() {
 
           .hero h1 {
             max-width: 100%;
-            margin: .5rem 0 .8rem;
+            margin: .5rem 0 1.1rem;
             font-size: clamp(2.05rem, 9vw, 2.4rem);
             font-weight: 700;
-            line-height: 1.02;
-            letter-spacing: -.04em;
+            line-height: 1.08;
+            letter-spacing: -.02em;
           }
 
           .hero h1 .hero-word {
@@ -738,7 +733,7 @@ export default async function Home() {
                 <div className="hero-copy">
                   <div className="hero-eyebrow">Kazi na fursa Tanzania</div>
                   <h1>
-                    {HERO_HEADLINE.map(({ word, accent, underline }, index) => (
+                    {HERO_HEADLINE[locale].map(({ word, accent, underline }, index) => (
                       <span
                         key={word}
                         className={[
@@ -753,8 +748,7 @@ export default async function Home() {
                     )).reduce((line, word) => (line.length ? [...line, " ", word] : [word]), [])}
                   </h1>
                   <p className="hero-lead">
-                    Search current opportunities from government, NGOs, banks,
-                    companies and institutions across Tanzania.
+                    {t("Search current opportunities from government, NGOs, banks, companies and institutions across Tanzania.")}
                   </p>
                 </div>
 
@@ -762,31 +756,31 @@ export default async function Home() {
               </div>
 
               <form action="/jobs" method="get" className="hero-search" role="search">
-                <label className="sr-only" htmlFor="home-search">Job title, company or keyword</label>
+                <label className="sr-only" htmlFor="home-search">{t("Job title, company or keyword")}</label>
                 <input
                   id="home-search"
                   name="search"
                   type="search"
                   className="hero-field"
-                  placeholder="Job title, company or keyword"
+                  placeholder={t("Job title, company or keyword")}
                 />
 
-                <label className="sr-only" htmlFor="home-category">Category</label>
+                <label className="sr-only" htmlFor="home-category">{t("Category")}</label>
                 <select id="home-category" name="category" className="hero-field" defaultValue="">
-                  <option value="">All categories</option>
+                  <option value="">{t("All categories")}</option>
                   {categoryList.map(({ name }) => (
-                    <option key={name} value={name}>{name}</option>
+                    <option key={name} value={name}>{t(name)}</option>
                   ))}
                 </select>
 
-                <button className="hero-submit" type="submit">Find jobs</button>
+                <button className="hero-submit" type="submit">{t("Find jobs")}</button>
               </form>
 
               <div className="quick-links">
-                <span>Popular:</span>
+                <span>{t("Popular:")}</span>
                 {popular.map((category) => (
                   <Link key={category.name} href={`/jobs?category=${encodeURIComponent(category.name)}`}>
-                    {category.name}
+                    {t(category.name)}
                   </Link>
                 ))}
               </div>
@@ -796,11 +790,11 @@ export default async function Home() {
             <section className="section" aria-labelledby="latest-title">
               <div className="section-head">
                 <div>
-                  <div className="section-kicker">Fresh opportunities</div>
-                  <h2 className="section-title" id="latest-title">Latest jobs</h2>
+                  <div className="section-kicker">{t("Fresh opportunities")}</div>
+                  <h2 className="section-title" id="latest-title">{t("Latest jobs")}</h2>
                 </div>
                 <Link className="section-link" href="/jobs">
-                  See all {stats.liveJobs.toLocaleString()} jobs <span aria-hidden="true">→</span>
+                  {t("See all {n} jobs", { n: stats.liveJobs.toLocaleString() })} <span aria-hidden="true">→</span>
                 </Link>
               </div>
 
@@ -811,11 +805,11 @@ export default async function Home() {
                   ))}
                 </div>
               ) : (
-                <p className="latest-empty">New vacancies are on the way. Check back shortly.</p>
+                <p className="latest-empty">{t("New vacancies are on the way. Check back shortly.")}</p>
               )}
 
               <div className="latest-more">
-                <Link className="btn-outline" href="/jobs">Browse all jobs</Link>
+                <Link className="btn-outline" href="/jobs">{t("Browse all jobs")}</Link>
               </div>
             </section>
           </div>
@@ -823,12 +817,11 @@ export default async function Home() {
           <section className="section" aria-labelledby="category-title">
             <div className="section-head">
               <div>
-                <div className="section-kicker">Explore opportunities</div>
-                <h2 className="section-title" id="category-title">Browse by category</h2>
+                <div className="section-kicker">{t("Explore opportunities")}</div>
+                <h2 className="section-title" id="category-title">{t("Browse by category")}</h2>
               </div>
               <p>
-                Pick your field to see open roles across Tanzania, busiest
-                categories first.
+                {t("Pick your field to see open roles across Tanzania, busiest categories first.")}
               </p>
             </div>
 
@@ -846,8 +839,8 @@ export default async function Home() {
                       <CategoryIcon category={name} slug={slug} />
                     </span>
                     <span className="category-text">
-                      <strong>{name}</strong>
-                      <span className="category-count">{formatOpenJobs(count)}</span>
+                      <strong>{t(name)}</strong>
+                      <span className="category-count">{formatOpenJobs(count, t)}</span>
                     </span>
                     <span className="category-arrow" aria-hidden="true">→</span>
                   </Link>
@@ -860,30 +853,29 @@ export default async function Home() {
             <div className="section">
               <div className="section-head">
                 <div>
-                  <div className="section-kicker">Simple by design</div>
-                  <h2 className="section-title">From search to application</h2>
+                  <div className="section-kicker">{t("Simple by design")}</div>
+                  <h2 className="section-title">{t("From search to application")}</h2>
                 </div>
                 <p>
-                  Daraja keeps the path clear: discover a role, understand it,
-                  then continue to the correct application destination.
+                  {t("Daraja keeps the path clear: discover a role, understand it, then continue to the correct application destination.")}
                 </p>
               </div>
 
               <div className="how-grid">
                 <div className="how-card">
                   <div className="how-num">01</div>
-                  <h3>Search what matters</h3>
-                  <p>Start with a role, company or category and narrow the results without unnecessary steps.</p>
+                  <h3>{t("Search what matters")}</h3>
+                  <p>{t("Start with a role, company or category and narrow the results without unnecessary steps.")}</p>
                 </div>
                 <div className="how-card">
                   <div className="how-num">02</div>
-                  <h3>Review the opportunity</h3>
-                  <p>See the employer, location, type, deadline and original source before deciding to continue.</p>
+                  <h3>{t("Review the opportunity")}</h3>
+                  <p>{t("See the employer, location, type, deadline and original source before deciding to continue.")}</p>
                 </div>
                 <div className="how-card">
                   <div className="how-num">03</div>
-                  <h3>Apply with confidence</h3>
-                  <p>Use the application route attached to the vacancy instead of searching for it again elsewhere.</p>
+                  <h3>{t("Apply with confidence")}</h3>
+                  <p>{t("Use the application route attached to the vacancy instead of searching for it again elsewhere.")}</p>
                 </div>
               </div>
             </div>
@@ -892,13 +884,12 @@ export default async function Home() {
           <section className="cta-band" aria-labelledby="cta-title">
             <div className="cta-inner">
               <div>
-                <h2 id="cta-title">Looking for a job?</h2>
+                <h2 id="cta-title">{t("Looking for a job?")}</h2>
                 <p>
-                  Get new vacancies in your field by email, or follow the Daraja
-                  WhatsApp channel for daily openings.
+                  {t("Get new vacancies in your field by email, or follow the Daraja WhatsApp channel for daily openings.")}
                 </p>
               </div>
-              <a className="cta-button" href="#job-alerts-title">Get job alerts</a>
+              <a className="cta-button" href="#job-alerts-title">{t("Get job alerts")}</a>
             </div>
           </section>
 
@@ -908,10 +899,10 @@ export default async function Home() {
             <section className="employer-strip">
               <div className="employer-card">
                 <div>
-                  <h2>Hiring in Tanzania?</h2>
-                  <p>Publish an opportunity through the Daraja employer workspace.</p>
+                  <h2>{t("Hiring in Tanzania?")}</h2>
+                  <p>{t("Publish an opportunity through the Daraja employer workspace.")}</p>
                 </div>
-                <Link href="/post-job">Post a job</Link>
+                <Link href="/post-job">{t("Post a job")}</Link>
               </div>
             </section>
           )}

@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import styles from "./admin.module.css";
+import styles from "@/components/dashboard/dashboard.module.css";
 
 // One editable site setting (switch, text or one-phrase-per-line list).
 export default function SettingField({ setting }) {

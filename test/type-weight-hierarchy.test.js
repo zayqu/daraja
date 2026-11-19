@@ -14,7 +14,7 @@ function hasRuleWeight(css, selector, expected) {
   }
   return false;
 }
-test("Poppins headlines remain prominent but supporting homepage text is lighter", () => {
+test("Headlines remain prominent but supporting homepage text is lighter", () => {
   const c = file("app/page.js");
   assert.ok(hasRuleWeight(c, ".hero h1", 700));
   assert.ok(hasRuleWeight(c, ".section-title", 600));

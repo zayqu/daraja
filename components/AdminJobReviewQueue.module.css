@@ -33,7 +33,7 @@
   margin: 0;
   padding: 0.5rem 0.7rem;
   border-radius: 10px;
-  background: #fff7e8;
+  background: var(--color-surface-muted);
   color: var(--color-warning);
   font-size: 0.78rem;
   font-weight: 600;
@@ -67,7 +67,7 @@
 
 .original {
   justify-self: start;
-  color: var(--color-teal-deep);
+  color: var(--color-link);
   font-size: 0.8rem;
   font-weight: 700;
 }
@@ -102,11 +102,11 @@
 
 .publish {
   background: var(--color-teal-deep);
-  color: #fff;
+  color: var(--color-on-dark);
 }
 
 .reject {
-  background: #fff1f0;
+  background: var(--color-surface-muted);
   color: var(--color-danger);
 }
 

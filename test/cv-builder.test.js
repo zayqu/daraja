@@ -102,16 +102,17 @@ test("CV builder supports flexible ATS-safe presentation combinations", () => {
 
 test("CV page is protected and integrated with candidate navigation", () => {
   const page = read("app/account/career/cv/page.js");
-  const tabs = read("components/CandidateAccountTabs.js");
-  const career = read("app/account/career/page.js");
+  const navigation = read("lib/dashboard-navigation.js");
+  const dashboard = read("app/account/page.js");
+  const shell = read("components/dashboard/DashboardShell.js");
 
   assert.match(page, /if \(!candidateCareerEnabled\(\)\) notFound\(\)/);
   assert.match(page, /callbackUrl=\/account\/career\/cv/);
   assert.match(page, /<CvBuilder \/>/);
-  assert.match(tabs, /\/account\/career\/cv/);
-  assert.match(tabs, /CV Builder/);
-  assert.match(career, /Smart CV Builder/);
-  assert.match(career, /Build or update your CV/);
+  assert.match(navigation, /\{ href: "\/account\/career\/cv", label: "CV Builder", icon: "cv" \}/);
+  assert.match(dashboard, /Open CV Builder/);
+  // The free CV Builder is the candidate dashboard's promo card (D-036).
+  assert.match(shell, /cta: "Open CV Builder",\s*href: "\/account\/career\/cv"/);
 });
 
 test("CV records follow account export and erasure lifecycle", () => {

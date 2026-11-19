@@ -2,8 +2,8 @@
   position: relative;
   display: block;
   overflow: hidden;
-  background: #e8faf6;
-  color: var(--color-teal-deep);
+  background: var(--color-surface-muted);
+  color: var(--color-link);
 }
 
 .media img {
@@ -13,7 +13,7 @@
 .logo img {
   object-fit: contain;
   padding: 12%;
-  background: #ffffff;
+  background: var(--color-surface);
 }
 
 .photo img {
@@ -23,7 +23,7 @@
 .placeholder {
   display: grid;
   place-items: center;
-  background: #ffffff;
+  background: var(--color-surface);
 }
 
 .placeholder img {

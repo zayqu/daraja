@@ -7,6 +7,6 @@
 }
 
 .danger {
-  border-color: #e5c5c5;
-  background: #fffdfd;
+  border-color: var(--color-border);
+  background: var(--color-surface);
 }

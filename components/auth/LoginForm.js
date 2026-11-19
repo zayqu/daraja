@@ -5,8 +5,10 @@ import { useState } from "react";
 import styles from "@/app/auth/auth.module.css";
 import PasswordField from "./PasswordField";
 import { postJson } from "./postJson";
+import { useT } from "@/components/LanguageProvider";
 
 export default function LoginForm({ callbackUrl, initialError }) {
+  const t = useT();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [state, setState] = useState("idle");
@@ -40,7 +42,7 @@ export default function LoginForm({ callbackUrl, initialError }) {
   return (
     <form className={styles.form} onSubmit={submit} noValidate={false}>
       <div className={styles.field}>
-        <label htmlFor="login-email">Email address</label>
+        <label htmlFor="login-email">{t("Email address")}</label>
         <input
           id="login-email"
           type="email"
@@ -54,25 +56,25 @@ export default function LoginForm({ callbackUrl, initialError }) {
       </div>
       <PasswordField
         id="login-password"
-        label="Password"
+        label={t("Password")}
         autoComplete="current-password"
         value={password}
         onChange={setPassword}
-        aside={<Link className={styles.smallLink} href="/auth/forgot-password">Forgot password?</Link>}
+        aside={<Link className={styles.smallLink} href="/auth/forgot-password">{t("Forgot password?")}</Link>}
       />
       {error ? (
         <p className={styles.error} role="alert">
-          {error}{" "}
+          {t(error)}{" "}
           {unverified ? (
             <button type="button" className={styles.textButton} onClick={resend}>
-              Send the link again
+              {t("Send the link again")}
             </button>
           ) : null}
         </p>
       ) : null}
-      {notice ? <p className={styles.success} role="status">{notice}</p> : null}
+      {notice ? <p className={styles.success} role="status">{t(notice)}</p> : null}
       <button className={styles.primary} type="submit" disabled={state === "saving"}>
-        {state === "saving" ? "Signing in…" : "Sign in"}
+        {state === "saving" ? t("Signing in…") : t("Sign in")}
       </button>
     </form>
   );

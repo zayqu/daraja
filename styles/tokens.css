@@ -1,28 +1,43 @@
 :root {
   /* Typography */
-  --font-daraja: var(--font-poppins), Arial, Helvetica, sans-serif;
+  --font-daraja: var(--font-inter), Arial, Helvetica, sans-serif;
+  --font-display: var(--font-jakarta), var(--font-daraja);
 
   /* Brand */
   --color-navy: #1b2a3f;
   --color-navy-soft: rgba(255, 255, 255, 0.6);
   --color-teal: #00c9a7;
   --color-teal-deep: #087f6c;
-  --color-bg: #f7f8fa;
+  --color-link: #087f6c;
+  --color-primary-soft: #e6faf6;
+  --color-primary-border: #c9f4ec;
+  --color-bg: #f5f7fa;
   --color-surface: #ffffff;
   --color-surface-muted: #f8fafb;
   --color-surface-warm: #fbfaf7;
   --color-on-dark: #ffffff;
-  --color-border: #e8ecf0;
-  --color-border-strong: #e3e8ee;
+  --color-border: #e6eaf0;
+  --color-border-strong: #dfe1e7;
   --color-border-warm: #ebe8e1;
   --color-focus: #f59e0b;
-  --color-text: #1b2a3f;
-  --color-text-secondary: #344054;
-  --color-text-muted: #667085;
-  --color-text-faint: #8b95a1;
+  --color-text: #0f1a2b;
+  --color-text-secondary: #334155;
+  --color-text-muted: #64748b;
+  --color-text-faint: #94a3b8;
+
+  /* Status */
   --color-danger: #b42318;
+  --color-danger-bg: #fef3f2;
+  --color-danger-border: #fecdca;
   --color-warning: #a15c00;
+  --color-warning-bg: #fffaeb;
+  --color-warning-border: #fedf89;
   --color-success: #087f6c;
+  --color-success-bg: #ecfdf3;
+  --color-success-border: #abefc6;
+  --color-info: #1d4ed8;
+  --color-info-bg: #eff4ff;
+  --color-info-border: #c7d7fe;
 
   /* Layout */
   --content-max: 1120px;
@@ -44,9 +59,9 @@
   --space-16: 4rem;
 
   /* Radius */
-  --radius-input: 12px;
+  --radius-input: 8px;
   --radius-button: 12px;
-  --radius-card: 16px;
+  --radius-card: 12px;
   --radius-panel: 14px;
   --radius-pill: 999px;
 
@@ -98,4 +113,80 @@
     --workspace-shell-padding-top: 1.2rem;
     --workspace-card-padding: 1.15rem;
   }
+}
+
+/* Dark mode (D-039): Apple-style. True black page, flat grey surfaces without
+   shadows, white and grey text, and the Daraja teal kept for filled buttons.
+   It follows the device setting unless the person picks Light or Dark, which
+   sets data-theme on <html>. Documents (CV paper) stay white. */
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --color-navy: #1c1c1e;
+  --color-navy-soft: rgba(255, 255, 255, 0.6);
+  --color-link: #3dae9a;
+  --color-primary-soft: #2c2c2e;
+  --color-primary-border: #38383a;
+  --color-bg: #000000;
+  --color-surface: #1c1c1e;
+  --color-surface-muted: #2c2c2e;
+  --color-surface-warm: #1c1c1e;
+  --color-border: #38383a;
+  --color-border-strong: #48484a;
+  --color-border-warm: #38383a;
+  --color-text: #ffffff;
+  --color-text-secondary: #d1d1d6;
+  --color-text-muted: #98989f;
+  --color-text-faint: #636366;
+  --color-danger: #ff6961;
+  --color-danger-bg: #2c2c2e;
+  --color-danger-border: #48484a;
+  --color-warning: #d9a441;
+  --color-warning-bg: #2c2c2e;
+  --color-warning-border: #48484a;
+  --color-success: #3dae9a;
+  --color-success-bg: #2c2c2e;
+  --color-success-border: #48484a;
+  --color-info: #6ea8fe;
+  --color-info-bg: #2c2c2e;
+  --color-info-border: #48484a;
+  --shadow-soft: none;
+  --shadow-card: none;
+  --shadow-raised: none;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --color-navy: #1c1c1e;
+    --color-navy-soft: rgba(255, 255, 255, 0.6);
+    --color-link: #3dae9a;
+    --color-primary-soft: #2c2c2e;
+    --color-primary-border: #38383a;
+    --color-bg: #000000;
+    --color-surface: #1c1c1e;
+    --color-surface-muted: #2c2c2e;
+    --color-surface-warm: #1c1c1e;
+    --color-border: #38383a;
+    --color-border-strong: #48484a;
+    --color-border-warm: #38383a;
+    --color-text: #ffffff;
+    --color-text-secondary: #d1d1d6;
+    --color-text-muted: #98989f;
+    --color-text-faint: #636366;
+    --color-danger: #ff6961;
+    --color-danger-bg: #2c2c2e;
+    --color-danger-border: #48484a;
+    --color-warning: #d9a441;
+    --color-warning-bg: #2c2c2e;
+    --color-warning-border: #48484a;
+    --color-success: #3dae9a;
+    --color-success-bg: #2c2c2e;
+    --color-success-border: #48484a;
+    --color-info: #6ea8fe;
+    --color-info-bg: #2c2c2e;
+    --color-info-border: #48484a;
+    --shadow-soft: none;
+    --shadow-card: none;
+    --shadow-raised: none;
+}
 }

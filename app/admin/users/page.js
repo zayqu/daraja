@@ -1,7 +1,7 @@
 import AdminRowActions from "@/components/admin/AdminRowActions";
-import { Badge, PageHeader, Pagination, Panel, formatDate, pageNumber } from "@/components/admin/AdminUi";
+import { Badge, PageHeader, Pagination, Panel, formatDate, pageNumber } from "@/components/dashboard/DashboardUi";
 import UserRoleSelect from "@/components/admin/UserRoleSelect";
-import styles from "@/components/admin/admin.module.css";
+import styles from "@/components/dashboard/dashboard.module.css";
 import { requireAdminPage } from "@/lib/admin-guard";
 import { isOwnerEmail } from "@/lib/platform-roles";
 import prisma from "@/lib/prisma";

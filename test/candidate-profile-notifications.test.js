@@ -33,5 +33,6 @@ test("notification centre is authenticated and does not fabricate unread state",
   assert.match(nav, /notificationCount = 0/);
   assert.match(nav, /notificationCount > 0/);
   assert.match(nav, /\/account\/notifications/);
-  assert.match(nav, /href="\/account"/);
+  // The account menu itself lives in the phone dock's Profile tab (D-038).
+  assert.doesNotMatch(nav, /href="\/account"/);
 });

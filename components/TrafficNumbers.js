@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useT } from "@/components/LanguageProvider";
 import { formatCompactCount } from "@/lib/format-number";
 
 const EMPTY_TRAFFIC = {
@@ -11,6 +12,7 @@ const EMPTY_TRAFFIC = {
 };
 
 export default function TrafficNumbers({ className = "" }) {
+  const t = useT();
   const [traffic, setTraffic] = useState(EMPTY_TRAFFIC);
 
   useEffect(() => {
@@ -39,11 +41,11 @@ export default function TrafficNumbers({ className = "" }) {
   }, []);
 
   return (
-    <span className={className} aria-label="Daraja visitor numbers">
-      <span><strong>{formatCompactCount(traffic.totalVisits)}</strong> Visits</span>
-      <span><strong>{formatCompactCount(traffic.newVisitors)}</strong> New</span>
-      <span><strong>{formatCompactCount(traffic.returningVisitors)}</strong> Returning</span>
-      <span><strong>{formatCompactCount(traffic.pageViews)}</strong> Page views</span>
+    <span className={className} aria-label={t("Daraja visitor numbers")}>
+      <span><strong>{formatCompactCount(traffic.totalVisits)}</strong> {t("Visits")}</span>
+      <span><strong>{formatCompactCount(traffic.newVisitors)}</strong> {t("New")}</span>
+      <span><strong>{formatCompactCount(traffic.returningVisitors)}</strong> {t("Returning")}</span>
+      <span><strong>{formatCompactCount(traffic.pageViews)}</strong> {t("Page views")}</span>
     </span>
   );
 }

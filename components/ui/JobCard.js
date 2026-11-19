@@ -1,10 +1,12 @@
 "use client";
+import NavIcon from "@/components/ui/NavIcon";
 
 import formatJobTitle from "@/lib/job-title.cjs";
 import Link from "next/link";
 import JobBrandMedia from "@/components/JobBrandMedia";
 import { trackEvent } from "@/lib/analytics";
 import styles from "./JobCard.module.css";
+import { useT } from "@/components/LanguageProvider";
 
 const JOB_TYPE_LABELS = {
   FULL_TIME: "Full-time",
@@ -55,32 +57,31 @@ function formatDeadlineDate(value) {
   });
 }
 
-function deadlineLabel(value) {
+function deadlineLabel(value, t) {
   const days = daysUntil(value);
   if (days === null) return null;
-  if (days < 0) return "Closed";
-  if (days === 0) return "Closes today";
-  if (days === 1) return "Closes tomorrow";
-  if (days <= 7) return `Closes in ${days} days`;
-  return `Deadline: ${formatDeadlineDate(value)}`;
+  if (days < 0) return t("Closed");
+  if (days === 0) return t("Closes today");
+  if (days === 1) return t("Closes tomorrow");
+  if (days <= 7) return t("Closes in {n} days", { n: days });
+  return t("Deadline: {date}", { date: formatDeadlineDate(value) });
 }
 
-function experienceLabel(min, max) {
+function experienceLabel(min, max, t) {
   if (!Number.isInteger(min)) return null;
-  if (min === 0 && max === 0) return "No experience needed";
-  const unit = (count) => (count === 1 ? "yr" : "yrs");
-  if (!Number.isInteger(max)) return `${min}+ ${unit(min)} exp`;
-  if (max === min) return `${min} ${unit(min)} exp`;
-  return `${min}–${max} yrs exp`;
+  if (min === 0 && max === 0) return t("No experience needed");
+  if (!Number.isInteger(max)) return t(min === 1 ? "{n}+ yr exp" : "{n}+ yrs exp", { n: min });
+  if (max === min) return t(min === 1 ? "{n} yr exp" : "{n} yrs exp", { n: min });
+  return t("{min}–{max} yrs exp", { min, max });
 }
 
 // Only facts the source stated: missing values hide their chip instead of
 // falling back to a guess.
-function factTags(job) {
+function factTags(job, t) {
   return [
-    experienceLabel(job.experienceMinYears, job.experienceMaxYears),
-    JOB_TYPE_LABELS[job.type] || null,
-    job.openings > 1 ? `${job.openings} openings` : null,
+    experienceLabel(job.experienceMinYears, job.experienceMaxYears, t),
+    JOB_TYPE_LABELS[job.type] ? t(JOB_TYPE_LABELS[job.type]) : null,
+    job.openings > 1 ? t("{n} openings", { n: job.openings }) : null,
     job.salary ? job.salary : null,
   ].filter(Boolean);
 }
@@ -93,24 +94,25 @@ function deadlineTone(value) {
   return "";
 }
 
-function postedLabel(value) {
+function postedLabel(value, t) {
   const date = safeDate(value);
   if (!date) return null;
 
   const days = Math.max(0, Math.floor((new Date() - date) / 86400000));
-  if (days === 0) return "Posted today";
-  if (days === 1) return "Posted yesterday";
-  if (days < 7) return `Posted ${days} days ago`;
-  return `Posted ${formatDate(value)}`;
+  if (days === 0) return t("Posted today");
+  if (days === 1) return t("Posted yesterday");
+  if (days < 7) return t("Posted {n} days ago", { n: days });
+  return t("Posted {date}", { date: formatDate(value) });
 }
 
 export default function JobCard({
   job,
   listName = "Job opportunities",
 }) {
-  const deadline = deadlineLabel(job.deadline);
-  const posted = postedLabel(job.createdAt);
-  const tags = factTags(job);
+  const t = useT();
+  const deadline = deadlineLabel(job.deadline, t);
+  const posted = postedLabel(job.createdAt, t);
+  const tags = factTags(job, t);
   const displayTitle = formatJobTitle(job.title, job.source);
 
   return (
@@ -138,22 +140,20 @@ export default function JobCard({
       />
 
       <span className={styles.saveVisual} aria-hidden="true">
-        <svg viewBox="0 0 24 24" focusable="false">
-          <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 0 0 0-7.78Z" />
-        </svg>
+        <NavIcon name="bookmark" size={20} />
       </span>
 
       <div className={styles.content}>
         <div className={styles.titleRow}>
           <h3 className={styles.title} title={displayTitle}>{displayTitle}</h3>
-          {job.featured && <span className={styles.featured}>Featured</span>}
+          {job.featured && <span className={styles.featured}>{t("Featured")}</span>}
         </div>
 
         <p className={styles.company}>{job.company}</p>
         {job.location && <p className={styles.location}>{job.location}</p>}
 
         {tags.length > 0 && (
-          <div className={styles.tags} aria-label="Job attributes">
+          <div className={styles.tags} aria-label={t("Job attributes")}>
             {tags.map((tag) => (
               <span key={tag} className={styles.tag}>
                 {tag}
@@ -167,9 +167,7 @@ export default function JobCard({
         {deadline && (
           <span className={`${styles.deadline} ${deadlineTone(job.deadline)}`}>
             <span>{deadline}</span>
-            <svg className={styles.calendarIcon} viewBox="0 0 24 24" focusable="false" aria-hidden="true">
-              <path d="M7 3v3M17 3v3M4 9h16M5 5h14a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1Z" />
-            </svg>
+            <span className={styles.calendarIcon}><NavIcon name="schedule" size={14} /></span>
           </span>
         )}
         {posted && (

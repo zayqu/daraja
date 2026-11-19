@@ -1,5 +1,5 @@
 .footer {
-  background: #1b2a3f;
+  background: var(--color-navy);
   border-top: 1px solid rgba(255, 255, 255, 0.06);
   padding: 3.25rem var(--gutter) 1.5rem;
 }
@@ -43,7 +43,7 @@
 
 .heading {
   margin-bottom: 0.2rem;
-  color: #fff;
+  color: var(--color-on-dark);
   font-size: 0.76rem;
   font-weight: 800;
 }
@@ -66,7 +66,7 @@
   padding: 1.5rem 0;
   border-top: 1px solid rgba(255, 255, 255, 0.08);
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-  background: #1b2a3f;
+  background: var(--color-navy);
 }
 
 .platformInsights {
@@ -81,7 +81,7 @@
 }
 
 .platformInsights strong {
-  color: #fff;
+  color: var(--color-on-dark);
   font-size: 1.2rem;
   font-weight: 800;
   line-height: 1;

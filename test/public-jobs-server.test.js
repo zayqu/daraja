@@ -62,7 +62,7 @@ test("mobile jobs discovery keeps filters out of the primary page flow", async (
   assert.match(client, /className="mobile-filter-btn"/);
   assert.match(client, /className="filters-backdrop"/);
   assert.match(client, /filters-open/);
-  assert.match(client, /Show \{pagination\.total \|\| 0\} opportunities/);
+  assert.match(client, /t\("Show \{n\} opportunities", \{ n: pagination\.total \|\| 0 \}\)/);
   assert.match(client, /position: fixed;/);
   assert.match(client, /top:\s*50%/);
   assert.match(client, /left:\s*50%/);

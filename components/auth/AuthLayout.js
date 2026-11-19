@@ -2,6 +2,7 @@ import Link from "next/link";
 import PublicSiteNav from "@/components/PublicSiteNav";
 import SurfaceCard from "@/components/ui/SurfaceCard";
 import styles from "@/app/auth/auth.module.css";
+import { getServerT } from "@/lib/i18n-server";
 
 const DEFAULT_POINTS = [
   "Browse and apply for jobs without an account",
@@ -10,7 +11,9 @@ const DEFAULT_POINTS = [
 ];
 
 // Shared two-column frame for sign in, create account and password pages.
-export default function AuthLayout({ title, intro, points = DEFAULT_POINTS, children }) {
+// Pages pass English text; it is translated here.
+export default async function AuthLayout({ title, intro, points = DEFAULT_POINTS, children }) {
+  const { t } = await getServerT();
   return (
     <div className={styles.page}>
       <PublicSiteNav />
@@ -19,12 +22,12 @@ export default function AuthLayout({ title, intro, points = DEFAULT_POINTS, chil
           <aside className={styles.aside}>
             <div>
               <Link href="/" className={styles.brand}>DARAJA</Link>
-              <h1>{title}</h1>
-              <p>{intro}</p>
+              <h1>{t(title)}</h1>
+              <p>{t(intro)}</p>
             </div>
             <ul className={styles.asideList}>
               {points.map((point) => (
-                <li key={point}>{point}</li>
+                <li key={point}>{t(point)}</li>
               ))}
             </ul>
           </aside>

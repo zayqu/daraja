@@ -6,8 +6,12 @@ import { usePathname, useRouter } from "next/navigation";
 import { buildJobsUrl } from "@/lib/job-search";
 import { mobileDockEnabledPath } from "@/lib/mobile-navigation";
 import NavIcon from "@/components/ui/NavIcon";
+import { ThemeToggle } from "@/components/ThemeControls";
+import LanguageSwitch from "@/components/LanguageSwitch";
+import { useT } from "@/components/LanguageProvider";
 import { buildPublicNavigation } from "@/lib/public-navigation";
-import { postJobHref } from "@/lib/platform-roles";
+import { postJobHref, roleHome } from "@/lib/platform-roles";
+import { dashboardMenu } from "@/lib/dashboard-navigation";
 import styles from "./SiteNav.module.css";
 
 const DEFAULT_LINKS = buildPublicNavigation();
@@ -37,6 +41,7 @@ export default function SiteNav({
   showCandidateProfile = false,
   notificationCount = 0,
 }) {
+  const t = useT();
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
   const router = useRouter();
@@ -53,7 +58,7 @@ export default function SiteNav({
         const role = session?.user?.role;
         setAccount(
           session?.user
-            ? { signedIn: true, role, href: role === "ADMIN" ? "/admin" : role === "EMPLOYER" ? "/employer" : "/account", label: role === "ADMIN" ? "Admin panel" : "My account" }
+            ? { signedIn: true, role, href: roleHome(role, { employerPortal: showEmployerCta }) }
             : { signedIn: false }
         );
       })
@@ -61,7 +66,7 @@ export default function SiteNav({
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [showEmployerCta]);
 
   function handleSearch(event) {
     event.preventDefault();
@@ -82,42 +87,48 @@ export default function SiteNav({
             <input
               type="search"
               className={styles.searchInput}
-              placeholder="Search job title or company"
+              placeholder={t("Search job title or company")}
               value={query}
               onChange={(event) => setQuery(event.target.value)}
-              aria-label="Search jobs"
+              aria-label={t("Search jobs")}
             />
-            <button type="submit" className={styles.searchBtn} aria-label="Search">
-              Search
+            <button type="submit" className={styles.searchBtn} aria-label={t("Search")}>
+              {t("Search")}
             </button>
           </form>
         )}
 
-        {dockManaged && (
-          <div className={styles.mobileAccountActions} aria-label="Candidate account">
-            <Link
-              href="/account/notifications"
-              className={styles.mobileIconButton}
-              aria-label="Notifications"
-              title="Notifications"
-            >
-              <NavIcon name="bell" />
-              {notificationCount > 0 ? (
-                <span className={styles.mobileBadge}>
-                  {notificationCount > 99 ? "99+" : notificationCount}
-                </span>
-              ) : null}
-            </Link>
-            {showCandidateProfile && (
+        {/* Phones: the dock owns the account menu (D-038), so the header only
+            offers sign-in to visitors and the bell to candidates. */}
+        {dockManaged && account && (
+          <div className={styles.mobileAccountActions}>
+            {!account.signedIn ? (
               <Link
-                href="/account"
+                href="/auth/signin"
                 className={styles.mobileIconButton}
-                aria-label="Account"
-                title="Account"
+                aria-label={t("Sign in")}
+                title={t("Sign in")}
               >
                 <NavIcon name="user" />
               </Link>
-            )}
+            ) : dashboardMenu(account.role, {
+                employerPortal: showEmployerCta,
+                candidateCareer: showCandidateProfile,
+              }).role === "JOB_SEEKER" ? (
+              <Link
+                href="/account/notifications"
+                className={styles.mobileIconButton}
+                aria-label={t("Notifications")}
+                title={t("Notifications")}
+              >
+                <NavIcon name="bell" />
+                {notificationCount > 0 ? (
+                  <span className={styles.mobileBadge}>
+                    {notificationCount > 99 ? "99+" : notificationCount}
+                  </span>
+                ) : null}
+              </Link>
+            ) : null}
           </div>
         )}
 
@@ -126,7 +137,7 @@ export default function SiteNav({
           className={`${styles.toggle} ${open ? styles.open : ""}`}
           aria-expanded={open}
           aria-controls="site-nav-menu"
-          aria-label={open ? "Close menu" : "Open menu"}
+          aria-label={t(open ? "Close menu" : "Open menu")}
           onClick={() => setOpen((value) => !value)}
         >
           <span className={styles.toggleBar} />
@@ -145,22 +156,24 @@ export default function SiteNav({
               className={styles.link}
               onClick={() => setOpen(false)}
             >
-              {link.label}
+              {t(link.label)}
             </Link>
           ))}
           <div className={styles.right}>
+            <LanguageSwitch />
+            <ThemeToggle className={styles.themeToggle} />
             {account ? (
               <Link
                 href={account.signedIn ? account.href : "/auth/signin"}
                 className={styles.link}
                 onClick={() => setOpen(false)}
               >
-                {account.signedIn ? account.label : "Sign in"}
+                {t(account.signedIn ? "Dashboard" : "Sign in")}
               </Link>
             ) : null}
             {account && !account.signedIn && !right ? (
               <Link href="/auth/signup" className={styles.cta} onClick={() => setOpen(false)}>
-                Create account
+                {t("Create account")}
               </Link>
             ) : null}
             {right ??
@@ -170,7 +183,7 @@ export default function SiteNav({
                   className={styles.cta}
                   onClick={() => setOpen(false)}
                 >
-                  Post a Job
+                  {t("Post a Job")}
                 </Link>
               ) : null)}
           </div>

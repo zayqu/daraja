@@ -1,3 +1,4 @@
+import { revalidateTag } from "next/cache";
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { randomUUID } from "node:crypto";
@@ -6,16 +7,14 @@ import {
   employerPortalEnabled,
   getActor,
   isSuspendedEmployer,
+  publishesWithoutReview,
   safeAuditMetadata,
 } from "@/lib/employer-access";
-import { getCategoryNames } from "@/lib/public-jobs";
-import ownerVacancy from "@/lib/owner-vacancy";
+import { getCategoryNames, PUBLIC_JOBS_CACHE_TAG } from "@/lib/public-jobs";
+import { parseEmployerVacancy } from "@/lib/employer-vacancy";
 import { readProtectedJson } from "@/lib/request-security";
 
 const { createJobWithPositionSlug } = slugUtils;
-const { parseApplicationDetails } = ownerVacancy;
-const clean = (value, max) => typeof value === "string" ? value.trim().slice(0, max) : "";
-const JOB_TYPES = new Set(["FULL_TIME", "PART_TIME", "CONTRACT", "INTERNSHIP", "FREELANCE"]);
 
 export async function GET() {
   if (!employerPortalEnabled()) return NextResponse.json({ error: "Not found" }, { status: 404 });
@@ -58,37 +57,21 @@ export async function POST(request) {
     maxBytes: 16_384,
   });
   if (error) return error;
-  const problems = [];
-  const { deadline, applicationUrl } = parseApplicationDetails(body, problems);
-  if (!deadline) problems.push("closing date is required");
-  else if (deadline.getTime() < Date.now()) problems.push("closing date must be today or later");
+  const { data: vacancy, problems } = parseEmployerVacancy(body, { categories: await getCategoryNames() });
   if (problems.length) {
     return NextResponse.json({ error: `Check the vacancy: ${problems.join("; ")}.` }, { status: 400 });
   }
   const data = {
-    title: clean(body.title, 160),
+    ...vacancy,
     company: actor.employer.companyName,
-    location: clean(body.location, 160),
-    description: clean(body.description, 10000),
-    category: clean(body.category, 100),
-    type: clean(body.type, 30) || "FULL_TIME",
-    deadline,
-    applicationUrl,
     source: "daraja",
     language: "en",
     employerId: actor.employer.id,
     submittedById: actor.id,
-    // Verified employers an administrator trusts publish without review.
-    ...(actor.employer.autoPublish && actor.employer.verificationStatus === "VERIFIED"
+    ...(publishesWithoutReview(actor.employer)
       ? { moderationStatus: "PUBLISHED", active: true, moderationNote: "Published automatically: trusted employer." }
       : { moderationStatus: "PENDING_REVIEW", active: false }),
   };
-  if (!data.title || !data.location || !data.description || !data.category) {
-    return NextResponse.json({ error: "Title, location, category and description are required" }, { status: 400 });
-  }
-  if (!(await getCategoryNames()).includes(data.category) || !JOB_TYPES.has(data.type)) {
-    return NextResponse.json({ error: "Choose a supported category and job type" }, { status: 400 });
-  }
   const job = await createJobWithPositionSlug(prisma, data, randomUUID());
   await prisma.auditEvent.create({
     data: {
@@ -100,5 +83,6 @@ export async function POST(request) {
       metadata: safeAuditMetadata({ category: data.category, type: data.type }),
     },
   });
+  if (job.moderationStatus === "PUBLISHED") revalidateTag(PUBLIC_JOBS_CACHE_TAG, "seconds");
   return NextResponse.json({ job }, { status: 202 });
 }

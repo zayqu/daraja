@@ -91,7 +91,7 @@ test("shared WhatsApp config imports use the exported symbol exactly", async () 
   for (const relative of [
     path.join("components", "JobAlerts.js"),
     path.join("components", "SiteFooter.js"),
-    path.join("components", "ui", "MobileDock.js"),
+    path.join("components", "ui", "MenuList.js"),
     path.join("app", "jobs", "[id]", "JobDetailPageClient.js"),
   ]) {
     const source = await readFile(path.join(root, relative), "utf8");

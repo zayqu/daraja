@@ -1,7 +1,7 @@
 import Link from "next/link";
-import { Badge, PageHeader, Panel, formatDate } from "@/components/admin/AdminUi";
+import { Badge, PageHeader, Panel, formatDate } from "@/components/dashboard/DashboardUi";
 import { SourceActions, SourceForm, SourceSwitch } from "@/components/admin/SourceControls";
-import styles from "@/components/admin/admin.module.css";
+import styles from "@/components/dashboard/dashboard.module.css";
 import { requireAdminPage } from "@/lib/admin-guard";
 import prisma from "@/lib/prisma";
 import sourceSettings from "@/scraper/lib/source-settings";

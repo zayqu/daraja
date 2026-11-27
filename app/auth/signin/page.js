@@ -9,6 +9,7 @@ import { employerPortalEnabled } from "@/lib/features";
 import { roleHome } from "@/lib/platform-roles";
 import { safeRedirectPath } from "@/lib/password-auth";
 import styles from "../auth.module.css";
+import { getServerT } from "@/lib/i18n-server";
 
 export const metadata = {
   title: "Sign in",
@@ -31,6 +32,7 @@ export default async function SignInPage({ searchParams }) {
   const callbackUrl = safeRedirectPath(params?.callbackUrl, "");
   if (session?.user) redirect(callbackUrl || home);
 
+  const { t } = await getServerT();
   const googleEnabled = authProviders.includes("google");
   const linkedinEnabled = authProviders.includes("linkedin");
   const error = ERRORS[params?.error] || (params?.error ? "Sign-in failed. Please try again." : "");
@@ -40,8 +42,8 @@ export default async function SignInPage({ searchParams }) {
       title="Welcome back to Daraja."
       intro="Sign in to manage your applications, job alerts, vacancies or the Daraja admin panel."
     >
-      <h2>Sign in</h2>
-      <p className={styles.lead}>Use your email and password, or continue with Google or LinkedIn.</p>
+      <h2>{t("Sign in")}</h2>
+      <p className={styles.lead}>{t("Use your email and password, or continue with Google or LinkedIn.")}</p>
 
       {linkedinEnabled ? (
         <LinkedInButton
@@ -54,11 +56,11 @@ export default async function SignInPage({ searchParams }) {
       <LoginForm callbackUrl={callbackUrl} initialError={error} />
 
       <p className={styles.switchRow}>
-        New to Daraja? <Link href="/auth/signup">Create an account</Link>
+        {t("New to Daraja?")} <Link href="/auth/signup">{t("Create an account")}</Link>
       </p>
       <p className={styles.terms}>
-        By continuing, you agree to Daraja&apos;s <Link href="/terms">Terms</Link> and
-        acknowledge our <Link href="/privacy">Privacy policy</Link>.
+        {t("By continuing, you agree to Daraja's")} <Link href="/terms">{t("Terms")}</Link>{" "}
+        {t("and acknowledge our")} <Link href="/privacy">{t("Privacy policy")}</Link>.
       </p>
     </AuthLayout>
   );

@@ -8,6 +8,26 @@ function passthroughLoader({ src }) {
   return src;
 }
 
+const INITIAL_TONES = ["navy", "teal", "deep", "slate", "sky"];
+
+// Employers without media get their own initials badge (e.g. "Pwani
+// Microfinance" -> "PM") in a stable tone derived from the name.
+export function employerInitials(company = "") {
+  const words = String(company)
+    .replace(/[^\p{L}\p{N}\s]/gu, " ")
+    .split(/\s+/)
+    .filter((word) => word && !/^(the|of|and|ltd|limited|plc|co)$/i.test(word));
+  if (words.length === 0) return "D";
+  if (words.length === 1) return words[0].slice(0, 2).toUpperCase();
+  return (words[0][0] + words[1][0]).toUpperCase();
+}
+
+function initialsTone(company = "") {
+  let hash = 0;
+  for (const char of String(company)) hash = (hash * 31 + char.charCodeAt(0)) >>> 0;
+  return INITIAL_TONES[hash % INITIAL_TONES.length];
+}
+
 export default function JobBrandMedia({
   company,
   companyLogo,
@@ -22,16 +42,10 @@ export default function JobBrandMedia({
   if (!source || failed) {
     return (
       <span
-        className={`${styles.media} ${styles.placeholder} ${className}`}
-        aria-label="Daraja placeholder"
+        className={`${styles.media} ${styles.initials} ${styles[initialsTone(company)]} ${className}`}
+        aria-hidden="true"
       >
-        <Image
-          fill
-          sizes={sizes}
-          src="/icon.png"
-          alt=""
-          aria-hidden="true"
-        />
+        {employerInitials(company)}
       </span>
     );
   }

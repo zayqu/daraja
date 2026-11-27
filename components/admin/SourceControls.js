@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import styles from "./admin.module.css";
+import styles from "@/components/dashboard/dashboard.module.css";
 
 async function send(url, method, body) {
   try {

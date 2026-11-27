@@ -1,7 +1,6 @@
-import { signOut } from "@/auth";
-import AdminShell from "@/components/admin/AdminShell";
+import DashboardFrame from "@/components/dashboard/DashboardFrame";
 import { requireAdminPage } from "@/lib/admin-guard";
-import prisma from "@/lib/prisma";
+import { getAdminQueueCounts } from "@/lib/admin-queue";
 
 export const metadata = {
   title: "Admin",
@@ -11,28 +10,12 @@ export const metadata = {
 export const dynamic = "force-dynamic";
 
 export default async function AdminLayout({ children }) {
-  const actor = await requireAdminPage();
-  const [pendingJobs, pendingEmployers] = await Promise.all([
-    prisma.job.count({ where: { moderationStatus: "PENDING_REVIEW" } }),
-    prisma.employer.count({ where: { verificationStatus: "PENDING" } }),
-  ]);
+  await requireAdminPage();
+  const counts = await getAdminQueueCounts();
 
   return (
-    <AdminShell
-      email={actor.email}
-      counts={{ pendingJobs, pendingEmployers }}
-      signOut={
-        <form
-          action={async () => {
-            "use server";
-            await signOut({ redirectTo: "/" });
-          }}
-        >
-          <button type="submit">Sign out</button>
-        </form>
-      }
-    >
+    <DashboardFrame counts={counts}>
       {children}
-    </AdminShell>
+    </DashboardFrame>
   );
 }

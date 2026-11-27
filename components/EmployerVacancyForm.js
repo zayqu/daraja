@@ -36,8 +36,19 @@ function submissionBody(form) {
     : { ...rest, applyUrl: applyUrl.trim() };
 }
 
-export default function EmployerVacancyForm({ companyName, categories = JOB_CATEGORIES }) {
-  const [form, setForm] = useState(EMPTY_FORM);
+// Creates a vacancy, or edits one when `vacancyId` is given: the employer's
+// changes are saved and the vacancy goes (back) to Daraja's review.
+// `publishesNow` (trusted employers, new vacancies only) changes the button
+// wording; the server decides what actually happens.
+export default function EmployerVacancyForm({
+  companyName,
+  categories = JOB_CATEGORIES,
+  vacancyId = null,
+  initialValues = null,
+  publishesNow = false,
+}) {
+  const editing = Boolean(vacancyId);
+  const [form, setForm] = useState(initialValues ? { ...EMPTY_FORM, ...initialValues } : EMPTY_FORM);
   const [status, setStatus] = useState("idle");
   const [message, setMessage] = useState("");
 
@@ -50,19 +61,21 @@ export default function EmployerVacancyForm({ companyName, categories = JOB_CATE
     setStatus("loading");
     setMessage("");
     try {
-      const response = await fetch("/api/employer/jobs", {
-        method: "POST",
+      const response = await fetch(editing ? `/api/employer/jobs/${vacancyId}` : "/api/employer/jobs", {
+        method: editing ? "PATCH" : "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(submissionBody(form)),
+        body: JSON.stringify(editing ? { ...submissionBody(form), submit: true } : submissionBody(form)),
       });
       const payload = await response.json();
       if (!response.ok) throw new Error(payload.error || "Unable to submit vacancy");
-      setForm(EMPTY_FORM);
+      if (!editing) setForm(EMPTY_FORM);
       setStatus("success");
       setMessage(
         payload.job?.moderationStatus === "PUBLISHED"
-          ? "Your vacancy is live on Daraja. You can see it in your employer workspace."
-          : "Vacancy sent for review. You can follow its status in your employer workspace."
+          ? "Your vacancy is live on Daraja. You can see it under My vacancies."
+          : editing
+            ? "Changes saved and sent to Daraja for review."
+            : "Vacancy sent for review. You can follow its status under My vacancies."
       );
     } catch (error) {
       setStatus("error");
@@ -137,9 +150,15 @@ export default function EmployerVacancyForm({ companyName, categories = JOB_CATE
       {message && <p className={`portal-message ${status}`} role={status === "error" ? "alert" : "status"}>{message}</p>}
       <div className="portal-actions">
         <button className="portal-submit" type="submit" disabled={status === "loading"}>
-          {status === "loading" ? "Submitting…" : "Submit for review"}
+          {status === "loading"
+            ? "Sending…"
+            : editing
+              ? "Save and send for review"
+              : publishesNow
+                ? "Publish vacancy"
+                : "Submit for review"}
         </button>
-        <Link href="/employer">Back to employer workspace</Link>
+        <Link href="/employer/vacancies">Back to my vacancies</Link>
       </div>
     </form>
   );

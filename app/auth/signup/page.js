@@ -8,6 +8,7 @@ import SignupForm from "@/components/auth/SignupForm";
 import { employerPortalEnabled } from "@/lib/features";
 import { roleHome } from "@/lib/platform-roles";
 import styles from "../auth.module.css";
+import { getServerT } from "@/lib/i18n-server";
 
 export const metadata = {
   title: "Create account",
@@ -23,6 +24,7 @@ export default async function SignUpPage({ searchParams }) {
   const session = await auth();
   if (session?.user) redirect(roleHome(session.user.role, { employerPortal: employerEnabled }));
 
+  const { t } = await getServerT();
   const googleEnabled = authProviders.includes("google");
   const linkedinEnabled = authProviders.includes("linkedin");
 
@@ -31,8 +33,8 @@ export default async function SignUpPage({ searchParams }) {
       title="Create your free Daraja account."
       intro="One account for your job search in Tanzania. Employers can post vacancies after a quick verification."
     >
-      <h2>Create account</h2>
-      <p className={styles.lead}>It takes less than a minute.</p>
+      <h2>{t("Create account")}</h2>
+      <p className={styles.lead}>{t("It takes less than a minute.")}</p>
 
       <SignupForm
         employerEnabled={employerEnabled}
@@ -55,11 +57,11 @@ export default async function SignUpPage({ searchParams }) {
       />
 
       <p className={styles.switchRow}>
-        Already have an account? <Link href="/auth/signin">Sign in</Link>
+        {t("Already have an account?")} <Link href="/auth/signin">{t("Sign in")}</Link>
       </p>
       <p className={styles.terms}>
-        By creating an account, you agree to Daraja&apos;s <Link href="/terms">Terms</Link> and
-        acknowledge our <Link href="/privacy">Privacy policy</Link>.
+        {t("By creating an account, you agree to Daraja's")} <Link href="/terms">{t("Terms")}</Link>{" "}
+        {t("and acknowledge our")} <Link href="/privacy">{t("Privacy policy")}</Link>.
       </p>
     </AuthLayout>
   );

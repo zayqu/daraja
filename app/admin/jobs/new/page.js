@@ -1,7 +1,7 @@
 import Link from "next/link";
 import JobForm from "@/components/admin/JobForm";
-import { PageHeader, Panel } from "@/components/admin/AdminUi";
-import styles from "@/components/admin/admin.module.css";
+import { PageHeader, Panel } from "@/components/dashboard/DashboardUi";
+import styles from "@/components/dashboard/dashboard.module.css";
 import { requireAdminPage } from "@/lib/admin-guard";
 import { getCategoryNames } from "@/lib/public-jobs";
 

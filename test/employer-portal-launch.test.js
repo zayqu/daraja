@@ -30,16 +30,79 @@ test("employer application details accept one email or https link with a closing
 
 test("employer vacancy submissions require a closing date and an apply method", async () => {
   const route = await read("app/api/employer/jobs/route.js");
-  assert.match(route, /parseApplicationDetails\(body, problems\)/);
-  assert.match(route, /closing date is required/);
-  assert.match(route, /closing date must be today or later/);
-  assert.match(route, /deadline,\s*\n\s*applicationUrl,/);
+  const edit = await read("app/api/employer/jobs/[id]/route.js");
+  // Creating and editing a vacancy share one set of rules.
+  for (const source of [route, edit]) {
+    assert.match(source, /parseEmployerVacancy\(body, \{ categories: await getCategoryNames\(\) \}\)/);
+  }
   assert.match(route, /moderationStatus: "PENDING_REVIEW"/);
+
+  const rules = await read("lib/employer-vacancy.js");
+  assert.match(rules, /parseApplicationDetails\(body, problems\)/);
 
   const form = await read("components/EmployerVacancyForm.js");
   assert.match(form, /id="vacancy-deadline"/);
   assert.match(form, /id="vacancy-apply-email"/);
   assert.match(form, /id="vacancy-apply-url"/);
+});
+
+test("employer vacancy rules check the closing date, category and apply method", async () => {
+  const { parseEmployerVacancy } = await import("../lib/employer-vacancy.js");
+  const now = new Date("2026-11-16T09:00:00.000Z");
+  const categories = ["Engineering"];
+  const valid = {
+    title: " Site Engineer ",
+    location: "Dodoma",
+    category: "Engineering",
+    type: "CONTRACT",
+    description: "Build things.",
+    deadline: "2026-11-16",
+    applyEmail: "jobs@example.co.tz",
+    emailSubject: "Application for Site Engineer",
+  };
+
+  const ok = parseEmployerVacancy(valid, { categories, now });
+  assert.deepEqual(ok.problems, []);
+  assert.equal(ok.data.title, "Site Engineer");
+  assert.equal(ok.data.applicationUrl, "mailto:jobs@example.co.tz?subject=Application%20for%20Site%20Engineer");
+  // A vacancy closing today is still accepted: the day ends at 23:59:59 EAT.
+  assert.equal(ok.data.deadline.toISOString(), "2026-11-16T20:59:59.000Z");
+
+  const past = parseEmployerVacancy({ ...valid, deadline: "2026-10-31" }, { categories, now });
+  assert.deepEqual(past.problems, ["closing date must be today or later"]);
+  const missing = parseEmployerVacancy({ ...valid, deadline: "" }, { categories, now });
+  assert.deepEqual(missing.problems, ["closing date is required"]);
+  const unknown = parseEmployerVacancy({ ...valid, category: "Astrology" }, { categories, now });
+  assert.deepEqual(unknown.problems, ["choose a supported category and job type"]);
+  const noApply = parseEmployerVacancy({ ...valid, applyEmail: "" }, { categories, now });
+  assert.match(noApply.problems.join(" "), /applyEmail or applyUrl is required/);
+});
+
+test("employers see a past closing date as Closed and can reopen the form with saved values", async () => {
+  const { vacancyFormValues, vacancyState } = await import("../lib/employer-vacancy.js");
+  const now = new Date("2026-11-16T09:00:00.000Z");
+  const job = {
+    moderationStatus: "PUBLISHED",
+    active: true,
+    deadline: new Date("2026-10-31T20:59:59.000Z"),
+  };
+  assert.equal(vacancyState(job, now).label, "Closed");
+  assert.equal(vacancyState({ ...job, deadline: new Date("2026-11-30T20:59:59.000Z") }, now).label, "Live");
+  assert.equal(vacancyState({ ...job, moderationStatus: "REJECTED" }, now).label, "Not approved");
+  assert.equal(vacancyState({ ...job, moderationStatus: "PENDING_REVIEW" }, now).label, "In review");
+  assert.equal(vacancyState({ ...job, moderationStatus: "ARCHIVED", active: false }, now).label, "Closed");
+
+  const values = vacancyFormValues({
+    ...job,
+    title: "Driver",
+    applicationUrl: "mailto:jobs@example.co.tz?subject=Application%20for%20Driver",
+  });
+  assert.equal(values.deadline, "2026-10-31");
+  assert.equal(values.applyMethod, "email");
+  assert.equal(values.applyEmail, "jobs@example.co.tz");
+  const link = vacancyFormValues({ ...job, applicationUrl: "https://example.co.tz/apply" });
+  assert.equal(link.applyMethod, "link");
+  assert.equal(link.applyUrl, "https://example.co.tz/apply");
 });
 
 test("only verified employers' vacancies can be published", async () => {

@@ -19,7 +19,7 @@ async function collectFiles(root, extensions) {
   return files;
 }
 
-test("Daraja uses the shared Poppins typography stack across the app", async () => {
+test("Daraja uses the shared Inter + Plus Jakarta Sans typography stack across the app", async () => {
   const globals = await readFile(
     path.join(__dirname, "..", "app", "globals.css"),
     "utf8",
@@ -35,23 +35,21 @@ test("Daraja uses the shared Poppins typography stack across the app", async () 
 
   assert.match(
     tokens,
-    /--font-daraja:\s*var\(--font-poppins\), Arial, Helvetica, sans-serif;/,
+    /--font-daraja:\s*var\(--font-inter\), Arial, Helvetica, sans-serif;/,
   );
+  assert.match(tokens, /--font-display:\s*var\(--font-jakarta\), var\(--font-daraja\);/);
   assert.match(globals, /@theme inline\s*\{[\s\S]*--font-sans:\s*var\(--font-daraja\)/);
   assert.match(globals, /html\s*\{[\s\S]*font-family:\s*var\(--font-daraja\)/);
   assert.match(globals, /body\s*\{[\s\S]*font-family:\s*var\(--font-daraja\)/);
-  assert.match(
-    globals,
-    /h1,[\s\S]*h6,[\s\S]*font-family:\s*var\(--font-daraja\)/,
-  );
+  assert.match(globals, /button,[\s\S]*textarea \{[\s\S]*font-family:\s*var\(--font-daraja\)/);
+  assert.match(globals, /h1,[\s\S]*h6 \{[\s\S]*font-family:\s*var\(--font-display\)/);
 
-  assert.match(layout, /import \{ Poppins \} from "next\/font\/google"/);
-  assert.match(layout, /--font-poppins/);
-  assert.match(layout, /poppins\.variable/);
-  assert.match(layout, /poppins\.className/);
+  assert.match(layout, /import \{ Inter, Plus_Jakarta_Sans \} from "next\/font\/google"/);
+  assert.match(layout, /variable: "--font-inter"/);
+  assert.match(layout, /variable: "--font-jakarta"/);
+  assert.match(layout, /rootFontClass = `\$\{inter\.variable\} \$\{jakarta\.variable\}`/);
   assert.match(layout, /<html[^>]+className=\{rootFontClass\}/);
-  assert.match(layout, /<body className=\{poppins\.className\}>/);
-  assert.match(layout, /weight:\s*\["400", "500", "600", "700", "800"\]/);
+  assert.doesNotMatch(layout, /Poppins|Nunito/);
 
   const decisions = await readFile(
     path.join(__dirname, "..", "DECISIONS.md"),
@@ -66,7 +64,7 @@ test("Daraja uses the shared Poppins typography stack across the app", async () 
   assert.doesNotMatch(privacyPage, /fontFamily:\s*"Arial/);
   assert.match(privacyPage, /ContentPage/);
   assert.match(decisions, /D-025 - Daraja uses one canonical application typeface/);
-  assert.match(decisions, /canonical Ajira web typeface is \*\*Poppins\*\*/);
+  assert.match(decisions, /canonical Ajira web typefaces are \*\*Inter\*\*[\s\S]*\*\*Plus Jakarta Sans\*\*/);
   assert.match(decisions, /must not[\s\S]*replace or override Daraja typography page by page/);
 });
 
@@ -90,14 +88,14 @@ test("UI styles cannot introduce a competing font-family", async () => {
     for (const declaration of declarations) {
       assert.match(
         declaration,
-        /font-family\s*:\s*(?:var\(--font-daraja\)|inherit)/i,
-        `${relative} introduces a font outside the Daraja Poppins token: ${declaration}`,
+        /font-family\s*:\s*(?:var\(--font-daraja\)|var\(--font-display\)|inherit)/i,
+        `${relative} introduces a font outside the Daraja font tokens: ${declaration}`,
       );
     }
   }
 });
 
-test("Poppins is instantiated only once at the root layout", async () => {
+test("Fonts are instantiated only once at the root layout", async () => {
   const roots = ["app", "components"].map((folder) =>
     path.join(__dirname, "..", folder),
   );

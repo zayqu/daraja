@@ -5,8 +5,10 @@ import { useState } from "react";
 import styles from "@/app/auth/auth.module.css";
 import PasswordField from "./PasswordField";
 import { postJson } from "./postJson";
+import { useT } from "@/components/LanguageProvider";
 
 export default function SignupForm({ employerEnabled, initialType = "candidate", socialCandidate = null, socialEmployer = null }) {
+  const t = useT();
   const router = useRouter();
   const [accountType, setAccountType] = useState(
     employerEnabled && initialType === "employer" ? "employer" : "candidate"
@@ -35,7 +37,7 @@ export default function SignupForm({ employerEnabled, initialType = "candidate",
   return (
     <>
       {employerEnabled ? (
-        <div className={styles.tabs} role="tablist" aria-label="Account type">
+        <div className={styles.tabs} role="tablist" aria-label={t("Account type")}>
           {[
             ["candidate", "I'm looking for work"],
             ["employer", "I'm hiring"],
@@ -48,7 +50,7 @@ export default function SignupForm({ employerEnabled, initialType = "candidate",
               className={`${styles.tab} ${accountType === value ? styles.tabActive : ""}`}
               onClick={() => setAccountType(value)}
             >
-              {label}
+              {t(label)}
             </button>
           ))}
         </div>
@@ -58,7 +60,7 @@ export default function SignupForm({ employerEnabled, initialType = "candidate",
 
       <form className={styles.form} onSubmit={submit}>
         <div className={styles.field}>
-          <label htmlFor="signup-name">{employer ? "Your full name" : "Full name"}</label>
+          <label htmlFor="signup-name">{t(employer ? "Your full name" : "Full name")}</label>
           <input
             id="signup-name"
             type="text"
@@ -70,7 +72,7 @@ export default function SignupForm({ employerEnabled, initialType = "candidate",
           />
         </div>
         <div className={styles.field}>
-          <label htmlFor="signup-email">{employer ? "Work email" : "Email address"}</label>
+          <label htmlFor="signup-email">{t(employer ? "Work email" : "Email address")}</label>
           <input
             id="signup-email"
             type="email"
@@ -84,24 +86,23 @@ export default function SignupForm({ employerEnabled, initialType = "candidate",
         </div>
         <PasswordField
           id="signup-password"
-          label="Create a password"
+          label={t("Create a password")}
           autoComplete="new-password"
           value={password}
           onChange={setPassword}
-          hint="At least 8 characters, with letters and a number."
+          hint={t("At least 8 characters, with letters and a number.")}
         />
-        {error ? <p className={styles.error} role="alert">{error}</p> : null}
+        {error ? <p className={styles.error} role="alert">{t(error)}</p> : null}
         <button className={styles.primary} type="submit" disabled={state === "saving"}>
-          {state === "saving"
+          {t(state === "saving"
             ? "Creating account…"
             : employer
               ? "Create employer account"
-              : "Create account"}
+              : "Create account")}
         </button>
         {employer ? (
           <p className={styles.hint}>
-            After confirming your email you will add your company details. Daraja
-            verifies employers before their vacancies go live.
+            {t("After confirming your email you will add your company details. Daraja verifies employers before their vacancies go live.")}
           </p>
         ) : null}
       </form>

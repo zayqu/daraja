@@ -1,208 +1,204 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
 import { mobileDockEnabledPath } from "@/lib/mobile-navigation";
-import { postJobHref } from "@/lib/platform-roles";
+import { activeMenuHref, dashboardMenu, secondaryMenuSections } from "@/lib/dashboard-navigation";
 import NavIcon from "@/components/ui/NavIcon";
-import { PRIVACY_SETTINGS_EVENT } from "@/lib/google-services";
-import { WHATSAPP_CHANNEL_URL } from "@/lib/site-config";
+import LanguageSwitch from "@/components/LanguageSwitch";
+import { useT } from "@/components/LanguageProvider";
+import { DarajaLinks, INTERNSHIPS_HREF, MenuRows, MenuSections, SignOutButton } from "@/components/ui/MenuList";
 import styles from "./MobileDock.module.css";
 
+// Visitors need an account for job alerts, so the row says so and signs in first.
+const GUEST_ROWS = [
+  {
+    href: "/auth/signin?callbackUrl=/account/alerts",
+    label: "Job alerts",
+    hint: "Free account needed",
+    icon: "alert",
+  },
+  { href: INTERNSHIPS_HREF, label: "Internships", icon: "internships" },
+  { href: "/contact", label: "Contact", icon: "help" },
+];
 
+// Phone navigation (D-027, D-038). Every tab goes straight to a page except
+// More, the only tab that opens a menu (admins and visitors). Candidates and
+// employers find the rest of their menu on their Profile/Account page.
+// Desktop uses the dashboard sidebar instead.
 export default function MobileDock({
   showEmployerCta = false,
   showCandidateProfile = false,
   userRole = null,
+  userName = null,
+  counts = null,
 }) {
+  const t = useT();
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const [moreOpen, setMoreOpen] = useState(false);
+  const [sheetOpen, setSheetOpen] = useState(false);
+  const closeButtonRef = useRef(null);
+  const moreButtonRef = useRef(null);
   const freelanceActive =
     pathname.startsWith("/jobs") && searchParams.get("type") === "FREELANCE";
-  const isCandidate = userRole === "JOB_SEEKER";
-  const isEmployer = userRole === "EMPLOYER";
-  const isAdmin = userRole === "ADMIN";
 
   useEffect(() => {
-    if (!moreOpen) return undefined;
+    if (!sheetOpen) return undefined;
+    closeButtonRef.current?.focus();
+    const moreButton = moreButtonRef.current;
 
     function onKeyDown(event) {
-      if (event.key === "Escape") setMoreOpen(false);
+      if (event.key === "Escape") setSheetOpen(false);
     }
 
     window.addEventListener("keydown", onKeyDown);
-    return () => window.removeEventListener("keydown", onKeyDown);
-  }, [moreOpen]);
+    return () => {
+      window.removeEventListener("keydown", onKeyDown);
+      moreButton?.focus();
+    };
+  }, [sheetOpen]);
 
   if (!mobileDockEnabledPath(pathname)) return null;
 
-  const roleItem =
-    isAdmin
-      ? {
-          href: "/admin",
-          label: "Admin",
-          icon: "admin",
-          active: pathname.startsWith("/admin"),
-        }
-      : isEmployer && showEmployerCta
-        ? {
-            href: "/employer",
-            label: "Employer",
-            icon: "employer",
-            active:
-              pathname.startsWith("/employer") ||
-              pathname.startsWith("/post-job"),
-          }
-        : isCandidate && showCandidateProfile
-          ? {
-              href: "/account/career",
-              label: "Career",
-              icon: "user",
-              active: pathname.startsWith("/account/career"),
-            }
-          : {
-              href: "/jobs?type=FREELANCE",
-              label: "Freelance",
-              icon: "freelance",
-              active: freelanceActive,
-            };
+  const close = () => setSheetOpen(false);
+  const menu = userRole
+    ? dashboardMenu(userRole, { employerPortal: showEmployerCta, candidateCareer: showCandidateProfile })
+    : null;
 
-  const items = [
-    { href: "/", label: "Home", icon: "home", active: pathname === "/" },
-    {
-      href: "/jobs",
-      label: "Jobs",
-      icon: "jobs",
-      active: pathname.startsWith("/jobs") && !freelanceActive,
-    },
-    roleItem,
-  ];
-
-  const dockItemCount = items.length + 1;
+  let tabs;
+  let activeHref = null;
+  let accountAreaActive = false;
+  if (menu) {
+    // The home page belongs to no tab (it is only the admin's "View the site").
+    activeHref = activeMenuHref(
+      [...menu.dock, ...menu.main, ...menu.settings].filter((item) => item.href !== "/"),
+      pathname
+    );
+    // Any menu page outside the dock belongs to the Profile/Account/More tab.
+    accountAreaActive =
+      pathname === menu.accountTab.href ||
+      (Boolean(activeHref) && !menu.dock.some((item) => item.href === activeHref));
+    tabs = menu.dock.map((item) => ({
+      ...item,
+      active: item.href === activeHref,
+      badge: item.count ? Number(counts?.[item.count] || 0) : 0,
+    }));
+    if (menu.accountTab.href) tabs.push({ ...menu.accountTab, active: accountAreaActive });
+  } else {
+    tabs = [
+      { href: "/", label: "Home", icon: "home", active: pathname === "/" },
+      { href: "/jobs", label: "Jobs", icon: "jobs", active: pathname.startsWith("/jobs") && !freelanceActive },
+      { href: "/jobs?type=FREELANCE", label: "Freelance", icon: "freelance", active: freelanceActive },
+    ];
+  }
+  const hasMore = !menu || !menu.accountTab.href;
 
   return (
     <>
       <div className={styles.spacer} aria-hidden="true" />
 
-      {moreOpen && (
+      {hasMore && sheetOpen && (
         <div className={styles.sheetLayer}>
           <button
             type="button"
             className={styles.backdrop}
-            aria-label="Close menu"
-            onClick={() => setMoreOpen(false)}
+            aria-hidden="true"
+            tabIndex={-1}
+            onClick={close}
           />
-          <section className={styles.sheet} aria-label="More navigation">
+          <section
+            className={styles.sheet}
+            role="dialog"
+            aria-modal="true"
+            aria-label={menu ? `${t(menu.roleLabel)} · ${t("Menu")}` : t("Daraja menu")}
+          >
             <div className={styles.sheetHandle} aria-hidden="true" />
             <div className={styles.sheetHeader}>
-              <div>
-                <span>Daraja</span>
-                <strong>More</strong>
+              <div className={styles.identity}>
+                <strong>{menu ? userName || t("Your account") : "Daraja"}</strong>
+                <span>{menu ? t(menu.roleLabel) : "Kazi na fursa Tanzania"}</span>
               </div>
-              <button type="button" onClick={() => setMoreOpen(false)}>
-                Close
+              <button
+                ref={closeButtonRef}
+                type="button"
+                className={styles.closeButton}
+                aria-label={t("Close menu")}
+                onClick={close}
+              >
+                <NavIcon name="close" size={18} />
               </button>
             </div>
 
-            <nav className={styles.sheetLinks}>
-              {!userRole && (
-                <Link href="/auth/signin" onClick={() => setMoreOpen(false)}>
-                  Sign in
-                </Link>
-              )}
-              {!userRole && (
-                <Link href="/auth/signup" onClick={() => setMoreOpen(false)}>
-                  Create account
-                </Link>
-              )}
-              {showCandidateProfile && (
-                <Link href="/account" onClick={() => setMoreOpen(false)}>
-                  My account
-                </Link>
-              )}
-              {showCandidateProfile && (
-                <Link href="/account/career/cv" onClick={() => setMoreOpen(false)}>
-                  CV Builder
-                </Link>
-              )}
-              {showCandidateProfile && isCandidate && (
-                <Link href="/account/career" onClick={() => setMoreOpen(false)}>
-                  Career workspace
-                </Link>
-              )}
-              <Link href="/account/alerts" onClick={() => setMoreOpen(false)}>
-                Job alerts
-              </Link>
-              <Link href="/account/privacy" onClick={() => setMoreOpen(false)}>
-                Privacy & data
-              </Link>
-              <button
-                type="button"
-                onClick={() => {
-                  setMoreOpen(false);
-                  window.dispatchEvent(new Event(PRIVACY_SETTINGS_EVENT));
-                }}
-              >
-                Privacy choices
-              </button>
-              {showEmployerCta && (isEmployer || isAdmin) && (
-                <Link href="/employer" onClick={() => setMoreOpen(false)}>
-                  Employer workspace
-                </Link>
-              )}
-              {isAdmin && (
-                <Link href="/admin" onClick={() => setMoreOpen(false)}>
-                  Admin
-                </Link>
-              )}
-              <Link href="/jobs?category=Internships%20%26%20Graduate%20Programs" onClick={() => setMoreOpen(false)}>
-                Internships
-              </Link>
-              <Link href="/about" onClick={() => setMoreOpen(false)}>About Daraja</Link>
-              <Link href="/contact" onClick={() => setMoreOpen(false)}>Contact</Link>
-              <a href={WHATSAPP_CHANNEL_URL} target="_blank" rel="noopener noreferrer" onClick={() => setMoreOpen(false)}>
-                WhatsApp Channel
-              </a>
-              {showEmployerCta && (isEmployer || isAdmin) && (
-                <Link href={postJobHref(userRole)} onClick={() => setMoreOpen(false)}>
-                  Post a Job
-                </Link>
-              )}
-            </nav>
+            {menu ? (
+              <>
+                <MenuSections
+                  sections={secondaryMenuSections(menu)}
+                  activeHref={activeHref}
+                  onNavigate={close}
+                  compactSettings
+                />
+                <LanguageSwitch full />
+                <DarajaLinks onNavigate={close} />
+                <SignOutButton />
+              </>
+            ) : (
+              <>
+                <div className={styles.authActions}>
+                  <Link href="/auth/signin" className={styles.authPrimary} onClick={close}>
+                    {t("Sign in")}
+                  </Link>
+                  <Link href="/auth/signup" className={styles.authSecondary} onClick={close}>
+                    {t("Create account")}
+                  </Link>
+                </div>
+                <MenuRows items={GUEST_ROWS} onNavigate={close} />
+                <LanguageSwitch full />
+                <DarajaLinks onNavigate={close} />
+              </>
+            )}
           </section>
         </div>
       )}
 
       <nav className={styles.dockWrap} aria-label="Mobile navigation">
-        <div className={styles.dock} style={{ "--dock-item-count": dockItemCount }}>
-          {items.map((item) => (
+        <div className={styles.dock} style={{ "--dock-item-count": tabs.length + (hasMore ? 1 : 0) }}>
+          {tabs.map((item) => (
             <Link
               key={item.href}
               href={item.href}
-              className={`${styles.item} ${item.active ? styles.active : ""}`}
+              className={`${styles.item} ${item.active ? styles.active : ""} ${item.primary ? styles.primary : ""}`}
               aria-current={item.active ? "page" : undefined}
-              onClick={() => setMoreOpen(false)}
+              onClick={close}
             >
               <span className={styles.iconWrap}>
-                <NavIcon name={item.icon} size={24} />
+                <NavIcon name={item.icon} size={item.primary ? 22 : 24} />
+                {item.badge > 0 ? (
+                  <span className={styles.badge} aria-hidden="true">
+                    {item.badge > 99 ? "99+" : item.badge}
+                  </span>
+                ) : null}
               </span>
-              <span className={styles.label}>{item.label}</span>
+              <span className={styles.label}>{t(item.label)}</span>
+              {item.badge > 0 ? <span className="sr-only">, {item.badge} waiting</span> : null}
             </Link>
           ))}
 
-          <button
-            type="button"
-            className={`${styles.item} ${moreOpen ? styles.active : ""}`}
-            aria-expanded={moreOpen}
-            onClick={() => setMoreOpen((value) => !value)}
-          >
-            <span className={styles.iconWrap}>
-              <NavIcon name="more" size={24} />
-            </span>
-            <span className={styles.label}>More</span>
-          </button>
+          {hasMore ? (
+            <button
+              ref={moreButtonRef}
+              type="button"
+              className={`${styles.item} ${sheetOpen || accountAreaActive ? styles.active : ""}`}
+              aria-expanded={sheetOpen}
+              aria-haspopup="dialog"
+              onClick={() => setSheetOpen((value) => !value)}
+            >
+              <span className={styles.iconWrap}>
+                <NavIcon name="more" size={24} />
+              </span>
+              <span className={styles.label}>{t("More")}</span>
+            </button>
+          ) : null}
         </div>
       </nav>
     </>

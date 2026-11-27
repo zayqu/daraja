@@ -179,5 +179,7 @@ test("site settings are admin-only, whitelisted and fall back to the server envi
 
 test("trusted verified employers publish without review", () => {
   const route = read("app/api/employer/jobs/route.js");
-  assert.match(route, /actor\.employer\.autoPublish && actor\.employer\.verificationStatus === "VERIFIED"/);
+  const access = read("lib/employer-access.js");
+  assert.match(access, /employer\?\.autoPublish && employer\.verificationStatus === "VERIFIED"/);
+  assert.match(route, /publishesWithoutReview\(actor\.employer\)/);
 });

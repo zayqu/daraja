@@ -29,5 +29,5 @@ test("homepage categories show live counts, busiest first", async () => {
   assert.match(stats, /categoryCounts: \{\}/);
   assert.match(home, /orderCategories\(categoryList, stats\.categoryCounts\)/);
   assert.match(home, /<CategoryIcon category=\{name\} slug=\{slug\} \/>/);
-  assert.match(home, /formatOpenJobs\(count\)/);
+  assert.match(home, /formatOpenJobs\(count, t\)/);
 });

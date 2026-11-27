@@ -1,7 +1,7 @@
 import Link from "next/link";
 import AdminRowActions from "@/components/admin/AdminRowActions";
-import { Badge, PageHeader, Pagination, Panel, formatDate, pageNumber } from "@/components/admin/AdminUi";
-import styles from "@/components/admin/admin.module.css";
+import { Badge, PageHeader, Pagination, Panel, formatDate, pageNumber } from "@/components/dashboard/DashboardUi";
+import styles from "@/components/dashboard/dashboard.module.css";
 import { employerActions } from "@/lib/admin-actions";
 import { requireAdminPage } from "@/lib/admin-guard";
 import { employerPortalEnabled } from "@/lib/features";

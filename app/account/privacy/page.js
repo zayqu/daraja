@@ -1,15 +1,11 @@
 import { redirect } from "next/navigation";
 import { auth } from "@/auth";
-import CandidateAccountTabs from "@/components/CandidateAccountTabs";
-import PublicSiteNav from "@/components/PublicSiteNav";
-import PageHero from "@/components/ui/PageHero";
-import WorkspaceShell from "@/components/ui/WorkspaceShell";
+import { PageHeader } from "@/components/dashboard/DashboardUi";
 import SurfaceCard from "@/components/ui/SurfaceCard";
-import { candidateCareerEnabled } from "@/lib/candidate-access";
 import AccountDeletionForm from "./AccountDeletionForm";
 import styles from "./privacy.module.css";
 
-export const metadata = { title: "Privacy & Data" };
+export const metadata = { title: "Privacy & Data", robots: { index: false, follow: false } };
 export const dynamic = "force-dynamic";
 
 export default async function PrivacyPage() {
@@ -19,62 +15,52 @@ export default async function PrivacyPage() {
   }
 
   return (
-    <div className={styles.page}>
-      <PublicSiteNav />
+    <>
+      <PageHeader
+        title="Privacy & data"
+        description="Download the information tied to your account, or delete your account permanently."
+      />
 
-      <main id="main-content">
-        <PageHero
-          eyebrow="Privacy & data"
-          title="Your Daraja data stays under your control."
-          description="Download the information tied to your account or permanently delete your account when you no longer want to use Daraja."
-          maxWidth="narrow"
-        />
+      <section className={styles.stack} aria-label="Privacy controls">
+        <SurfaceCard as="article" className={styles.privacyCard}>
+          <span className={styles.cardLabel}>Export</span>
+          <h2>Download my account data</h2>
+          <p>
+            Export your profile, preferences, saved jobs, application
+            history, account-linked subscriptions and payment records as
+            JSON.
+          </p>
+          <a className={styles.primaryAction} href="/api/account/export">
+            Download account data
+          </a>
+        </SurfaceCard>
 
-        <WorkspaceShell width="narrow">
-          <CandidateAccountTabs showCareer={candidateCareerEnabled()} />
+        <SurfaceCard as="article" className={styles.privacyCard}>
+          <span className={styles.cardLabel}>Private by default</span>
+          <h2>Candidate documents</h2>
+          <p>
+            Candidate documents are private by default. Storage identifiers,
+            authentication secrets and session tokens are never included in
+            the account export.
+          </p>
+        </SurfaceCard>
 
-          <section className={styles.stack} aria-label="Privacy controls">
-            <SurfaceCard as="article" className={styles.privacyCard}>
-              <span className={styles.cardLabel}>Export</span>
-              <h2>Download my account data</h2>
-              <p>
-                Export your profile, preferences, saved jobs, application
-                history, account-linked subscriptions and payment records as
-                JSON.
-              </p>
-              <a className={styles.primaryAction} href="/api/account/export">
-                Download account data
-              </a>
-            </SurfaceCard>
-
-            <SurfaceCard as="article" className={styles.privacyCard}>
-              <span className={styles.cardLabel}>Private by default</span>
-              <h2>Candidate documents</h2>
-              <p>
-                Candidate documents are private by default. Storage identifiers,
-                authentication secrets and session tokens are never included in
-                the account export.
-              </p>
-            </SurfaceCard>
-
-            <SurfaceCard as="article" className={styles.privacyCard} tone="danger">
-              <span className={styles.dangerLabel}>Permanent action</span>
-              <h2>Delete my account permanently</h2>
-              <p>
-                Deletion removes your Daraja sign-in, sessions, profiles, alerts,
-                saved jobs, Daraja-managed applications and eligible private
-                documents. Public employer vacancy records may remain as business
-                records but are detached from the deleted account.
-              </p>
-              <p>
-                Download your account data first if you want to keep a copy.
-                This action cannot be undone.
-              </p>
-              <AccountDeletionForm />
-            </SurfaceCard>
-          </section>
-        </WorkspaceShell>
-      </main>
-    </div>
+        <SurfaceCard as="article" className={styles.privacyCard} tone="danger">
+          <span className={styles.dangerLabel}>Permanent action</span>
+          <h2>Delete my account permanently</h2>
+          <p>
+            Deletion removes your Daraja sign-in, sessions, profiles, alerts,
+            saved jobs, Daraja-managed applications and eligible private
+            documents. Public employer vacancy records may remain as business
+            records but are detached from the deleted account.
+          </p>
+          <p>
+            Download your account data first if you want to keep a copy.
+            This action cannot be undone.
+          </p>
+          <AccountDeletionForm />
+        </SurfaceCard>
+      </section>
+    </>
   );
 }

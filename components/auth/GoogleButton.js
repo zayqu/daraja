@@ -1,8 +1,10 @@
 import { signIn } from "@/auth";
 import styles from "@/app/auth/auth.module.css";
+import { getServerT } from "@/lib/i18n-server";
 
 // Server-rendered "Continue with Google" with the "or" divider under it.
-export default function GoogleButton({ callbackUrl, label = "Continue with Google" }) {
+export default async function GoogleButton({ callbackUrl, label = "Continue with Google" }) {
+  const { t } = await getServerT();
   return (
     <>
       <form
@@ -13,10 +15,10 @@ export default function GoogleButton({ callbackUrl, label = "Continue with Googl
         }}
       >
         <button className={styles.google} type="submit">
-          {label}
+          {t(label)}
         </button>
       </form>
-      <div className={styles.divider}><span>or use your email</span></div>
+      <div className={styles.divider}><span>{t("or use your email")}</span></div>
     </>
   );
 }

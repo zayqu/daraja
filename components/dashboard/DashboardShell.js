@@ -3,13 +3,16 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import NavIcon from "@/components/ui/NavIcon";
+import DarajaLogo from "@/components/ui/DarajaLogo";
+import LanguageSwitch from "@/components/LanguageSwitch";
+import { ThemeToggle } from "@/components/ThemeControls";
 import { signOutAction } from "@/app/actions/sign-out";
 import { activeMenuHref, dashboardMenu } from "@/lib/dashboard-navigation";
 import styles from "./DashboardShell.module.css";
 import { useT } from "@/components/LanguageProvider";
 
-// One promotional card per role, linking to real Daraja products only.
-// Candidates are never charged (D-036), so theirs points to a free tool.
+// Employers get one card for the paid featured-vacancy product (D-036).
+// Candidates have no promo: the Figma candidate menu already lists every tool.
 const PROMOS = {
   EMPLOYER: {
     tag: "Featured job",
@@ -21,17 +24,6 @@ const PROMOS = {
     text: "Feature it on Ajira and the DARAJA WhatsApp Channel.",
     cta: "Feature a vacancy",
     href: "/advertise",
-  },
-  JOB_SEEKER: {
-    tag: "Free",
-    title: (
-      <>
-        Stand out with an <em>ATS-ready CV</em>
-      </>
-    ),
-    text: "Build your CV once, then tailor it for each job.",
-    cta: "Open CV Builder",
-    href: "/account/career/cv",
   },
 };
 
@@ -76,47 +68,54 @@ export default function DashboardShell({
   return (
     <div className={styles.shell}>
       <aside className={styles.sidebar} aria-label={`${menu.roleLabel} menu`}>
-        <Link href={menu.home} className={styles.brand}>
-          DARAJA
-          <small>{menu.roleLabel} dashboard</small>
+        <Link href={menu.home} className={styles.brand} aria-label={t("Daraja home")}>
+          <DarajaLogo />
         </Link>
 
+        <p className={styles.navLabel}>{t(`${menu.roleLabel} menu`)}</p>
         <nav className={styles.nav} aria-label="Dashboard">
           {menu.main.map((item) => (
             <MenuLink key={item.href} item={item} active={item.href === activeHref} counts={counts} />
           ))}
         </nav>
 
-        <p className={styles.navLabel}>{t("Settings")}</p>
         <nav className={`${styles.nav} ${styles.settingsNav}`} aria-label="Settings and support">
-          {menu.settings.map((item) => (
+          {menu.settings.filter((item) => !item.inTopbar).map((item) => (
             <MenuLink key={item.href} item={item} active={item.href === activeHref} counts={counts} />
           ))}
-          <form action={signOutAction}>
-            <button type="submit" className={styles.navLink}>
-              <NavIcon name="logout" size={20} />
-              <span>{t("Sign out")}</span>
-            </button>
-          </form>
         </nav>
 
         {promo ? (
           <div className={styles.promo}>
-            <span className={styles.promoTag}>{promo.tag}</span>
+            <span className={styles.promoTag}>{t(promo.tag)}</span>
             <strong>{promo.title}</strong>
-            <p>{promo.text}</p>
+            <p>{t(promo.text)}</p>
             <Link href={promo.href} className={styles.promoAction}>
-              {promo.cta}
+              {t(promo.cta)}
             </Link>
           </div>
         ) : null}
+
+        <div className={styles.userCard}>
+          <Link href={profileHref} className={styles.userLink} title={user?.email || undefined}>
+            <span className={styles.avatar} aria-hidden="true">{user?.initials || "D"}</span>
+            <span className={styles.userText}>
+              <strong>{user?.name || "Daraja user"}</strong>
+              <small>{t(menu.roleLabel)}</small>
+            </span>
+          </Link>
+          <form action={signOutAction}>
+            <button type="submit" className={styles.signOut} aria-label={t("Sign out")} title={t("Sign out")}>
+              <NavIcon name="logout" size={20} />
+            </button>
+          </form>
+        </div>
       </aside>
 
       <div className={styles.body}>
         <header className={styles.topbar}>
-          <Link href={menu.home} className={styles.mobileBrand}>
-            DARAJA
-            <small>{menu.roleLabel}</small>
+          <Link href={menu.home} className={styles.mobileBrand} aria-label={t("Daraja home")}>
+            <DarajaLogo />
           </Link>
 
           <form className={styles.search} action={menu.search.action} role="search">
@@ -124,23 +123,24 @@ export default function DashboardShell({
             <input
               type="search"
               name={menu.search.name}
-              placeholder={menu.search.placeholder}
-              aria-label={menu.search.placeholder}
+              placeholder={t(menu.search.placeholder)}
+              aria-label={t(menu.search.placeholder)}
             />
           </form>
 
           <div className={styles.topActions}>
+            <LanguageSwitch className={styles.desktopOnly} />
+            <ThemeToggle className={styles.desktopOnly} />
+            {menu.role !== "ADMIN" ? (
+              <Link href="/" className={`${styles.viewSite} ${styles.desktopOnly}`}>{t("View site")}</Link>
+            ) : null}
             {notificationsHref ? (
               <Link href={notificationsHref} className={styles.iconButton} aria-label={t("Notifications")} title={t("Notifications")}>
                 <NavIcon name="bell" size={20} />
               </Link>
             ) : null}
-            <Link href={profileHref} className={styles.userChip} title={user?.email || undefined}>
-              <span className={styles.avatar} aria-hidden="true">{user?.initials || "D"}</span>
-              <span className={styles.userText}>
-                <strong>{user?.name || "Daraja user"}</strong>
-                <small>{menu.roleLabel}</small>
-              </span>
+            <Link href="/contact" className={`${styles.iconButton} ${styles.desktopOnly}`} aria-label={t("Help & support")} title={t("Help & support")}>
+              <NavIcon name="help" size={20} />
             </Link>
           </div>
         </header>

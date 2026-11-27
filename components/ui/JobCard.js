@@ -100,18 +100,25 @@ function factItems(job, t) {
 }
 
 /**
- * Shared public job card.
- * - variant "row" (default): full-width list row used by search results and
- *   homepage lists.
+ * Shared job card.
+ * - variant "row" (default): full-width list row used by search results,
+ *   homepage lists and the candidate's My jobs.
  * - variant "tile": compact card used in homepage card rails/grids.
+ * `actions` (e.g. Remove / Withdraw buttons) replace the bookmark mark; the
+ * card then becomes a plain box whose title link covers the card, so buttons
+ * are never nested inside a link. `status` replaces the deadline pill, and
+ * `linked={false}` shows a closed job without a link.
  */
 export default function JobCard({
   job,
   listName = "Job opportunities",
   variant = "row",
+  actions = null,
+  status = null,
+  linked = true,
 }) {
   const t = useT();
-  const deadline = deadlineLabel(job.deadline, t);
+  const deadline = status ? null : deadlineLabel(job.deadline, t);
   const posted = postedLabel(job.createdAt, t);
   const facts = factItems(job, t);
   const displayTitle = formatJobTitle(job.title, job.source);
@@ -120,23 +127,22 @@ export default function JobCard({
     ? facts.filter((fact) => fact.key === "location" || fact.key === "type")
     : facts;
   const tileSalary = isTile ? job.salary : null;
+  const href = `/jobs/${job.slug || job.id}`;
+  const track = () =>
+    trackEvent("select_item", {
+      item_list_name: listName,
+      items: [{
+        item_id: job.id,
+        item_name: job.title,
+        item_brand: job.company,
+        item_category: job.category,
+      }],
+    });
+  const boxed = Boolean(actions) || !linked;
+  const className = `${styles.card} ${isTile ? styles.tile : styles.row} ${boxed ? styles.boxed : ""}`;
 
-  return (
-    <Link
-      href={`/jobs/${job.slug || job.id}`}
-      className={`${styles.card} ${isTile ? styles.tile : styles.row}`}
-      onClick={() =>
-        trackEvent("select_item", {
-          item_list_name: listName,
-          items: [{
-            item_id: job.id,
-            item_name: job.title,
-            item_brand: job.company,
-            item_category: job.category,
-          }],
-        })
-      }
-    >
+  const body = (
+    <>
       <JobBrandMedia
         company={job.company}
         companyLogo={job.companyLogo}
@@ -147,7 +153,13 @@ export default function JobCard({
 
       <div className={styles.content}>
         <div className={styles.titleRow}>
-          <h3 className={styles.title} title={displayTitle}>{displayTitle}</h3>
+          <h3 className={styles.title} title={displayTitle}>
+            {boxed && linked ? (
+              <Link href={href} className={styles.titleLink} onClick={track}>{displayTitle}</Link>
+            ) : (
+              displayTitle
+            )}
+          </h3>
           {job.featured && <span className={styles.featured}>{t("Featured")}</span>}
         </div>
 
@@ -171,19 +183,24 @@ export default function JobCard({
         )}
       </div>
 
-      <span className={styles.saveVisual} aria-hidden="true">
-        <svg viewBox="0 0 24 24" focusable="false">
-          <path d="M6 4h12v16l-6-4-6 4V4Z" />
-        </svg>
-      </span>
+      {actions ? (
+        <div className={styles.actions}>{actions}</div>
+      ) : (
+        <span className={styles.saveVisual} aria-hidden="true">
+          <svg viewBox="0 0 24 24" focusable="false">
+            <path d="M6 4h12v16l-6-4-6 4V4Z" />
+          </svg>
+        </span>
+      )}
 
-      {(deadline || tileSalary) && (
+      {(deadline || tileSalary || status) && (
         <div className={styles.side}>
           {isTile && (
             <span className={tileSalary ? styles.salary : styles.salaryMissing}>
               {tileSalary || t("Salary not stated")}
             </span>
           )}
+          {status}
           {deadline && (
             <span className={`${styles.deadline} ${deadlineTone(job.deadline)}`}>
               {deadline}
@@ -191,6 +208,14 @@ export default function JobCard({
           )}
         </div>
       )}
+    </>
+  );
+
+  if (boxed) return <article className={className}>{body}</article>;
+
+  return (
+    <Link href={href} className={className} onClick={track}>
+      {body}
     </Link>
   );
 }

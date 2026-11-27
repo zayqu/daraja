@@ -1283,7 +1283,7 @@ a.highlightItem:hover strong {
   /* Employer overview: title row, then status · applies · closes · edit. */
   .vacancyTable tr {
     display: grid;
-    grid-template-columns: auto auto minmax(0, 1fr) auto;
+    grid-template-columns: auto auto auto minmax(0, 1fr) auto;
     align-items: center;
     gap: 0.35rem 0.75rem;
   }

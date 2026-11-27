@@ -4,6 +4,14 @@ Last updated: 27 November 2026
 
 
 
+## Job views for employers (27 November 2026)
+
+- New: job page views. `JobViewDay` (migration `20261127120000_job_view_days`) keeps one count per job per Tanzania day; the job page sends one view per browser per job per day; bots and unpublished jobs are not counted; no visitor data is stored (D-042).
+- Employer overview now matches Figma fully: Live vacancies, Views this week (with change on last week), Applications, In review; Views column in "Your vacancies". The vacancy list shows views and applications per job; the admin job page shows views beside saves and applications.
+- Admin overview rows now have Review and Approve, as in Figma. Approve opens the editor check; publishing still needs that check.
+- Fix: employer-submitted vacancies could not be published from the overview queue because the button wrongly required an original source link (only imported jobs have one).
+- Production needs the new migration; it runs with the next master build once the database is reachable.
+
 ## Figma employer and admin overviews (27 November 2026)
 
 - Employer overview (`/employer`) follows Figma Desktop · Employer overview: "Karibu, {company}" header with Feature a vacancy and Post a job; four number cards (live vacancies with how many close this week, applications received on Daraja with new this week, in review, not approved); a "Your vacancies" table (status, applies, closing date, Edit); a navy featured-vacancy card using the price from Site settings; and the company profile card. On phones the table becomes compact rows. The sidebar promo is hidden on the overview so it does not appear twice.

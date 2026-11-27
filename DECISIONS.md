@@ -690,7 +690,7 @@ screens (phone, tablet and desktop, with clickable prototypes and user flows).
 
 ## D-040 - Figma screens that need a missing backend wait for that backend
 
-**Status:** accepted (27 November 2026)
+**Status:** superseded by D-042 (27 November 2026)
 
 Following D-039, public discovery (Home, Jobs, Job detail) follows the Figma
 Desktop · Discover (guest), Job list and Job detail frames. Figma elements that
@@ -710,3 +710,18 @@ visible fields by default; no cheesy copy such as "Welcome back 👋"; real
 Daraja brand artwork rather than generic gradients; Privacy and Terms links at
 the bottom; and a "Last used" badge on the last sign-in method (stored on the
 device only). Social buttons have one owner, `components/auth/ProviderButton.js`.
+
+
+## D-042 - The Figma file is the product spec; missing backends get built
+
+**Status:** accepted (owner decision, 27 November 2026; replaces D-040)
+
+The owner confirmed that everything in the Figma file "Daraja — UI/UX Design"
+is the new update. A Figma element that needs data Daraja does not have yet is
+built with its backend instead of being left out. First case: job page views
+(`JobViewDay`, one row per job per Tanzania day, counted once per browser per
+job per day by `components/JobViewBeacon.js`, bots skipped, nothing stored
+about the visitor) feed the employer "Views this week" card, the Views column
+and the vacancy list. Facts stay stated-only (D-029) and publishing an imported
+or employer vacancy still needs the editor's source check: the admin "Approve"
+button opens that check instead of skipping it.

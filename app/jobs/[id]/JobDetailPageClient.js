@@ -8,6 +8,7 @@ import SiteNav from "@/components/SiteNav";
 import SiteFooter from "@/components/SiteFooter";
 import JobBrandMedia from "@/components/JobBrandMedia";
 import SaveJobButton from "@/components/SaveJobButton";
+import JobViewBeacon from "@/components/JobViewBeacon";
 import { useT } from "@/components/LanguageProvider";
 import { trackEvent } from "@/lib/analytics";
 import { structureJobDescription } from "@/lib/job-description";
@@ -274,6 +275,7 @@ export default function JobDetailPageClient({ initialJob, showEmployerCta }) {
   return (
     <div className={styles.page}>
       <SiteNav showEmployerCta={showEmployerCta} />
+      <JobViewBeacon jobId={job.id} />
 
       <nav className={styles.breadcrumb} aria-label={t("Breadcrumb")}>
         <div className={styles.breadcrumbInner}>

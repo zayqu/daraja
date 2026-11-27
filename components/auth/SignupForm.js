@@ -6,8 +6,10 @@ import styles from "@/app/auth/auth.module.css";
 import PasswordField from "./PasswordField";
 import { postJson } from "./postJson";
 import { useT } from "@/components/LanguageProvider";
+import EmailOption from "./EmailOption";
+import { rememberSignInMethod } from "./LastUsed";
 
-export default function SignupForm({ employerEnabled, initialType = "candidate", socialCandidate = null, socialEmployer = null }) {
+export default function SignupForm({ employerEnabled, initialType = "candidate", hasSocial = false, socialCandidate = null, socialEmployer = null }) {
   const t = useT();
   const router = useRouter();
   const [accountType, setAccountType] = useState(
@@ -25,6 +27,7 @@ export default function SignupForm({ employerEnabled, initialType = "candidate",
     setError("");
     const { ok, data } = await postJson("/api/account/register", { name, email, password, accountType });
     if (ok) {
+      rememberSignInMethod("email");
       router.push(`/auth/check-email?email=${encodeURIComponent(email)}`);
       return;
     }
@@ -37,27 +40,33 @@ export default function SignupForm({ employerEnabled, initialType = "candidate",
   return (
     <>
       {employerEnabled ? (
-        <div className={styles.tabs} role="tablist" aria-label={t("Account type")}>
+        <fieldset className={styles.accountTypes}>
+          <legend className="sr-only">{t("Account type")}</legend>
           {[
-            ["candidate", "I'm looking for work"],
-            ["employer", "I'm hiring"],
-          ].map(([value, label]) => (
-            <button
-              key={value}
-              type="button"
-              role="tab"
-              aria-selected={accountType === value}
-              className={`${styles.tab} ${accountType === value ? styles.tabActive : ""}`}
-              onClick={() => setAccountType(value)}
-            >
-              {t(label)}
-            </button>
+            ["candidate", "I'm looking for work", "Find jobs, save them and build your CV"],
+            ["employer", "I'm hiring", "Post vacancies after a quick verification"],
+          ].map(([value, label, detail]) => (
+            <label key={value} className={`${styles.accountType} ${accountType === value ? styles.accountTypeActive : ""}`}>
+              <input
+                type="radio"
+                name="account-type"
+                value={value}
+                checked={accountType === value}
+                onChange={() => setAccountType(value)}
+              />
+              <strong>{t(label)}</strong>
+              <span>{t(detail)}</span>
+            </label>
           ))}
-        </div>
+        </fieldset>
       ) : null}
 
-      {accountType === "employer" ? socialEmployer : socialCandidate}
-
+      <div className={styles.methods}>
+        {accountType === "employer" ? socialEmployer : socialCandidate}
+        {(accountType === "employer" ? socialEmployer : hasSocial) ? (
+          <div className={styles.divider}><span>{t("or")}</span></div>
+        ) : null}
+        <EmailOption label="Sign up with email" defaultOpen={!hasSocial}>
       <form className={styles.form} onSubmit={submit}>
         <div className={styles.field}>
           <label htmlFor="signup-name">{t(employer ? "Your full name" : "Full name")}</label>
@@ -106,6 +115,8 @@ export default function SignupForm({ employerEnabled, initialType = "candidate",
           </p>
         ) : null}
       </form>
+        </EmailOption>
+      </div>
     </>
   );
 }

@@ -2,6 +2,15 @@
 
 Last updated: 27 November 2026
 
+
+## Figma sign in, sign up and onboarding (27 November 2026)
+
+- `/auth/signin`, `/auth/signup` and the password pages share one rebuilt `AuthLayout` following Figma Desktop · Sign in: a navy Daraja brand panel ("Kazi na fursa, mfukoni mwako.", three real feature points, two job-seeker photos exported from the Figma file to `public/images/auth/`), and a form side with EN/SW switch and Privacy · Terms at the bottom. Phones get a slim navy brand strip with the two faces instead of the panel, and space for the mobile dock.
+- Owner's standing sign-in rules (D-041): no Sign in/Sign up tabs (sign-up account type is two option cards); Google and Apple full-width first, then LinkedIn; email behind one "Continue with email" / "Sign up with email" button with no fields until tapped (it opens automatically after an error or when no social provider is configured); a "Last used" badge on the last method, remembered in this browser only (`localStorage`, nothing sent to the server); no "Welcome back" style copy.
+- One owner for social buttons: `components/auth/ProviderButton.js` replaces `GoogleButton`, `LinkedInButton` and ChatGPT's `AppleButton`. New `EmailOption`, `LastUsed` and shared `components/ui/DarajaLogo.js` (bridge mark + DARAJA AJIRA wordmark).
+- Brought in from ChatGPT's unmerged `feature/userflow-candidate-my-jobs-20261118` (only the sign-in parts): opt-in Apple provider (`AUTH_APPLE_ENABLED`, no automatic account linking), the exact Apple form-POST callback exception in `app/api/auth/[...nextauth]/route.js`, `docs/APPLE_SIGN_IN_SETUP.md`, `config/apple-auth.env.example`, `npm run auth:apple:check`, and the onboarding step: newly verified or newly signed-up candidates land on `/account/profile` to set up their profile. Apple stays hidden until it is configured on the server. The branch's candidate-career page changes were not taken because the dashboards work already replaced those pages.
+- All new text has Kiswahili. Validation: `npm test` 491/491, ESLint clean; desktop 1440 light/dark and iPhone 13 (SW) screenshots checked, no horizontal scroll, no page errors.
+
 ## Figma public discovery redesign: Home, Jobs and Job detail (27 November 2026)
 
 - Claude took over continued Ajira development from ChatGPT. This work is built on top of ChatGPT's unmerged `feature/user-dashboards` branch (Phase 1 Figma foundation: Inter + Plus Jakarta Sans, tokens, Apple-style dark mode, EN/SW, role dashboards), so it reuses its tokens, `useT`/`getServerT` translations and `SaveJobButton`.

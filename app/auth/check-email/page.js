@@ -14,11 +14,8 @@ export default async function CheckEmailPage({ searchParams }) {
   const params = await searchParams;
   const email = typeof params?.email === "string" ? params.email.slice(0, 254) : "";
   return (
-    <AuthLayout
-      title="Almost there."
-      intro="Confirm your email address to activate your Daraja account."
-    >
-      <h2>Check your email</h2>
+    <AuthLayout>
+      <h1 className={styles.title}>Check your email</h1>
       <p className={styles.lead}>
         We sent a confirmation link{email ? ` to ${email}` : ""}. Open it on this device
         to finish creating your account. The link expires in 24 hours.

@@ -14,8 +14,8 @@ export default async function ResetPasswordPage({ searchParams }) {
   const email = typeof params?.email === "string" ? params.email : "";
   const token = typeof params?.token === "string" ? params.token : "";
   return (
-    <AuthLayout title="Choose a new password." intro="Pick a password you do not use on other sites.">
-      <h2>New password</h2>
+    <AuthLayout>
+      <h1 className={styles.title}>New password</h1>
       <p className={styles.lead}>{email ? `For ${email}` : "Set a new password for your account."}</p>
       <ResetPasswordForm email={email} token={token} />
     </AuthLayout>

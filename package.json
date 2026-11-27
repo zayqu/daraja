@@ -13,7 +13,8 @@
     "scrape:ajira": "node scraper/sources/ajira.js",
     "scrape:ajira:dry": "node scraper/sources/ajira.js --dry-run",
     "db:migrate:status": "prisma migrate status",
-    "db:migrate:deploy": "prisma migrate deploy"
+    "db:migrate:deploy": "prisma migrate deploy",
+    "auth:apple:check": "node scripts/check-apple-auth-config.cjs"
   },
   "dependencies": {
     "@auth/prisma-adapter": "^2.11.3",

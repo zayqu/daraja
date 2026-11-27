@@ -4,6 +4,8 @@ const {
   pdfItemsToLines, exactClosingDate, parseNoticeRoles, extractPdfLines, readOfficialNotice, matchNoticeRoleToListing,
 } = require("../scraper/lib/psrs-notice");
 
+const NOTICE_OPEN_AT = new Date("2026-11-11T09:00:00Z");
+
 const NANYUMBU = "https://www.ajira.go.tz/api/v1/vacancies/attachment/token/0e70f879-9766-46cd-b60d-e006a2bf0dbc/download";
 const sourceLines = [
   "Kumb.Na.NDC/L10/1/VOL IX/3 Tarehe 06.11.2026",
@@ -185,7 +187,9 @@ test("individual PSRS roles match only exact title, institution and date", () =>
     company: "Halmashauri ya Wilaya ya Nanyumbu",
     deadline: "19/11/2026",
   };
-  const result = matchNoticeRoleToListing(notice, listing);
+  // Fixed clock: the fixture notice closes on 19 Nov 2026, so the match must be
+  // evaluated before that date or it would start failing once the date passes.
+  const result = matchNoticeRoleToListing(notice, listing, NOTICE_OPEN_AT);
   assert.equal(result.matched, true);
   assert.equal(result.publishable, false);
   assert.equal(result.evidenceStatus, "PENDING_EDITORIAL_REVIEW");
@@ -196,7 +200,7 @@ test("individual PSRS roles match only exact title, institution and date", () =>
     { deadline: "20/11/2026" },
     { deadline: "" },
   ]) {
-    const mismatch = matchNoticeRoleToListing(notice, { ...listing, ...changed });
+    const mismatch = matchNoticeRoleToListing(notice, { ...listing, ...changed }, NOTICE_OPEN_AT);
     assert.equal(mismatch.matched, false, JSON.stringify(changed));
     assert.equal(mismatch.publishable, false);
     assert.equal(mismatch.role, null);
@@ -215,10 +219,10 @@ test("duplicate roles and missing verified application path are held for review"
   };
   assert.equal(matchNoticeRoleToListing({
     ...notice, roles: [...notice.roles, notice.roles[0]],
-  }, listing).matched, false);
+  }, listing, NOTICE_OPEN_AT).matched, false);
   assert.equal(matchNoticeRoleToListing({
     ...notice, applicationUrl: null, documentFactsComplete: false,
-  }, listing).matched, false);
+  }, listing, NOTICE_OPEN_AT).matched, false);
 });
 
 test("a PDF with invalid openings or no application destination is not fact-complete", () => {

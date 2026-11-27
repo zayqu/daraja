@@ -2,7 +2,9 @@ name: Daraja Job Scrapers
 
 on:
   schedule:
-    - cron: "17 * * * *"
+    # Every 3 hours from 06:17 to 00:17 Tanzania time (7 runs a day). Hourly
+    # runs kept the free Neon database awake and used up its monthly compute.
+    - cron: "17 3-21/3 * * *"
   push:
     branches:
       - master

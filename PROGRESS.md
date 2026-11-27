@@ -4,6 +4,11 @@ Last updated: 27 November 2026
 
 
 
+## Neon usage and heading weight (27 November 2026)
+
+- The production database (Neon, free plan) ran out of monthly compute, so master builds stop at "Apply production migrations" until it resets on 1 December. The job scrapers now run every 3 hours from 06:17 to 00:17 Tanzania time (7 runs a day) instead of every hour, so the database can sleep between runs. Moving the database to cPanel was considered: cPanel offers only MySQL, so that needs a PostgreSQL-to-MySQL conversion and a data copy that can only happen after Neon resets. Planned as a separate step after launch.
+- Headings use Plus Jakarta Sans SemiBold (600) everywhere, as in the Figma type styles; body text stays Inter.
+
 ## Apply with Daraja CV (27 November 2026)
 
 - New, from Figma "Apply sheet": on vacancies employers posted on Daraja, "Apply with Daraja CV" opens a side panel (bottom sheet on phones). It shows the chosen CV's match with the job and ATS score, what in the CV fits and what is missing (add only if true), a choice of the candidate's CVs with the best one marked, a free "tailor a copy for this job" link, an optional cover letter, and Send application. Signed-out visitors are asked to sign in or create an account and come straight back (?apply=1). The employer's own email or website stays as "Apply … instead".

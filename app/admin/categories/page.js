@@ -60,7 +60,7 @@ export default async function AdminCategoriesPage() {
           </p>
         ) : null}
         <CategoryMoveForm fromOptions={[...names, ...orphaned]} toOptions={names} />
-        <p className={styles.help}>Moved jobs are marked as edited by an admin, so the hourly scrape will not move them back.</p>
+        <p className={styles.help}>Moved jobs are marked as edited by an admin, so the scheduled scrape will not move them back.</p>
       </Panel>
     </>
   );

@@ -36,7 +36,7 @@ test("scheduled scraping never mutates the production database schema", () => {
 });
 
 test("scraper workflow remains hourly, bounded and least privilege", () => {
-  assert.match(scraperWorkflow, /cron:\s*"17 \* \* \* \*"/);
+  assert.match(scraperWorkflow, /cron:\s*"17 3-21\/3 \* \* \*"/);
   assert.match(scraperWorkflow, /timeout-minutes:\s*15/);
   assert.match(scraperWorkflow, /permissions:\s*\n\s+contents:\s*read/);
   assert.match(scraperWorkflow, /run:\s*npm run scrape/);

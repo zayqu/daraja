@@ -13,5 +13,5 @@ test("Ajira scraper uses an LTS runner compatible with pinned Playwright Chromiu
   assert.match(workflow, /npx playwright install --with-deps chromium/);
   assert.match(workflow, /npm run scrape/);
   assert.match(workflow, /if: always\(\)/);
-  assert.match(workflow, /cron:\s*"17 \* \* \* \*"/);
+  assert.match(workflow, /cron:\s*"17 3-21\/3 \* \* \*"/);
 });

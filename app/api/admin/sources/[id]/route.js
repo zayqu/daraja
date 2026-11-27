@@ -115,7 +115,7 @@ export async function POST(request, { params }) {
   const { source } = await findSource(id);
   if (!source) return NextResponse.json({ error: "Unknown source" }, { status: 404 });
   if (source.adapter !== "verified-agency") {
-    return NextResponse.json({ error: "Built-in scrapers are checked by the hourly run; see its report instead" }, { status: 409 });
+    return NextResponse.json({ error: "Built-in scrapers are checked by the scheduled run; see its report instead" }, { status: 409 });
   }
   let timer;
   try {

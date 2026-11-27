@@ -14,13 +14,15 @@ test("public navigation uses one shared source of truth", async () => {
   const mobileDock = await source("components/ui/MobileDock.js");
 
   assert.match(publicNav, /buildPublicNavigation/);
-  assert.match(siteNav, /const DEFAULT_LINKS = buildPublicNavigation\(\)/);
-  assert.match(navigation, /label: "Home"/);
+  assert.match(siteNav, /links \|\| buildPublicNavigation\(\{ employerEnabled: showEmployerCta \}\)/);
+  // Figma Site header: the logo is the way home; Internships has its own link.
   assert.match(navigation, /label: "Jobs"/);
   assert.match(navigation, /jobs\?type=FREELANCE/);
   assert.match(navigation, /label: "Employers"/);
   assert.match(navigation, /label: "About"/);
-  assert.doesNotMatch(navigation, /label: "Internships"/);
+  assert.match(navigation, /label: "Internships"/);
+  assert.match(siteNav, /<DarajaLogo \/>/);
+  assert.match(siteNav, /\{t\("Post a job"\)\}/);
 
   assert.match(mobileDock, /label: "Freelance"/);
   assert.match(mobileDock, /icon: "freelance"/);

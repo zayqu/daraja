@@ -9,12 +9,12 @@ import NavIcon from "@/components/ui/NavIcon";
 import { ThemeToggle } from "@/components/ThemeControls";
 import LanguageSwitch from "@/components/LanguageSwitch";
 import { useT } from "@/components/LanguageProvider";
-import { buildPublicNavigation } from "@/lib/public-navigation";
+import { buildPublicNavigation, isActiveNavLink } from "@/lib/public-navigation";
+import DarajaLogo from "@/components/ui/DarajaLogo";
 import { postJobHref, roleHome } from "@/lib/platform-roles";
 import { dashboardMenu } from "@/lib/dashboard-navigation";
 import styles from "./SiteNav.module.css";
 
-const DEFAULT_LINKS = buildPublicNavigation();
 
 /**
  * Shared site header used across marketing pages (home, jobs, job detail)
@@ -34,7 +34,7 @@ const DEFAULT_LINKS = buildPublicNavigation();
  * navigation while preserving the same component inside enabled workspaces.
  */
 export default function SiteNav({
-  links = DEFAULT_LINKS,
+  links,
   right,
   showSearch = false,
   showEmployerCta = true,
@@ -42,11 +42,22 @@ export default function SiteNav({
   notificationCount = 0,
 }) {
   const t = useT();
+  // One link list for every public page (lib/public-navigation.js).
+  const navLinks = links || buildPublicNavigation({ employerEnabled: showEmployerCta });
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
   const router = useRouter();
   const pathname = usePathname();
   const dockManaged = mobileDockEnabledPath(pathname);
+  // The Freelance and Internships filters live in the query string;
+  // read it after load so public pages stay static.
+  const [pageQuery, setQueryParams] = useState(() => new URLSearchParams());
+  useEffect(() => {
+    const read = () => setQueryParams(new URLSearchParams(window.location.search));
+    read();
+    window.addEventListener("popstate", read);
+    return () => window.removeEventListener("popstate", read);
+  }, [pathname, open]);
   // Read the session in the browser so public pages stay cacheable.
   const [account, setAccount] = useState(null);
   useEffect(() => {
@@ -77,9 +88,8 @@ export default function SiteNav({
   return (
     <nav className={`${styles.nav} ${dockManaged ? styles.dockManaged : ""}`} aria-label="Primary">
       <div className={styles.bar}>
-        <Link href="/" className={styles.logo} onClick={() => setOpen(false)}>
-          DARAJA
-          <span>Kazi Na Fursa Tanzania</span>
+        <Link href="/" className={styles.logo} onClick={() => setOpen(false)} aria-label={t("Daraja home")}>
+          <DarajaLogo />
         </Link>
 
         {showSearch && (
@@ -149,31 +159,33 @@ export default function SiteNav({
           id="site-nav-menu"
           className={`${styles.links} ${open ? styles.linksOpen : ""}`}
         >
-          {links.map((link) => (
-            <Link
-              key={link.href}
-              href={link.href}
-              className={styles.link}
-              onClick={() => setOpen(false)}
-            >
-              {t(link.label)}
-            </Link>
-          ))}
+          {navLinks.map((link) => {
+            const active = isActiveNavLink(link, pathname, pageQuery);
+            return (
+              <Link
+                key={link.href}
+                href={link.href}
+                className={`${styles.link} ${active ? styles.linkActive : ""}`}
+                aria-current={active ? "page" : undefined}
+                onClick={() => {
+                  setOpen(false);
+                  setQueryParams(new URL(link.href, window.location.origin).searchParams);
+                }}
+              >
+                {t(link.label)}
+              </Link>
+            );
+          })}
           <div className={styles.right}>
             <LanguageSwitch />
             <ThemeToggle className={styles.themeToggle} />
             {account ? (
               <Link
                 href={account.signedIn ? account.href : "/auth/signin"}
-                className={styles.link}
+                className={styles.secondaryCta}
                 onClick={() => setOpen(false)}
               >
                 {t(account.signedIn ? "Dashboard" : "Sign in")}
-              </Link>
-            ) : null}
-            {account && !account.signedIn && !right ? (
-              <Link href="/auth/signup" className={styles.cta} onClick={() => setOpen(false)}>
-                {t("Create account")}
               </Link>
             ) : null}
             {right ??
@@ -183,7 +195,11 @@ export default function SiteNav({
                   className={styles.cta}
                   onClick={() => setOpen(false)}
                 >
-                  {t("Post a Job")}
+                  {t("Post a job")}
+                </Link>
+              ) : account && !account.signedIn ? (
+                <Link href="/auth/signup" className={styles.cta} onClick={() => setOpen(false)}>
+                  {t("Create account")}
                 </Link>
               ) : null)}
           </div>

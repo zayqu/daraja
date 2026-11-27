@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useT } from "@/components/LanguageProvider";
 import styles from "./SiteFooter.module.css";
 import TrafficNumbers from "@/components/TrafficNumbers";
+import DarajaLogo from "@/components/ui/DarajaLogo";
 import { WHATSAPP_CHANNEL_URL } from "@/lib/site-config";
 
 
@@ -13,8 +14,9 @@ export default function SiteFooter({ platformStats = null }) {
     <footer className={styles.footer}>
       <div className={styles.inner}>
         <div className={styles.brand}>
-          <div className={styles.logo}>DARAJA</div>
-          <div className={styles.sub}>Kazi Na Fursa Tanzania</div>
+          <Link href="/" className={styles.logo} aria-label={t("Daraja home")}>
+            <DarajaLogo tone="light" />
+          </Link>
           <p>
             {t("A clearer way to discover current opportunities and follow the correct application source.")}
           </p>

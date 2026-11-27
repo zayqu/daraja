@@ -5,7 +5,6 @@ import Link from "next/link";
 import AdSenseSlot from "@/components/AdSenseSlot";
 import JobAlerts from "@/components/JobAlerts";
 import SiteNav from "@/components/SiteNav";
-import { buildPublicNavigation } from "@/lib/public-navigation";
 import SiteFooter from "@/components/SiteFooter";
 import JobCard from "@/components/ui/JobCard";
 import { useT } from "@/components/LanguageProvider";
@@ -743,7 +742,7 @@ export default function JobsPageClient({
       `}</style>
 
       <div className="jobs-page">
-        <SiteNav links={buildPublicNavigation({ employerEnabled: showEmployerCta, candidateCareerEnabled: showCandidateCv })} showEmployerCta={showEmployerCta} showCandidateProfile={showCandidateCv} right={false} />
+        <SiteNav showEmployerCta={showEmployerCta} showCandidateProfile={showCandidateCv} />
 
         <header className="jobs-hero">
           <div className="jobs-hero-inner">

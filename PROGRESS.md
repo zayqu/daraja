@@ -4,6 +4,11 @@ Last updated: 27 November 2026
 
 
 
+## Figma site header (27 November 2026)
+
+- The public header (`components/SiteNav.js`, every public page) follows the Figma Site header: the Daraja Ajira bridge logo (also in the footer), links Jobs, Freelance, Internships, Employers, About with the current one in teal, then EN/SW, theme, an outlined Sign in (Dashboard when signed in) and a navy Post a job button. "Home" and "CV Builder" left the header (the logo goes home; the CV Builder is in the candidate menu and on the home page). Community is added when its pages are built (D-042).
+- One link list for every public page: `lib/public-navigation.js` (also decides the active link). The job list and job pages now show the same header as the rest of the site.
+
 ## Figma Post a job and Page not found (27 November 2026)
 
 - Post a job and Edit vacancy (`components/EmployerVacancyForm.js`) follow Figma Desktop · Post a job: four steps (Basics, Details, How to apply, Review) with Back/Next and Cancel; a live preview of the job card; and, on new vacancies, the "Feature this vacancy" card (price and days from Site settings). Ticking "Add when I publish" shows a "Book the featured slot" step after sending, which opens /advertise with the vacancy title in the WhatsApp booking message.

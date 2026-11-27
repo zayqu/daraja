@@ -108,11 +108,11 @@ export default async function EmployerPage() {
     }),
     prisma.application.groupBy({
       by: ["jobId"],
-      where: { job: { employerId: actor.employer.id } },
+      where: { job: { employerId: actor.employer.id }, status: { not: "WITHDRAWN" } },
       _count: { _all: true },
     }),
     prisma.application.count({
-      where: { job: { employerId: actor.employer.id }, createdAt: { gte: weekAgo } },
+      where: { job: { employerId: actor.employer.id }, status: { not: "WITHDRAWN" }, createdAt: { gte: weekAgo } },
     }),
   ]);
   const [viewsByJob, views] = await Promise.all([
@@ -225,7 +225,11 @@ export default async function EmployerPage() {
                         </td>
                         <td data-label="Status"><Badge tone={state.tone}>{state.label}</Badge></td>
                         <td data-label="Views">{viewsByJob[job.id] ? viewsByJob[job.id].toLocaleString("en-GB") : "—"}</td>
-                        <td data-label="Applies">{appliesByJob[job.id] || "—"}</td>
+                        <td data-label="Applies">
+                          {appliesByJob[job.id] ? (
+                            <Link className={dash.linkArrow} href={`/employer/vacancies/${job.id}/applicants`}>{appliesByJob[job.id]}</Link>
+                          ) : "—"}
+                        </td>
                         <td data-label="Closes">{job.deadline ? formatDate(job.deadline) : "—"}</td>
                         <td>
                           {editable ? (

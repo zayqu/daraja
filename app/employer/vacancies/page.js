@@ -61,7 +61,7 @@ export default async function EmployerVacanciesPage({ searchParams }) {
       moderationStatus: true,
       moderationNote: true,
       active: true,
-      _count: { select: { applications: true } },
+      _count: { select: { applications: { where: { status: { not: "WITHDRAWN" } } } } },
     },
   });
   const viewsByJob = await viewTotalsByJob(vacancies.map((job) => job.id));
@@ -121,6 +121,11 @@ export default async function EmployerVacanciesPage({ searchParams }) {
                   badge={<Badge tone={state.tone}>{state.label}</Badge>}
                   actions={
                     <>
+                      {job._count.applications ? (
+                        <Link className={dash.button} href={`/employer/vacancies/${job.id}/applicants`}>
+                          Applicants ({job._count.applications})
+                        </Link>
+                      ) : null}
                       {editable ? (
                         <Link className={dash.button} href={`/employer/vacancies/${job.id}`}>
                           {job.moderationStatus === "REJECTED" ? "Edit and send again" : "Edit"}

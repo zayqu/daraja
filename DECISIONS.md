@@ -725,3 +725,26 @@ about the visitor) feed the employer "Views this week" card, the Views column
 and the vacancy list. Facts stay stated-only (D-029) and publishing an imported
 or employer vacancy still needs the editor's source check: the admin "Approve"
 button opens that check instead of skipping it.
+
+
+## D-043 - Apply with Daraja CV: Daraja-posted jobs, free extras for now
+
+**Status:** accepted (owner decision, 27 November 2026)
+
+Figma's Apply sheet lets a candidate send one of their Daraja CVs, see how it
+fits the job, and add a cover letter. The owner chose:
+
+- **Which jobs:** only vacancies employers post on Daraja (`Job.employerId`).
+  Imported jobs keep their official application route; Daraja never emails
+  CVs to employers who did not sign up.
+- **Charging:** free now, paid later. Figma prices (tailored CV TSh 15,000,
+  cover letter TSh 5,000) are admin settings (`candidate.*`) behind the
+  "Charge for CV tailoring and cover letters" switch, which stays off until
+  mobile-money payments are connected. While on without payments, the paid
+  options show "payment coming soon" and cannot be used. This narrows D-036's
+  "candidates are never charged" to "not until the owner switches it on".
+
+An application stores the CV exactly as sent (`cvSnapshot`) and its scores at
+that moment; later edits or deleting the CV do not change it. Employers see
+applicants only for their own vacancies (`/employer/vacancies/[id]/applicants`)
+and set a status the candidate sees in My jobs; only the candidate withdraws.

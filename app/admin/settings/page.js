@@ -12,6 +12,7 @@ export const dynamic = "force-dynamic";
 const GROUPS = [
   { title: "Features", keys: ["feature.employerPortal", "feature.candidateCareer"] },
   { title: "Advertising", keys: ["ads.monetag"] },
+  { title: "Candidate extras (Apply with Daraja CV)", keys: ["candidate.paidExtras", "candidate.tailorPrice", "candidate.coverLetterPrice"] },
   { title: "Paid job promotion", keys: ["promo.price", "promo.days", "promo.whatsapp", "promo.lipaNamba", "promo.lipaName"] },
   { title: "WhatsApp Channel audience", keys: ["channel.followers"] },
   { title: "Email", keys: ["email.accountFrom"] },

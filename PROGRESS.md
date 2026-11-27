@@ -4,6 +4,13 @@ Last updated: 27 November 2026
 
 
 
+## Apply with Daraja CV (27 November 2026)
+
+- New, from Figma "Apply sheet": on vacancies employers posted on Daraja, "Apply with Daraja CV" opens a side panel (bottom sheet on phones). It shows the chosen CV's match with the job and ATS score, what in the CV fits and what is missing (add only if true), a choice of the candidate's CVs with the best one marked, a free "tailor a copy for this job" link, an optional cover letter, and Send application. Signed-out visitors are asked to sign in or create an account and come straight back (?apply=1). The employer's own email or website stays as "Apply … instead".
+- Applications store the CV as sent and its scores (migration `20261127200000_apply_with_daraja_cv`). Applying again after withdrawing reuses the record.
+- Employers: new Applicants page per vacancy (best match first, contact details from the CV, cover letter, the CV as sent, and a status: In review, Shortlisted, Offer made, Not selected). Links from the overview "Applies" numbers and from My vacancies. Withdrawn applications are not counted.
+- Admin settings: "Candidate extras" switch and prices, off by default (D-043).
+
 ## Figma site header (27 November 2026)
 
 - The public header (`components/SiteNav.js`, every public page) follows the Figma Site header: the Daraja Ajira bridge logo (also in the footer), links Jobs, Freelance, Internships, Employers, About with the current one in teal, then EN/SW, theme, an outlined Sign in (Dashboard when signed in) and a navy Post a job button. "Home" and "CV Builder" left the header (the logo goes home; the CV Builder is in the candidate menu and on the home page). Community is added when its pages are built (D-042).

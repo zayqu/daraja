@@ -33,7 +33,6 @@ test("candidate pages share the candidate dashboard menu", async () => {
     "app/account/settings/page.js",
     "app/account/alerts/page.js",
     "app/account/privacy/page.js",
-    "app/account/profile/page.js",
     "app/account/profile/edit/page.js",
     "app/account/notifications/page.js",
     "app/account/career/cv/page.js",
@@ -109,10 +108,16 @@ test("My jobs keeps saved jobs and applications in Saved, Applied and Closed tab
   assert.match(page, /name="q"/);
 });
 
-test("the Profile tab shows experience, skills and CVs from the candidate's own CVs", async () => {
+test("the Profile shows experience, skills and CVs from the candidate's own CVs", async () => {
   const page = await read("app/account/profile/page.js");
 
-  assert.match(page, /\["experience", "Experience"\],\s*\["skills", "Skills"\],\s*\["cvs", "CVs"\]/);
+  // Figma Desktop · Profile: header card, then experience beside skills and CVs.
+  assert.match(page, /className=\{dash\.profileHero\}/);
+  assert.match(page, /className=\{dash\.profileGrid\}/);
+  assert.match(page, /<Panel title="Work experience"/);
+  assert.match(page, /<Panel title="Skills">/);
+  assert.match(page, /title="My CVs"/);
+  assert.doesNotMatch(page, /searchParams/);
   assert.match(page, /where: \{ jobSeekerId: profile\.id \}/);
   assert.match(page, /normalizeCvContent\(master\.content\)/);
   assert.match(page, /href: "\/account\/profile\/edit", label: "Edit profile"/);

@@ -213,8 +213,13 @@ a.stat:hover {
 }
 
 .buttonPrimary {
-  border-color: var(--color-teal);
-  background: var(--color-teal);
+  border-color: var(--color-teal-deep);
+  background: var(--color-teal-deep);
+  color: #ffffff;
+}
+
+.buttonPrimary:hover {
+  filter: brightness(0.92);
 }
 
 .buttonDanger {
@@ -915,9 +920,9 @@ a.highlightItem:hover strong {
 
 .chipActive,
 .chipActive:hover {
-  border-color: var(--color-text);
-  background: var(--color-navy);
-  color: var(--color-on-dark);
+  border-color: var(--color-teal-deep);
+  background: var(--color-teal-deep);
+  color: #ffffff;
 }
 
 .detailList {
@@ -1206,32 +1211,6 @@ a.highlightItem:hover strong {
   font-size: 0.78rem;
 }
 
-.underlineTabs {
-  display: flex;
-  margin-bottom: var(--space-4);
-  border-bottom: 1px solid var(--color-border);
-}
-
-.underlineTabs a {
-  flex: 1;
-  min-height: 46px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.4rem;
-  margin-bottom: -1px;
-  border-bottom: 2px solid transparent;
-  color: var(--color-text-muted);
-  font-size: 0.84rem;
-  text-decoration: none;
-}
-
-.underlineTabs .tabCurrent {
-  border-bottom-color: var(--color-teal);
-  color: var(--color-link);
-  font-weight: 600;
-}
-
 .experienceList {
   display: grid;
   gap: var(--space-4);
@@ -1240,9 +1219,27 @@ a.highlightItem:hover strong {
   list-style: none;
 }
 
+.experienceList > li {
+  display: grid;
+  grid-template-columns: 36px minmax(0, 1fr);
+  gap: 0.85rem;
+}
+
 .experienceList > li + li {
   padding-top: var(--space-4);
   border-top: 1px solid var(--color-border);
+}
+
+.experienceMark {
+  width: 36px;
+  height: 36px;
+  display: grid;
+  place-items: center;
+  border-radius: 9px;
+  background: var(--color-primary-soft);
+  color: var(--color-link);
+  font-size: 0.74rem;
+  font-weight: 700;
 }
 
 .experienceHead {
@@ -1273,6 +1270,10 @@ a.highlightItem:hover strong {
   list-style: disc;
 }
 
+.experienceList ul li::marker {
+  color: var(--color-teal-deep);
+}
+
 .skillPills {
   display: flex;
   flex-wrap: wrap;
@@ -1282,9 +1283,163 @@ a.highlightItem:hover strong {
 .skillPills span {
   padding: 0.35rem 0.8rem;
   border-radius: var(--radius-pill);
-  background: var(--color-surface-muted);
+  background: var(--color-primary-soft);
   color: var(--color-link);
   font-size: 0.78rem;
+}
+
+/* Candidate Profile (Figma Desktop · Profile) */
+.profileHero {
+  overflow: hidden;
+  margin-bottom: var(--space-4);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-card);
+  background: var(--color-surface);
+}
+
+.profileCover {
+  height: 84px;
+  background: #1b2a3f;
+}
+
+.profileBody {
+  display: flex;
+  align-items: flex-end;
+  gap: 1.1rem;
+  padding: 0 1.5rem 1.25rem;
+}
+
+.profileAvatar {
+  width: 96px;
+  height: 96px;
+  flex: none;
+  display: grid;
+  place-items: center;
+  margin-top: -44px;
+  border: 4px solid var(--color-surface);
+  border-radius: 50%;
+  background: #1b2a3f;
+  color: #00c9a7;
+  font-size: 1.7rem;
+  font-weight: 700;
+}
+
+.profileText {
+  min-width: 0;
+  flex: 1;
+  padding-top: 0.75rem;
+}
+
+.profileText h1 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 1.45rem;
+  font-weight: 700;
+}
+
+.profileText p {
+  margin: 0.15rem 0 0;
+  color: var(--color-text-secondary);
+  font-size: 0.88rem;
+}
+
+.profileFacts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem 1.1rem;
+  margin: 0.35rem 0 0;
+  padding: 0;
+  list-style: none;
+  color: var(--color-text-muted);
+  font-size: 0.78rem;
+}
+
+.profileFacts li {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.profileActions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.profileGrid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.6fr) minmax(280px, 1fr);
+  gap: var(--space-4);
+  align-items: start;
+  margin-top: var(--space-4);
+}
+
+.profileSide {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.cvList {
+  display: grid;
+  gap: 0.5rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.cvList li {
+  display: grid;
+  grid-template-columns: 20px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.7rem 0.8rem;
+  border-radius: 10px;
+  background: var(--color-surface-muted);
+  color: var(--color-link);
+}
+
+.cvList a {
+  min-width: 0;
+  display: grid;
+  color: var(--color-text);
+  text-decoration: none;
+}
+
+.cvList strong {
+  overflow: hidden;
+  font-size: 0.84rem;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cvList span {
+  color: var(--color-text-muted);
+  font-size: 0.72rem;
+}
+
+@media (max-width: 900px) {
+  .profileGrid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 640px) {
+  .profileBody {
+    flex-wrap: wrap;
+    padding: 0 1rem 1rem;
+  }
+
+  .profileAvatar {
+    width: 80px;
+    height: 80px;
+    margin-top: -36px;
+  }
+
+  .profileText {
+    flex-basis: 100%;
+    padding-top: 0;
+  }
 }
 
 /* Account settings (Makarya pattern): employers' promo card, then the list
@@ -1314,4 +1469,78 @@ a.highlightItem:hover strong {
 .settingsList {
   max-width: 640px;
   margin-top: var(--space-5);
+}
+
+/* My jobs (Figma Desktop · My jobs): search and tabs on one row, job cards,
+   and a job-alerts reminder. */
+.filterBar {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: var(--space-4);
+}
+
+.filterBar .searchField {
+  flex: 1;
+  margin-bottom: 0;
+}
+
+.jobList {
+  display: grid;
+  gap: 0.7rem;
+}
+
+.reminder {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  margin-top: 1.25rem;
+  padding: 1rem 1.1rem;
+  border: 1px solid var(--color-primary-border);
+  border-radius: var(--radius-card);
+  background: var(--color-primary-soft);
+}
+
+.reminder div {
+  flex: 1;
+  min-width: 0;
+}
+
+.reminder strong {
+  display: block;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.reminder p {
+  margin: 0.15rem 0 0;
+  color: var(--color-text-muted);
+  font-size: 0.78rem;
+}
+
+.reminderIcon {
+  width: 38px;
+  height: 38px;
+  flex: none;
+  display: grid;
+  place-items: center;
+  border-radius: 10px;
+  background: var(--color-surface);
+  color: var(--color-link);
+}
+
+@media (max-width: 760px) {
+  .filterBar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .filterBar .chips {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+  }
+
+  .reminder {
+    flex-wrap: wrap;
+  }
 }

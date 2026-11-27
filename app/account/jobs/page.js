@@ -4,17 +4,8 @@ import { candidateCareerEnabled, getCandidateUser } from "@/lib/candidate-access
 import { applicationState } from "@/lib/candidate-profile";
 import SaveJobButton from "@/components/SaveJobButton";
 import WithdrawApplicationButton from "@/components/WithdrawApplicationButton";
-import {
-  Badge,
-  DaysLeftBadge,
-  EmptyState,
-  ListRow,
-  ListRows,
-  PageHeader,
-  Panel,
-  closingLabel,
-  formatDate,
-} from "@/components/dashboard/DashboardUi";
+import { Badge, EmptyState, PageHeader } from "@/components/dashboard/DashboardUi";
+import JobCard from "@/components/ui/JobCard";
 import NavIcon from "@/components/ui/NavIcon";
 import dash from "@/components/dashboard/dashboard.module.css";
 import prisma from "@/lib/prisma";
@@ -32,8 +23,33 @@ const TABS = [
 ];
 const ENDED = new Set(["REJECTED", "WITHDRAWN"]);
 const WITHDRAWABLE = new Set(["PENDING", "REVIEWED"]);
-const JOB_FIELDS = { id: true, slug: true, title: true, company: true, location: true, deadline: true, active: true };
-const jobHref = (job) => `/jobs/${job.slug || job.id}`;
+// Everything the shared JobCard shows (stated facts only, D-029).
+const JOB_FIELDS = {
+  id: true,
+  slug: true,
+  title: true,
+  company: true,
+  location: true,
+  category: true,
+  type: true,
+  salary: true,
+  experienceMinYears: true,
+  experienceMaxYears: true,
+  openings: true,
+  deadline: true,
+  active: true,
+  featured: true,
+  source: true,
+  companyLogo: true,
+  representativeImage: true,
+  createdAt: true,
+};
+// JobCard is a client component, so dates cross the boundary as strings.
+const cardJob = (job) => ({
+  ...job,
+  deadline: job.deadline ? job.deadline.toISOString() : null,
+  createdAt: job.createdAt.toISOString(),
+});
 
 // One place for the jobs a candidate follows: saved jobs still open, applications
 // still being considered, and everything that has closed or ended.
@@ -86,48 +102,44 @@ export default async function MyJobsPage({ searchParams }) {
         actions={<Link className={dash.buttonPrimary} href="/jobs">Find jobs</Link>}
       />
 
-      <form className={dash.searchField} action="/account/jobs" role="search">
-        <input type="hidden" name="tab" value={tab} />
-        <NavIcon name="search" size={18} />
-        <input type="search" name="q" defaultValue={query} placeholder="Search my jobs" aria-label="Search my jobs" />
-      </form>
+      <div className={dash.filterBar}>
+        <form className={dash.searchField} action="/account/jobs" role="search">
+          <input type="hidden" name="tab" value={tab} />
+          <NavIcon name="search" size={18} />
+          <input type="search" name="q" defaultValue={query} placeholder="Search my jobs" aria-label="Search my jobs" />
+        </form>
+        <nav className={dash.chips} aria-label="My jobs">
+          {TABS.map(([key, label]) => (
+            <Link
+              key={key}
+              href={tabHref(key)}
+              className={`${dash.chip} ${tab === key ? dash.chipActive : ""}`}
+              aria-current={tab === key ? "page" : undefined}
+            >
+              {label} ({lists[key].length})
+            </Link>
+          ))}
+        </nav>
+      </div>
 
-      <Panel
-        title={`${shown.length} job${shown.length === 1 ? "" : "s"}`}
-        actions={
-          <nav className={dash.chips} aria-label="My jobs">
-            {TABS.map(([key, label]) => (
-              <Link
-                key={key}
-                href={tabHref(key)}
-                className={`${dash.chip} ${tab === key ? dash.chipActive : ""}`}
-                aria-current={tab === key ? "page" : undefined}
-              >
-                {label} ({lists[key].length})
-              </Link>
-            ))}
-          </nav>
-        }
-      >
         {shown.length ? (
-          <ListRows>
+          <div className={dash.jobList}>
             {shown.map((item) => {
               const { job } = item;
+              const open = isOpen(job);
               if (item.kind === "saved") {
-                const open = isOpen(job);
                 return (
-                  <ListRow
+                  <JobCard
                     key={`saved-${item.id}`}
-                    title={job.title}
-                    href={open ? jobHref(job) : null}
-                    subtitle={job.company}
-                    meta={[job.location, closingLabel(job.deadline, now)]}
-                    badge={open ? <DaysLeftBadge date={job.deadline} now={now} /> : <Badge tone="gray">Closed</Badge>}
+                    job={cardJob(job)}
+                    listName="My jobs saved"
+                    linked={open}
+                    status={open ? null : <Badge tone="gray">Closed</Badge>}
                     actions={
                       <SaveJobButton
                         jobId={job.id}
                         initialSaved
-                        className={dash.buttonGhost}
+                        className={dash.button}
                         refreshOnChange
                         savedLabel="Remove"
                       />
@@ -137,13 +149,12 @@ export default async function MyJobsPage({ searchParams }) {
               }
               const state = applicationState(item.status);
               return (
-                <ListRow
+                <JobCard
                   key={`application-${item.id}`}
-                  title={job.title}
-                  href={isOpen(job) ? jobHref(job) : null}
-                  subtitle={job.company}
-                  meta={[job.location, `Applied ${formatDate(item.createdAt)}`]}
-                  badge={<Badge tone={state.tone}>{state.label}</Badge>}
+                  job={cardJob(job)}
+                  listName="My jobs applications"
+                  linked={open}
+                  status={<Badge tone={state.tone}>{state.label}</Badge>}
                   actions={
                     WITHDRAWABLE.has(item.status) ? (
                       <WithdrawApplicationButton applicationId={item.id} title={job.title} />
@@ -152,7 +163,7 @@ export default async function MyJobsPage({ searchParams }) {
                 />
               );
             })}
-          </ListRows>
+          </div>
         ) : query ? (
           <EmptyState title="No matches" text="Try another word, or clear the search." />
         ) : tab === "saved" ? (
@@ -169,7 +180,15 @@ export default async function MyJobsPage({ searchParams }) {
         ) : (
           <EmptyState title="Nothing closed yet" text="Saved jobs that close and applications that end move here." />
         )}
-      </Panel>
+
+      <aside className={dash.reminder}>
+        <span className={dash.reminderIcon} aria-hidden="true"><NavIcon name="alert" size={20} /></span>
+        <div>
+          <strong>Never miss a new vacancy</strong>
+          <p>Get new jobs in your field by email, and pause or stop the alerts any time.</p>
+        </div>
+        <Link className={dash.button} href="/account/alerts">Job alerts</Link>
+      </aside>
     </>
   );
 }

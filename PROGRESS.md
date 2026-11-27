@@ -3,6 +3,16 @@
 Last updated: 27 November 2026
 
 
+
+## Figma candidate area: dashboard frame, My jobs and Profile (27 November 2026)
+
+- `DashboardShell` (all signed-in roles) now follows Figma Desktop · My jobs: white sidebar with the Daraja bridge logo, "Candidate/Employer/Admin menu" label, mint active item, the signed-in user card with Sign out at the bottom; top bar with search, EN/SW, theme toggle, View site, notifications and help. Notifications and Help are flagged `inTopbar` in `lib/dashboard-navigation.js`, so the sidebar skips them while phone menus still list them. The candidate sidebar promo is gone (the menu already lists the CV Builder); the employer featured-vacancy card stays (D-036), restyled light.
+- My jobs: search and Saved/Applied/Closed chips on one row, each job shown with the shared `JobCard` row (logo/initials, facts, days-left pill, Remove / Withdraw), and a job-alerts reminder. `JobCard` gained `actions`, `status` and `linked`: a card with its own buttons becomes a box whose title link covers the card, so buttons are never nested in a link.
+- Profile: Figma header card (navy cover, initials avatar, name, headline, location and email, Edit profile and settings), amber completion notice, then Work experience beside Skills and My CVs (all from the candidate's own CVs). The old Experience/Skills/CVs tabs were removed.
+- Dashboard primary buttons and active chips use deep teal with white text, as in Figma. New icons: location, mail, edit.
+- Not built: Figma's Messages menu item (no backend yet, D-040). The CV Builder editor redesign is the next step.
+- Validation: `npm test` 491/491, ESLint clean; desktop light/dark and iPhone 13 checked with a local signed-in candidate.
+
 ## Figma sign in, sign up and onboarding (27 November 2026)
 
 - `/auth/signin`, `/auth/signup` and the password pages share one rebuilt `AuthLayout` following Figma Desktop · Sign in: a navy Daraja brand panel ("Kazi na fursa, mfukoni mwako.", three real feature points, two job-seeker photos exported from the Figma file to `public/images/auth/`), and a form side with EN/SW switch and Privacy · Terms at the bottom. Phones get a slim navy brand strip with the two faces instead of the panel, and space for the mobile dock.

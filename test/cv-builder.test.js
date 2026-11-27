@@ -111,8 +111,8 @@ test("CV page is protected and integrated with candidate navigation", () => {
   assert.match(page, /<CvBuilder \/>/);
   assert.match(navigation, /\{ href: "\/account\/career\/cv", label: "CV Builder", icon: "cv" \}/);
   assert.match(dashboard, /Open CV Builder/);
-  // The free CV Builder is the candidate dashboard's promo card (D-036).
-  assert.match(shell, /cta: "Open CV Builder",\s*href: "\/account\/career\/cv"/);
+  // Candidates get no sidebar promo (Figma); the CV Builder is in their menu.
+  assert.doesNotMatch(shell, /JOB_SEEKER: \{/);
 });
 
 test("CV records follow account export and erasure lifecycle", () => {

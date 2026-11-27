@@ -22,7 +22,10 @@ test("public job results use one shared Figma job card with stated facts only", 
   assert.doesNotMatch(jobsPage, /className="job-card"/);
   assert.doesNotMatch(jobsPage, /JobBrandMedia/);
 
-  assert.match(card, /<h3 className=\{styles\.title\} title=\{displayTitle\}>\{displayTitle\}<\/h3>/);
+  assert.match(card, /<h3 className=\{styles\.title\} title=\{displayTitle\}>/);
+  // Cards with their own buttons are a box whose title link covers the card.
+  assert.match(card, /if \(boxed\) return <article className=\{className\}>\{body\}<\/article>/);
+  assert.match(card, /className=\{styles\.titleLink\}/);
   assert.match(card, /formatJobTitle\(job\.title, job\.source\)/);
   assert.match(card, /className=\{styles\.company\}>\{job\.company\}/);
   assert.match(card, /className=\{styles\.meta\}/);

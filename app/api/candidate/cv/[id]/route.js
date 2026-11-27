@@ -64,12 +64,15 @@ export async function GET(_request, context) {
   if (error) return error;
 
   const job = await jobFor(cv.targetJobId);
-  const evaluation = scoreCandidateCv(normalizeCvContent(cv.content), {
+  // Stored JSON is normalised on the way out too, so an older or partial
+  // record can never crash the editor (it expects every section and option).
+  const content = normalizeCvContent(cv.content);
+  const evaluation = scoreCandidateCv(content, {
     mode: cv.mode,
     job,
   });
 
-  return privateJson({ cv, job, evaluation });
+  return privateJson({ cv: { ...cv, content, theme: normalizeCvTheme(cv.theme) }, job, evaluation });
 }
 
 export async function PUT(request, context) {

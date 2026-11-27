@@ -5,6 +5,13 @@ templates are used only to study useful interaction and information patterns.
 
 ## Reference roles
 
+### Daraja Figma file — primary UI reference (D-039, D-040)
+
+"Daraja — UI/UX Design" in Figma holds the approved Daraja screens: mobile
+(`UI Design`), desktop/tablet (`Desktop & Tablet`) and the design system
+(colours, typography, components). Home, Jobs and Job detail follow it since
+27 November 2026. The licensed templates below remain pattern references only.
+
 ### Jobtex — public jobs experience
 
 Use for:

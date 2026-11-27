@@ -1,16 +1,15 @@
 "use client";
-import NavIcon from "@/components/ui/NavIcon";
 
 import formatJobTitle from "@/lib/job-title.cjs";
 import Link from "next/link";
 import JobBrandMedia from "@/components/JobBrandMedia";
 import { trackEvent } from "@/lib/analytics";
-import styles from "./JobCard.module.css";
 import { useT } from "@/components/LanguageProvider";
+import styles from "./JobCard.module.css";
 
 const JOB_TYPE_LABELS = {
-  FULL_TIME: "Full-time",
-  PART_TIME: "Part-time",
+  FULL_TIME: "Full time",
+  PART_TIME: "Part time",
   CONTRACT: "Contract",
   INTERNSHIP: "Internship",
   FREELANCE: "Freelance",
@@ -20,17 +19,6 @@ function safeDate(value) {
   if (!value) return null;
   const date = new Date(value);
   return Number.isNaN(date.getTime()) ? null : date;
-}
-
-function formatDate(value) {
-  const date = safeDate(value);
-  if (!date) return null;
-
-  return date.toLocaleDateString("en-GB", {
-    day: "numeric",
-    month: "short",
-    year: "numeric",
-  });
 }
 
 const DAY_MS = 86400000;
@@ -46,79 +34,97 @@ function daysUntil(value) {
   return deadlineDay - today;
 }
 
-function formatDeadlineDate(value) {
-  const date = safeDate(value);
-  if (!date) return null;
-  return date.toLocaleDateString("en-GB", {
-    day: "numeric",
-    month: "short",
-    year: "numeric",
-    timeZone: "UTC",
-  });
-}
-
 function deadlineLabel(value, t) {
   const days = daysUntil(value);
   if (days === null) return null;
   if (days < 0) return t("Closed");
   if (days === 0) return t("Closes today");
-  if (days === 1) return t("Closes tomorrow");
-  if (days <= 7) return t("Closes in {n} days", { n: days });
-  return t("Deadline: {date}", { date: formatDeadlineDate(value) });
-}
-
-function experienceLabel(min, max, t) {
-  if (!Number.isInteger(min)) return null;
-  if (min === 0 && max === 0) return t("No experience needed");
-  if (!Number.isInteger(max)) return t(min === 1 ? "{n}+ yr exp" : "{n}+ yrs exp", { n: min });
-  if (max === min) return t(min === 1 ? "{n} yr exp" : "{n} yrs exp", { n: min });
-  return t("{min}–{max} yrs exp", { min, max });
-}
-
-// Only facts the source stated: missing values hide their chip instead of
-// falling back to a guess.
-function factTags(job, t) {
-  return [
-    experienceLabel(job.experienceMinYears, job.experienceMaxYears, t),
-    JOB_TYPE_LABELS[job.type] ? t(JOB_TYPE_LABELS[job.type]) : null,
-    job.openings > 1 ? t("{n} openings", { n: job.openings }) : null,
-    job.salary ? job.salary : null,
-  ].filter(Boolean);
+  return t(days === 1 ? "{n} day left" : "{n} days left", { n: days });
 }
 
 function deadlineTone(value) {
   const days = daysUntil(value);
   if (days === null) return "";
   if (days < 0) return styles.expired;
-  if (days <= 3) return styles.soon;
+  if (days <= 4) return styles.soon;
   return "";
+}
+
+function experienceLabel(min, max, t) {
+  if (!Number.isInteger(min)) return null;
+  if (min === 0 && (max === 0 || !Number.isInteger(max))) return t("No experience needed");
+  if (!Number.isInteger(max)) return t("{n}+ YoE", { n: min });
+  if (max === min) return t("{n} YoE", { n: min });
+  return t("{min}–{max} YoE", { min, max });
 }
 
 function postedLabel(value, t) {
   const date = safeDate(value);
   if (!date) return null;
 
-  const days = Math.max(0, Math.floor((new Date() - date) / 86400000));
-  if (days === 0) return t("Posted today");
-  if (days === 1) return t("Posted yesterday");
-  if (days < 7) return t("Posted {n} days ago", { n: days });
-  return t("Posted {date}", { date: formatDate(value) });
+  const days = Math.max(0, Math.floor((Date.now() - date.getTime()) / DAY_MS));
+  if (days === 0) return t("Today");
+  if (days === 1) return t("Yesterday");
+  if (days < 30) return t("{n} days ago", { n: days });
+  return date.toLocaleDateString("en-GB", { day: "numeric", month: "short" });
 }
 
+const ICONS = {
+  location: "M12 21s-6-5.3-6-10a6 6 0 1 1 12 0c0 4.7-6 10-6 10Zm0-7.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5Z",
+  type: "M4 8h16v11H4zM9 8V6a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2",
+  experience: "M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8Zm-7 8a7 7 0 0 1 14 0",
+  salary: "M3 7h18v10H3zM12 14.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5ZM6 10v.01M18 14v.01",
+  openings: "M16 20v-1a4 4 0 0 0-8 0v1M12 11a3 3 0 1 0 0-6 3 3 0 0 0 0 6ZM20 20v-1a3 3 0 0 0-2.2-2.9M17 5.2a3 3 0 0 1 0 5.6",
+  posted: "M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18Zm0-13v4l3 2",
+};
+
+function MetaIcon({ name }) {
+  return (
+    <svg className={styles.metaIcon} viewBox="0 0 24 24" focusable="false" aria-hidden="true">
+      <path d={ICONS[name]} />
+    </svg>
+  );
+}
+
+// Only facts the source stated: missing values hide their item instead of
+// falling back to a guess.
+function factItems(job, t) {
+  const experience = experienceLabel(job.experienceMinYears, job.experienceMaxYears, t);
+  return [
+    job.location ? { key: "location", label: job.location } : null,
+    JOB_TYPE_LABELS[job.type] ? { key: "type", label: t(JOB_TYPE_LABELS[job.type]) } : null,
+    experience ? { key: "experience", label: experience } : null,
+    job.salary ? { key: "salary", label: job.salary } : null,
+    job.openings > 1 ? { key: "openings", label: t("{n} openings", { n: job.openings }) } : null,
+  ].filter(Boolean);
+}
+
+/**
+ * Shared public job card.
+ * - variant "row" (default): full-width list row used by search results and
+ *   homepage lists.
+ * - variant "tile": compact card used in homepage card rails/grids.
+ */
 export default function JobCard({
   job,
   listName = "Job opportunities",
+  variant = "row",
 }) {
   const t = useT();
   const deadline = deadlineLabel(job.deadline, t);
   const posted = postedLabel(job.createdAt, t);
-  const tags = factTags(job, t);
+  const facts = factItems(job, t);
   const displayTitle = formatJobTitle(job.title, job.source);
+  const isTile = variant === "tile";
+  const visibleFacts = isTile
+    ? facts.filter((fact) => fact.key === "location" || fact.key === "type")
+    : facts;
+  const tileSalary = isTile ? job.salary : null;
 
   return (
     <Link
       href={`/jobs/${job.slug || job.id}`}
-      className={styles.card}
+      className={`${styles.card} ${isTile ? styles.tile : styles.row}`}
       onClick={() =>
         trackEvent("select_item", {
           item_list_name: listName,
@@ -136,12 +142,8 @@ export default function JobCard({
         companyLogo={job.companyLogo}
         representativeImage={job.representativeImage}
         className={styles.brand}
-        sizes="52px"
+        sizes="44px"
       />
-
-      <span className={styles.saveVisual} aria-hidden="true">
-        <NavIcon name="bookmark" size={20} />
-      </span>
 
       <div className={styles.content}>
         <div className={styles.titleRow}>
@@ -150,32 +152,45 @@ export default function JobCard({
         </div>
 
         <p className={styles.company}>{job.company}</p>
-        {job.location && <p className={styles.location}>{job.location}</p>}
 
-        {tags.length > 0 && (
-          <div className={styles.tags} aria-label={t("Job attributes")}>
-            {tags.map((tag) => (
-              <span key={tag} className={styles.tag}>
-                {tag}
-              </span>
+        {(visibleFacts.length > 0 || (!isTile && posted)) && (
+          <ul className={styles.meta} aria-label={t("Job facts")}>
+            {visibleFacts.map((fact) => (
+              <li key={fact.key} className={styles[`meta_${fact.key}`]}>
+                <MetaIcon name={fact.key} />
+                <span>{fact.label}</span>
+              </li>
             ))}
-          </div>
+            {!isTile && posted && (
+              <li className={styles.posted}>
+                <MetaIcon name="posted" />
+                <span>{posted}</span>
+              </li>
+            )}
+          </ul>
         )}
       </div>
 
-      <div className={styles.side}>
-        {deadline && (
-          <span className={`${styles.deadline} ${deadlineTone(job.deadline)}`}>
-            <span>{deadline}</span>
-            <span className={styles.calendarIcon}><NavIcon name="schedule" size={14} /></span>
-          </span>
-        )}
-        {posted && (
-          <span className={deadline ? styles.posted : styles.deadline}>
-            {posted}
-          </span>
-        )}
-      </div>
+      <span className={styles.saveVisual} aria-hidden="true">
+        <svg viewBox="0 0 24 24" focusable="false">
+          <path d="M6 4h12v16l-6-4-6 4V4Z" />
+        </svg>
+      </span>
+
+      {(deadline || tileSalary) && (
+        <div className={styles.side}>
+          {isTile && (
+            <span className={tileSalary ? styles.salary : styles.salaryMissing}>
+              {tileSalary || t("Salary not stated")}
+            </span>
+          )}
+          {deadline && (
+            <span className={`${styles.deadline} ${deadlineTone(job.deadline)}`}>
+              {deadline}
+            </span>
+          )}
+        </div>
+      )}
     </Link>
   );
 }

@@ -236,42 +236,46 @@ test("public pages do not depend on runtime Google Fonts imports", async () => {
 
 
 
-test("homepage hero uses the light reference canvas rather than a photo background", async () => {
+test("homepage hero uses the Figma mint discover canvas rather than a photo background", async () => {
   const home = await readFile(
     path.join(__dirname, "..", "app", "page.js"),
     "utf8"
   );
+  const tokens = await readFile(path.join(__dirname, "..", "styles", "tokens.css"), "utf8");
 
-  assert.match(home, /background:\s*var\(--color-surface-warm\)/);
+  assert.match(tokens, /--color-primary-soft:/);
+  assert.match(home, /background:\s*var\(--color-primary-soft\)/);
+  assert.doesNotMatch(home, /#[0-9a-f]{6}/i, "homepage colours come from light/dark tokens");
+  assert.match(home, /Karibu! Find your next job\./);
   assert.doesNotMatch(home, /daraja-career-hero\.webp/);
   assert.doesNotMatch(home, /className="hero-visual"/);
 });
 
 
-test("homepage hero animation is decorative, server-rendered and respects reduced motion", async () => {
+test("homepage discover layout is server-rendered and respects reduced motion", async () => {
   const home = await readFile(path.join(__dirname, "..", "app", "page.js"), "utf8");
-  const bridge = await readFile(path.join(__dirname, "..", "components", "HomeHeroBridge.js"), "utf8");
-  const bridgeCss = await readFile(path.join(__dirname, "..", "components", "HomeHeroBridge.module.css"), "utf8");
 
-  assert.match(home, /<HomeHeroBridge \/>/);
+  assert.doesNotMatch(home, /^"use client"/m);
+  assert.doesNotMatch(home, /HomeHeroBridge/);
   assert.match(home, /prefers-reduced-motion: reduce/);
-  assert.doesNotMatch(home, /hero-word-rise[^}]*opacity/, "headline must stay visible for LCP");
-  assert.doesNotMatch(bridge, /^"use client"/m);
-  assert.match(bridge, /aria-hidden="true"/);
-  assert.match(bridgeCss, /prefers-reduced-motion: reduce/);
-  assert.match(bridgeCss, /@media \(max-width: 900px\)[\s\S]*width:\s*min\(320px, 92vw\)/);
-  assert.doesNotMatch(bridgeCss, /@media \(max-width: 900px\)[\s\S]*display:\s*none/);
+  assert.match(home, /className="discover"/);
+  assert.match(home, /aria-label=\{t\("Daraja for job seekers"\)\}/);
+  assert.match(home, /t\("Make it yours"\)/);
+  assert.match(home, /\{WHATSAPP_CHANNEL_URL && \(/);
 });
 
-test("homepage lists the latest public jobs with the shared job card", async () => {
+test("homepage lists the newest and closing-soon public jobs with the shared job card", async () => {
   const home = await readFile(path.join(__dirname, "..", "app", "page.js"), "utf8");
   const stats = await readFile(path.join(__dirname, "..", "lib", "home-stats.js"), "utf8");
 
   assert.match(stats, /export async function getLatestJobs\(\)/);
+  assert.match(stats, /export async function getClosingSoonJobs\(\)/);
   assert.match(stats, /take: 6/);
+  assert.match(stats, /orderBy: \[\{ deadline: "asc" \}/);
   assert.match(stats, /buildPublicJobWhere\("active", new Date\(\)\)/);
-  assert.match(home, /<JobCard key=\{job\.id\} job=\{job\} listName="Homepage latest jobs" \/>/);
-  assert.match(home, /className="cta-band"/);
+  assert.match(home, /<JobCard key=\{job\.id\} job=\{job\} listName="Homepage latest jobs" variant="tile" \/>/);
+  assert.match(home, /<JobCard key=\{job\.id\} job=\{job\} listName="Homepage closing soon" \/>/);
+  assert.match(home, /!newestIds\.has\(job\.id\)/);
 });
 
 
@@ -286,10 +290,9 @@ test("original Daraja browser favicon is provided through Next.js file metadata"
 test("mobile homepage hero keeps search readable without browser focus zoom", async () => {
   const home = await readFile(path.join(__dirname, "..", "app", "page.js"), "utf8");
 
-  assert.match(home, /font-size:\s*1rem/);
-  assert.match(home, /@media \(max-width: 640px\)[\s\S]*\.hero h1 \.hero-word[\s\S]*animation:\s*none !important/);
   assert.match(home, /@media \(max-width: 640px\)[\s\S]*\.hero-search[\s\S]*grid-template-columns:\s*1fr/);
   assert.match(home, /@media \(max-width: 640px\)[\s\S]*\.hero-field,[\s\S]*\.hero-submit[\s\S]*font-size:\s*1rem/);
+  assert.match(home, /name="location"/);
 });
 
 

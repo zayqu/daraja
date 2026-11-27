@@ -686,3 +686,15 @@ screens (phone, tablet and desktop, with clickable prototypes and user flows).
 - **Explore first:** visitors browse jobs, freelance work and the community
   without an account; sign-in is asked for only at save, apply, alerts,
   posting, proposals and messaging, with a "Not now" option.
+
+
+## D-040 - Figma screens that need a missing backend wait for that backend
+
+**Status:** accepted (27 November 2026)
+
+Following D-039, public discovery (Home, Jobs, Job detail) follows the Figma
+Desktop · Discover (guest), Job list and Job detail frames. Figma elements that
+depend on capabilities Daraja does not own yet (match scores, nearby jobs,
+employer reviews) are not shown as decoration; they ship with their backend.
+Job facts stay stated-only (D-029). Employers without media show an initials
+badge rather than a generic Daraja icon.

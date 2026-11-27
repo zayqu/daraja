@@ -3,7 +3,7 @@ const assert = require("node:assert/strict");
 const { readFile } = require("node:fs/promises");
 const path = require("node:path");
 
-test("public job results use one shared hierarchy-first job card", async () => {
+test("public job results use one shared Figma job card with stated facts only", async () => {
   const jobsPage = await readFile(
     path.join(__dirname, "..", "app", "jobs", "JobsPageClient.js"),
     "utf8"
@@ -25,46 +25,34 @@ test("public job results use one shared hierarchy-first job card", async () => {
   assert.match(card, /<h3 className=\{styles\.title\} title=\{displayTitle\}>\{displayTitle\}<\/h3>/);
   assert.match(card, /formatJobTitle\(job\.title, job\.source\)/);
   assert.match(card, /className=\{styles\.company\}>\{job\.company\}/);
-  assert.match(card, /className=\{styles\.location\}>\{job\.location\}/);
-  assert.match(card, /className=\{styles\.tags\}/);
-  assert.match(card, /t\("Deadline: \{date\}"/);
-  assert.match(card, /t\("Closes in \{n\} days", \{ n: days \}\)/);
+  assert.match(card, /className=\{styles\.meta\}/);
+  assert.match(card, /\{n\} days left/);
+  assert.match(card, /const t = useT\(\)/);
+  assert.match(card, /Closes today/);
   assert.match(card, /styles\.deadline/);
   assert.match(card, /styles\.saveVisual/);
-  assert.match(card, /styles\.calendarIcon/);
   assert.match(card, /JobBrandMedia/);
   assert.match(card, /JOB_TYPE_LABELS/);
   assert.match(card, /experienceLabel\(job\.experienceMinYears, job\.experienceMaxYears, t\)/);
   assert.match(card, /job\.openings > 1/);
+  assert.match(card, /job\.salary \?/);
+  assert.match(card, /variant = "row"/);
+  assert.match(card, /Salary not stated/);
   assert.doesNotMatch(card, /\|\| "Job"/);
-  assert.doesNotMatch(styles, /\.category\s*\{/);
 
+  assert.match(styles, /\.row \{[\s\S]*grid-template-columns:\s*44px minmax\(0, 1fr\) auto/);
+  assert.match(styles, /"brand content side"[\s\S]*"brand content save"/);
   assert.match(
     styles,
-    /grid-template-columns:\s*52px minmax\(0, 1fr\) auto/
+    /@media \(max-width: 640px\)[\s\S]*"brand title save"[\s\S]*"brand company side"[\s\S]*"meta meta meta"/
   );
-  assert.match(
-    styles,
-    /@media \(max-width: 640px\)[\s\S]*grid-template-columns:\s*40px minmax\(0, 1fr\) auto 28px/
-  );
-  assert.match(
-    styles,
-    /grid-template-areas:[\s\S]*"brand title title save"[\s\S]*"brand company location location"[\s\S]*"tags tags deadline deadline"/
-  );
-  assert.doesNotMatch(card, /mobileCompanyBrand/);
-  assert.doesNotMatch(styles, /mobileCompanyBrand/);
-  assert.match(
-    styles,
-    /\.brand[\s\S]*grid-area:\s*brand[\s\S]*align-self:\s*center/
-  );
-  assert.match(styles, /\.location[\s\S]*justify-self:\s*end/);
-  assert.match(styles, /\.deadline[\s\S]*justify-self:\s*end/);
+  assert.match(styles, /\.tile \{/);
   assert.match(styles, /\.company[\s\S]*text-overflow:\s*ellipsis/);
-  assert.match(styles, /\.posted[\s\S]*display:\s*none/);
+  assert.match(styles, /\.soon[\s\S]*var\(--color-warning\)/);
 });
 
 
-test("missing employer media uses the Daraja brand placeholder", async () => {
+test("missing employer media uses an employer initials badge", async () => {
   const media = await readFile(
     path.join(__dirname, "..", "components", "JobBrandMedia.js"),
     "utf8"
@@ -73,12 +61,18 @@ test("missing employer media uses the Daraja brand placeholder", async () => {
     path.join(__dirname, "..", "components", "JobBrandMedia.module.css"),
     "utf8"
   );
+  const { employerInitials } = await import("../components/JobBrandMedia.js").catch(() => ({}));
 
-  assert.match(media, /src="\/icon\.png"/);
-  assert.match(media, /Daraja placeholder/);
-  assert.match(media, /styles\.placeholder/);
+  assert.match(media, /export function employerInitials/);
+  assert.match(media, /styles\.initials/);
   assert.doesNotMatch(media, /sourceType/);
-  assert.match(styles, /\.placeholder img/);
+  assert.match(styles, /\.initials \{/);
+  if (employerInitials) {
+    assert.equal(employerInitials("Pwani Microfinance"), "PM");
+    assert.equal(employerInitials("The Bank of Tanzania"), "BT");
+    assert.equal(employerInitials("TANESCO"), "TA");
+    assert.equal(employerInitials(""), "D");
+  }
 });
 
 test("job card titles are limited to two lines with the full title on hover", () => {

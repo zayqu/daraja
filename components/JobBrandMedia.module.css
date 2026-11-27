@@ -2,7 +2,7 @@
   position: relative;
   display: block;
   overflow: hidden;
-  background: var(--color-surface-muted);
+  background: #e8faf6;
   color: var(--color-link);
 }
 
@@ -20,13 +20,19 @@
   object-fit: cover;
 }
 
-.placeholder {
+.initials {
   display: grid;
   place-items: center;
-  background: var(--color-surface);
+  color: var(--color-on-dark);
+  font-size: 0.86rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  line-height: 1;
 }
 
-.placeholder img {
-  object-fit: contain;
-  padding: 14%;
-}
+/* Initials keep fixed brand tones (white text) in light and dark mode. */
+.navy { background: #1b2a3f; }
+.teal { background: #087f6c; }
+.deep { background: #0b5c4f; }
+.slate { background: #344054; }
+.sky { background: #155eef; }

@@ -25,9 +25,10 @@ test("Headlines remain prominent but supporting homepage text is lighter", () =>
 test("Job card title, company, and metadata have distinct emphasis", () => {
   const c = file("components/ui/JobCard.module.css");
   assert.ok(hasRuleWeight(c, ".title", 600));
-  assert.ok(hasRuleWeight(c, ".company", 500));
-  assert.ok(hasRuleWeight(c, ".tag", 500));
-  assert.ok(hasRuleWeight(c, ".deadline", 500));
+  assert.ok(hasRuleWeight(c, ".featured", 600));
+  assert.ok(hasRuleWeight(c, ".deadline", 600));
+  assert.ok(!hasRuleWeight(c, ".company", 600), "company stays lighter than the title");
+  assert.ok(!hasRuleWeight(c, ".meta", 600), "facts stay lighter than the title");
 });
 test("Navigation labels remain legible without excessive weight", () => {
   const c = file("components/ui/MobileDock.module.css");

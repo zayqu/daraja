@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
+import { useT } from "@/components/LanguageProvider";
 
 // Saves a job to the signed-in user's "Saved jobs" (and removes it again).
 // When `initialSaved` is not given (public job pages), the button asks the
@@ -15,6 +16,7 @@ export default function SaveJobButton({
   refreshOnChange = false,
   savedLabel = "Saved ✓ (remove)",
 }) {
+  const t = useT();
   const router = useRouter();
   const pathname = usePathname();
   const known = typeof initialSaved === "boolean";
@@ -83,7 +85,7 @@ export default function SaveJobButton({
         disabled={state === "busy"}
         aria-pressed={state === "saved"}
       >
-        {state === "busy" ? "Saving…" : state === "saved" ? savedLabel : "Save job"}
+        {state === "busy" ? t("Saving…") : state === "saved" ? savedLabel : t("Save job")}
       </button>
       {error ? <span role="alert">{error}</span> : null}
     </>

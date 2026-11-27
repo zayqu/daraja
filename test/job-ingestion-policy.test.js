@@ -22,31 +22,23 @@ test("job detail uses Daraja's professional metadata format without recruiter pr
     "utf8"
   );
 
-  assert.match(detail, /<dt>Position<\/dt>/);
-  assert.match(detail, /<dt>Company \/ Institution<\/dt>/);
-  assert.match(detail, /<dt>Location<\/dt>/);
-  assert.match(detail, /<dt>Category<\/dt>/);
-  assert.match(detail, /<dt>Job type<\/dt>/);
-  assert.match(detail, /<dt>Deadline<\/dt>/);
+  assert.match(detail, /label: t\("Location"\)/);
+  assert.match(detail, /label: t\("Category"\)/);
+  assert.match(detail, /label: t\("Job type"\)/);
+  assert.match(detail, /<dt>\{t\("Deadline"\)\}<\/dt>/);
+  assert.match(detail, /<dt>\{fact\.label\}<\/dt>/);
   assert.doesNotMatch(detail, /<dt>Source<\/dt>/);
   assert.doesNotMatch(detail, /formatSource\(/);
 });
 
-test("homepage is always rendered from the current release and mobile bridge labels stay visible", async () => {
+test("homepage is always rendered from the current release", async () => {
   const home = await readFile(
     path.join(__dirname, "..", "app", "page.js"),
-    "utf8"
-  );
-  const bridge = await readFile(
-    path.join(__dirname, "..", "components", "HomeHeroBridge.module.css"),
     "utf8"
   );
 
   assert.match(home, /export const dynamic = "force-dynamic"/);
   assert.match(home, /export const revalidate = 0/);
-  assert.match(bridge, /aspect-ratio: 360 \/ 280/);
-  assert.match(bridge, /\.labelStart[\s\S]*left: 8px/);
-  assert.match(bridge, /\.labelEnd[\s\S]*right: 8px/);
 });
 
 

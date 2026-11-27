@@ -45,7 +45,7 @@ test("homepage sends live platform counters to the shared navy footer", async ()
   const footerStyles = await source("components/SiteFooter.module.css");
   const stats = await source("lib/home-stats.js");
 
-  assert.match(home, /await Promise\.all\(\[\s*getHomeStats\(\),\s*getLatestJobs\(\),\s*getCategoryList\(\),\s*\]\)/);
+  assert.match(home, /await Promise\.all\(\[\s*getHomeStats\(\),\s*getLatestJobs\(\),\s*getClosingSoonJobs\(\),\s*getCategoryList\(\),\s*\]\)/);
   assert.match(home, /<SiteFooter[\s\S]*platformStats=\{\{/);
   assert.match(home, /liveJobs: stats\.liveJobs/);
   assert.match(home, /employers: stats\.employers/);
@@ -78,15 +78,6 @@ test("homepage sends live platform counters to the shared navy footer", async ()
   assert.match(stats, /distinct: \["company"\]/);
   assert.match(stats, /distinct: \["source"\]/);
   assert.doesNotMatch(stats, /visitorCounter/);
-});
-
-test("hero bridge uses the approved opportunity groups", async () => {
-  const bridge = await source("components/HomeHeroBridge.js");
-
-  assert.match(bridge, /Private sector & Institutions/);
-  assert.match(bridge, /Government/);
-  assert.match(bridge, /Bank & Finance/);
-  assert.doesNotMatch(bridge, /NGO & Development/);
 });
 
 test("mobile dock follows compact bottom-navigation sizing", async () => {

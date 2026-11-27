@@ -8,23 +8,52 @@ import SiteNav from "@/components/SiteNav";
 import SiteFooter from "@/components/SiteFooter";
 import JobBrandMedia from "@/components/JobBrandMedia";
 import SaveJobButton from "@/components/SaveJobButton";
+import { useT } from "@/components/LanguageProvider";
 import { trackEvent } from "@/lib/analytics";
 import { structureJobDescription } from "@/lib/job-description";
 import { buildJobQuickGuide } from "@/lib/job-quick-guide";
 import { SITE_ORIGIN, WHATSAPP_CHANNEL_URL } from "@/lib/site-config";
 import styles from "./job-detail.module.css";
 
-function experienceLabel({ experienceMinYears: min, experienceMaxYears: max }) {
+function experienceLabel({ experienceMinYears: min, experienceMaxYears: max }, t) {
   if (!Number.isInteger(min)) return null;
-  if (min === 0 && max === 0) return "No experience needed";
-  const years = (count) => `${count} year${count === 1 ? "" : "s"}`;
-  if (!Number.isInteger(max)) return `${years(min)} or more`;
-  if (max === min) return years(min);
-  return `${min}–${max} years`;
+  if (min === 0 && (max === 0 || !Number.isInteger(max))) return t("No experience needed");
+  if (!Number.isInteger(max)) return t(min === 1 ? "{n} year or more" : "{n} years or more", { n: min });
+  if (max === min) return t(min === 1 ? "{n} year" : "{n} years", { n: min });
+  return t("{min}–{max} years", { min, max });
+}
+
+function postedLabel(value, t) {
+  if (!value) return null;
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return null;
+  const days = Math.max(0, Math.floor((Date.now() - date.getTime()) / 86400000));
+  if (days === 0) return t("Posted today");
+  if (days === 1) return t("Posted yesterday");
+  return t("Posted {n} days ago", { n: days });
+}
+
+const FACT_ICONS = {
+  salary: "M3 7h18v10H3zM12 14.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5Z",
+  type: "M4 8h16v11H4zM9 8V6a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2",
+  location: "M12 21s-6-5.3-6-10a6 6 0 1 1 12 0c0 4.7-6 10-6 10Zm0-7.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5Z",
+  experience: "M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8Zm-7 8a7 7 0 0 1 14 0",
+  openings: "M16 20v-1a4 4 0 0 0-8 0v1M12 11a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z",
+  category: "M4 4h7v7H4zM13 4h7v7h-7zM4 13h7v7H4zM13 13h7v7h-7z",
+  deadline: "M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18Zm0-13v4l3 2",
+};
+
+function Icon({ path, className }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" focusable="false" aria-hidden="true">
+      <path d={path} />
+    </svg>
+  );
 }
 
 export default function JobDetailPageClient({ initialJob, showEmployerCta }) {
   const { id } = useParams();
+  const t = useT();
   const [job, setJob] = useState(initialJob || null);
   const [loading, setLoading] = useState(!initialJob);
   const [notFound, setNotFound] = useState(false);
@@ -99,9 +128,7 @@ export default function JobDetailPageClient({ initialJob, showEmployerCta }) {
     return value
       .replaceAll("_", " ")
       .toLowerCase()
-      .replace(/\b\w/g, (letter) => letter.toUpperCase())
-      .replace("Full Time", "Full-time")
-      .replace("Part Time", "Part-time");
+      .replace(/^\w/, (letter) => letter.toUpperCase());
   }
 
   function isExpired(value) {
@@ -209,51 +236,89 @@ export default function JobDetailPageClient({ initialJob, showEmployerCta }) {
     if (applicationEmail) setEmailFallbackOpen(true);
   }
 
+  const canApply = Boolean(job && (job.applicationUrl || job.sourceUrl) && !isExpired(job.deadline));
+  const deadlineText = job?.deadline
+    ? isExpired(job.deadline)
+      ? t("Applications closed")
+      : daysLeft(job.deadline) === 0
+        ? t("Closes today")
+        : t(daysLeft(job.deadline) === 1 ? "{n} day left" : "{n} days left", { n: daysLeft(job.deadline) })
+    : null;
+  const facts = job
+    ? [
+        job.salary ? { key: "salary", label: t("Salary"), value: job.salary } : null,
+        { key: "type", label: t("Job type"), value: t(formatJobType(job.type)) },
+        { key: "location", label: t("Location"), value: job.location },
+        experienceLabel(job, t) ? { key: "experience", label: t("Experience"), value: experienceLabel(job, t) } : null,
+        job.openings > 1 ? { key: "openings", label: t("Openings"), value: String(job.openings) } : null,
+        { key: "category", label: t("Category"), value: t(job.category) },
+      ].filter(Boolean)
+    : [];
+
+  function renderApplyAction() {
+    return canApply ? (
+      <a
+        href={applicationHref}
+        target={applicationEmail ? undefined : "_blank"}
+        rel={applicationEmail ? undefined : "noopener noreferrer"}
+        className={styles.primaryAction}
+        onClick={trackApplication}
+      >
+        {t("Apply now")}
+      </a>
+    ) : (
+      <span className={styles.closedAction}>{t("Applications closed")}</span>
+    );
+  }
+
   return (
     <div className={styles.page}>
-      <SiteNav
-        showSearch
-        showEmployerCta={showEmployerCta}
-      />
+      <SiteNav showEmployerCta={showEmployerCta} />
 
-      <nav className={styles.breadcrumb} aria-label="Breadcrumb">
+      <nav className={styles.breadcrumb} aria-label={t("Breadcrumb")}>
         <div className={styles.breadcrumbInner}>
-          <Link href="/">Home</Link>
-          <span aria-hidden="true">›</span>
-          <Link href="/jobs">Jobs</Link>
-          <span aria-hidden="true">›</span>
-          <span>{loading ? "Loading..." : job ? job.title : "Not found"}</span>
+          <Link href="/">{t("Home")}</Link>
+          <span aria-hidden="true">/</span>
+          <Link href="/jobs">{t("Jobs")}</Link>
+          {job && (
+            <>
+              <span aria-hidden="true">/</span>
+              <Link href={`/jobs?category=${encodeURIComponent(job.category)}`}>{t(job.category)}</Link>
+            </>
+          )}
+          <span aria-hidden="true">/</span>
+          <span>{loading ? t("Loading...") : job ? formatJobTitle(job.title, job.source) : t("Not found")}</span>
         </div>
       </nav>
 
       {loading && (
         <main className={styles.state} id="main-content">
-          <p>Loading position...</p>
+          <p>{t("Loading position...")}</p>
         </main>
       )}
 
       {!loading && notFound && (
         <main className={styles.state} id="main-content">
-          <strong>Position not found</strong>
-          <p>This job may have been removed, closed or replaced.</p>
-          <Link href="/jobs">Browse all jobs →</Link>
+          <strong>{t("Position not found")}</strong>
+          <p>{t("This job may have been removed, closed or replaced.")}</p>
+          <Link href="/jobs">{t("Browse all jobs →")}</Link>
         </main>
       )}
 
       {!loading && loadError && !notFound && (
         <main className={styles.state} id="main-content">
-          <strong>We could not load this position</strong>
-          <p>The connection was interrupted. Please try again.</p>
+          <strong>{t("We could not load this position")}</strong>
+          <p>{t("The connection was interrupted. Please try again.")}</p>
           <button type="button" className={styles.primaryAction} onClick={fetchJob}>
-            Try again
+            {t("Try again")}
           </button>
         </main>
       )}
 
       {!loading && job && (
-        <>
-          <section className={styles.summary}>
-            <div className={styles.summaryInner}>
+        <main className={styles.layout} id="main-content">
+          <section className={`${styles.card} ${styles.summaryCard}`} aria-labelledby="job-title">
+            <div className={styles.summaryTop}>
               <JobBrandMedia
                 company={job.company}
                 companyLogo={job.companyLogo}
@@ -263,242 +328,190 @@ export default function JobDetailPageClient({ initialJob, showEmployerCta }) {
               />
 
               <div className={styles.summaryMain}>
-                <p className={styles.company}>{job.company}</p>
-                <h1>{formatJobTitle(job.title, job.source)}</h1>
-
-                <div className={styles.summaryMeta}>
-                  <span>{job.location}</span>
-                  <span>{formatJobType(job.type)}</span>
-                  <span>{job.category}</span>
+                <div className={styles.titleRow}>
+                  <h1 id="job-title">{formatJobTitle(job.title, job.source)}</h1>
+                  {job.featured && <span className={styles.featured}>{t("Featured")}</span>}
                 </div>
+                <p className={styles.company}>{job.company}</p>
+                <ul className={styles.summaryMeta} aria-label={t("Job summary")}>
+                  <li><Icon path={FACT_ICONS.location} className={styles.metaIcon} />{job.location}</li>
+                  <li><Icon path={FACT_ICONS.type} className={styles.metaIcon} />{t(formatJobType(job.type))}</li>
+                  {postedLabel(job.createdAt, t) && (
+                    <li><Icon path={FACT_ICONS.deadline} className={styles.metaIcon} />{postedLabel(job.createdAt, t)}</li>
+                  )}
+                </ul>
               </div>
 
-              <div className={styles.summaryActions}>
-                {job.deadline && (
-                  <div className={`${styles.summaryDeadline} ${getDeadlineClass(job.deadline)}`}>
-                    {isExpired(job.deadline)
-                      ? "Applications closed"
-                      : daysLeft(job.deadline) === 0
-                        ? "Closes today"
-                        : `${daysLeft(job.deadline)} day${daysLeft(job.deadline) === 1 ? "" : "s"} left`}
-                  </div>
-                )}
+              {deadlineText && (
+                <span className={`${styles.summaryDeadline} ${getDeadlineClass(job.deadline)}`}>
+                  {deadlineText}
+                </span>
+              )}
+            </div>
 
-                {(job.applicationUrl || job.sourceUrl) && !isExpired(job.deadline) ? (
-                  <a
-                    href={applicationHref}
-                    target={applicationEmail ? undefined : "_blank"}
-                    rel={applicationEmail ? undefined : "noopener noreferrer"}
-                    className={styles.primaryAction}
-                    onClick={trackApplication}
-                  >
-                    Apply now →
-                  </a>
-                ) : (
-                  <span className={styles.closedAction}>Applications closed</span>
-                )}
-              </div>
+            <div className={styles.summaryActions}>
+              {renderApplyAction()}
+              <SaveJobButton jobId={job.id} className={styles.secondaryAction} savedLabel={t("Saved")} />
+              <a
+                className={styles.iconAction}
+                href={`https://wa.me/?text=${encodeURIComponent(getShareMessage())}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label={t("Share on WhatsApp")}
+                title={t("Share on WhatsApp")}
+              >
+                <Icon path="M18 8a3 3 0 1 0-2.8-4M6 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6Zm12 6a3 3 0 1 0 0-6 3 3 0 0 0 0 6ZM8.6 13.5l6.8 4M15.4 6.5l-6.8 4" className={styles.actionIcon} />
+              </a>
             </div>
           </section>
 
-          <main className={styles.layout} id="main-content">
-            <aside className={`${styles.card} ${styles.detailsCard}`}>
-              <div className={styles.cardEyebrow}>Opportunity overview</div>
-              <h2>Job details</h2>
-
-              <dl className={styles.detailsList}>
-                <div className={styles.repeatsHeader}>
-                  <dt>Position</dt>
-                  <dd>{job.title}</dd>
-                </div>
-                <div className={styles.repeatsHeader}>
-                  <dt>Company / Institution</dt>
-                  <dd>{job.company}</dd>
-                </div>
-                <div>
-                  <dt>Location</dt>
-                  <dd>{job.location}</dd>
-                </div>
-                <div>
-                  <dt>Category</dt>
-                  <dd>{job.category}</dd>
-                </div>
-                <div>
-                  <dt>Job type</dt>
-                  <dd>{formatJobType(job.type)}</dd>
-                </div>
-                {experienceLabel(job) && (
-                  <div>
-                    <dt>Experience</dt>
-                    <dd>{experienceLabel(job)}</dd>
+          <aside className={styles.sidebar} aria-label={t("Opportunity overview")}>
+            <section className={`${styles.card} ${styles.factsCard}`}>
+              <h2 className="sr-only">{t("Job details")}</h2>
+              <dl className={styles.factsList}>
+                {facts.map((fact) => (
+                  <div key={fact.key}>
+                    <span className={styles.factIcon}><Icon path={FACT_ICONS[fact.key]} /></span>
+                    <dt>{fact.label}</dt>
+                    <dd>{fact.value}</dd>
                   </div>
-                )}
-                {job.openings > 1 && (
-                  <div>
-                    <dt>Openings</dt>
-                    <dd>{job.openings}</dd>
-                  </div>
-                )}
+                ))}
                 {job.deadline && (
                   <div>
-                    <dt>Deadline</dt>
+                    <span className={styles.factIcon}><Icon path={FACT_ICONS.deadline} /></span>
+                    <dt>{t("Deadline")}</dt>
                     <dd className={getDeadlineClass(job.deadline)}>
-                      {formatDate(job.deadline)}
+                      {formatDate(job.deadline)}{deadlineText && !isExpired(job.deadline) ? ` · ${deadlineText}` : ""}
                     </dd>
                   </div>
                 )}
               </dl>
-            </aside>
+            </section>
 
-            <article className={`${styles.card} ${styles.contentCard}`}>
-              <div className={styles.cardEyebrow}>About the role</div>
-              <h2>Position description</h2>
-              <div className={styles.description}>
-                {structureJobDescription(job.description, { company: job.company }).map((section) => (
-                  <section key={section.id} className={styles.descriptionSection}>
-                    <h3>{section.title}</h3>
-                    {section.paragraphs.map((paragraph) => (
-                      <p key={paragraph}>{paragraph}</p>
-                    ))}
-                    {section.items.length > 0 && (
-                      <ul>
-                        {section.items.map((item) => (
-                          <li key={item}>{item}</li>
-                        ))}
-                      </ul>
-                    )}
-                  </section>
-                ))}
+            <section className={`${styles.card} ${styles.employerCard}`} aria-labelledby="employer-title">
+              <div className={styles.employerHead}>
+                <JobBrandMedia
+                  company={job.company}
+                  companyLogo={job.companyLogo}
+                  representativeImage={job.representativeImage}
+                  className={styles.employerMark}
+                  sizes="40px"
+                />
+                <div>
+                  <h2 id="employer-title">{job.company}</h2>
+                  <p>{t(job.category)} · {job.location}</p>
+                </div>
               </div>
+              <div className={styles.browseLinks}>
+                <Link href={`/jobs?category=${encodeURIComponent(job.category)}`}>
+                  {t("More {category} jobs", { category: t(job.category) })}
+                </Link>
+                <Link href="/jobs">{t("All jobs")}</Link>
+              </div>
+            </section>
+          </aside>
 
-              {job.salary && (
-                <section className={styles.salarySection}>
-                  <h3>Salary</h3>
-                  <p>{job.salary}</p>
-                </section>
-              )}
-
-              {(() => {
-                const guide = buildJobQuickGuide(job);
-                return (
-                  <section className={styles.quickGuide} aria-labelledby="quick-guide-title">
-                    <h3 id="quick-guide-title">Before you apply</h3>
-                    <p className={styles.quickGuideLead}>Daraja tips for this vacancy</p>
-                    <h4>Who this role suits</h4>
+          <article className={`${styles.card} ${styles.contentCard}`} aria-labelledby="description-title">
+            <h2 id="description-title" className="sr-only">{t("Position description")}</h2>
+            <div className={styles.description}>
+              {structureJobDescription(job.description, { company: job.company }).map((section) => (
+                <section key={section.id} className={styles.descriptionSection}>
+                  <h3>{section.title}</h3>
+                  {section.paragraphs.map((paragraph) => (
+                    <p key={paragraph}>{paragraph}</p>
+                  ))}
+                  {section.items.length > 0 && (
                     <ul>
-                      {guide.fit.map((item) => (
+                      {section.items.map((item) => (
                         <li key={item}>{item}</li>
                       ))}
                     </ul>
-                    <h4>How to apply</h4>
-                    <ol>
-                      {guide.steps.map((item) => (
-                        <li key={item}>{item}</li>
-                      ))}
-                    </ol>
-                    <h4>Helpful guides</h4>
-                    <ul className={styles.quickGuideLinks}>
-                      {guide.links.map((link) => (
-                        <li key={link.href}>
-                          <Link href={link.href}>{link.label}</Link>
-                        </li>
-                      ))}
-                    </ul>
-                  </section>
-                );
-              })()}
-            </article>
+                  )}
+                </section>
+              ))}
+            </div>
 
-            <section className={`${styles.card} ${styles.applicationCard}`}>
-              <div className={styles.cardEyebrow}>Next step</div>
-              <h2>Apply for this role</h2>
-
-              {(job.applicationUrl || job.sourceUrl) && !isExpired(job.deadline) ? (
-                <a
-                  href={applicationHref}
-                  target={applicationEmail ? undefined : "_blank"}
-                  rel={applicationEmail ? undefined : "noopener noreferrer"}
-                  className={styles.primaryAction}
-                  onClick={trackApplication}
-                >
-                  Apply now →
-                </a>
-              ) : (
-                <span className={styles.closedAction}>Applications closed</span>
-              )}
+            <section className={styles.applyBox} aria-labelledby="apply-title">
+              <h3 id="apply-title">{t("Apply for this role")}</h3>
 
               {job.source === "ajira" && (
                 <p className={styles.helpText}>
-                  Continue to the official Ajira sign-in or application step
-                  for this vacancy.
+                  {t("Continue to the official Ajira sign-in or application step for this vacancy.")}
                 </p>
               )}
 
               {applicationEmail && (
                 <>
                   <p className={styles.helpText}>
-                    Email: <a href={job.applicationUrl}>{applicationEmail}</a>
+                    {t("Email:")} <a href={job.applicationUrl}>{applicationEmail}</a>
                     {applicationSubject && (
                       <>
                         <br />
-                        Subject: {applicationSubject}
+                        {t("Subject:")} {applicationSubject}
                       </>
                     )}
                   </p>
                   {emailFallbackOpen && (
                     <div className={styles.emailFallback} role="status">
-                      <strong>Email app did not open?</strong>
+                      <strong>{t("Email app did not open?")}</strong>
                       <span>
-                        Copy the verified recipient and subject, then send your
-                        application from your preferred email app.
+                        {t("Copy the verified recipient and subject, then send your application from your preferred email app.")}
                       </span>
                       <button type="button" onClick={copyEmailApplicationDetails}>
-                        {copyStatus || "Copy email details"}
+                        {t(copyStatus || "Copy email details")}
                       </button>
                     </div>
                   )}
                 </>
               )}
 
-              <SaveJobButton jobId={job.id} className={styles.cvAction} />
-
-              <Link
-                href={`/account/career/cv?job=${encodeURIComponent(job.id)}`}
-                className={styles.cvAction}
-              >
-                Tailor CV for this job
-              </Link>
+              <div className={styles.applyActions}>
+                {renderApplyAction()}
+                <Link
+                  href={`/account/career/cv?job=${encodeURIComponent(job.id)}`}
+                  className={styles.cvAction}
+                >
+                  {t("Tailor CV for this job")}
+                </Link>
+              </div>
 
               <p className={styles.trustNote}>
-                Daraja never charges job seekers fees to view or apply for jobs.
+                {t("Daraja never charges job seekers fees to view or apply for jobs.")}
               </p>
-
-              <a
-                className={styles.shareAction}
-                href={`https://wa.me/?text=${encodeURIComponent(getShareMessage())}`}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                Share on WhatsApp
-              </a>
             </section>
 
-            <section className={`${styles.card} ${styles.browseCard}`}>
-              <div className={styles.cardEyebrow}>Keep exploring</div>
-              <h2>Similar opportunities</h2>
-              <p>
-                Browse more current vacancies in the same category or return to
-                the complete jobs list.
-              </p>
-              <div className={styles.browseLinks}>
-                <Link href={`/jobs?category=${encodeURIComponent(job.category)}`}>
-                  More {job.category} jobs →
-                </Link>
-                <Link href="/jobs">All jobs →</Link>
-              </div>
-            </section>
-          </main>
-        </>
+            {(() => {
+              const guide = buildJobQuickGuide(job);
+              return (
+                <section className={styles.quickGuide} aria-labelledby="quick-guide-title">
+                  <h3 id="quick-guide-title">{t("Before you apply")}</h3>
+                  <p className={styles.quickGuideLead}>{t("Daraja tips for this vacancy")}</p>
+                  <h4>{t("Who this role suits")}</h4>
+                  <ul>
+                    {guide.fit.map((item) => (
+                      <li key={item}>{item}</li>
+                    ))}
+                  </ul>
+                  <h4>{t("How to apply")}</h4>
+                  <ol>
+                    {guide.steps.map((item) => (
+                      <li key={item}>{item}</li>
+                    ))}
+                  </ol>
+                  <h4>{t("Helpful guides")}</h4>
+                  <ul className={styles.quickGuideLinks}>
+                    {guide.links.map((link) => (
+                      <li key={link.href}>
+                        <Link href={link.href}>{link.label}</Link>
+                      </li>
+                    ))}
+                  </ul>
+                </section>
+              );
+            })()}
+          </article>
+
+        </main>
       )}
 
       <SiteFooter />

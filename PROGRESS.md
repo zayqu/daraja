@@ -1,6 +1,20 @@
 # Daraja Jobs production-readiness progress
 
-Last updated: 19 November 2026
+Last updated: 27 November 2026
+
+## Figma public discovery redesign: Home, Jobs and Job detail (27 November 2026)
+
+- Claude took over continued Ajira development from ChatGPT. This work is built on top of ChatGPT's unmerged `feature/user-dashboards` branch (Phase 1 Figma foundation: Inter + Plus Jakarta Sans, tokens, Apple-style dark mode, EN/SW, role dashboards), so it reuses its tokens, `useT`/`getServerT` translations and `SaveJobButton`.
+- UI source: Figma file "Daraja — UI/UX Design" (pages `UI Design` 30–35 and `Desktop & Tablet`: Discover (guest), Job list, Job detail). The mint hero uses `--color-primary-soft`.
+- Homepage (`app/page.js`) now follows Desktop · Discover (guest): mint "Karibu! Find your next job." hero with the live open-job count, keyword + location search, popular-category chips, "Newest jobs" tiles (mobile: swipe rail), "Closing soon" list (new `getClosingSoonJobs` in `lib/home-stats.js`, nearest stated deadlines, de-duplicated against newest), and a sidebar with "Make it yours" (real features only), the WhatsApp channel and the employer CTA. Browse by category stays. The decorative `HomeHeroBridge` and the "how it works"/CTA bands were removed; `JobAlerts` remains on `/jobs`.
+- `components/ui/JobCard.js` is still the single job card owner, now with `variant="row"` (Figma list row; mobile row with divider + facts) and `variant="tile"`. Only stated facts render (D-029); deadline pill shows "N days left" (amber at ≤4 days).
+- `JobBrandMedia` falls back to an employer initials badge (e.g. "PM") instead of the Daraja icon, as in Figma.
+- `/jobs`: breadcrumb, "Jobs in Tanzania" header with count and job-alert link, keyword + location search, Filters sidebar with radio option lists (job type, popular locations, status) and category select, "Showing x–y of N", numbered pagination. Mobile keeps the centered filter sheet.
+- `/jobs/[id]`: Figma header card (initials/logo, title, Featured, company, meta, deadline pill, Apply now, Save, WhatsApp share), facts sidebar (salary only when stated, type, location, experience, openings, category, deadline) and employer card, description card with "Apply for this role" box (email fallback, Tailor CV, no-fees note) and "Before you apply" guide. Apply routing/tracking unchanged.
+- Save on the job detail reuses the existing `SaveJobButton` owner (saved-jobs API; signed-out visitors are sent to sign in). All new text is translated (new Kiswahili strings in `lib/i18n.js`; the unused `HERO_HEADLINE` was removed) and all colours use the light/dark tokens.
+- Not built (no backend yet, D-040): Figma's Nearby/Matches tabs, match %, reviews tab, messages/community icons, and the bottom-dock change to Discover/My jobs/CV/Profile.
+- The job detail header no longer carries the search box (not in the Figma job-detail frame; with EN/SW and theme controls it pushed "Post a Job" off-screen at 1440px). Job detail, Save and the experience labels are now translated too.
+- Validation (sandbox, local Postgres with sample jobs): `npm test` 482/483 — the one failure, `psrs-notice.test.js` "individual PSRS roles match only exact title, institution and date", also fails on master because its fixture deadline (19 Nov 2026) is now in the past. ESLint clean. Checked desktop 1440px light and dark, and iPhone 13 in Kiswahili; no horizontal scroll and no page errors. Functional checks: home location search → `/jobs?location=Mwanza`, type filter updates URL/results, signed-out Save → sign-in. `next build` could not fetch Google Fonts in the sandbox; CI/Vercel build is the build gate.
 
 ## Fursa discovery review reader (16 November 2026)
 

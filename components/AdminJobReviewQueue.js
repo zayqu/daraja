@@ -15,7 +15,25 @@ function formatDate(value) {
   });
 }
 
+function initials(text) {
+  const words = String(text || "?").replace(/[^\p{L}\p{N} ]/gu, " ").trim().split(/\s+/).filter(Boolean);
+  return ((words[0]?.[0] || "?") + (words[1]?.[0] || "")).toUpperCase();
+}
+
+function ago(value) {
+  if (!value) return null;
+  const minutes = Math.max(0, Math.round((Date.now() - new Date(value).getTime()) / 60000));
+  if (minutes < 60) return minutes <= 1 ? "Just now" : `${minutes} min ago`;
+  const hours = Math.round(minutes / 60);
+  if (hours < 24) return `${hours}h ago`;
+  const days = Math.round(hours / 24);
+  return days === 1 ? "Yesterday" : `${days} days ago`;
+}
+
+// One waiting vacancy (Figma Admin overview row). "Review" opens the
+// editor checks; publishing still needs the source confirmation below.
 function ReviewItem({ job, onDone }) {
+  const [open, setOpen] = useState(false);
   const [reason, setReason] = useState("");
   const [sourceReviewed, setSourceReviewed] = useState(false);
   const [state, setState] = useState("idle");
@@ -46,15 +64,31 @@ function ReviewItem({ job, onDone }) {
     }
   }
 
+  const origin = job.source === "daraja" ? "Employer submission" : "Imported from source";
+  const panelId = `review-${job.id}`;
+
   return (
-    <li className={styles.item}>
-      <div className={styles.heading}>
-        <h3>{job.title}</h3>
-        <p>
-          {job.company}
-          {job.location ? `, ${job.location}` : ""}
-        </p>
+    <li className={`${styles.item} ${open ? styles.itemOpen : ""}`}>
+      <div className={styles.row}>
+        <span className={styles.mark} aria-hidden="true">{initials(job.company)}</span>
+        <div className={styles.heading}>
+          <h3>{job.title}</h3>
+          <p>{[job.company, origin, ago(job.createdAt)].filter(Boolean).join(" · ")}</p>
+        </div>
+        <button
+          type="button"
+          className={open ? styles.reviewActive : styles.review}
+          aria-expanded={open}
+          aria-controls={panelId}
+          onClick={() => setOpen((value) => !value)}
+        >
+          {open ? "Close" : "Review"}
+        </button>
       </div>
+
+      {open ? (
+      <div className={styles.panel} id={panelId}>
+      <p className={styles.place}>{job.location || "Location not stated"}</p>
 
       {job.moderationNote && <p className={styles.reason}>{job.moderationNote}</p>}
 
@@ -112,6 +146,8 @@ function ReviewItem({ job, onDone }) {
         </button>
       </div>
       {error && <p className={styles.error} role="alert">{error}</p>}
+      </div>
+      ) : null}
     </li>
   );
 }

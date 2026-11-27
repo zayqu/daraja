@@ -28,12 +28,20 @@ export function Panel({ title, actions, children, flush = false }) {
   );
 }
 
-export function StatCard({ label, value, note, href }) {
+// One number tile (Figma overview stats): label and icon, big value, a note.
+export function StatCard({ label, value, note, href, icon, tone }) {
   const content = (
     <>
-      <span>{label}</span>
+      <span className={styles.statLabel}>
+        {label}
+        {icon ? (
+          <span className={styles.statIcon} aria-hidden="true">
+            <NavIcon name={icon} size={18} />
+          </span>
+        ) : null}
+      </span>
       <strong>{value}</strong>
-      {note ? <em>{note}</em> : null}
+      {note ? <em className={tone === "warning" ? styles.statNoteWarning : undefined}>{note}</em> : null}
     </>
   );
   return href ? (

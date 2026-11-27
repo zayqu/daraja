@@ -1,6 +1,6 @@
+/* Vacancies waiting (Figma: Desktop · Admin overview). */
 .list {
   display: grid;
-  gap: var(--space-3);
   margin: 0;
   padding: 0;
   list-style: none;
@@ -8,25 +8,118 @@
 
 .item {
   display: grid;
-  gap: 0.7rem;
-  padding: var(--space-4);
-  border: 1px solid var(--color-border-strong);
-  border-radius: var(--radius-card);
-  background: var(--color-surface);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.item:last-child {
+  border-bottom: 0;
+}
+
+.itemOpen {
+  background: var(--color-surface-muted);
+}
+
+.row {
+  display: grid;
+  grid-template-columns: 40px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--space-3);
+  padding: 0.85rem var(--space-5);
+}
+
+.mark {
+  width: 40px;
+  height: 40px;
+  display: inline-grid;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--color-navy, #1b2a3f);
+  color: #ffffff;
+  font-size: 0.74rem;
+  font-weight: 700;
+}
+
+.heading {
+  min-width: 0;
 }
 
 .heading h3 {
   margin: 0;
+  overflow: hidden;
   color: var(--color-text);
-  font-size: 1rem;
+  font-size: 0.92rem;
+  font-weight: 600;
   line-height: 1.35;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .heading p {
-  margin: 0.2rem 0 0;
+  margin: 0.15rem 0 0;
+  overflow: hidden;
+  color: var(--color-text-muted);
+  font-size: 0.78rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.review,
+.reviewActive {
+  min-height: 36px;
+  padding: 0 0.95rem;
+  border: 1px solid var(--color-border-strong);
+  border-radius: 10px;
+  background: var(--color-surface);
+  color: var(--color-text);
+  font: inherit;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.reviewActive {
+  border-color: var(--color-teal-deep);
+  color: var(--color-link);
+}
+
+.panel {
+  display: grid;
+  gap: 0.7rem;
+  padding: 0 var(--space-5) var(--space-4) calc(var(--space-5) + 40px + var(--space-3));
+}
+
+.place {
+  margin: 0;
   color: var(--color-text-secondary);
   font-size: 0.8rem;
   font-weight: 600;
+}
+
+.panel label {
+  display: flex;
+  gap: 0.5rem;
+  align-items: flex-start;
+  color: var(--color-text-secondary);
+  font-size: 0.8rem;
+  line-height: 1.5;
+}
+
+.empty {
+  padding: var(--space-5);
+}
+
+@media (max-width: 640px) {
+  .row {
+    padding: 0.75rem var(--space-4);
+  }
+
+  .heading p {
+    white-space: normal;
+  }
+
+  .panel {
+    padding: 0 var(--space-4) var(--space-4);
+  }
 }
 
 .reason {
@@ -91,9 +184,10 @@
 
 .publish,
 .reject {
-  padding: 0.55rem 0.95rem;
+  min-height: 36px;
+  padding: 0 0.95rem;
   border: 0;
-  border-radius: var(--radius-pill);
+  border-radius: 10px;
   font: inherit;
   font-size: 0.8rem;
   font-weight: 700;
@@ -102,7 +196,7 @@
 
 .publish {
   background: var(--color-teal-deep);
-  color: var(--color-on-dark);
+  color: #ffffff;
 }
 
 .reject {

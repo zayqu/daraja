@@ -2,9 +2,13 @@ import Link from "next/link";
 import AdminJobReviewQueue from "@/components/AdminJobReviewQueue";
 import { Badge, PageHeader, Panel, StatCard, formatDate } from "@/components/dashboard/DashboardUi";
 import styles from "@/components/dashboard/dashboard.module.css";
+import NavIcon from "@/components/ui/NavIcon";
 import { requireAdminPage } from "@/lib/admin-guard";
 import { getAdminQueueCounts } from "@/lib/admin-queue";
 import prisma from "@/lib/prisma";
+import sourceSettingsModule from "@/scraper/lib/source-settings";
+
+const { applySourceSettings, getSourceCatalog } = sourceSettingsModule;
 
 export const dynamic = "force-dynamic";
 
@@ -31,70 +35,220 @@ const ACTION_LABELS = {
   JOB_SUBMITTED_FOR_REVIEW: "Employer submitted a job",
 };
 
+const DAY_MS = 24 * 60 * 60 * 1000;
+
+function daysAgo(date, now) {
+  const days = Math.floor((now - new Date(date)) / DAY_MS);
+  if (days <= 0) return "today";
+  return days === 1 ? "1 day" : `${days} days`;
+}
+
+function lastUpdateLabel(date, now) {
+  if (!date) return "No jobs yet";
+  const hours = Math.floor((now - new Date(date)) / (60 * 60 * 1000));
+  if (hours < 1) return "Updated within the hour";
+  if (hours < 24) return `Updated ${hours}h ago`;
+  return `Updated ${formatDate(date)}`;
+}
+
+// Admin overview (Figma Desktop · Admin overview): what is waiting, the
+// review queue, employers to verify and whether job sources are still bringing
+// in vacancies. Approving still goes through the editor checks (D-029).
 export default async function AdminOverviewPage() {
   await requireAdminPage("/admin");
   const now = new Date();
-  const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+  const weekAgo = new Date(now.getTime() - 7 * DAY_MS);
 
-  const [liveJobs, { pendingJobs: pendingCount, pendingEmployers }, newJobs, users, newUsers, employers, pendingJobs, activity] =
-    await Promise.all([
-      prisma.job.count({ where: { moderationStatus: "PUBLISHED", active: true } }),
-      getAdminQueueCounts(),
-      prisma.job.count({ where: { createdAt: { gte: weekAgo } } }),
-      prisma.user.count(),
-      prisma.user.count({ where: { createdAt: { gte: weekAgo } } }),
-      prisma.employer.count(),
-      prisma.job.findMany({
-        where: { moderationStatus: "PENDING_REVIEW" },
-        orderBy: { createdAt: "desc" },
-        take: 10,
-        select: {
-          id: true,
-          title: true,
-          company: true,
-          location: true,
-          source: true,
-          sourceUrl: true,
-          description: true,
-          deadline: true,
-          moderationNote: true,
-        },
-      }),
-      prisma.auditEvent.findMany({
-        orderBy: { createdAt: "desc" },
-        take: 12,
-        select: { id: true, action: true, entityType: true, createdAt: true, actor: { select: { email: true } } },
-      }),
-    ]);
+  const [
+    liveJobs,
+    { pendingJobs: pendingCount, pendingEmployers },
+    newLiveJobs,
+    newCandidates,
+    pendingJobs,
+    oldestPending,
+    employersToVerify,
+    sourceSettings,
+    sourceLatest,
+    activity,
+  ] = await Promise.all([
+    prisma.job.count({ where: { moderationStatus: "PUBLISHED", active: true } }),
+    getAdminQueueCounts(),
+    prisma.job.count({ where: { moderationStatus: "PUBLISHED", active: true, createdAt: { gte: weekAgo } } }),
+    prisma.user.count({ where: { role: "JOB_SEEKER", createdAt: { gte: weekAgo } } }),
+    prisma.job.findMany({
+      where: { moderationStatus: "PENDING_REVIEW" },
+      orderBy: { createdAt: "desc" },
+      take: 8,
+      select: {
+        id: true,
+        title: true,
+        company: true,
+        location: true,
+        source: true,
+        sourceUrl: true,
+        description: true,
+        deadline: true,
+        moderationNote: true,
+        createdAt: true,
+      },
+    }),
+    prisma.job.findFirst({
+      where: { moderationStatus: "PENDING_REVIEW" },
+      orderBy: { createdAt: "asc" },
+      select: { createdAt: true },
+    }),
+    prisma.employer.findMany({
+      where: { verificationStatus: "PENDING" },
+      orderBy: { createdAt: "asc" },
+      take: 4,
+      select: { id: true, companyName: true, createdAt: true },
+    }),
+    prisma.scraperSourceSetting.findMany(),
+    prisma.job.groupBy({ by: ["source"], _max: { createdAt: true } }),
+    prisma.auditEvent.findMany({
+      orderBy: { createdAt: "desc" },
+      take: 8,
+      select: { id: true, action: true, entityType: true, createdAt: true, actor: { select: { email: true } } },
+    }),
+  ]);
+
+  const latestBySource = Object.fromEntries(sourceLatest.map((row) => [row.source, row._max.createdAt]));
+  const sources = applySourceSettings(getSourceCatalog(), sourceSettings)
+    .filter((source) => source.adapter && source.enabled)
+    .map((source) => {
+      const latest = latestBySource[source.id] || null;
+      const quiet = !latest || now - new Date(latest) > 2 * DAY_MS;
+      return { id: source.id, name: source.name, latest, quiet };
+    })
+    .sort((a, b) => Number(b.quiet) - Number(a.quiet) || a.name.localeCompare(b.name))
+    .slice(0, 5);
+
+  const waiting = [
+    pendingCount ? `${pendingCount} ${pendingCount === 1 ? "vacancy" : "vacancies"}` : null,
+    pendingEmployers ? `${pendingEmployers} ${pendingEmployers === 1 ? "employer" : "employers"}` : null,
+  ].filter(Boolean);
 
   return (
     <>
       <PageHeader
-        title="Overview"
-        description="What needs your attention on Daraja today."
+        title="Habari, Admin"
+        description={waiting.length ? `${waiting.join(" and ")} ${pendingCount + pendingEmployers === 1 ? "is" : "are"} waiting for you.` : "Nothing is waiting for you right now."}
         actions={
           <>
+            <Link className={styles.button} href="/">View the site</Link>
             <Link className={styles.buttonPrimary} href="/admin/jobs/new">Post a job</Link>
-            <Link className={styles.button} href="/admin/users">Manage users</Link>
           </>
         }
       />
 
       <div className={styles.stats}>
-        <StatCard label="Live jobs" value={liveJobs} note={`${newJobs} added this week`} href="/admin/jobs?status=live" />
-        <StatCard label="Needs review" value={pendingCount} note="Jobs held before going live" href="/admin/jobs?status=PENDING_REVIEW" />
-        <StatCard label="Users" value={users} note={`${newUsers} joined this week`} href="/admin/users" />
-        <StatCard label="Employers" value={employers} note={`${pendingEmployers} waiting for verification`} href="/admin/employers" />
+        <StatCard
+          icon="document"
+          label="Waiting review"
+          value={pendingCount}
+          note={oldestPending ? `Oldest: ${daysAgo(oldestPending.createdAt, now)}` : "Queue is clear"}
+          tone={oldestPending && now - oldestPending.createdAt > 2 * DAY_MS ? "warning" : undefined}
+          href="/admin/jobs?status=PENDING_REVIEW"
+        />
+        <StatCard
+          icon="employer"
+          label="Employers to verify"
+          value={pendingEmployers}
+          note={employersToVerify[0] ? `Oldest: ${daysAgo(employersToVerify[0].createdAt, now)}` : "All checked"}
+          href="/admin/employers?status=PENDING"
+        />
+        <StatCard
+          icon="jobs"
+          label="Live vacancies"
+          value={liveJobs.toLocaleString("en-GB")}
+          note={`+${newLiveJobs} this week`}
+          href="/admin/jobs?status=live"
+        />
+        <StatCard
+          icon="users"
+          label="New candidates"
+          value={newCandidates.toLocaleString("en-GB")}
+          note="Last 7 days"
+          href="/admin/users"
+        />
       </div>
 
-      <Panel
-        title={`Jobs waiting for review (${pendingCount})`}
-        actions={<Link className={styles.button} href="/admin/jobs?status=PENDING_REVIEW">See all</Link>}
-      >
-        <AdminJobReviewQueue
-          jobs={pendingJobs.map((job) => ({ ...job, deadline: job.deadline?.toISOString() ?? null }))}
-        />
-      </Panel>
+      <div className={styles.overviewGrid}>
+        <Panel
+          title={
+            <>
+              Vacancies waiting {pendingCount ? <Badge tone="amber">{pendingCount}</Badge> : null}
+            </>
+          }
+          actions={<Link className={styles.linkArrow} href="/admin/jobs?status=PENDING_REVIEW">Open queue</Link>}
+          flush
+        >
+          <AdminJobReviewQueue
+            jobs={pendingJobs.map((job) => ({
+              ...job,
+              deadline: job.deadline?.toISOString() ?? null,
+              createdAt: job.createdAt.toISOString(),
+            }))}
+          />
+        </Panel>
+
+        <div className={styles.overviewSide}>
+          <section className={styles.card} aria-label="Employers to verify">
+            <div className={styles.cardHead}>
+              <h2 className={styles.cardTitle}>
+                Employers to verify {pendingEmployers ? <Badge tone="amber">{pendingEmployers}</Badge> : null}
+              </h2>
+            </div>
+            {employersToVerify.length ? (
+              <ul className={styles.miniList}>
+                {employersToVerify.map((employer) => (
+                  <li key={employer.id}>
+                    <span className={styles.miniMark} aria-hidden="true"><NavIcon name="employer" size={18} /></span>
+                    <span>
+                      <strong>{employer.companyName}</strong>
+                      <small>Sent {formatDate(employer.createdAt)}</small>
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className={styles.help}>No employers are waiting.</p>
+            )}
+            <div className={styles.cardFooter}>
+              <Link href="/admin/employers?status=PENDING">Review employers →</Link>
+            </div>
+          </section>
+
+          <section className={styles.card} aria-label="Job sources">
+            <div className={styles.cardHead}>
+              <h2 className={styles.cardTitle}>Job sources</h2>
+            </div>
+            {sources.length ? (
+              <ul className={styles.miniList}>
+                {sources.map((source) => (
+                  <li key={source.id}>
+                    <span className={`${styles.statusDot} ${source.quiet ? styles.statusDotWarn : ""}`} aria-hidden="true" />
+                    <span>
+                      <strong>{source.name}</strong>
+                      <small>{lastUpdateLabel(source.latest, now)}</small>
+                    </span>
+                    {source.quiet ? (
+                      <Link className={styles.checkLink} href={`/admin/jobs?source=${encodeURIComponent(source.id)}`}>Check</Link>
+                    ) : (
+                      <Badge tone="green">OK</Badge>
+                    )}
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className={styles.help}>No job sources are switched on.</p>
+            )}
+            <div className={styles.cardFooter}>
+              <Link href="/admin/sources">All sources →</Link>
+            </div>
+          </section>
+        </div>
+      </div>
 
       <Panel title="Recent admin activity" flush>
         {activity.length ? (

@@ -64,13 +64,11 @@ test("protected workspaces use the shared dashboard page kit", async () => {
 test("shared surface cards own common card chrome", async () => {
   const card = await read("components/ui/SurfaceCard.module.css");
   const privacy = await read("app/account/privacy/page.js");
-  const auth = await read("components/auth/AuthLayout.js");
   const dashboard = await read("components/dashboard/dashboard.module.css");
 
   assert.match(card, /border: 1px solid var\(--color-border-strong\)/);
   assert.match(card, /border-radius: var\(--radius-card\)/);
   assert.match(privacy, /SurfaceCard/);
-  assert.match(auth, /SurfaceCard/);
   // Dashboard cards use the same card radius token.
   assert.match(dashboard, /\.card \{[^}]*border-radius: var\(--radius-card\)/);
 });

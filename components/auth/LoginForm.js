@@ -6,6 +6,7 @@ import styles from "@/app/auth/auth.module.css";
 import PasswordField from "./PasswordField";
 import { postJson } from "./postJson";
 import { useT } from "@/components/LanguageProvider";
+import { rememberSignInMethod } from "./LastUsed";
 
 export default function LoginForm({ callbackUrl, initialError }) {
   const t = useT();
@@ -24,6 +25,7 @@ export default function LoginForm({ callbackUrl, initialError }) {
     setUnverified(false);
     const { ok, data } = await postJson("/api/account/login", { email, password, callbackUrl });
     if (ok && data.redirectTo) {
+      rememberSignInMethod("email");
       window.location.assign(data.redirectTo);
       return;
     }

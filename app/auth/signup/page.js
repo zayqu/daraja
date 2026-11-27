@@ -2,10 +2,9 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { auth, authProviders } from "@/auth";
 import AuthLayout from "@/components/auth/AuthLayout";
-import GoogleButton from "@/components/auth/GoogleButton";
-import LinkedInButton from "@/components/auth/LinkedInButton";
+import ProviderButton from "@/components/auth/ProviderButton";
 import SignupForm from "@/components/auth/SignupForm";
-import { employerPortalEnabled } from "@/lib/features";
+import { candidateCareerEnabled, employerPortalEnabled } from "@/lib/features";
 import { roleHome } from "@/lib/platform-roles";
 import styles from "../auth.module.css";
 import { getServerT } from "@/lib/i18n-server";
@@ -18,50 +17,43 @@ export const metadata = {
 
 export const dynamic = "force-dynamic";
 
+const SOCIAL_ORDER = ["google", "apple", "linkedin"];
+
 export default async function SignUpPage({ searchParams }) {
   const params = await searchParams;
   const employerEnabled = employerPortalEnabled();
+  // New candidates continue straight into private profile setup (onboarding).
+  const candidateStart = candidateCareerEnabled() ? "/account/profile" : "/account";
   const session = await auth();
   if (session?.user) redirect(roleHome(session.user.role, { employerPortal: employerEnabled }));
 
   const { t } = await getServerT();
-  const googleEnabled = authProviders.includes("google");
-  const linkedinEnabled = authProviders.includes("linkedin");
+  const social = SOCIAL_ORDER.filter((provider) => authProviders.includes(provider));
 
   return (
-    <AuthLayout
-      title="Create your free Daraja account."
-      intro="One account for your job search in Tanzania. Employers can post vacancies after a quick verification."
-    >
-      <h2>{t("Create account")}</h2>
+    <AuthLayout>
+      <h1 className={styles.title}>{t("Create your free account")}</h1>
       <p className={styles.lead}>{t("It takes less than a minute.")}</p>
 
       <SignupForm
         employerEnabled={employerEnabled}
         initialType={params?.type === "employer" ? "employer" : "candidate"}
-        socialCandidate={
-          <>
-            {linkedinEnabled ? (
-              <LinkedInButton
-                callbackUrl="/account"
-                label="Sign up with LinkedIn"
-                withDivider={!googleEnabled}
-              />
-            ) : null}
-            {googleEnabled ? <GoogleButton callbackUrl="/account" label="Sign up with Google" /> : null}
-          </>
-        }
-        socialEmployer={
-          googleEnabled ? <GoogleButton callbackUrl="/employer" label="Sign up with Google" /> : null
-        }
+        hasSocial={social.length > 0}
+        socialCandidate={social.map((provider) => (
+          <ProviderButton
+            key={provider}
+            provider={provider}
+            callbackUrl={candidateStart}
+            label={`Sign up with ${provider === "linkedin" ? "LinkedIn" : provider === "apple" ? "Apple" : "Google"}`}
+          />
+        ))}
+        socialEmployer={social.includes("google") ? (
+          <ProviderButton provider="google" callbackUrl="/employer" label="Sign up with Google" />
+        ) : null}
       />
 
       <p className={styles.switchRow}>
         {t("Already have an account?")} <Link href="/auth/signin">{t("Sign in")}</Link>
-      </p>
-      <p className={styles.terms}>
-        {t("By creating an account, you agree to Daraja's")} <Link href="/terms">{t("Terms")}</Link>{" "}
-        {t("and acknowledge our")} <Link href="/privacy">{t("Privacy policy")}</Link>.
       </p>
     </AuthLayout>
   );

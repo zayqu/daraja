@@ -10,11 +10,8 @@ export const metadata = {
 
 export default function ForgotPasswordPage() {
   return (
-    <AuthLayout
-      title="Forgot your password?"
-      intro="It happens. We will email you a secure link to choose a new one."
-    >
-      <h2>Reset your password</h2>
+    <AuthLayout>
+      <h1 className={styles.title}>Reset your password</h1>
       <p className={styles.lead}>
         Enter the email you use for Daraja. If you used to sign in with an email
         link, this also lets you set a password.

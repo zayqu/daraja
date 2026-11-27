@@ -698,3 +698,15 @@ depend on capabilities Daraja does not own yet (match scores, nearby jobs,
 employer reviews) are not shown as decoration; they ship with their backend.
 Job facts stay stated-only (D-029). Employers without media show an initials
 badge rather than a generic Daraja icon.
+
+
+## D-041 - Sign-in screens follow the owner's standing rules
+
+**Status:** accepted (owner rule for all projects, applied 27 November 2026)
+
+Every sign-in and sign-up screen: no Sign in/Sign up tabs; Google and Apple
+as full-width buttons first; email as a "Continue with email" button with no
+visible fields by default; no cheesy copy such as "Welcome back 👋"; real
+Daraja brand artwork rather than generic gradients; Privacy and Terms links at
+the bottom; and a "Last used" badge on the last sign-in method (stored on the
+device only). Social buttons have one owner, `components/auth/ProviderButton.js`.

@@ -6,6 +6,7 @@ import ProviderButton from "@/components/auth/ProviderButton";
 import SignupForm from "@/components/auth/SignupForm";
 import { candidateCareerEnabled, employerPortalEnabled } from "@/lib/features";
 import { roleHome } from "@/lib/platform-roles";
+import { safeRedirectPath } from "@/lib/password-auth";
 import styles from "../auth.module.css";
 import { getServerT } from "@/lib/i18n-server";
 
@@ -23,7 +24,9 @@ export default async function SignUpPage({ searchParams }) {
   const params = await searchParams;
   const employerEnabled = employerPortalEnabled();
   // New candidates continue straight into private profile setup (onboarding).
-  const candidateStart = candidateCareerEnabled() ? "/account/profile" : "/account";
+  // Coming from "Apply with Daraja CV" returns there instead.
+  const candidateStart =
+    safeRedirectPath(params?.callbackUrl, "") || (candidateCareerEnabled() ? "/account/profile" : "/account");
   const session = await auth();
   if (session?.user) redirect(roleHome(session.user.role, { employerPortal: employerEnabled }));
 

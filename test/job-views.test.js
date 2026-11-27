@@ -27,7 +27,7 @@ test("job page views are counted per day without storing visitor data", () => {
   // Once per browser per job per day, and storage failures never block.
   assert.match(beacon, /localStorage\.getItem\(key\) === today/);
   assert.match(beacon, /catch \{/);
-  assert.match(read("app/jobs/[id]/JobDetailPageClient.js"), /<JobViewBeacon jobId=\{job\.id\} \/>/);
+  assert.match(read("app/jobs/[id]/JobDetailPageClient.js"), /<JobViewBeacon jobId=\{job\?\.id\} \/>/);
 });
 
 test("employers see views on their overview and vacancy list", () => {

@@ -170,7 +170,8 @@ model CandidateCv {
   createdAt   DateTime        @default(now())
   updatedAt   DateTime        @updatedAt
 
-  jobSeeker JobSeeker @relation(fields: [jobSeekerId], references: [id], onDelete: Cascade)
+  jobSeeker    JobSeeker     @relation(fields: [jobSeekerId], references: [id], onDelete: Cascade)
+  applications Application[]
 
   @@index([jobSeekerId, updatedAt])
   @@index([targetJobId])
@@ -274,13 +275,21 @@ model Application {
   jobId          String
   jobSeekerId    String
   coverLetter    String?
+  // Apply with Daraja CV (Figma): which CV was sent, a copy of it exactly as
+  // sent (later edits or deleting the CV do not change what the employer
+  // received) and its scores for this job at that moment.
+  cvId           String?
+  cvSnapshot     Json?
+  atsScore       Int?
+  matchScore     Int?
   applicationKey String?   @unique
   status         AppStatus @default(PENDING)
   createdAt      DateTime  @default(now())
   updatedAt      DateTime  @updatedAt
 
-  job       Job       @relation(fields: [jobId], references: [id])
-  jobSeeker JobSeeker @relation(fields: [jobSeekerId], references: [id])
+  job       Job          @relation(fields: [jobId], references: [id])
+  jobSeeker JobSeeker    @relation(fields: [jobSeekerId], references: [id])
+  cv        CandidateCv? @relation(fields: [cvId], references: [id], onDelete: SetNull)
 
   @@index([jobSeekerId, createdAt])
   @@index([jobId, status])

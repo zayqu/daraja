@@ -10,6 +10,7 @@ import JobBrandMedia from "@/components/JobBrandMedia";
 import SaveJobButton from "@/components/SaveJobButton";
 import JobViewBeacon from "@/components/JobViewBeacon";
 import NotFoundState from "@/components/ui/NotFoundState";
+import ApplySheet from "@/components/ApplySheet";
 import { useT } from "@/components/LanguageProvider";
 import { trackEvent } from "@/lib/analytics";
 import { structureJobDescription } from "@/lib/job-description";
@@ -53,12 +54,19 @@ function Icon({ path, className }) {
   );
 }
 
-export default function JobDetailPageClient({ initialJob, showEmployerCta }) {
+export default function JobDetailPageClient({ initialJob, showEmployerCta, applyOnDaraja = false }) {
   const { id } = useParams();
   const t = useT();
   const [job, setJob] = useState(initialJob || null);
   const [loading, setLoading] = useState(!initialJob);
   const [notFound, setNotFound] = useState(false);
+  // ?apply=1 (back from sign-in) reopens the Apply with Daraja CV sheet.
+  const [applyOpen, setApplyOpen] = useState(false);
+  useEffect(() => {
+    if (new URLSearchParams(window.location.search).get("apply") !== "1") return;
+    const timer = window.setTimeout(() => setApplyOpen(true), 0);
+    return () => window.clearTimeout(timer);
+  }, []);
   const [loadError, setLoadError] = useState(false);
   const [emailFallbackOpen, setEmailFallbackOpen] = useState(false);
   const [copyStatus, setCopyStatus] = useState("");
@@ -239,6 +247,8 @@ export default function JobDetailPageClient({ initialJob, showEmployerCta }) {
   }
 
   const canApply = Boolean(job && (job.applicationUrl || job.sourceUrl) && !isExpired(job.deadline));
+  // Apply with Daraja CV: vacancies employers posted on Daraja (D-043).
+  const canApplyOnDaraja = Boolean(applyOnDaraja && job?.postedOnDaraja && !isExpired(job.deadline));
   const deadlineText = job?.deadline
     ? isExpired(job.deadline)
       ? t("Applications closed")
@@ -258,6 +268,13 @@ export default function JobDetailPageClient({ initialJob, showEmployerCta }) {
     : [];
 
   function renderApplyAction() {
+    if (canApplyOnDaraja) {
+      return (
+        <button type="button" className={styles.primaryAction} onClick={() => setApplyOpen(true)}>
+          {t("Apply with Daraja CV")}
+        </button>
+      );
+    }
     return canApply ? (
       <a
         href={applicationHref}
@@ -276,7 +293,8 @@ export default function JobDetailPageClient({ initialJob, showEmployerCta }) {
   return (
     <div className={styles.page}>
       <SiteNav showEmployerCta={showEmployerCta} />
-      <JobViewBeacon jobId={job.id} />
+      <JobViewBeacon jobId={job?.id} />
+      {canApplyOnDaraja ? <ApplySheet job={job} open={applyOpen} onClose={() => setApplyOpen(false)} /> : null}
 
       <nav className={styles.breadcrumb} aria-label={t("Breadcrumb")}>
         <div className={styles.breadcrumbInner}>
@@ -471,12 +489,24 @@ export default function JobDetailPageClient({ initialJob, showEmployerCta }) {
 
               <div className={styles.applyActions}>
                 {renderApplyAction()}
-                <Link
-                  href={`/account/career/cv?job=${encodeURIComponent(job.id)}`}
-                  className={styles.cvAction}
-                >
-                  {t("Tailor CV for this job")}
-                </Link>
+                {canApplyOnDaraja && canApply ? (
+                  <a
+                    href={applicationHref}
+                    target={applicationEmail ? undefined : "_blank"}
+                    rel={applicationEmail ? undefined : "noopener noreferrer"}
+                    className={styles.cvAction}
+                    onClick={trackApplication}
+                  >
+                    {t(applicationEmail ? "Apply by email instead" : "Apply on their website instead")}
+                  </a>
+                ) : (
+                  <Link
+                    href={`/account/career/cv?job=${encodeURIComponent(job.id)}`}
+                    className={styles.cvAction}
+                  >
+                    {t("Tailor CV for this job")}
+                  </Link>
+                )}
               </div>
 
               <p className={styles.trustNote}>

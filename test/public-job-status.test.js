@@ -38,7 +38,7 @@ test("Open job, application and email-alert code require a current deadline", as
   const read = (name) => readFileSync(join(__dirname, "..", name), "utf8");
   const apply = read("app/api/jobs/[id]/apply/route.js");
   const alerts = read("scraper/lib/alerts.js");
-  const candidate = read("app/api/candidate/applications/route.js");
+  const candidate = read("lib/apply-with-cv.js");
   const detail = read("lib/public-job.js");
   assert.match(apply, /if \(!job\.deadline \|\| job\.deadline < new Date\(\)\)/);
   assert.match(alerts, /moderationStatus: "PUBLISHED"/);

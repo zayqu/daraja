@@ -87,9 +87,16 @@ test("saved jobs are scoped to the signed-in candidate", () => {
 
 test("applications preserve official external application destinations", () => {
   const route = read("app/api/candidate/applications/route.js");
-  assert.match(route, /Apply through the official employer destination/);
-  assert.match(route, /applyUrl: job\.sourceUrl/);
-  assert.match(route, /deadline: \{ gte: new Date\(\) \}/);
+  const rules = read("lib/apply-with-cv.js");
+  // Only vacancies employers posted on Daraja take Daraja applications;
+  // imported jobs keep their official route.
+  assert.match(route, /findApplyableJob\(/);
+  assert.match(rules, /employerId: \{ not: null \}/);
+  assert.match(rules, /moderationStatus: "PUBLISHED"/);
+  assert.match(rules, /deadline: \{ gte: new Date\(\) \}/);
+  // The CV sent must be the candidate's own, kept as sent.
+  assert.match(route, /where: \{ id: cvId, jobSeekerId: profile\.id \}/);
+  assert.match(route, /cvSnapshot: cv \? cvSnapshot\(cv\) : undefined/);
 });
 
 test("candidates can only withdraw their own pending or reviewed application", () => {

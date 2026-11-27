@@ -4,6 +4,23 @@ Last updated: 27 November 2026
 
 
 
+## Figma Post a job and Page not found (27 November 2026)
+
+- Post a job and Edit vacancy (`components/EmployerVacancyForm.js`) follow Figma Desktop · Post a job: four steps (Basics, Details, How to apply, Review) with Back/Next and Cancel; a live preview of the job card; and, on new vacancies, the "Feature this vacancy" card (price and days from Site settings). Ticking "Add when I publish" shows a "Book the featured slot" step after sending, which opens /advertise with the vacancy title in the WhatsApp booking message.
+- New fields from Figma, stored only as stated: experience (minimum years), number of openings, and a monthly salary range that is saved only when "Show on the job" is on.
+- New: Save draft. Drafts need only a title, stay private and never go live; sending one runs the full checks. A trusted employer's never-reviewed draft goes live when sent, like a vacancy posted in one go.
+- The sidebar featured card is hidden on Post a job, which has its own.
+- Page not found follows Figma: one shared `NotFoundState` (bridge mark, "Page not found", Go to jobs) for unknown pages, missing jobs (`app/jobs/[id]/not-found.js`) and the job page. EN/SW.
+- Next Figma areas: the public site header (Figma logo, Internships and Community links, Post a job button), Apply with Daraja CV, then Community, Messages and Freelancer pages.
+
+## Job views for employers (27 November 2026)
+
+- New: job page views. `JobViewDay` (migration `20261127120000_job_view_days`) keeps one count per job per Tanzania day; the job page sends one view per browser per job per day; bots and unpublished jobs are not counted; no visitor data is stored (D-042).
+- Employer overview now matches Figma fully: Live vacancies, Views this week (with change on last week), Applications, In review; Views column in "Your vacancies". The vacancy list shows views and applications per job; the admin job page shows views beside saves and applications.
+- Admin overview rows now have Review and Approve, as in Figma. Approve opens the editor check; publishing still needs that check.
+- Fix: employer-submitted vacancies could not be published from the overview queue because the button wrongly required an original source link (only imported jobs have one).
+- Production needs the new migration; it runs with the next master build once the database is reachable.
+
 ## Figma employer and admin overviews (27 November 2026)
 
 - Employer overview (`/employer`) follows Figma Desktop · Employer overview: "Karibu, {company}" header with Feature a vacancy and Post a job; four number cards (live vacancies with how many close this week, applications received on Daraja with new this week, in review, not approved); a "Your vacancies" table (status, applies, closing date, Edit); a navy featured-vacancy card using the price from Site settings; and the company profile card. On phones the table becomes compact rows. The sidebar promo is hidden on the overview so it does not appear twice.

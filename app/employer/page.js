@@ -20,6 +20,7 @@ import {
 } from "@/components/dashboard/DashboardUi";
 import NavIcon from "@/components/ui/NavIcon";
 import { loadSiteSettings, siteSetting } from "@/lib/features";
+import { viewTotalsByJob, weeklyChangeLabel, weeklyViews } from "@/lib/job-views";
 import dash from "@/components/dashboard/dashboard.module.css";
 import prisma from "@/lib/prisma";
 import portal from "../portal.module.css";
@@ -114,7 +115,11 @@ export default async function EmployerPage() {
       where: { job: { employerId: actor.employer.id }, createdAt: { gte: weekAgo } },
     }),
   ]);
-  await loadSiteSettings();
+  const [viewsByJob, views] = await Promise.all([
+    viewTotalsByJob(vacancies.map((job) => job.id)),
+    weeklyViews({ employerId: actor.employer.id }, now),
+    loadSiteSettings(),
+  ]);
 
   const counts = { live: 0, review: 0, changes: 0, closed: 0, draft: 0 };
   for (const job of vacancies) counts[vacancyState(job, now).key] += 1;
@@ -159,25 +164,24 @@ export default async function EmployerPage() {
           href="/employer/vacancies?status=live"
         />
         <StatCard
+          icon="eye"
+          label="Views this week"
+          value={views.thisWeek.toLocaleString("en-GB")}
+          note={weeklyChangeLabel(views)}
+        />
+        <StatCard
           icon="users"
           label="Applications"
           value={totalApplications.toLocaleString("en-GB")}
           note={`${newApplications} new this week`}
         />
         <StatCard
-          icon="schedule"
+          icon="document"
           label="In review"
           value={counts.review}
-          note={instant ? "Instant publishing is on" : "Daraja checks each one first"}
-          href="/employer/vacancies?status=review"
-        />
-        <StatCard
-          icon="edit"
-          label="Not approved"
-          value={counts.changes}
-          note={counts.changes ? "Fix and send again" : "Nothing to fix"}
+          note={counts.changes ? `${counts.changes} not approved: fix and send again` : instant ? "Instant publishing is on" : "Daraja checks each one first"}
           tone={counts.changes ? "warning" : undefined}
-          href="/employer/vacancies?status=changes"
+          href={counts.changes ? "/employer/vacancies?status=changes" : "/employer/vacancies?status=review"}
         />
       </div>
 
@@ -194,6 +198,7 @@ export default async function EmployerPage() {
                   <tr>
                     <th>Vacancy</th>
                     <th>Status</th>
+                    <th>Views</th>
                     <th>Applies</th>
                     <th>Closes</th>
                     <th aria-label="Actions" />
@@ -219,6 +224,7 @@ export default async function EmployerPage() {
                           </span>
                         </td>
                         <td data-label="Status"><Badge tone={state.tone}>{state.label}</Badge></td>
+                        <td data-label="Views">{viewsByJob[job.id] ? viewsByJob[job.id].toLocaleString("en-GB") : "—"}</td>
                         <td data-label="Applies">{appliesByJob[job.id] || "—"}</td>
                         <td data-label="Closes">{job.deadline ? formatDate(job.deadline) : "—"}</td>
                         <td>

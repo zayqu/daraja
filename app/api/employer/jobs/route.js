@@ -11,7 +11,7 @@ import {
   safeAuditMetadata,
 } from "@/lib/employer-access";
 import { getCategoryNames, PUBLIC_JOBS_CACHE_TAG } from "@/lib/public-jobs";
-import { parseEmployerVacancy } from "@/lib/employer-vacancy";
+import { parseEmployerDraft, parseEmployerVacancy } from "@/lib/employer-vacancy";
 import { readProtectedJson } from "@/lib/request-security";
 
 const { createJobWithPositionSlug } = slugUtils;
@@ -57,7 +57,11 @@ export async function POST(request) {
     maxBytes: 16_384,
   });
   if (error) return error;
-  const { data: vacancy, problems } = parseEmployerVacancy(body, { categories: await getCategoryNames() });
+  // "Save draft" keeps an unfinished vacancy private; only a title is needed.
+  const draft = body?.draft === true;
+  const { data: vacancy, problems } = draft
+    ? parseEmployerDraft(body, { categories: await getCategoryNames() })
+    : parseEmployerVacancy(body, { categories: await getCategoryNames() });
   if (problems.length) {
     return NextResponse.json({ error: `Check the vacancy: ${problems.join("; ")}.` }, { status: 400 });
   }
@@ -68,7 +72,9 @@ export async function POST(request) {
     language: "en",
     employerId: actor.employer.id,
     submittedById: actor.id,
-    ...(publishesWithoutReview(actor.employer)
+    ...(draft
+      ? { moderationStatus: "DRAFT", active: false }
+      : publishesWithoutReview(actor.employer)
       ? { moderationStatus: "PUBLISHED", active: true, moderationNote: "Published automatically: trusted employer." }
       : { moderationStatus: "PENDING_REVIEW", active: false }),
   };
@@ -77,7 +83,7 @@ export async function POST(request) {
     data: {
       actorUserId: actor.id,
       employerId: actor.employer.id,
-      action: data.moderationStatus === "PUBLISHED" ? "JOB_PUBLISHED_TRUSTED_EMPLOYER" : "JOB_SUBMITTED_FOR_REVIEW",
+      action: data.moderationStatus === "PUBLISHED" ? "JOB_PUBLISHED_TRUSTED_EMPLOYER" : draft ? "JOB_DRAFT_CREATED" : "JOB_SUBMITTED_FOR_REVIEW",
       entityType: "Job",
       entityId: job.id,
       metadata: safeAuditMetadata({ category: data.category, type: data.type }),

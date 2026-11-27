@@ -21,6 +21,7 @@ import {
 } from "@/components/dashboard/DashboardUi";
 import dash from "@/components/dashboard/dashboard.module.css";
 import prisma from "@/lib/prisma";
+import { viewTotalsByJob } from "@/lib/job-views";
 
 export const metadata = {
   title: "My vacancies",
@@ -60,8 +61,10 @@ export default async function EmployerVacanciesPage({ searchParams }) {
       moderationStatus: true,
       moderationNote: true,
       active: true,
+      _count: { select: { applications: true } },
     },
   });
+  const viewsByJob = await viewTotalsByJob(vacancies.map((job) => job.id));
   const shown = vacancies.filter((job) => {
     const key = vacancyState(job, now).key;
     if (filter === "all") return true;
@@ -109,7 +112,12 @@ export default async function EmployerVacanciesPage({ searchParams }) {
                   avatarText={job.title}
                   href={state.key === "live" ? `/jobs/${job.slug || job.id}` : null}
                   subtitle={job.location}
-                  meta={[closingLabel(job.deadline, now), `Added ${formatDate(job.createdAt)}`]}
+                  meta={[
+                    closingLabel(job.deadline, now),
+                    `${(viewsByJob[job.id] || 0).toLocaleString("en-GB")} views`,
+                    `${job._count.applications} ${job._count.applications === 1 ? "application" : "applications"}`,
+                    `Added ${formatDate(job.createdAt)}`,
+                  ]}
                   badge={<Badge tone={state.tone}>{state.label}</Badge>}
                   actions={
                     <>

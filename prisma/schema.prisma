@@ -228,6 +228,7 @@ model Job {
   moderatedBy  User?         @relation("JobModerator", fields: [moderatedById], references: [id])
   applications Application[]
   savedBy      SavedJob[]
+  viewDays     JobViewDay[]
 
   @@unique([source, sourceId])
   @@index([source, active, deadline])
@@ -448,4 +449,17 @@ model SiteSetting {
   value       Json
   updatedById String?
   updatedAt   DateTime @updatedAt
+}
+
+// Job page views per Tanzania calendar day (Figma employer overview "Views").
+// Counted once per browser per job per day by the job page; no visitor data.
+model JobViewDay {
+  jobId String
+  day   DateTime @db.Date
+  views Int      @default(0)
+
+  job Job @relation(fields: [jobId], references: [id], onDelete: Cascade)
+
+  @@id([jobId, day])
+  @@index([day])
 }

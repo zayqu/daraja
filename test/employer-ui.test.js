@@ -142,14 +142,18 @@ test("employer forms keep buttons and choices out of the text-field grid", async
   const profileForm = await read("components/EmployerProfileForm.js");
   const vacancyForm = await read("components/EmployerVacancyForm.js");
   const styles = await read("app/portal.module.css");
+  const vacancyStyles = await read("components/EmployerVacancyForm.module.css");
 
   // A submit button placed straight into the two-column grid stretches into a
   // large block; it belongs in the full-width actions row.
   assert.match(profileForm, /<div className="portal-actions">\s*<button className="portal-submit"/);
-  assert.match(vacancyForm, /<div className="portal-actions">\s*<button className="portal-submit"/);
-  assert.match(vacancyForm, /className="portal-field portal-choices"/);
-  assert.match(vacancyForm, /className="portal-choice-row"/);
   assert.match(styles, /:global\(\.portal-choice-row input\[type="radio"\]\)/);
+  // Post a job (Figma): steps, a footer with Back/Next/Send, choice cards.
+  assert.match(vacancyForm, /<footer className=\{styles\.footer\}>/);
+  assert.match(vacancyForm, /<button type="submit" className=\{dash\.buttonPrimary\}/);
+  assert.match(vacancyForm, /<fieldset className=\{styles\.choices\}>/);
+  assert.match(vacancyForm, /type="radio" name="vacancy-apply-method"/);
+  assert.match(vacancyStyles, /\.wide \{\s*grid-column: 1 \/ -1;/);
 });
 
 test("vacancy statuses and Daraja notes are shown as written", async () => {
@@ -178,7 +182,7 @@ test("employers can edit, resend and close their own vacancies", async () => {
   assert.match(edit, /where: \{ id, employerId: actor\.employer\.id \}/);
   assert.match(edit, /EMPLOYER_EDITABLE_STATUSES\.has\(job\.moderationStatus\)/);
   assert.match(edit, /<EmployerVacancyForm[\s\S]*vacancyId=\{job\.id\}[\s\S]*initialValues=\{vacancyFormValues\(job\)\}/);
-  assert.match(form, /fetch\(editing \? `\/api\/employer\/jobs\/\$\{vacancyId\}` : "\/api\/employer\/jobs"/);
+  assert.match(form, /fetch\(editing \? `\/api\/employer\/jobs\/\$\{savedId\}` : "\/api\/employer\/jobs"/);
   assert.match(form, /method: editing \? "PATCH" : "POST"/);
   assert.match(vacancies, /<WithdrawVacancyButton/);
   assert.match(close, /JSON\.stringify\(\{ action: "withdraw" \}\)/);

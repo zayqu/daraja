@@ -53,7 +53,9 @@ test("new employer vacancies use the authenticated employer and enter review", (
   // Only verified employers an admin trusts skip review (one owner for the
   // rule), and their live vacancy refreshes the public job lists at once.
   assert.match(access, /return Boolean\(employer\?\.autoPublish && employer\.verificationStatus === "VERIFIED"\)/);
-  assert.match(route, /\.\.\.\(publishesWithoutReview\(actor\.employer\)/);
+  assert.match(route, /: publishesWithoutReview\(actor\.employer\)/);
+  // "Save draft" keeps a vacancy private and never live.
+  assert.match(route, /\? \{ moderationStatus: "DRAFT", active: false \}/);
   assert.match(route, /if \(job\.moderationStatus === "PUBLISHED"\) revalidateTag\(PUBLIC_JOBS_CACHE_TAG, "seconds"\)/);
   for (const page of ["app/employer/page.js", "app/employer/profile/page.js", "app/post-job/page.js"]) {
     assert.match(read(page), /publishesWithoutReview\((actor\.)?employer\)/, page);

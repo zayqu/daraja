@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import EmployerVacancyForm from "@/components/EmployerVacancyForm";
 import EmployerVerificationNotice from "@/components/EmployerVerificationNotice";
@@ -10,9 +9,7 @@ import {
   publishesWithoutReview,
 } from "@/lib/employer-access";
 import { postJobHref } from "@/lib/platform-roles";
-import { PageHeader } from "@/components/dashboard/DashboardUi";
-import dash from "@/components/dashboard/dashboard.module.css";
-import styles from "../portal.module.css";
+import { loadSiteSettings, siteSetting } from "@/lib/features";
 import { getCategoryNames } from "@/lib/public-jobs";
 
 export const metadata = {
@@ -34,32 +31,18 @@ export default async function PostJobPage() {
   // The employer dashboard explains the suspension; no new vacancies meanwhile.
   if (isSuspendedEmployer(actor)) redirect("/employer");
 
+  await loadSiteSettings();
+  const priceValue = siteSetting("promo.price");
+  const daysValue = siteSetting("promo.days");
+
   return (
-    <>
-      <PageHeader
-        title="Post a job"
-        description="Fill in the job details below. You can follow the vacancy's status under My vacancies."
-        actions={<Link className={dash.button} href="/employer/vacancies">My vacancies</Link>}
-      />
-
-      <EmployerVerificationNotice employer={actor.employer} />
-
-      <section className={`${dash.card} ${styles.formScope}`} aria-labelledby="vacancy-form-title">
-        <div className={styles.formIntro}>
-          <h2 id="vacancy-form-title" className={dash.cardTitle}>Vacancy details</h2>
-          <p>
-            Give the real job title, where the job is, its category and a full
-            description of the role. Your company name is added from your
-            employer profile.
-          </p>
-        </div>
-
-        <EmployerVacancyForm
-          companyName={actor.employer.companyName}
-          categories={await getCategoryNames()}
-          publishesNow={publishesWithoutReview(actor.employer)}
-        />
-      </section>
-    </>
+    <EmployerVacancyForm
+      companyName={actor.employer.companyName}
+      categories={await getCategoryNames()}
+      publishesNow={publishesWithoutReview(actor.employer)}
+      notices={<EmployerVerificationNotice employer={actor.employer} />}
+      featurePrice={(Number.isSafeInteger(priceValue) && priceValue > 0 ? priceValue : 30000).toLocaleString("en-GB")}
+      featureDays={Number.isSafeInteger(daysValue) && daysValue > 0 ? daysValue : 14}
+    />
   );
 }

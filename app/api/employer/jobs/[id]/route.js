@@ -6,9 +6,10 @@ import {
   employerPortalEnabled,
   getActor,
   isSuspendedEmployer,
+  publishesWithoutReview,
   safeAuditMetadata,
 } from "@/lib/employer-access";
-import { EMPLOYER_EDITABLE_STATUSES, parseEmployerVacancy } from "@/lib/employer-vacancy";
+import { EMPLOYER_EDITABLE_STATUSES, parseEmployerDraft, parseEmployerVacancy } from "@/lib/employer-vacancy";
 import { getCategoryNames, PUBLIC_JOBS_CACHE_TAG } from "@/lib/public-jobs";
 import { readProtectedJson } from "@/lib/request-security";
 
@@ -65,26 +66,33 @@ export async function PATCH(request, { params }) {
   if (actor.role !== "ADMIN" && !EMPLOYER_EDITABLE_STATUSES.has(existing.moderationStatus)) {
     return NextResponse.json({ error: "Published vacancies require administrator review" }, { status: 409 });
   }
-  const { data, problems } = parseEmployerVacancy(body, { categories: await getCategoryNames() });
+  const submit = body.submit === true;
+  // Saving a draft needs only a title; sending it runs the full checks.
+  const { data, problems } = submit
+    ? parseEmployerVacancy(body, { categories: await getCategoryNames() })
+    : parseEmployerDraft(body, { categories: await getCategoryNames() });
   if (problems.length) {
     return NextResponse.json({ error: `Check the vacancy: ${problems.join("; ")}.` }, { status: 400 });
   }
-  const submit = body.submit === true;
+  // A trusted employer's never-reviewed draft goes live when sent, exactly as
+  // a vacancy posted in one go would.
+  const publishNow =
+    submit && existing.moderationStatus === "DRAFT" && actor.employer?.id === existing.employerId && publishesWithoutReview(actor.employer);
   const job = await prisma.$transaction(async (tx) => {
     const updated = await tx.job.update({
       where: { id },
       data: {
         ...data,
-        moderationStatus: submit ? "PENDING_REVIEW" : "DRAFT",
-        moderationNote: null,
-        active: false,
+        moderationStatus: publishNow ? "PUBLISHED" : submit ? "PENDING_REVIEW" : "DRAFT",
+        moderationNote: publishNow ? "Published automatically: trusted employer." : null,
+        active: publishNow,
       },
     });
     await tx.auditEvent.create({
       data: {
         actorUserId: actor.id,
         employerId: existing.employerId,
-        action: submit ? "JOB_SUBMITTED_FOR_REVIEW" : "JOB_DRAFT_UPDATED",
+        action: publishNow ? "JOB_PUBLISHED_TRUSTED_EMPLOYER" : submit ? "JOB_SUBMITTED_FOR_REVIEW" : "JOB_DRAFT_UPDATED",
         entityType: "Job",
         entityId: id,
         metadata: safeAuditMetadata({ changedFields: Object.keys(data) }),
@@ -92,6 +100,6 @@ export async function PATCH(request, { params }) {
     });
     return updated;
   });
-  if (existing.active) revalidateTag(PUBLIC_JOBS_CACHE_TAG, "seconds");
+  if (existing.active || publishNow) revalidateTag(PUBLIC_JOBS_CACHE_TAG, "seconds");
   return NextResponse.json({ job });
 }

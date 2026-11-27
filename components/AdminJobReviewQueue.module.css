@@ -82,6 +82,24 @@
   color: var(--color-link);
 }
 
+.rowActions {
+  display: inline-flex;
+  gap: 0.4rem;
+}
+
+.approve {
+  min-height: 36px;
+  padding: 0 0.95rem;
+  border: 0;
+  border-radius: 10px;
+  background: var(--color-teal-deep);
+  color: #ffffff;
+  font: inherit;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
 .panel {
   display: grid;
   gap: 0.7rem;
@@ -115,6 +133,14 @@
 
   .heading p {
     white-space: normal;
+  }
+
+  .row {
+    grid-template-columns: 40px minmax(0, 1fr);
+  }
+
+  .rowActions {
+    grid-column: 2;
   }
 
   .panel {

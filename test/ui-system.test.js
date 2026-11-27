@@ -54,7 +54,10 @@ test("protected workspaces use the shared dashboard page kit", async () => {
     "app/post-job/page.js",
     "app/admin/page.js",
   ]) {
-    const source = await read(page);
+    // Post a job draws its header inside the form so Save draft sits beside it.
+    const source = page === "app/post-job/page.js"
+      ? await read("components/EmployerVacancyForm.js")
+      : await read(page);
     assert.match(source, /from "@\/components\/dashboard\/DashboardUi"/, page);
     assert.match(source, /<PageHeader/, page);
     assert.doesNotMatch(source, /PageHero|WorkspaceShell|PublicSiteNav/, page);

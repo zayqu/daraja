@@ -57,9 +57,9 @@ export default function DashboardShell({
   const pathname = usePathname() || "";
   const menu = dashboardMenu(role, { employerPortal, candidateCareer });
   const activeHref = activeMenuHref([...menu.main, ...menu.settings], pathname);
-  // The employer overview has its own featured-vacancy card, so the sidebar
-  // one is left out there.
-  const onHome = pathname === menu.home;
+  // The employer overview and Post a job have their own featured-vacancy
+  // card, so the sidebar one is left out there.
+  const onHome = pathname === menu.home || pathname.startsWith("/post-job");
   const promo = !showPromo || onHome || (menu.role === "JOB_SEEKER" && !candidateCareer) ? null : PROMOS[menu.role];
   const profileHref =
     menu.role === "EMPLOYER"

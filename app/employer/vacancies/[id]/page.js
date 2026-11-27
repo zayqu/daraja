@@ -15,7 +15,6 @@ import { Badge, Notice, PageHeader, daysUntil } from "@/components/dashboard/Das
 import dash from "@/components/dashboard/dashboard.module.css";
 import { getCategoryNames } from "@/lib/public-jobs";
 import prisma from "@/lib/prisma";
-import portal from "../../../portal.module.css";
 
 export const metadata = {
   title: "Edit vacancy",
@@ -44,6 +43,9 @@ export default async function EditVacancyPage({ params }) {
       description: true,
       deadline: true,
       applicationUrl: true,
+      salary: true,
+      experienceMinYears: true,
+      openings: true,
       moderationStatus: true,
       moderationNote: true,
       active: true,
@@ -76,15 +78,8 @@ export default async function EditVacancyPage({ params }) {
   }
 
   const expired = job.deadline && daysUntil(job.deadline) < 0;
-
-  return (
+  const notices = (
     <>
-      <PageHeader
-        title="Edit vacancy"
-        description="Save your changes to send the vacancy to Daraja for review."
-        actions={back}
-      />
-
       {job.moderationStatus === "REJECTED" ? (
         <Notice tone="danger" title="Daraja did not approve this vacancy">
           {job.moderationNote ? `Daraja's note: ${job.moderationNote}` : "Check the details below and send it again."}
@@ -99,15 +94,18 @@ export default async function EditVacancyPage({ params }) {
           Choose a new closing date before sending this vacancy again.
         </Notice>
       ) : null}
-
-      <section className={`${dash.card} ${portal.formScope}`} aria-label="Vacancy details">
-        <EmployerVacancyForm
-          companyName={actor.employer.companyName}
-          categories={await getCategoryNames()}
-          vacancyId={job.id}
-          initialValues={vacancyFormValues(job)}
-        />
-      </section>
     </>
+  );
+
+  return (
+    <EmployerVacancyForm
+      companyName={actor.employer.companyName}
+      categories={await getCategoryNames()}
+      vacancyId={job.id}
+      initialValues={vacancyFormValues(job)}
+      title={job.moderationStatus === "DRAFT" ? "Finish your draft" : "Edit vacancy"}
+      description="Save a draft any time, or send it to Daraja for review."
+      notices={notices}
+    />
   );
 }

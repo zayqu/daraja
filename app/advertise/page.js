@@ -24,14 +24,20 @@ function followersLabel(followers) {
   return "audience details available on WhatsApp";
 }
 
-function bookingLink(number, price) {
+function bookingLink(number, price, vacancy = "") {
   const digits = String(number || "").replace(/\D/g, "");
   if (digits.length < 9) return null;
-  const message = `Hello Daraja, I would like to advertise a vacancy (Featured job, TZS ${price}).`;
+  const message = vacancy
+    ? `Hello Daraja, I would like to feature my vacancy "${vacancy}" (Featured job, TZS ${price}).`
+    : `Hello Daraja, I would like to advertise a vacancy (Featured job, TZS ${price}).`;
   return `https://wa.me/${digits}?text=${encodeURIComponent(message)}`;
 }
 
-export default async function AdvertisePage() {
+// `?vacancy=` comes from Post a job ("Add when I publish") and only fills
+// the WhatsApp booking message.
+export default async function AdvertisePage({ searchParams }) {
+  const params = await searchParams;
+  const vacancy = String(params?.vacancy || "").replace(/[\u0000-\u001f"<>]/g, "").trim().slice(0, 160);
   await loadSiteSettings();
   const publicSnapshot = verifiedPublicAudience(siteSetting("channel.publicAudience"));
   const followers = publicSnapshot ? `about ${publicSnapshot.label}` : followersLabel(siteSetting("channel.followers"));
@@ -39,7 +45,7 @@ export default async function AdvertisePage() {
   const price = (Number.isSafeInteger(priceValue) && priceValue > 0 ? priceValue : 30000).toLocaleString("en-GB");
   const daysValue = siteSetting("promo.days");
   const days = Number.isSafeInteger(daysValue) && daysValue > 0 ? daysValue : 14;
-  const whatsappBooking = bookingLink(siteSetting("promo.whatsapp"), price);
+  const whatsappBooking = bookingLink(siteSetting("promo.whatsapp"), price, vacancy);
   const lipaNamba = String(siteSetting("promo.lipaNamba") || "").trim();
   const lipaName = String(siteSetting("promo.lipaName") || "").trim();
 

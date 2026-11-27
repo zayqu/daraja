@@ -1,0 +1,95 @@
+.state {
+  display: grid;
+  justify-items: center;
+  gap: var(--space-3);
+  width: min(520px, calc(100% - 2 * var(--gutter, 16px)));
+  margin: clamp(3rem, 12vh, 8rem) auto;
+  text-align: center;
+}
+
+.mark {
+  width: 120px;
+  height: 80px;
+  color: var(--color-teal-deep);
+}
+
+.mark svg {
+  width: 100%;
+  height: 100%;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 3;
+}
+
+.mark circle,
+.mark path:last-child {
+  stroke: #00c9a7;
+}
+
+.state h1 {
+  margin: var(--space-2) 0 0;
+  color: var(--color-text);
+  font-family: var(--font-display);
+  font-size: clamp(1.6rem, 3vw, 2.1rem);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.state p {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+
+.action {
+  min-width: 240px;
+  min-height: 52px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: var(--space-3);
+  padding: 0 1.5rem;
+  border-radius: 12px;
+  background: var(--color-teal-deep);
+  color: #ffffff;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.action:hover {
+  filter: brightness(0.94);
+}
+
+.action:focus-visible {
+  outline: 3px solid rgba(0, 201, 167, 0.3);
+  outline-offset: 3px;
+}
+
+.secondary {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.4rem 1.1rem;
+  margin-top: var(--space-2);
+  font-size: 0.84rem;
+}
+
+.secondary a {
+  color: var(--color-link);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.secondary a:hover {
+  text-decoration: underline;
+}
+
+@media (max-width: 640px) {
+  .action {
+    width: 100%;
+    min-width: 0;
+  }
+}

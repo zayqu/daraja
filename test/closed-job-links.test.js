@@ -26,8 +26,10 @@ test("closed vacancies keep their URL and show alternatives instead of a bare 40
 
 test("unknown URLs use the branded not-found page, hidden from search", async () => {
   const notFound = await read("app/not-found.js");
-  assert.match(notFound, /import ContentPage/);
+  // Figma Desktop · Page not found: one shared state, "Go to jobs" first.
+  assert.match(notFound, /import NotFoundState/);
   assert.match(notFound, /index: false/);
-  assert.match(notFound, /href="\/jobs"/);
+  assert.match(await read("components/ui/NotFoundState.js"), /actionHref = "\/jobs"/);
   assert.match(notFound, /href="\/career-guides"/);
+  assert.match(await read("app/jobs/[id]/not-found.js"), /This job may have closed or the link is wrong\./);
 });

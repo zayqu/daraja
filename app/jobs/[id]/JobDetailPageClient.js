@@ -9,6 +9,7 @@ import SiteFooter from "@/components/SiteFooter";
 import JobBrandMedia from "@/components/JobBrandMedia";
 import SaveJobButton from "@/components/SaveJobButton";
 import JobViewBeacon from "@/components/JobViewBeacon";
+import NotFoundState from "@/components/ui/NotFoundState";
 import { useT } from "@/components/LanguageProvider";
 import { trackEvent } from "@/lib/analytics";
 import { structureJobDescription } from "@/lib/job-description";
@@ -300,11 +301,12 @@ export default function JobDetailPageClient({ initialJob, showEmployerCta }) {
       )}
 
       {!loading && notFound && (
-        <main className={styles.state} id="main-content">
-          <strong>{t("Position not found")}</strong>
-          <p>{t("This job may have been removed, closed or replaced.")}</p>
-          <Link href="/jobs">{t("Browse all jobs →")}</Link>
-        </main>
+        <NotFoundState
+          as="main"
+          title={t("Page not found")}
+          text={t("This job may have closed or the link is wrong.")}
+          actionLabel={t("Go to jobs")}
+        />
       )}
 
       {!loading && loadError && !notFound && (

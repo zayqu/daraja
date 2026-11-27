@@ -335,7 +335,9 @@ test("shared navigation and layout use the centralized light UI system", async (
 
   assert.match(nav, /\.nav\s*\{[\s\S]*position:\s*sticky/);
   assert.match(nav, /background:\s*color-mix\(in srgb, var\(--color-surface\) 96%, transparent\)/);
-  assert.match(nav, /\.logo span[\s\S]*margin-top:\s*\.38rem/);
+  // Figma Site header: the shared bridge logo, active link in teal.
+  assert.match(await readFile(path.join(__dirname, "..", "components", "SiteNav.js"), "utf8"), /<DarajaLogo \/>/);
+  assert.match(nav, /\.linkActive,[\s\S]*color: var\(--color-link\)/);
   assert.match(tokens, /--content-max:\s*1120px/);
   assert.match(tokens, /--section-padding-block:/);
   assert.match(pageHero, /background:\s*var\(--color-surface-warm\)/);

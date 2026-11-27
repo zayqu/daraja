@@ -34,5 +34,6 @@ test("Navigation labels remain legible without excessive weight", () => {
   const c = file("components/ui/MobileDock.module.css");
   assert.ok(hasRuleWeight(c, ".label", 500));
   assert.ok(hasRuleWeight(c, ".active .label", 600));
-  assert.ok(hasRuleWeight(file("components/SiteNav.module.css"), ".logo", 700));
+  assert.ok(hasRuleWeight(file("components/SiteNav.module.css"), ".link", 500));
+  assert.match(file("components/ui/DarajaLogo.js"), /fontWeight: 800/);
 });

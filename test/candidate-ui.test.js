@@ -37,7 +37,10 @@ test("candidate pages share the candidate dashboard menu", async () => {
     "app/account/notifications/page.js",
     "app/account/career/cv/page.js",
   ]) {
-    const source = await read(page);
+    // The CV Builder draws its own header so Save / Download sit beside it.
+    const source = page.endsWith("career/cv/page.js")
+      ? `${await read(page)}${await read("components/CvBuilder.js")}`
+      : await read(page);
     assert.match(source, /<PageHeader/, page);
     assert.doesNotMatch(source, /CandidateAccountTabs|PublicSiteNav|<PageHero/, page);
   }

@@ -12,16 +12,14 @@ import EmployerProfileForm from "@/components/EmployerProfileForm";
 import EmployerVerificationNotice from "@/components/EmployerVerificationNotice";
 import {
   Badge,
-  DaysLeftBadge,
-  DonutCard,
   EmptyState,
-  HighlightStats,
-  ListCard,
-  ListRow,
-  ListRows,
   PageHeader,
-  closingLabel,
+  Panel,
+  StatCard,
+  formatDate,
 } from "@/components/dashboard/DashboardUi";
+import NavIcon from "@/components/ui/NavIcon";
+import { loadSiteSettings, siteSetting } from "@/lib/features";
 import dash from "@/components/dashboard/dashboard.module.css";
 import prisma from "@/lib/prisma";
 import portal from "../portal.module.css";
@@ -89,143 +87,186 @@ export default async function EmployerPage() {
 
   const employer = actor.employer;
   const now = new Date();
-  const vacancies = await prisma.job.findMany({
-    where: { employerId: actor.employer.id },
-    orderBy: { updatedAt: "desc" },
-    take: 100,
-    select: {
-      id: true,
-      slug: true,
-      title: true,
-      location: true,
-      deadline: true,
-      moderationStatus: true,
-      moderationNote: true,
-      active: true,
-    },
-  });
+  const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+  const weekAhead = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
+  const [vacancies, applications, newApplications] = await Promise.all([
+    prisma.job.findMany({
+      where: { employerId: actor.employer.id },
+      orderBy: { updatedAt: "desc" },
+      take: 100,
+      select: {
+        id: true,
+        slug: true,
+        title: true,
+        location: true,
+        deadline: true,
+        moderationStatus: true,
+        moderationNote: true,
+        active: true,
+      },
+    }),
+    prisma.application.groupBy({
+      by: ["jobId"],
+      where: { job: { employerId: actor.employer.id } },
+      _count: { _all: true },
+    }),
+    prisma.application.count({
+      where: { job: { employerId: actor.employer.id }, createdAt: { gte: weekAgo } },
+    }),
+  ]);
+  await loadSiteSettings();
 
   const counts = { live: 0, review: 0, changes: 0, closed: 0, draft: 0 };
   for (const job of vacancies) counts[vacancyState(job, now).key] += 1;
-  const closingSoon = vacancies
-    .filter((job) => vacancyState(job, now).key === "live" && job.deadline)
-    .sort((a, b) => a.deadline - b.deadline)
-    .slice(0, 3);
+  const closingThisWeek = vacancies.filter(
+    (job) => vacancyState(job, now).key === "live" && job.deadline && job.deadline <= weekAhead,
+  ).length;
+  const appliesByJob = Object.fromEntries(applications.map((row) => [row.jobId, row._count._all]));
+  const totalApplications = applications.reduce((sum, row) => sum + row._count._all, 0);
   const canEdit = !isSuspendedEmployer(actor);
+  const instant = publishesWithoutReview(employer);
   const [badgeTone, badgeLabel] = VERIFICATION_BADGE[employer.verificationStatus] || VERIFICATION_BADGE.PENDING;
+  const priceValue = siteSetting("promo.price");
+  const price = (Number.isSafeInteger(priceValue) && priceValue > 0 ? priceValue : 30000).toLocaleString("en-GB");
 
   return (
     <>
       <PageHeader
-        title="Dashboard"
-        description={`Welcome back, ${employer.companyName}. Here is how your vacancies are doing.`}
-        actions={canEdit ? <Link className={dash.buttonPrimary} href="/post-job">Post a job</Link> : null}
+        title={`Karibu, ${employer.companyName}`}
+        description="Here is how your vacancies are doing this week."
+        actions={
+          canEdit ? (
+            <>
+              <Link className={dash.button} href="/advertise">Feature a vacancy</Link>
+              <Link className={dash.buttonPrimary} href="/post-job">
+                <NavIcon name="plus" size={18} />
+                Post a job
+              </Link>
+            </>
+          ) : null
+        }
       />
 
       <EmployerVerificationNotice employer={employer} />
 
-      <div className={dash.overviewTop}>
-        <HighlightStats
-          items={[
-            { icon: "jobs", value: counts.live, label: "Live vacancies", href: "/employer/vacancies?status=live" },
-            { icon: "document", value: counts.review, label: "In review", href: "/employer/vacancies?status=review" },
-          ]}
+      <div className={dash.stats}>
+        <StatCard
+          icon="jobs"
+          label="Live vacancies"
+          value={counts.live}
+          note={closingThisWeek ? `${closingThisWeek} ${closingThisWeek === 1 ? "closes" : "close"} this week` : "None closing this week"}
+          tone={closingThisWeek ? "warning" : undefined}
+          href="/employer/vacancies?status=live"
         />
-        <DonutCard
-          title="Your vacancies"
-          segments={[
-            { label: "Live", value: counts.live, tone: "teal" },
-            { label: "In review", value: counts.review, tone: "amber" },
-            { label: "Not approved", value: counts.changes, tone: "red" },
-            { label: "Closed", value: counts.closed + counts.draft, tone: "gray" },
-          ]}
-          footer={<Link href="/employer/vacancies">View all vacancies →</Link>}
+        <StatCard
+          icon="users"
+          label="Applications"
+          value={totalApplications.toLocaleString("en-GB")}
+          note={`${newApplications} new this week`}
         />
-        <ListCard title="Closing soon" footer={<Link href="/employer/vacancies?status=live">Live vacancies →</Link>}>
-          {closingSoon.length ? (
-            <ListRows>
-              {closingSoon.map((job) => (
-                <ListRow
-                  key={job.id}
-                  title={job.title}
-                  avatarText={job.title}
-                  href={`/jobs/${job.slug || job.id}`}
-                  subtitle={job.location}
-                  badge={<DaysLeftBadge date={job.deadline} now={now} />}
-                />
-              ))}
-            </ListRows>
-          ) : (
-            <EmptyState title="Nothing closing soon" text="Live vacancies and their closing dates appear here." />
-          )}
-        </ListCard>
+        <StatCard
+          icon="schedule"
+          label="In review"
+          value={counts.review}
+          note={instant ? "Instant publishing is on" : "Daraja checks each one first"}
+          href="/employer/vacancies?status=review"
+        />
+        <StatCard
+          icon="edit"
+          label="Not approved"
+          value={counts.changes}
+          note={counts.changes ? "Fix and send again" : "Nothing to fix"}
+          tone={counts.changes ? "warning" : undefined}
+          href="/employer/vacancies?status=changes"
+        />
       </div>
 
-      <div className={dash.overviewBottom}>
-        <ListCard title="Recent vacancies" footer={<Link href="/employer/vacancies">View all vacancies →</Link>}>
+      <div className={dash.overviewGrid}>
+        <Panel
+          title="Your vacancies"
+          actions={vacancies.length ? <Link className={dash.linkArrow} href="/employer/vacancies">See all</Link> : null}
+          flush
+        >
           {vacancies.length ? (
-            <ListRows>
-              {vacancies.slice(0, 5).map((job) => {
-                const state = vacancyState(job, now);
-                return (
-                  <ListRow
-                    key={job.id}
-                    title={job.title}
-                    avatarText={job.title}
-                    href={state.key === "live" ? `/jobs/${job.slug || job.id}` : null}
-                    subtitle={job.location}
-                    meta={[closingLabel(job.deadline, now)]}
-                    badge={<Badge tone={state.tone}>{state.label}</Badge>}
-                    actions={
-                      canEdit && EMPLOYER_EDITABLE_STATUSES.has(job.moderationStatus) ? (
-                        <Link className={dash.button} href={`/employer/vacancies/${job.id}`}>Edit</Link>
-                      ) : null
-                    }
-                  />
-                );
-              })}
-            </ListRows>
+            <div className={dash.tableWrap}>
+              <table className={`${dash.table} ${dash.stackOnMobile} ${dash.vacancyTable}`}>
+                <thead>
+                  <tr>
+                    <th>Vacancy</th>
+                    <th>Status</th>
+                    <th>Applies</th>
+                    <th>Closes</th>
+                    <th aria-label="Actions" />
+                  </tr>
+                </thead>
+                <tbody>
+                  {vacancies.slice(0, 6).map((job) => {
+                    const state = vacancyState(job, now);
+                    const editable = canEdit && EMPLOYER_EDITABLE_STATUSES.has(job.moderationStatus);
+                    return (
+                      <tr key={job.id}>
+                        <td data-label="Vacancy">
+                          <span className={dash.vacancyCell}>
+                            <span className={dash.vacancyMark} aria-hidden="true">{(job.title || "?").trim()[0]?.toUpperCase()}</span>
+                            <span>
+                              {state.key === "live" ? (
+                                <Link className={dash.primaryCell} href={`/jobs/${job.slug || job.id}`}>{job.title}</Link>
+                              ) : (
+                                <strong className={dash.primaryCell}>{job.title}</strong>
+                              )}
+                              {job.location ? <span className={dash.subtle}>{job.location}</span> : null}
+                            </span>
+                          </span>
+                        </td>
+                        <td data-label="Status"><Badge tone={state.tone}>{state.label}</Badge></td>
+                        <td data-label="Applies">{appliesByJob[job.id] || "—"}</td>
+                        <td data-label="Closes">{job.deadline ? formatDate(job.deadline) : "—"}</td>
+                        <td>
+                          {editable ? (
+                            <Link className={dash.button} href={`/employer/vacancies/${job.id}`}>Edit</Link>
+                          ) : null}
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
           ) : (
             <EmptyState
               title="No vacancies yet"
-              text="Create your first vacancy. Daraja reviews it before it goes live."
+              text={instant ? "Create your first vacancy. It goes live as soon as you send it." : "Create your first vacancy. Daraja checks it before it goes live."}
               action={canEdit ? <Link className={dash.buttonPrimary} href="/post-job">Post a job</Link> : null}
             />
           )}
-        </ListCard>
+        </Panel>
 
-        <ListCard
-          title="Company profile"
-          action={<Badge tone={badgeTone}>{badgeLabel}</Badge>}
-          footer={<Link href="/employer/profile">Manage company profile →</Link>}
-        >
-          <dl className={dash.detailList}>
-            <div>
-              <dt>Company</dt>
-              <dd>{employer.companyName}</dd>
+        <div className={dash.overviewSide}>
+          <section className={dash.featureCard} aria-label="Featured vacancy">
+            <span className={dash.featurePrice}>TSh {price}</span>
+            <h2>Get your vacancy seen first</h2>
+            <p>Feature it at the top of Ajira and on the DARAJA WhatsApp Channel.</p>
+            <Link className={dash.featureAction} href="/advertise">Feature a vacancy</Link>
+          </section>
+
+          <section className={dash.card} aria-label="Company profile">
+            <div className={dash.cardHead}>
+              <h2 className={dash.cardTitle}>Company profile</h2>
             </div>
-            <div>
-              <dt>Industry</dt>
-              <dd>{employer.industry || "Not added"}</dd>
+            <p className={dash.companyStatus}>
+              <Badge tone={badgeTone}>{badgeLabel}</Badge>
+              <span>{employer.verificationStatus === "VERIFIED" ? "Verified employer" : "Employer account"}</span>
+            </p>
+            <p className={dash.help}>
+              {instant
+                ? "Instant publishing is on: your vacancies go live without review."
+                : "Daraja reviews each new vacancy before it goes live."}
+            </p>
+            <div className={dash.cardFooter}>
+              <Link className={dash.button} href="/employer/profile">Edit company</Link>
             </div>
-            <div>
-              <dt>Website</dt>
-              <dd>{employer.website || "Not added"}</dd>
-            </div>
-            <div>
-              <dt>Account</dt>
-              <dd>{actor.email}</dd>
-            </div>
-            <div>
-              <dt>Publishing</dt>
-              <dd>
-                {publishesWithoutReview(employer)
-                  ? "Trusted: your vacancies go live as soon as you submit them."
-                  : "Daraja reviews each new vacancy before it goes live."}
-              </dd>
-            </div>
-          </dl>
-        </ListCard>
+          </section>
+        </div>
       </div>
     </>
   );

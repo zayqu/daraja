@@ -4,6 +4,13 @@ Last updated: 27 November 2026
 
 
 
+## Figma employer and admin overviews (27 November 2026)
+
+- Employer overview (`/employer`) follows Figma Desktop · Employer overview: "Karibu, {company}" header with Feature a vacancy and Post a job; four number cards (live vacancies with how many close this week, applications received on Daraja with new this week, in review, not approved); a "Your vacancies" table (status, applies, closing date, Edit); a navy featured-vacancy card using the price from Site settings; and the company profile card. On phones the table becomes compact rows. The sidebar promo is hidden on the overview so it does not appear twice.
+- Admin overview (`/admin`) follows Figma Desktop · Admin overview: "Habari, Admin" with what is waiting; cards for waiting review (oldest age), employers to verify, live vacancies (+this week) and new candidates (7 days); "Vacancies waiting" as compact rows where Review opens the existing editor checks; Employers to verify; Job sources showing when each switched-on source last brought a job (Check after 2 quiet days); recent admin activity.
+- `StatCard` now has an icon and a highlighted note; dashboard badges use soft tinted backgrounds (all dashboards).
+- Not copied from Figma on purpose: vacancy view counts (Daraja does not record job views yet, D-040), and one-click Approve on the admin overview (publishing still needs the source check, D-029).
+
 ## Figma CV Builder editor (27 November 2026)
 
 - `components/CvBuilder.js` now follows Figma Desktop · CV Builder: page header with Download PDF and Save CV; CV versions as chips with their ATS score, "+ New CV", Duplicate/Tailor and Delete; the editor split into seven steps (Details, Summary, Experience, Education, Skills, More, Design) with Back/Next; experience and education as collapsible cards; skills as removable chips; right column with an ATS readiness ring, a plain checklist, the improvement tips and a live A4 preview with template chips. Same APIs, data and rules: facts stay the candidate's own, scores never promise shortlisting.

@@ -8,6 +8,7 @@ import { requireAdminPage } from "@/lib/admin-guard";
 import { applicationFields, deadlineInputValue } from "@/lib/admin-job-input";
 import { getCategoryNames } from "@/lib/public-jobs";
 import prisma from "@/lib/prisma";
+import { viewTotalsByJob } from "@/lib/job-views";
 
 export const dynamic = "force-dynamic";
 
@@ -23,6 +24,7 @@ export default async function AdminEditJobPage({ params, searchParams }) {
     },
   });
   if (!job) notFound();
+  const viewsByJob = await viewTotalsByJob([job.id]);
 
   const moderate = `/api/admin/jobs/${job.id}/moderate`;
   const statusActions = [
@@ -61,7 +63,7 @@ export default async function AdminEditJobPage({ params, searchParams }) {
           <div className={styles.stat}><span>Status</span><strong style={{ fontSize: "1rem" }}><JobStatusBadge status={job.moderationStatus} active={job.active} /></strong>{job.moderationNote ? <em>{job.moderationNote}</em> : null}</div>
           <div className={styles.stat}><span>Source</span><strong style={{ fontSize: "1rem" }}>{job.source}</strong>{job.sourceUrl ? <em><a href={job.sourceUrl} target="_blank" rel="noreferrer nofollow">Original page</a></em> : null}</div>
           <div className={styles.stat}><span>Added</span><strong style={{ fontSize: "1rem" }}>{formatDate(job.createdAt)}</strong>{job.adminEditedAt ? <em>Edited by admin {formatDate(job.adminEditedAt)}</em> : null}</div>
-          <div className={styles.stat}><span>Interest</span><strong style={{ fontSize: "1rem" }}>{job._count.savedBy} saved · {job._count.applications} applied</strong></div>
+          <div className={styles.stat}><span>Interest</span><strong style={{ fontSize: "1rem" }}>{(viewsByJob[job.id] || 0).toLocaleString("en-GB")} views · {job._count.savedBy} saved · {job._count.applications} applied</strong></div>
         </div>
       </Panel>
 

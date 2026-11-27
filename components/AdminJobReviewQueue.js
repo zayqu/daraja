@@ -75,15 +75,30 @@ function ReviewItem({ job, onDone }) {
           <h3>{job.title}</h3>
           <p>{[job.company, origin, ago(job.createdAt)].filter(Boolean).join(" · ")}</p>
         </div>
-        <button
-          type="button"
-          className={open ? styles.reviewActive : styles.review}
-          aria-expanded={open}
-          aria-controls={panelId}
-          onClick={() => setOpen((value) => !value)}
-        >
-          {open ? "Close" : "Review"}
-        </button>
+        <span className={styles.rowActions}>
+          <button
+            type="button"
+            className={open ? styles.reviewActive : styles.review}
+            aria-expanded={open}
+            aria-controls={panelId}
+            onClick={() => setOpen((value) => !value)}
+          >
+            {open ? "Close" : "Review"}
+          </button>
+          {!open ? (
+            <button
+              type="button"
+              className={styles.approve}
+              aria-controls={panelId}
+              onClick={() => {
+                setOpen(true);
+                window.setTimeout(() => document.getElementById(`${panelId}-check`)?.focus(), 0);
+              }}
+            >
+              Approve
+            </button>
+          ) : null}
+        </span>
       </div>
 
       {open ? (
@@ -113,6 +128,7 @@ function ReviewItem({ job, onDone }) {
 
       <label>
         <input
+          id={`${panelId}-check`}
           type="checkbox"
           checked={sourceReviewed}
           onChange={(event) => setSourceReviewed(event.target.checked)}
@@ -123,10 +139,10 @@ function ReviewItem({ job, onDone }) {
         <button
           type="button"
           className={styles.publish}
-          disabled={state === "saving" || !sourceReviewed || !job.sourceUrl || !deadline}
+          disabled={state === "saving" || !sourceReviewed || (job.source !== "daraja" && !job.sourceUrl) || !deadline}
           onClick={() => decide("PUBLISHED")}
         >
-          Publish
+          Approve and publish
         </button>
         <input
           type="text"

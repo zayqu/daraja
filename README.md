@@ -23,7 +23,8 @@ You can start editing the page by modifying `app/page.js`. The page auto-updates
 
 ## Job source scrapers
 
-The enabled source scrapers run through GitHub Actions every hour. They
+The enabled source scrapers run through GitHub Actions every 3 hours, from
+06:17 to 00:17 Tanzania time (kept low so the free Neon database lasts the month). They
 validate and deduplicate vacancies before writing them to PostgreSQL, update
 existing vacancies, and archive expired records.
 
@@ -57,7 +58,7 @@ Scrapers → Run workflow**.
 
 ### Production database changes
 
-The hourly scraper never applies Prisma migrations. Scraping and schema
+The scheduled scraper never applies Prisma migrations. Scraping and schema
 deployment are deliberately separate so a routine source run cannot change the
 production database structure.
 
@@ -126,7 +127,7 @@ Google's authorized production callback URL is:
 
 `https://www.ajira.daraja.co.tz/api/auth/callback/google`
 
-The hourly scraper sends a concise digest containing only vacancies in a
+The scheduled scraper sends a concise digest containing only vacancies in a
 candidate's exact selected categories, further limited by any optional
 location, experience, work-arrangement, organisation or keyword preferences.
 Delivery attempts are logged and use stable idempotency keys to prevent

@@ -43,7 +43,7 @@ export default async function AdminSourcesPage() {
     <>
       <PageHeader
         title="Job sources"
-        description="Websites Daraja collects vacancies from every hour. Changes apply on the next run."
+        description="Websites Daraja collects vacancies from every 3 hours (06:00 to midnight). Changes apply on the next run."
       />
 
       <Panel title="Add a job website">
